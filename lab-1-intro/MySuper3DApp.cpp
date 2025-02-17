@@ -28,9 +28,9 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT umessage, WPARAM wparam, LPARAM lparam)
 		return 0;
 	}
 	default:
-		{
-			return DefWindowProc(hwnd, umessage, wparam, lparam);
-		}
+	{
+		return DefWindowProc(hwnd, umessage, wparam, lparam);
+	}
 	}
 }
 
@@ -41,7 +41,7 @@ int main()
 
 	// Step 01: Create a Window
 #pragma region Window init
-    WNDCLASSEX wc;
+	WNDCLASSEX wc;
 	wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
 	wc.lpfnWndProc = WndProc;
 	wc.cbClsExtra = 0;
@@ -123,7 +123,7 @@ int main()
 		nullptr,
 		&context);
 
-	if(FAILED(res))
+	if (FAILED(res))
 	{
 		// Well, that was unexpected
 	}
@@ -208,7 +208,7 @@ int main()
 		vertexBC->GetBufferPointer(),
 		vertexBC->GetBufferSize(),
 		&layout);
-	
+
 	// Step 06: Create Set of Points
 	DirectX::XMFLOAT4 points[8] = {
 		DirectX::XMFLOAT4(0.5f, 0.5f, 0.5f, 1.0f),	DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f),
@@ -341,12 +341,12 @@ int main()
 		swapChain->Present(1, /*DXGI_PRESENT_DO_NOT_WAIT*/ 0);
 	}
 
-    std::cout << "Hello World!\n";
+	std::cout << "Hello World!\n";
 
 	// Step 16: Don’t Forget To Clean the Mess
 	vertexShader->Release();
 	pixelShader->Release();
-	
+
 	context->Release();
 	swapChain->Release();
 }
