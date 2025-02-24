@@ -21,6 +21,7 @@ public:
 	void DrawRectangle();
 	void EndFrame();
 private:
+	void SetupViewports(const UINT NumViewports, D3D11_VIEWPORT* pViewports);
 	void Present();
 	void ClearBuffer();
 private:

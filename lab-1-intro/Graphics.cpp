@@ -29,11 +29,13 @@ Graphics::Graphics(HWND hWnd, int width, int height)
 	swapDesc.BufferDesc.RefreshRate.Denominator = 1;
 	swapDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
 	swapDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
+	
 	swapDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
 	swapDesc.OutputWindow = hWnd;
 	swapDesc.Windowed = true;
 	swapDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
 	swapDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+	
 	swapDesc.SampleDesc.Count = 1;
 	swapDesc.SampleDesc.Quality = 0;
 
@@ -62,13 +64,6 @@ void Graphics::EndFrame()
 
 void Graphics::DrawRectangle()
 {
-	// Step 03: Get the BackBuffer and create RTV
-	// gain access to texture subresource in swap chain (back buffer)
-	Microsoft::WRL::ComPtr<ID3D11Texture2D> backTex;
-	// check MSDN for more info about GetAddressOf, Get, (&) ReleaseAndGetAddressOf
-	ThrowIfFailed(pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), &backTex));
-	ThrowIfFailed(pDevice->CreateRenderTargetView(backTex.Get(), nullptr, &pRtv));
-
 	// Step 04: Compile the Shaders
 	Microsoft::WRL::ComPtr<ID3DBlob> pVertexBC = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pErrorVertexCode = nullptr;
@@ -131,7 +126,7 @@ void Graphics::DrawRectangle()
 	Microsoft::WRL::ComPtr<ID3D11InputLayout> pLayout;
 	ThrowIfFailed(pDevice->CreateInputLayout(
 		inputElements,
-		2,
+		2u,
 		pVertexBC->GetBufferPointer(),
 		pVertexBC->GetBufferSize(),
 		&pLayout));
@@ -199,15 +194,30 @@ void Graphics::DrawRectangle()
 	pContext->RSSetState(rastState.Get());
 	
 	// Step 10: Setup Rasterizer Stage and Viewport
-	D3D11_VIEWPORT viewport = {};
-	viewport.Width = static_cast<float>(screenWidth);
-	viewport.Height = static_cast<float>(screenHeight);
-	viewport.TopLeftX = 0;
-	viewport.TopLeftY = 0;
-	viewport.MinDepth = 0;
-	viewport.MaxDepth = 1.0f;
+	D3D11_VIEWPORT viewport = {
+		D3D11_VIEWPORT {
+			0.0f /*TopLeftX*/,
+			0.0f /*TopLeftY*/,
+			static_cast<float>(screenWidth),
+			static_cast<float>(screenHeight),
+			0.0f /*MinDepth*/,
+			1.0f /*MaxDepth*/ },
+	};
 
-	pContext->RSSetViewports(1, &viewport);
+	// Step 03: Get the BackBuffer and create RTV
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> backTex;
+	// gain access to texture subresource in swap chain (back buffer)
+	// check MSDN for more info about GetAddressOf, Get, (&) ReleaseAndGetAddressOf
+	ThrowIfFailed(pSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), &backTex));
+	ThrowIfFailed(pDevice->CreateRenderTargetView(backTex.Get(), nullptr, &pRtv));
+	// Step 11: Set BackBuffer for Output merger
+	pContext->OMSetRenderTargets(1u, pRtv.GetAddressOf(), nullptr);
+
+	float color[] = { 1.0f, 0.1f, 0.1f, 1.0f };
+	// Step 13: At the End of While (!isExitRequested): Clear BackBuffer
+	pContext->ClearRenderTargetView(pRtv.Get(), color);
+
+	pContext->RSSetViewports(1u, &viewport);
 
 	// Step 08: Setup the IA stage
 	pContext->IASetInputLayout(pLayout.Get());
@@ -218,41 +228,33 @@ void Graphics::DrawRectangle()
 	pContext->VSSetShader(pVertexShader.Get(), nullptr, 0);
 	pContext->PSSetShader(pPixelShader.Get(), nullptr, 0);
 
-	/*auto	curTime = std::chrono::steady_clock::now();
-	float	deltaTime = std::chrono::duration_cast<std::chrono::microseconds>(curTime - PrevTime).count() / 1000000.0f;
-	PrevTime = curTime;
-
-	totalTime += deltaTime;
-	frameCount++;*/
-
-	/*if (totalTime > 1.0f) {
-		float fps = frameCount / totalTime;
-
-		totalTime -= 1.0f;
-
-		WCHAR text[256];
-		swprintf_s(text, TEXT("FPS: %f"), fps);
-		SetWindowText(hWnd, text);
-
-		frameCount = 0;
-	}*/
-
-	// Step 11: Set BackBuffer for Output
-	pContext->OMSetRenderTargets(1u, pRtv.GetAddressOf(), nullptr);
-
-	float color[] = { 1.0f, 0.1f, 0.1f, 1.0f };
-	// Step 13: At the End of While (!isExitRequested): Clear BackBuffer
-	pContext->ClearRenderTargetView(pRtv.Get(), color);
-
 	// Step 14: At the End of While (!isExitRequested): Draw the Triangle
 	pContext->DrawIndexed(6u, 0u, 0);
 
 	pContext->OMSetRenderTargets(0, nullptr, nullptr);
-
 }
 
 void Graphics::ClearBuffer()
 {
+	float color[] = { 1.0f, 0.1f, 0.1f, 1.0f };
+	pContext->ClearRenderTargetView(pRtv.Get(), color);
+}
+
+void Graphics::SetupViewports(UINT NumViewports, D3D11_VIEWPORT* pViewports)
+{
+	auto viewPortOffsetX = 0.f;
+	for (UINT i = 0; i < NumViewports; i++)
+	{
+		pViewports[NumViewports].Width = static_cast<float>(screenWidth / NumViewports);
+		pViewports[NumViewports].Height = static_cast<float>(screenHeight / NumViewports);
+
+		pViewports[NumViewports].TopLeftX = viewPortOffsetX;
+		pViewports[NumViewports].TopLeftY = 100;
+		pViewports[NumViewports].MinDepth = 0;
+		pViewports[NumViewports].MaxDepth = 1.0f;
+		viewPortOffsetX += pViewports[NumViewports].Width;
+	}
+	pContext->RSSetViewports(NumViewports, pViewports);
 }
 
 void Graphics::Present()
