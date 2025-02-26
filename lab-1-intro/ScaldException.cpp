@@ -1,4 +1,5 @@
 #include "ScaldException.h"
+//#include <comdef.h>
 
 ScaldException::ScaldException(int line, const char* file)
     :
@@ -21,3 +22,16 @@ const char* WindowException::what() const
 {
     return nullptr;
 }
+//
+//void ErrorLogger::Log(std::string message)
+//{
+//    std::string error_message = "Error: " + message;
+//    MessageBox(nullptr, error_message.c_str(), "Error", MB_ICONERROR);
+//}
+//
+//void ErrorLogger::Log(HRESULT hr, std::string message)
+//{
+//    _com_error error(hr);
+//    std::string error_message = "Error: " + message + std::string(error.ErrorMessage());
+//    MessageBox(nullptr, error_message.c_str(), "Error", MB_ICONERROR);
+//}

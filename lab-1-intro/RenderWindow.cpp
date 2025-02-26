@@ -23,18 +23,18 @@ RenderWindow::WindowClass::WindowClass() noexcept
 #pragma region Window init
 	WNDCLASSEX wc = {};
 
+	wc.cbSize = sizeof(WNDCLASSEX);
 	wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
 	wc.lpfnWndProc = HandleMsgSetup;
 	wc.cbClsExtra = 0;
 	wc.cbWndExtra = 0;
 	wc.hInstance = hInst;
 	wc.hIcon = nullptr;
-	wc.hIconSm = nullptr;
 	wc.hCursor = LoadCursor(nullptr, IDC_ARROW);
 	wc.hbrBackground = static_cast<HBRUSH>(GetStockObject(BLACK_BRUSH));
 	wc.lpszMenuName = nullptr;
 	wc.lpszClassName = GetName();
-	wc.cbSize = sizeof(WNDCLASSEX);
+	wc.hIconSm = nullptr;
 
 	RegisterClassEx(&wc);
 }

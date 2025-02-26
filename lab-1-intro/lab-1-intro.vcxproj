@@ -22,14 +22,22 @@
     <ClCompile Include="Engine.cpp" />
     <ClCompile Include="Graphics.cpp" />
     <ClCompile Include="MySuper3DApp.cpp" />
+    <ClCompile Include="PrimitiveGeometry.cpp" />
+    <ClCompile Include="RenderComponent.cpp" />
     <ClCompile Include="RenderWindow.cpp" />
     <ClCompile Include="ScaldException.cpp" />
+    <ClCompile Include="ScaldTimer.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Engine.h" />
     <ClInclude Include="Graphics.h" />
+    <ClInclude Include="IScaldComponent.h" />
+    <ClInclude Include="PrimitiveGeometry.h" />
+    <ClInclude Include="RenderComponent.h" />
     <ClInclude Include="RenderWindow.h" />
+    <ClInclude Include="ScaldCoreTypes.h" />
     <ClInclude Include="ScaldException.h" />
+    <ClInclude Include="ScaldTimer.h" />
     <ClInclude Include="ScaldWindows.h" />
   </ItemGroup>
   <ItemGroup>
