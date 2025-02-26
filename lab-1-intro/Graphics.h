@@ -5,6 +5,10 @@
 #include <d3d.h>
 #include <wrl.h>
 
+#include "PrimitiveGeometry.h"
+
+#include <vector>
+
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "dxgi.lib")
@@ -18,12 +22,14 @@ public:
 	Graphics(const Graphics&) = delete;
 	Graphics& operator=(const Graphics&) = delete;
 	
+	void Setup();
+
+	void ClearBuffer(float r);
 	void DrawRectangle();
 	void EndFrame();
-private:
-	void SetupViewports(const UINT NumViewports, D3D11_VIEWPORT* pViewports);
-	void Present();
-	void ClearBuffer();
+
+	std::vector<PrimitiveGeometry*> GameObjects;
+
 private:
 	int screenWidth;
 	int screenHeight;
@@ -34,4 +40,5 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> pContext;
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> pRtv;
 
+	Microsoft::WRL::ComPtr<ID3D11RasterizerState> pRastState;
 };

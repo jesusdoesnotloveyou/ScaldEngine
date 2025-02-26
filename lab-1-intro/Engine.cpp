@@ -7,6 +7,7 @@ Engine::Engine()
 
 int Engine::Launch()
 {
+	renderWindow.GetGfx().Setup();
 	while (true)
 	{
 		// process all messages pending, but to not block
@@ -22,6 +23,8 @@ int Engine::Launch()
 
 void Engine::PresentFrame()
 {
+	const float c = static_cast<float>(sin(timer.Peek()) / 2.0f + 0.5f);
+	renderWindow.GetGfx().ClearBuffer(c);
 	renderWindow.GetGfx().DrawRectangle();
 	renderWindow.GetGfx().EndFrame();
 }

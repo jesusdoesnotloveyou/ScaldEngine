@@ -1,6 +1,7 @@
 #pragma once
 
 #include "RenderWindow.h"
+#include "ScaldTimer.h"
 
 class Engine
 {
@@ -13,4 +14,5 @@ private:
 
 private:
 	RenderWindow renderWindow;
+	ScaldTimer timer;
 };
