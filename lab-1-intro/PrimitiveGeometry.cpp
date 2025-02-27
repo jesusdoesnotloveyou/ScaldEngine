@@ -6,6 +6,13 @@ PrimitiveGeometry::PrimitiveGeometry()
     pRenderComponent = new RenderComponent();
 }
 
+PrimitiveGeometry::PrimitiveGeometry(const std::vector<Vertex>& v, const std::vector<int>& i)
+    : PrimitiveGeometry()
+{
+    vertices = v;
+    indeces = i;
+}
+
 PrimitiveGeometry::~PrimitiveGeometry()
 {
     if (pRenderComponent)
@@ -18,18 +25,9 @@ void PrimitiveGeometry::Initialize(ID3D11Device* pDevice)
 {
     pRenderComponent->Initialize(pDevice);
 
-    // Step 06: Create Set of Points
-    Vertex points[4]
-    {
-        { DirectX::XMFLOAT4(0.3f, 0.3f, 0.5f, 1.0f), DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f) },
-        { DirectX::XMFLOAT4(-0.3f, -0.3f, 0.5f, 1.0f), DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f) },
-        { DirectX::XMFLOAT4(0.3f, -0.3f, 0.5f, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },
-        { DirectX::XMFLOAT4(-0.3f, 0.3f, 0.5f, 1.0f), DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) }
-    };
-
     // Step 07: Create Vertex and Index Buffers
     D3D11_BUFFER_DESC vertexBufDesc = {};
-    vertexBufDesc.ByteWidth = sizeof(points);
+    vertexBufDesc.ByteWidth = UINT(sizeof(Vertex) * vertices.size());
     vertexBufDesc.Usage = D3D11_USAGE_DEFAULT;
     vertexBufDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
     vertexBufDesc.CPUAccessFlags = 0u;
@@ -37,15 +35,14 @@ void PrimitiveGeometry::Initialize(ID3D11Device* pDevice)
     vertexBufDesc.StructureByteStride = sizeof(Vertex);
 
     D3D11_SUBRESOURCE_DATA vertexData = {};
-    vertexData.pSysMem = points;
+    vertexData.pSysMem = vertices.data();
     vertexData.SysMemPitch = 0;
     vertexData.SysMemSlicePitch = 0;
 
     ThrowIfFailed(pDevice->CreateBuffer(&vertexBufDesc, &vertexData, &pVertexBuffer));
 
-    int indeces[] = { 0, 1, 2,  1, 0, 3 };
     D3D11_BUFFER_DESC indexBufDesc = {};
-    indexBufDesc.ByteWidth = sizeof(indeces);
+    indexBufDesc.ByteWidth = UINT(sizeof(int) * indeces.size());
     indexBufDesc.Usage = D3D11_USAGE_DEFAULT;
     indexBufDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
     indexBufDesc.CPUAccessFlags = 0u;
@@ -53,7 +50,7 @@ void PrimitiveGeometry::Initialize(ID3D11Device* pDevice)
     indexBufDesc.StructureByteStride = sizeof(int);
 
     D3D11_SUBRESOURCE_DATA indexData = {};
-    indexData.pSysMem = indeces;
+    indexData.pSysMem = indeces.data();
     indexData.SysMemPitch = 0u;
     indexData.SysMemSlicePitch = 0u;
 

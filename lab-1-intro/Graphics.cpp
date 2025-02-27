@@ -64,14 +64,13 @@ Graphics::Graphics(HWND hWnd, int width, int height)
 
 void Graphics::EndFrame()
 {
-	// Step 14: At the End of While (!isExitRequested): Draw the Triangle
-	pContext->DrawIndexed(6u, 0u, 0);
+	
 	// Step 15: At the End of While (!isExitRequested): Present the Result
 	pContext->OMSetRenderTargets(0, nullptr, nullptr);
 	ThrowIfFailed(pSwapChain->Present(1u, /*DXGI_PRESENT_DO_NOT_WAIT*/ 0u));
 }
 
-void Graphics::DrawRectangle()
+void Graphics::Draw()
 {
 	pContext->ClearState();
 	pContext->RSSetState(pRastState.Get());
@@ -94,14 +93,18 @@ void Graphics::DrawRectangle()
 	
 	for (auto& geometry : GameObjects)
 	{
+		// Step 09: Set Vertex and Pixel Shaders
 		pContext->IASetIndexBuffer(geometry->GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0u);
 		pContext->IASetVertexBuffers(0, 1, geometry->GetAddressOfVertexBuffer(), &geometry->stride, &geometry->offset);
-		// Step 09: Set Vertex and Pixel Shaders
 		pContext->VSSetShader(geometry->GetRenderComponent()->GetVertexShader(), nullptr, 0);
 		pContext->PSSetShader(geometry->GetRenderComponent()->GetPixelShader(), nullptr, 0);
+
+		// Step 11: Set BackBuffer for Output merger
+		pContext->OMSetRenderTargets(1u, pRtv.GetAddressOf(), nullptr);
+
+		// Step 14: At the End of While (!isExitRequested): Draw the Triangle
+		pContext->DrawIndexed(6u, 0u, 0);
 	}
-	// Step 11: Set BackBuffer for Output merger
-	pContext->OMSetRenderTargets(1u, pRtv.GetAddressOf(), nullptr);
 }
 
 void Graphics::Setup()
@@ -113,9 +116,20 @@ void Graphics::Setup()
 	ThrowIfFailed(pDevice->CreateRasterizerState(&rastDesc, &pRastState));
 	pContext->RSSetState(pRastState.Get());
 
+	std::vector<Vertex> testVertexVec = {
+		{ DirectX::XMFLOAT4(0.8f, 0.8f, 0.5f, 1.0f), DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f) },
+		{ DirectX::XMFLOAT4(0.8, -0.5f, 0.5f, 1.0f), DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f) },
+		{ DirectX::XMFLOAT4(0.4f, -0.5f, 0.5f, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },
+		{ DirectX::XMFLOAT4(0.4f, 0.8f, 0.5f, 1.0f), DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) }
+	};
+
+	std::vector<int> testIndexVec = { 0, 1, 2,  2, 3, 0 };
+
 	PrimitiveGeometry* testGeometry = new PrimitiveGeometry;
+	PrimitiveGeometry* testGeometry1 = new PrimitiveGeometry(testVertexVec, testIndexVec);
 	GameObjects.push_back(testGeometry);
-	
+	GameObjects.push_back(testGeometry1);
+
 	for (auto geometry : GameObjects)
 	{
 		geometry->Initialize(pDevice.Get());

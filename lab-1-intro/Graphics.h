@@ -25,7 +25,7 @@ public:
 	void Setup();
 
 	void ClearBuffer(float r);
-	void DrawRectangle();
+	void Draw();
 	void EndFrame();
 
 	std::vector<PrimitiveGeometry*> GameObjects;
