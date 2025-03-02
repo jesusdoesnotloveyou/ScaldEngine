@@ -64,13 +64,12 @@ Graphics::Graphics(HWND hWnd, int width, int height)
 
 void Graphics::EndFrame()
 {
-	
 	// Step 15: At the End of While (!isExitRequested): Present the Result
 	pContext->OMSetRenderTargets(0, nullptr, nullptr);
 	ThrowIfFailed(pSwapChain->Present(1u, /*DXGI_PRESENT_DO_NOT_WAIT*/ 0u));
 }
 
-void Graphics::Draw()
+void Graphics::Draw(float angle)
 {
 	pContext->ClearState();
 	pContext->RSSetState(pRastState.Get());
@@ -90,12 +89,39 @@ void Graphics::Draw()
 	// Step 08: Setup the IA stage
 	pContext->IASetInputLayout(GameObjects[0]->GetRenderComponent()->GetInputLayout());
 	pContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-	
+
+	const ConstBuffer cb =
+	{
+		{
+			std::cos(angle),		std::sin(angle),		0.0f, 0.0f,
+			-std::sin(angle),	std::cos(angle),		0.0f, 0.0f,
+			0.0f,				0.0f,				1.0f, 0.0f,
+			0.0f,				0.0f,				0.0f, 1.0f
+		}
+	};
+
+
 	for (auto& geometry : GameObjects)
 	{
+		// Create Constant Buffer
+		D3D11_BUFFER_DESC constantBufDesc = {};
+		constantBufDesc.ByteWidth = UINT(sizeof(ConstBuffer));
+		constantBufDesc.Usage = D3D11_USAGE_DYNAMIC;
+		constantBufDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+		constantBufDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		constantBufDesc.MiscFlags = 0u;
+		constantBufDesc.StructureByteStride = 0u;
+
+		D3D11_SUBRESOURCE_DATA constantData = {};
+		constantData.pSysMem = &cb;
+		constantData.SysMemPitch = 0u;
+		constantData.SysMemSlicePitch = 0u;
+
+		ThrowIfFailed(pDevice->CreateBuffer(&constantBufDesc, &constantData, &geometry->pConstantBuffer));
 		// Step 09: Set Vertex and Pixel Shaders
+		pContext->VSSetConstantBuffers(0u, 1u, geometry->pConstantBuffer.GetAddressOf());
+		pContext->IASetVertexBuffers(0u, 1u, geometry->GetAddressOfVertexBuffer(), &geometry->stride, &geometry->offset);
 		pContext->IASetIndexBuffer(geometry->GetIndexBuffer(), DXGI_FORMAT_R32_UINT, 0u);
-		pContext->IASetVertexBuffers(0, 1, geometry->GetAddressOfVertexBuffer(), &geometry->stride, &geometry->offset);
 		pContext->VSSetShader(geometry->GetRenderComponent()->GetVertexShader(), nullptr, 0);
 		pContext->PSSetShader(geometry->GetRenderComponent()->GetPixelShader(), nullptr, 0);
 
@@ -117,17 +143,19 @@ void Graphics::Setup()
 	pContext->RSSetState(pRastState.Get());
 
 	std::vector<Vertex> testVertexVec = {
-		{ DirectX::XMFLOAT4(0.8f, 0.8f, 0.5f, 1.0f), DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f) },
-		{ DirectX::XMFLOAT4(0.8, -0.5f, 0.5f, 1.0f), DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f) },
-		{ DirectX::XMFLOAT4(0.4f, -0.5f, 0.5f, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },
-		{ DirectX::XMFLOAT4(0.4f, 0.8f, 0.5f, 1.0f), DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) }
+		{ DirectX::XMFLOAT4(0.0f, 0.5f, 0.5f, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },
+		{ DirectX::XMFLOAT4(0.4, -0.3f, 0.5f, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },
+		{ DirectX::XMFLOAT4(-0.5f, -0.3f, 0.5f, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },
+		{ DirectX::XMFLOAT4(0.4f, 0.3f, 0.5f, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },
+		{ DirectX::XMFLOAT4(0.0f, -0.5f, 0.5f, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },
+		{ DirectX::XMFLOAT4(-0.4f, 0.3f, 0.5f, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) }
 	};
 
-	std::vector<int> testIndexVec = { 0, 1, 2,  2, 3, 0 };
+	std::vector<int> testIndexVec = { 0, 1, 2,  3, 4, 5 };
 
-	PrimitiveGeometry* testGeometry = new PrimitiveGeometry;
+	//PrimitiveGeometry* testGeometry = new PrimitiveGeometry();
 	PrimitiveGeometry* testGeometry1 = new PrimitiveGeometry(testVertexVec, testIndexVec);
-	GameObjects.push_back(testGeometry);
+	//GameObjects.push_back(testGeometry);
 	GameObjects.push_back(testGeometry1);
 
 	for (auto geometry : GameObjects)

@@ -19,6 +19,30 @@
     <Filter Include="Header Files\Components">
       <UniqueIdentifier>{1e16fd07-f3eb-4e8d-8372-0d94649ae0eb}</UniqueIdentifier>
     </Filter>
+    <Filter Include="Header Files\ScaldCore">
+      <UniqueIdentifier>{9ce4721d-6939-448c-9dac-3decbc97f846}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ScaldCore">
+      <UniqueIdentifier>{14704b2d-7063-477a-82fc-ff97a4519f75}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ScaldCore\Input">
+      <UniqueIdentifier>{a95d3e67-a939-47b2-a199-32f9ef0c3282}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ScaldCore\Input">
+      <UniqueIdentifier>{8eba2eb9-0709-40dd-8791-d1c441516287}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ScaldCore\Engine">
+      <UniqueIdentifier>{f69af9f4-b95d-46be-b33c-b85bae758882}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ScaldCore\Engine">
+      <UniqueIdentifier>{cdb5fd91-62a1-49c1-8935-abfac5e2b7f8}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\ScaldCore\Graphics">
+      <UniqueIdentifier>{43cf548f-732d-4468-b41b-afd003214657}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Header Files\ScaldCore\Graphics">
+      <UniqueIdentifier>{af893235-8ad7-4845-91c1-af6f2f550093}</UniqueIdentifier>
+    </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MySuper3DApp.cpp">
@@ -30,12 +54,6 @@
     <ClCompile Include="ScaldException.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Engine.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="Graphics.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="RenderComponent.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
@@ -43,6 +61,18 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="PrimitiveGeometry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ScaldCore\Input\InputDevice.cpp">
+      <Filter>Source Files\ScaldCore\Input</Filter>
+    </ClCompile>
+    <ClCompile Include="ScaldCore\Engine\Engine.cpp">
+      <Filter>Source Files\ScaldCore\Engine</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics.cpp">
+      <Filter>Source Files\ScaldCore\Graphics</Filter>
+    </ClCompile>
+    <ClCompile Include="Star.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -54,12 +84,6 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ScaldException.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Engine.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="Graphics.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="RenderComponent.h">
@@ -76,6 +100,21 @@
     </ClInclude>
     <ClInclude Include="IScaldComponent.h">
       <Filter>Header Files\Components</Filter>
+    </ClInclude>
+    <ClInclude Include="ScaldCore\Input\InputDevice.h">
+      <Filter>Header Files\ScaldCore\Input</Filter>
+    </ClInclude>
+    <ClInclude Include="ScaldCore\Engine\Engine.h">
+      <Filter>Header Files\ScaldCore\Engine</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics.h">
+      <Filter>Header Files\ScaldCore\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="ScaldCore\Input\Keys.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Star.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

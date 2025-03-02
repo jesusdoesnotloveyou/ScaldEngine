@@ -1,7 +1,7 @@
 #pragma once
 
-#include "RenderWindow.h"
-#include "ScaldTimer.h"
+#include "../../RenderWindow.h"
+#include "../../ScaldTimer.h"
 
 class Engine
 {

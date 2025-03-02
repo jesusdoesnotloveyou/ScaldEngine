@@ -2,6 +2,7 @@
 
 #include "ScaldCoreTypes.h"
 #include "RenderComponent.h"
+#include <cmath>
 #include <vector>
 
 class RenderComponent;
@@ -23,14 +24,13 @@ public:
 	ID3D11Buffer* const* GetAddressOfIndexBuffer() const;
 	ID3D11Buffer* GetVertexBuffer() const;
 	ID3D11Buffer* GetIndexBuffer() const;
-	
+
 	RenderComponent* GetRenderComponent() const;
 
 	UINT stride = { sizeof(Vertex) };
 	UINT offset = { 0 };
-	
+
 protected:
-	RenderComponent* pRenderComponent{ nullptr };
 
 private:
 	std::vector<Vertex> vertices = {
@@ -43,4 +43,6 @@ private:
 
 	Microsoft::WRL::ComPtr<ID3D11Buffer> pVertexBuffer;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> pIndexBuffer;
+public:
+	Microsoft::WRL::ComPtr<ID3D11Buffer> pConstantBuffer;
 };
