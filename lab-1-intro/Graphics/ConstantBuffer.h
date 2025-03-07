@@ -1,5 +1,6 @@
 #pragma once
 
+#include "../ScaldException.h"
 #include <wrl.h>
 #include <d3d11.h>
 
@@ -43,5 +44,14 @@ public:
 		constantData.SysMemSlicePitch = 0u;*/
 
 		return device->CreateBuffer(&constantBufDesc, 0, pBuffer.GetAddressOf());
+	}
+
+	bool ApplyChanges(const T& data)
+	{
+		D3D11_MAPPED_SUBRESOURCE mappedResource;
+		ThrowIfFailed(pDeviceContext->Map(pBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
+		CopyMemory(mappedResource.pData, &data, sizeof(T));
+		pDeviceContext->Unmap(pBuffer.Get(), 0);
+		return true;
 	}
 };

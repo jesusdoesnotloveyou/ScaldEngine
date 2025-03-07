@@ -97,7 +97,7 @@ void Graphics::Setup()
 	for (auto& geometry : GameObjects)
 	{
 		if (!geometry) continue;
-		geometry->Initialize(pDevice.Get());
+		geometry->Initialize(pDevice.Get(), pContext.Get());
 	}
 }
 
@@ -133,18 +133,14 @@ void Graphics::Draw(float angle)
 				0.0f,				0.0f,				0.0f, 1.0f
 		};
 
-		D3D11_MAPPED_SUBRESOURCE mappedResource;
-		//ThrowIfFailed(pContext->Map(geometry->GetConstantBuffer().Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
-		ThrowIfFailed(pContext->Map(geometry->constantBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
-		CopyMemory(mappedResource.pData, &cb, sizeof(ConstBuffer));
-		pContext->Unmap(geometry->GetConstantBuffer().Get(), 0);
+		if (!geometry->GetConstantBuffer().ApplyChanges(cb)) return;
 		
-		//pContext->VSSetConstantBuffers(0u, 1u, geometry->GetConstantBuffer().GetAddressOf());
-		pContext->VSSetConstantBuffers(0u, 1u, geometry->constantBuffer.GetAddressOf());
-		//pContext->IASetVertexBuffers(0u, 1u, geometry->GetVertexBuffer().GetAddressOf(), geometry->GetVertexBuffer().GetStridePtr(), &geometry->offset);
-		pContext->IASetVertexBuffers(0u, 1u, geometry->vertexBuffer.GetAddressOf(), geometry->vertexBuffer.GetStridePtr(), &geometry->offset);
-		//pContext->IASetIndexBuffer(geometry->GetIndexBuffer().Get(), DXGI_FORMAT_R32_UINT, 0u);
-		pContext->IASetIndexBuffer(geometry->indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0u);
+		pContext->VSSetConstantBuffers(0u, 1u, geometry->GetConstantBuffer().GetAddressOf());
+		//pContext->VSSetConstantBuffers(0u, 1u, geometry->constantBuffer.GetAddressOf());
+		pContext->IASetVertexBuffers(0u, 1u, geometry->GetVertexBuffer().GetAddressOf(), geometry->GetVertexBuffer().GetStridePtr(), &geometry->offset);
+		//pContext->IASetVertexBuffers(0u, 1u, geometry->vertexBuffer.GetAddressOf(), geometry->vertexBuffer.GetStridePtr(), &geometry->offset);
+		pContext->IASetIndexBuffer(geometry->GetIndexBuffer().Get(), DXGI_FORMAT_R32_UINT, 0u);
+		//pContext->IASetIndexBuffer(geometry->indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0u);
 		
 		// Step 09: Set Vertex and Pixel Shaders
 		pContext->VSSetShader(geometry->GetRenderComponent()->GetVertexShader(), nullptr, 0);
