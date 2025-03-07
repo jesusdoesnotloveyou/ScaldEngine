@@ -1,8 +1,8 @@
 #pragma once
 
 #include "ScaldWindows.h"
-#include "ScaldException.h"
-#include "Graphics.h"
+#include "../../ScaldException.h"
+#include "../../Graphics/Graphics.h"
 #include <optional>
 #include <string>
 #include <memory>

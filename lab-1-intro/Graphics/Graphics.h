@@ -4,10 +4,9 @@
 #include <d3dcompiler.h>
 #include <d3d.h>
 #include <wrl.h>
-
-#include "PrimitiveGeometry.h"
-
 #include <vector>
+
+#include "../Objects/Geometry/PrimitiveGeometry.h"
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dcompiler.lib")
@@ -25,7 +24,7 @@ public:
 	void Setup();
 
 	void ClearBuffer(float r);
-	void DrawRectangle();
+	void Draw(float angle);
 	void EndFrame();
 
 	std::vector<PrimitiveGeometry*> GameObjects;

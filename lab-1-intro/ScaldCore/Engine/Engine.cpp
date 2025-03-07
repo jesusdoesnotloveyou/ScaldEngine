@@ -25,6 +25,6 @@ void Engine::PresentFrame()
 {
 	const float c = static_cast<float>(sin(timer.Peek()) / 2.0f + 0.5f);
 	renderWindow.GetGfx().ClearBuffer(c);
-	renderWindow.GetGfx().DrawRectangle();
+	renderWindow.GetGfx().Draw(timer.Peek());
 	renderWindow.GetGfx().EndFrame();
 }
