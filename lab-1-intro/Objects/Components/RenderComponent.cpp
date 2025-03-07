@@ -1,9 +1,5 @@
-#include "ScaldException.h"
+#include "../../ScaldException.h"
 #include "RenderComponent.h"
-#include <stdexcept>
-
-#pragma comment(lib, "d3d11.lib")
-#pragma comment(lib, "d3dcompiler.lib")
 
 RenderComponent::RenderComponent()
 {
@@ -30,7 +26,7 @@ void RenderComponent::Initialize(ID3D11Device* pDevice)
 		nullptr /*include*/,
 		"VSMain",
 		"vs_5_0",
-		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
+		D3DCOMPILE_DEBUG, //| D3DCOMPILE_SKIP_OPTIMIZATION,
 		0u,
 		&pVertexBC,
 		&pErrorVertexCode));
@@ -44,7 +40,7 @@ void RenderComponent::Initialize(ID3D11Device* pDevice)
 		nullptr /*include*/,
 		"PSMain",
 		"ps_5_0" /*pixel shader*/,
-		D3DCOMPILE_DEBUG | D3DCOMPILE_SKIP_OPTIMIZATION,
+		D3DCOMPILE_DEBUG, //| D3DCOMPILE_SKIP_OPTIMIZATION,
 		0u,
 		&pPixelBC,
 		&pErrorPixelCode));

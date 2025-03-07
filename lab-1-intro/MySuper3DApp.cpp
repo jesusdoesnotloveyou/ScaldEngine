@@ -12,5 +12,5 @@ int CALLBACK WinMain(
 	Engine engine;
 	engine.Launch();
 
-	return -1;
+	return 0;
 }

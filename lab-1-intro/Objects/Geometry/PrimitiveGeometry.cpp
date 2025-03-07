@@ -1,0 +1,76 @@
+#include "../../ScaldException.h"
+#include "PrimitiveGeometry.h"
+
+PrimitiveGeometry::PrimitiveGeometry()
+{
+    pRenderComponent = new RenderComponent();
+}
+
+PrimitiveGeometry::PrimitiveGeometry(const std::vector<Vertex>& v, const std::vector<DWORD>& i)
+    : PrimitiveGeometry()
+{
+    vertices = v;
+    indeces = i;
+}
+
+//PrimitiveGeometry::PrimitiveGeometry(const PrimitiveGeometry& lhs)
+//{
+//
+//}
+//
+//PrimitiveGeometry::PrimitiveGeometry(PrimitiveGeometry&& rhs)
+//{
+//    
+//}
+//
+//PrimitiveGeometry& PrimitiveGeometry::operator=(const PrimitiveGeometry& lhs)
+//{
+//
+//}
+//
+//PrimitiveGeometry& PrimitiveGeometry::operator=(PrimitiveGeometry&& rhs)
+//{
+//
+//}
+
+PrimitiveGeometry::~PrimitiveGeometry()
+{
+    if (pRenderComponent)
+    {
+        delete pRenderComponent;
+    }
+}
+
+void PrimitiveGeometry::Initialize(ID3D11Device* pDevice)
+{
+    pRenderComponent->Initialize(pDevice);
+
+    ThrowIfFailed(vertexBuffer.Init(pDevice, vertices.data(), (UINT)vertices.size()));
+    ThrowIfFailed(indexBuffer.Init(pDevice, indeces.data(), (UINT)indeces.size()));
+    ThrowIfFailed(constantBuffer.Init(pDevice, /*?*/nullptr));
+}
+
+VertexBuffer<Vertex>& PrimitiveGeometry::GetVertexBuffer()
+{
+    return vertexBuffer;
+}
+
+IndexBuffer& PrimitiveGeometry::GetIndexBuffer()
+{
+    return indexBuffer;
+}
+
+ConstantBuffer<ConstBuffer>& PrimitiveGeometry::GetConstantBuffer()
+{
+    return constantBuffer;
+}
+
+RenderComponent* PrimitiveGeometry::GetRenderComponent() const
+{
+    return pRenderComponent;
+}
+
+CollisionComponent* PrimitiveGeometry::GetCollisionComponent() const
+{
+    return pCollisionComponent;
+}

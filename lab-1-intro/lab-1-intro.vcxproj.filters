@@ -37,30 +37,18 @@
     <Filter Include="Header Files\ScaldCore\Engine">
       <UniqueIdentifier>{cdb5fd91-62a1-49c1-8935-abfac5e2b7f8}</UniqueIdentifier>
     </Filter>
-    <Filter Include="Source Files\ScaldCore\Graphics">
-      <UniqueIdentifier>{43cf548f-732d-4468-b41b-afd003214657}</UniqueIdentifier>
-    </Filter>
     <Filter Include="Header Files\ScaldCore\Graphics">
       <UniqueIdentifier>{af893235-8ad7-4845-91c1-af6f2f550093}</UniqueIdentifier>
+    </Filter>
+    <Filter Include="Source Files\Graphics">
+      <UniqueIdentifier>{43cf548f-732d-4468-b41b-afd003214657}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MySuper3DApp.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="RenderWindow.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
     <ClCompile Include="ScaldException.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="RenderComponent.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="ScaldTimer.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="PrimitiveGeometry.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="ScaldCore\Input\InputDevice.cpp">
@@ -69,37 +57,37 @@
     <ClCompile Include="ScaldCore\Engine\Engine.cpp">
       <Filter>Source Files\ScaldCore\Engine</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics.cpp">
-      <Filter>Source Files\ScaldCore\Graphics</Filter>
+    <ClCompile Include="Objects\Components\CollisionComponent.cpp">
+      <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Star.cpp">
+    <ClCompile Include="Graphics\IndexBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Graphics.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\Geometry\PrimitiveGeometry.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\Components\RenderComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\Geometry\Star.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ScaldCore\Engine\RenderWindow.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="ScaldCore\Engine\ScaldTimer.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="RenderWindow.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ScaldWindows.h">
+    <ClInclude Include="ScaldCore\Engine\ScaldWindows.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="ScaldException.h">
       <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="RenderComponent.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ScaldTimer.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="PrimitiveGeometry.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="ScaldCoreTypes.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="IScaldComponent.h">
-      <Filter>Header Files\Components</Filter>
     </ClInclude>
     <ClInclude Include="ScaldCore\Input\InputDevice.h">
       <Filter>Header Files\ScaldCore\Input</Filter>
@@ -107,13 +95,40 @@
     <ClInclude Include="ScaldCore\Engine\Engine.h">
       <Filter>Header Files\ScaldCore\Engine</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics.h">
-      <Filter>Header Files\ScaldCore\Graphics</Filter>
-    </ClInclude>
     <ClInclude Include="ScaldCore\Input\Keys.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Star.h">
+    <ClInclude Include="Objects\Components\CollisionComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\ConstantBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Graphics.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\Components\IScaldComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\Geometry\PrimitiveGeometry.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\Components\RenderComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\Geometry\Star.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\VertexBuffer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ScaldCore\Engine\RenderWindow.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="ScaldCore\Engine\ScaldTimer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\ScaldCoreTypes.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

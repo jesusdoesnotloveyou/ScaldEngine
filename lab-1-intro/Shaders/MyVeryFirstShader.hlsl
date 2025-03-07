@@ -1,6 +1,6 @@
-cbuffer CBuf
+cbuffer CBuf : register(b0)
 {
-    matrix transform;
+    row_major matrix transform;
 };
 
 struct VS_IN
