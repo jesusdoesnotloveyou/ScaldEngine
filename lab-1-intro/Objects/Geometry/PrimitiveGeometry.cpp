@@ -41,13 +41,13 @@ PrimitiveGeometry::~PrimitiveGeometry()
     }
 }
 
-void PrimitiveGeometry::Initialize(ID3D11Device* pDevice)
+void PrimitiveGeometry::Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext)
 {
     pRenderComponent->Initialize(pDevice);
 
     ThrowIfFailed(vertexBuffer.Init(pDevice, vertices.data(), (UINT)vertices.size()));
     ThrowIfFailed(indexBuffer.Init(pDevice, indeces.data(), (UINT)indeces.size()));
-    ThrowIfFailed(constantBuffer.Init(pDevice, /*?*/nullptr));
+    ThrowIfFailed(constantBuffer.Init(pDevice, pDeviceContext));
 }
 
 VertexBuffer<Vertex>& PrimitiveGeometry::GetVertexBuffer()

@@ -24,7 +24,7 @@ public:
 	//PrimitiveGeometry& operator=(PrimitiveGeometry&& rhs);
 	virtual ~PrimitiveGeometry();
 
-	void Initialize(ID3D11Device* pDevice);
+	void Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext);
 
 	// temporary getters
 	VertexBuffer<Vertex>& GetVertexBuffer();
