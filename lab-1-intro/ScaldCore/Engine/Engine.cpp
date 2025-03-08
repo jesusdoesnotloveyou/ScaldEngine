@@ -13,12 +13,19 @@ int Engine::Launch()
 		// process all messages pending, but to not block
 		if (const auto eCode = RenderWindow::ProcessMessages())
 		{
+
+			//Update();
 			// if return optional has a value, means we're quitting
 			return *eCode;
 		}
 		// otherwise
 		PresentFrame();
 	}
+}
+
+void Engine::Update()
+{
+
 }
 
 void Engine::PresentFrame()
