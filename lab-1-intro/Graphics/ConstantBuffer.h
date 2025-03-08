@@ -30,8 +30,7 @@ public:
 
 		// Create Constant Buffer
 		D3D11_BUFFER_DESC constantBufDesc = {};
-		//constantBufDesc.ByteWidth = UINT(sizeof(T) + (16 - (sizeof(T) % 16)));
-		constantBufDesc.ByteWidth = UINT(sizeof(T));
+		constantBufDesc.ByteWidth = UINT((sizeof(T) + 15) & ~15);
 		constantBufDesc.Usage = D3D11_USAGE_DYNAMIC;
 		constantBufDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
 		constantBufDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;

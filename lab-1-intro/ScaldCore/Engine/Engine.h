@@ -11,6 +11,7 @@ public:
 
 private:
 	void PresentFrame();
+	void Update();
 
 private:
 	RenderWindow renderWindow;
