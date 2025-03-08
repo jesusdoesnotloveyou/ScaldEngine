@@ -1,11 +1,12 @@
 #pragma once
 
-#include "ScaldWindows.h"
 #include "../../ScaldException.h"
 #include "../../Graphics/Graphics.h"
 #include <optional>
 #include <string>
 #include <memory>
+
+#include "../Input/InputDevice.h"
 
 class RenderWindow
 {
@@ -40,6 +41,11 @@ private:
 	static LRESULT CALLBACK HandleMsgSetup(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
 	static LRESULT CALLBACK HandleMsgThunk(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
 	LRESULT HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept;
+public:
+	// Input
+	Mouse mouse;
+	Keyboard kbd;
+
 private:
 	int width;
 	int height;
