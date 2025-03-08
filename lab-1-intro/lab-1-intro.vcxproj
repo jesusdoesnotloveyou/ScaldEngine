@@ -61,7 +61,7 @@
     <ProjectGuid>{c4a51a1b-e6c2-4e2e-be1a-a8d95942fe17}</ProjectGuid>
     <RootNamespace>lab1intro</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>D3D11_ITMO_labs</ProjectName>
+    <ProjectName>lab-1-intro</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

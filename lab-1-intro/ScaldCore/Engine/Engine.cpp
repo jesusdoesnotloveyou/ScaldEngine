@@ -19,7 +19,7 @@ int Engine::Launch()
 			return *eCode;
 		}
 		// otherwise
-		PresentFrame();
+		RenderFrame();
 	}
 }
 
@@ -28,7 +28,7 @@ void Engine::Update()
 
 }
 
-void Engine::PresentFrame()
+void Engine::RenderFrame()
 {
 	const float c = static_cast<float>(sin(timer.Peek()) / 2.0f + 0.5f);
 	renderWindow.GetGfx().ClearBuffer(c);
