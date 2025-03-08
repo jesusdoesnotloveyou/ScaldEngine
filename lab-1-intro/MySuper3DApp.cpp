@@ -1,5 +1,3 @@
-// MySuper3DApp.cpp : This file contains the 'main' function. Program execution begins and ends there.
-
 #include "ScaldCore/Engine/Engine.h"
 
 int CALLBACK WinMain(
