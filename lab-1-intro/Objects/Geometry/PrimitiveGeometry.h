@@ -23,10 +23,9 @@ public:
 	//PrimitiveGeometry& operator=(const PrimitiveGeometry& lhs);
 	//PrimitiveGeometry& operator=(PrimitiveGeometry&& rhs);
 	virtual ~PrimitiveGeometry();
+	virtual void Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext) = 0;
 
-	void Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext);
-
-	// temporary getters
+public:
 	VertexBuffer<Vertex>& GetVertexBuffer();
 	IndexBuffer& GetIndexBuffer();
 	ConstantBuffer<ConstBuffer>& GetConstantBuffer();
@@ -36,21 +35,14 @@ public:
 
 	UINT stride = { 32 };
 	UINT offset = { 0 };
-
 protected:
 	RenderComponent* pRenderComponent = nullptr;
 	CollisionComponent* pCollisionComponent = nullptr;
-private:
-	std::vector<Vertex> vertices = 
-	{
-		{ DirectX::XMFLOAT4(0.2f, 0.2f, 0.5f, 1.0f), DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f) },
-		{ DirectX::XMFLOAT4(-0.2f, -0.2f, 0.5f, 1.0f), DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f) },
-		{ DirectX::XMFLOAT4(0.2f, -0.2f, 0.5f, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },
-		{ DirectX::XMFLOAT4(-0.2f, 0.2f, 0.5f, 1.0f), DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) }
-	};
-	std::vector<DWORD> indeces = { 0, 1, 2,  1, 0, 3 };
 
-public:
+	std::vector<Vertex> vertices;
+	std::vector<DWORD> indeces;
+
+private:
 	ConstantBuffer<ConstBuffer> constantBuffer;
 	VertexBuffer<Vertex> vertexBuffer;
 	IndexBuffer indexBuffer;
