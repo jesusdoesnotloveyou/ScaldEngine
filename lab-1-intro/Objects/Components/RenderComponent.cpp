@@ -31,12 +31,12 @@ void RenderComponent::Initialize(ID3D11Device* pDevice)
 		&pVertexBC,
 		&pErrorVertexCode));
 
-	D3D_SHADER_MACRO Shader_Macros[] = { "TEST", "1", "TCOLOR", "float4(0.0f, 1.0f, 0.0f, 1.0f)", nullptr, nullptr };
+	//D3D_SHADER_MACRO Shader_Macros[] = { "TEST", "1", "TCOLOR", "float4(0.0f, 1.0f, 0.0f, 1.0f)", nullptr, nullptr };
 
 	Microsoft::WRL::ComPtr<ID3DBlob> pPixelBC = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pErrorPixelCode = nullptr;
 	ThrowIfFailed(D3DCompileFromFile(L"./Shaders/MyVeryFirstShader.hlsl",
-		Shader_Macros /*macros*/,
+		nullptr /*macros*/,
 		nullptr /*include*/,
 		"PSMain",
 		"ps_5_0" /*pixel shader*/,

@@ -3,6 +3,9 @@
 #include "Graphics.h"
 #include <chrono>
 
+#include "../Objects/Geometry/Rectangle.h"
+#include "../Objects/Geometry/Star.h"
+
 #include <d3d.h>
 #include <d3d11.h>
 #include <d3dcompiler.h>
@@ -86,13 +89,13 @@ void Graphics::Setup()
 		{ DirectX::XMFLOAT4(0.0f, -0.5f, 0.5f, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },
 		{ DirectX::XMFLOAT4(-0.4f, 0.3f, 0.5f, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) }
 	};
-
 	std::vector<DWORD> testIndexVec = { 0, 1, 2,  3, 4, 5 };
 
-	PrimitiveGeometry* testGeometry = new PrimitiveGeometry();
-	//PrimitiveGeometry* testGeometry1 = new PrimitiveGeometry(testVertexVec, testIndexVec);
-	GameObjects.push_back(testGeometry);
+	//PrimitiveGeometry* testGeom1 = new Star();
 	//GameObjects.push_back(testGeometry1);
+
+	PrimitiveGeometry* testGeom = new Rect();
+	GameObjects.push_back(testGeom);
 
 	for (auto& geometry : GameObjects)
 	{
@@ -150,7 +153,7 @@ void Graphics::Draw(float angle)
 		pContext->OMSetRenderTargets(1u, pRtv.GetAddressOf(), nullptr);
 
 		// Step 14: At the End of While (!isExitRequested): Draw the Triangle
-		pContext->DrawIndexed(geometry->indexBuffer.GetBufferSize(), 0u, 0);
+		pContext->DrawIndexed(geometry->GetIndexBuffer().GetBufferSize(), 0u, 0);
 	}
 }
 
