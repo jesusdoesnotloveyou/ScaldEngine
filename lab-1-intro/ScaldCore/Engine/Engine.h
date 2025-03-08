@@ -10,7 +10,7 @@ public:
 	int Launch();
 
 private:
-	void PresentFrame();
+	void RenderFrame();
 	void Update();
 
 private:
