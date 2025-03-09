@@ -4,14 +4,14 @@ Rect::Rect() : PrimitiveGeometry() // explicitly
 {
 	vertices =
 	{
+		{ DirectX::XMFLOAT4(-0.2f, 0.2f, 0.5f, 1.0f), DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) },
 		{ DirectX::XMFLOAT4(0.2f, 0.2f, 0.5f, 1.0f), DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f) },
-		{ DirectX::XMFLOAT4(-0.2f, -0.2f, 0.5f, 1.0f), DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f) },
 		{ DirectX::XMFLOAT4(0.2f, -0.2f, 0.5f, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },
-		{ DirectX::XMFLOAT4(-0.2f, 0.2f, 0.5f, 1.0f), DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) }
+		{ DirectX::XMFLOAT4(-0.2f, -0.2f, 0.5f, 1.0f), DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f) },
 	};
 	indeces = {
 		0, 1, 2,
-		1, 0, 3
+		0, 2, 3
 	};
 }
 
