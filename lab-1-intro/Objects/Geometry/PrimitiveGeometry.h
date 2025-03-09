@@ -7,6 +7,7 @@
 
 #include "../../Objects/Components/RenderComponent.h"
 #include "../../Objects/Components/CollisionComponent.h"
+#include "../../Objects/Components/InputComponent.h"
 
 #include <cmath>
 #include <vector>
@@ -38,6 +39,7 @@ public:
 protected:
 	RenderComponent* pRenderComponent = nullptr;
 	CollisionComponent* pCollisionComponent = nullptr;
+	InputComponent* pInputComponent = nullptr;
 
 	std::vector<Vertex> vertices;
 	std::vector<DWORD> indeces;

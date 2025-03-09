@@ -3,7 +3,9 @@
 
 PrimitiveGeometry::PrimitiveGeometry()
 {
-    pRenderComponent = new RenderComponent();
+    pRenderComponent = new RenderComponent{};
+    pCollisionComponent = new CollisionComponent{};
+    pInputComponent = new InputComponent{};
 }
 
 PrimitiveGeometry::PrimitiveGeometry(const std::vector<Vertex>& v, const std::vector<DWORD>& i)
@@ -36,9 +38,11 @@ PrimitiveGeometry::PrimitiveGeometry(const std::vector<Vertex>& v, const std::ve
 PrimitiveGeometry::~PrimitiveGeometry()
 {
     if (pRenderComponent)
-    {
         delete pRenderComponent;
-    }
+    if (pCollisionComponent)
+        delete pCollisionComponent;
+    if (pInputComponent)
+        delete pInputComponent;
 }
 
 void PrimitiveGeometry::Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext)
