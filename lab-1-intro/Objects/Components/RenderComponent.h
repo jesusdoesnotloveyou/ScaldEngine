@@ -16,7 +16,7 @@ public:
 	virtual ~RenderComponent() noexcept override;
 
 	// Begin of IScaldComponent interface
-	virtual void Update();
+	virtual void Update(float DeltaTime) override;
 	// End of IScaldComponent interface
 
 	void Initialize(ID3D11Device* pDevice);

@@ -8,5 +8,5 @@ public:
 	InputComponent() = default;
 	virtual ~InputComponent() noexcept override = default;
 
-	virtual void Update() override;
+	virtual void Update(float DeltaTime) override {}
 };

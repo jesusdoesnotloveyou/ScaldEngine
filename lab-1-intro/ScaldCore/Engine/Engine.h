@@ -10,10 +10,14 @@ public:
 	int Launch();
 
 private:
+	void SetupScene();
+	void UpdateScene(float DeltaTime);
+	void PollInput();
 	void RenderFrame();
-	void Update();
+	void CalculateFrameStats();
 
 private:
-	RenderWindow renderWindow;
-	ScaldTimer timer;
+	std::vector<PrimitiveGeometry*> GameObjects;
+	RenderWindow mRenderWindow;
+	ScaldTimer mTimer;
 };

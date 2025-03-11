@@ -8,6 +8,7 @@
 #include "../../Objects/Components/RenderComponent.h"
 #include "../../Objects/Components/CollisionComponent.h"
 #include "../../Objects/Components/InputComponent.h"
+#include "../../Objects/Components/MovementComponent.h"
 
 #include <cmath>
 #include <vector>
@@ -24,6 +25,8 @@ public:
 	//PrimitiveGeometry& operator=(const PrimitiveGeometry& lhs);
 	//PrimitiveGeometry& operator=(PrimitiveGeometry&& rhs);
 	virtual ~PrimitiveGeometry();
+
+	virtual void Update(float DeltaTime) = 0;
 	virtual void Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext) = 0;
 
 public:
@@ -33,14 +36,22 @@ public:
 
 	RenderComponent* GetRenderComponent() const;
 	CollisionComponent* GetCollisionComponent() const;
+	MovementComponent* GetMovementComponent() const;
 
-	UINT stride = { 32 };
+	UINT stride = { 32 }; // sizeof Vertex structure
 	UINT offset = { 0 };
+
+	float posX = 0;
+	float posY = 0;
+	float posZ = 0;
+
 protected:
 	RenderComponent* pRenderComponent = nullptr;
 	CollisionComponent* pCollisionComponent = nullptr;
 	InputComponent* pInputComponent = nullptr;
+	MovementComponent* pMovementComponent = nullptr;
 
+	STransform transform;
 	std::vector<Vertex> vertices;
 	std::vector<DWORD> indeces;
 

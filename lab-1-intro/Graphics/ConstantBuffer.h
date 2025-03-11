@@ -4,22 +4,56 @@
 #include <wrl.h>
 #include <d3d11.h>
 
+#include "ScaldCoreTypes.h"
+
 #pragma comment(lib, "d3d11.lib")
 
 template<typename T>
 class ConstantBuffer
 {
 public:
-	ConstantBuffer() {}
+	ConstantBuffer()
+	{
+		cb.transform = {
+			(768.f / 1024.f) * 1.0f,	0.0f,	0.0f,	0.0f,
+			0.0f,						1.0f,	0.0f,	0.0f,
+			0.0f,						0.0f,	1.0f,	0.0f,
+			0.0f,						0.0f,	0.0f,	1.0f
+		};
+	}
 	ConstantBuffer(const ConstantBuffer& rhs) = delete;
 
 private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> pBuffer;
 	ID3D11DeviceContext* pDeviceContext = nullptr;
 
+	float posX = 0;
+	float posY = 0;
+	float posZ = 0;
+
 public:
 	// ?
-	T data;
+	ConstBuffer cb;
+	T curr_data;
+
+	STransform transformation;
+
+	void SetScale(float x, float y, float z)
+	{
+
+	}
+
+	void SetTranslation(float x, float y, float z)
+	{
+		transformation.Translation.x = x;
+		transformation.Translation.y = y;
+		transformation.Translation.z = z;
+	}
+
+	void SetRotation(float x, float y, float z)
+	{
+
+	}
 	
 	ID3D11Buffer* Get() const { return pBuffer.Get(); }
 	ID3D11Buffer* const* GetAddressOf() const { return pBuffer.GetAddressOf(); }
@@ -37,19 +71,19 @@ public:
 		constantBufDesc.MiscFlags = 0u;
 		constantBufDesc.StructureByteStride = 0u;
 
-		/*D3D11_SUBRESOURCE_DATA constantData = {};
-		constantData.pSysMem = &cb;
-		constantData.SysMemPitch = 0u;
-		constantData.SysMemSlicePitch = 0u;*/
-
 		return device->CreateBuffer(&constantBufDesc, 0, pBuffer.GetAddressOf());
 	}
 
 	bool ApplyChanges(const T& data)
 	{
+		curr_data = data;
+		DirectX::XMMATRIX worldMatrix = DirectX::XMMatrixTranslation(0.0f, transformation.Translation.y, 0.0f);
+
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
 		ThrowIfFailed(pDeviceContext->Map(pBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
-		CopyMemory(mappedResource.pData, &data, sizeof(T));
+
+		curr_data.transform = DirectX::XMMatrixTranspose(worldMatrix);
+		CopyMemory(mappedResource.pData, &curr_data, sizeof(T));
 		pDeviceContext->Unmap(pBuffer.Get(), 0);
 		return true;
 	}

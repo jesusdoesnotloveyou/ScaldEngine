@@ -80,6 +80,9 @@ RenderWindow::RenderWindow(int width, int height, const char* windowTitle)
 #pragma endregion Window init
 
 	pGfx = std::make_unique<Graphics>(hWnd, width, height);
+
+	// Pong
+	kbd.autorepeatEnabled = true;
 }
 
 RenderWindow::~RenderWindow()
@@ -112,6 +115,10 @@ std::optional<int> RenderWindow::ProcessMessages() noexcept
 
 Graphics& RenderWindow::GetGfx()
 {
+	if (!pGfx)
+	{
+		throw SCALDWND_LAST_EXCEPT();
+	}
 	return *pGfx;
 }
 
@@ -136,6 +143,7 @@ LRESULT WINAPI RenderWindow::HandleMsgThunk(HWND hWnd, UINT msg, WPARAM wParam, 
 
 LRESULT RenderWindow::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept
 {
+	std::ostringstream ss;
 	switch (msg)
 	{
 	case WM_CLOSE:
@@ -149,16 +157,20 @@ LRESULT RenderWindow::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
 	case WM_KEYDOWN:
 		// syskey commands need to be handled to track ALT key (VK_MENU)
 	case WM_SYSKEYDOWN:
-		if (!(lParam & 0x40000000) || kbd.IsAutorepeatEnabled()) // filter autorepeat key event
-		{
+		
+		//if (!(lParam & 0x40000000) || kbd.IsAutorepeatEnabled()) // filter autorepeat key event
+		//{
 			kbd.OnKeyPressed(static_cast<unsigned char>(wParam));
-		}
+			ss << "Key pressed: " << static_cast<unsigned char>(wParam) << "\n";
+		//}
+		SetTitle(ss.str());
 		break;
 	case WM_KEYUP:
 	case WM_SYSKEYUP:
 		kbd.OnKeyReleased(static_cast<unsigned char>(wParam));
+		ss << "Key released: " << static_cast<unsigned char>(wParam) << "\n";
+		SetTitle(ss.str());
 		break;
-
 	case WM_CHAR:
 		kbd.OnChar(static_cast<unsigned char>(wParam));
 		break;

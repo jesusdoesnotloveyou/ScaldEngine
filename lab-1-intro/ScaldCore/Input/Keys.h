@@ -1,17 +1,17 @@
 #pragma once
 
-enum class Keys : int {
+enum class Keys : unsigned char {
 
 	None = 0,
 
-	LeftButton = 500,
+	/*LeftButton = 500,
 	RightButton = 501,
 	MiddleButton = 502,
 	MouseButtonX1 = 503,
 	MouseButtonX2 = 504,
 	MouseButtonX3 = 505,
 	WheelUp = 506,
-	WheelDown = 507,
+	WheelDown = 507,*/
 	
 	Back = 8,
 	Tab = 9,

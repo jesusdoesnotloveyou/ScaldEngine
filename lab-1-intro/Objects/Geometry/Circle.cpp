@@ -1,29 +1,33 @@
 #include "Circle.h"
 
-Circle::Circle()
+#define PI 3.14159
+
+Circle::Circle(float radius)
 	: PrimitiveGeometry()
 {
+	circleRadius = radius;
+
 	vertices = {
-		// outer points
-		{ DirectX::XMFLOAT4(0.0f, 1.0f, 0.5f, 1.0f), DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f) },		// 0 up
-		{ DirectX::XMFLOAT4(-0.951f, 0.309f, 0.5f, 1.0f), DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f) },	// 1 left up
-		{ DirectX::XMFLOAT4(-0.588f, -0.809f, 0.5f, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) }, // 2 left down
-		{ DirectX::XMFLOAT4(0.588f, -0.809f, 0.5f, 1.0f), DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) },	// 3 right down
-		{ DirectX::XMFLOAT4(0.951f, 0.309f, 0.5f, 1.0f), DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) },	// 4 right up
-		// inner points
-		{ DirectX::XMFLOAT4(0.0f, 0.5f, 0.5f, 1.0f), DirectX::XMFLOAT4(1.0f, 0.0f, 0.0f, 1.0f) },		// 5 up
-		{ DirectX::XMFLOAT4(-0.475f, 0.154f, 0.5f, 1.0f), DirectX::XMFLOAT4(0.0f, 0.0f, 1.0f, 1.0f) },  // 6 left up
-		{ DirectX::XMFLOAT4(-0.294f, -0.404f, 0.5f, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) }, // 7 left down
-		{ DirectX::XMFLOAT4(0.294f, -0.404f, 0.5f, 1.0f), DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) },	// 8 right down
-		{ DirectX::XMFLOAT4(0.475f, 0.154f, 0.5f, 1.0f), DirectX::XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f) },	// 9 right up
+		{ DirectX::XMFLOAT4(0.0f, 0.0f, 0.5f, 1.0f),																DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },	// 0 center
+		{ DirectX::XMFLOAT4(0.0f, radius, 0.5f, 1.0f),																DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },	// 1 up
+		{ DirectX::XMFLOAT4(std::cos(ToRadians(45.f)) * radius, std::sin(ToRadians(45.f)) * radius, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },	// 2 45 degrees
+		{ DirectX::XMFLOAT4(radius, 0.0f, 0.5f, 1.0f),																DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },	// 3 right
+		{ DirectX::XMFLOAT4(std::cos(ToRadians(45.f)) * radius, -std::sin(ToRadians(45.f)) * radius, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },	// 4 -45 degrees
+		{ DirectX::XMFLOAT4(0.0f, -radius, 0.5f, 1.0f),																DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },	// 5 down
+		{ DirectX::XMFLOAT4(-std::cos(ToRadians(45.f)) * radius, -std::sin(ToRadians(45.f)) * radius, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },	// 6 -135 degrees
+		{ DirectX::XMFLOAT4(-radius, 0.0f, 0.5f, 1.0f),																DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },	// 7 left
+		{ DirectX::XMFLOAT4(-std::cos(ToRadians(45.f)) * radius, std::sin(ToRadians(45.f)) * radius, 0.5f, 1.0f),	DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },	// 8 135 degrees
 	};
 
 	indeces = {
-		0, 5, 1,
-		1, 6, 2,
-		2, 7, 3,
-		3, 8, 4,
-		4, 9, 0
+		0, 1, 2,
+		0, 2, 3,
+		0, 3, 4,
+		0, 4, 5,
+		0, 5, 6,
+		0, 6, 7,
+		0, 7, 8,
+		0, 8, 1
 	};
 }
 
@@ -38,4 +42,16 @@ Circle::~Circle()
 
 void Circle::Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext)
 {
+	//pCollisionComponent->
+	PrimitiveGeometry::Initialize(pDevice, pDeviceContext);
+}
+
+void Circle::Update(float DeltaTime)
+{
+	PrimitiveGeometry::Update(DeltaTime);
+}
+
+float Circle::ToRadians(float angle)
+{
+	return float(PI) * angle / 180.f;
 }

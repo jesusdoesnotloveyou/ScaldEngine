@@ -2,6 +2,8 @@
 
 #include <queue>
 #include <bitset>
+#include "Keys.h"
+#include "../../Delegates/Delegates.h"
 
 // KEYBOARD INPUT
 class Keyboard
@@ -86,6 +88,13 @@ private:
 			buffer.pop();
 		}
 	}
+
+public:
+#pragma region Input Delegates
+	MulticastDelegate<unsigned char> OnKeyPressedEvent;
+	MulticastDelegate<unsigned char> OnKeyReleasedEvent;
+	MulticastDelegate<unsigned char> OnCharEvent;
+#pragma endregion Input Delegates
 
 private:
 	static constexpr unsigned int nKeys = 256u;

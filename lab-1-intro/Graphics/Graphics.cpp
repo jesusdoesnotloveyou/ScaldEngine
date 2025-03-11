@@ -3,8 +3,7 @@
 #include "Graphics.h"
 #include <chrono>
 
-#include "../Objects/Geometry/Rectangle.h"
-#include "../Objects/Geometry/Star.h"
+#include "../Objects/Geometry/PrimitiveGeometry.h"
 
 #include <d3d.h>
 #include <d3d11.h>
@@ -72,6 +71,16 @@ void Graphics::EndFrame()
 	ThrowIfFailed(pSwapChain->Present(1u, /*DXGI_PRESENT_DO_NOT_WAIT*/ 0u));
 }
 
+ID3D11DeviceContext* Graphics::GetDeviceContext() const
+{
+	return pContext.Get();
+}
+
+ID3D11Device* Graphics::GetDevice() const
+{
+	return pDevice.Get();
+}
+
 void Graphics::Setup()
 {	
 	CD3D11_RASTERIZER_DESC rastDesc = {};
@@ -80,31 +89,9 @@ void Graphics::Setup()
 
 	ThrowIfFailed(pDevice->CreateRasterizerState(&rastDesc, &pRastState));
 	pContext->RSSetState(pRastState.Get());
-
-	std::vector<Vertex> testVertexVec = {
-		{ DirectX::XMFLOAT4(0.0f, 0.5f, 0.5f, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },
-		{ DirectX::XMFLOAT4(0.4f, -0.3f, 0.5f, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },
-		{ DirectX::XMFLOAT4(-0.5f, -0.3f, 0.5f, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },
-		{ DirectX::XMFLOAT4(0.4f, 0.3f, 0.5f, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },
-		{ DirectX::XMFLOAT4(0.0f, -0.5f, 0.5f, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) },
-		{ DirectX::XMFLOAT4(-0.4f, 0.3f, 0.5f, 1.0f), DirectX::XMFLOAT4(0.0f, 1.0f, 0.0f, 1.0f) }
-	};
-	std::vector<DWORD> testIndexVec = { 0, 1, 2,  3, 4, 5 };
-
-	//PrimitiveGeometry* testGeom1 = new Star();
-	//GameObjects.push_back(testGeometry1);
-
-	PrimitiveGeometry* testGeom = new Rect();
-	GameObjects.push_back(testGeom);
-
-	for (auto& geometry : GameObjects)
-	{
-		if (!geometry) continue;
-		geometry->Initialize(pDevice.Get(), pContext.Get());
-	}
 }
 
-void Graphics::Draw(float angle)
+void Graphics::DrawScene(std::vector<PrimitiveGeometry*>& gameObjects)
 {
 	pContext->ClearState();
 	pContext->RSSetState(pRastState.Get());
@@ -121,29 +108,17 @@ void Graphics::Draw(float angle)
 	};
 	pContext->RSSetViewports(1u, &viewport);
 
-	for (auto& geometry : GameObjects)
+	for (auto geometry : gameObjects)
 	{
 		// Step 08: Setup the IA stage
 		pContext->IASetInputLayout(geometry->GetRenderComponent()->GetInputLayout());
 		pContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-		ConstBuffer cb;
-		cb.transform =
-		{
-				std::cos(angle),	std::sin(angle),	0.0f, 0.0f,
-				-std::sin(angle),	std::cos(angle),	0.0f, 0.0f,
-				0.0f,				0.0f,				1.0f, 0.0f,
-				0.0f,				0.0f,				0.0f, 1.0f
-		};
-
-		if (!geometry->GetConstantBuffer().ApplyChanges(cb)) return;
+		if (!geometry->GetConstantBuffer().ApplyChanges(geometry->GetConstantBuffer().curr_data)) return;
 		
 		pContext->VSSetConstantBuffers(0u, 1u, geometry->GetConstantBuffer().GetAddressOf());
-		//pContext->VSSetConstantBuffers(0u, 1u, geometry->constantBuffer.GetAddressOf());
 		pContext->IASetVertexBuffers(0u, 1u, geometry->GetVertexBuffer().GetAddressOf(), geometry->GetVertexBuffer().GetStridePtr(), &geometry->offset);
-		//pContext->IASetVertexBuffers(0u, 1u, geometry->vertexBuffer.GetAddressOf(), geometry->vertexBuffer.GetStridePtr(), &geometry->offset);
 		pContext->IASetIndexBuffer(geometry->GetIndexBuffer().Get(), DXGI_FORMAT_R32_UINT, 0u);
-		//pContext->IASetIndexBuffer(geometry->indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0u);
 		
 		// Step 09: Set Vertex and Pixel Shaders
 		pContext->VSSetShader(geometry->GetRenderComponent()->GetVertexShader(), nullptr, 0);

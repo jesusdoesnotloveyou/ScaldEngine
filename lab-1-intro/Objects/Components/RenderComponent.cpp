@@ -11,7 +11,7 @@ RenderComponent::~RenderComponent() noexcept
 
 }
 
-void RenderComponent::Update()
+void RenderComponent::Update(float DeltaTime)
 {
 
 }

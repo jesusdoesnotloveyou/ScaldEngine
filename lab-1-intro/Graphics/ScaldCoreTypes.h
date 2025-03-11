@@ -14,3 +14,10 @@ struct ConstBuffer
 {
 	dx::XMMATRIX transform;
 };
+
+struct STransform
+{
+	dx::XMFLOAT3 Rotation = { 0.0f, 0.0f, 0.0f };
+	dx::XMFLOAT3 Translation = { 0.0f, 0.0f, 0.0f };
+	dx::XMFLOAT3 Scale = { 0.0f, 0.0f, 0.0f };
+};

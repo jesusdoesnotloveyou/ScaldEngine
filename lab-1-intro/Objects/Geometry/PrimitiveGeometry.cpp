@@ -6,6 +6,7 @@ PrimitiveGeometry::PrimitiveGeometry()
     pRenderComponent = new RenderComponent{};
     pCollisionComponent = new CollisionComponent{};
     pInputComponent = new InputComponent{};
+    pMovementComponent = new MovementComponent{};
 }
 
 PrimitiveGeometry::PrimitiveGeometry(const std::vector<Vertex>& v, const std::vector<DWORD>& i)
@@ -37,17 +38,27 @@ PrimitiveGeometry::PrimitiveGeometry(const std::vector<Vertex>& v, const std::ve
 
 PrimitiveGeometry::~PrimitiveGeometry()
 {
-    if (pRenderComponent)
-        delete pRenderComponent;
-    if (pCollisionComponent)
-        delete pCollisionComponent;
-    if (pInputComponent)
-        delete pInputComponent;
+    if (pRenderComponent) delete pRenderComponent;
+    if (pCollisionComponent) delete pCollisionComponent;
+    if (pMovementComponent) delete pMovementComponent;
+    if (pInputComponent) delete pInputComponent;
+}
+
+void PrimitiveGeometry::Update(float DeltaTime)
+{
+    constantBuffer.SetTranslation(posX, posY, posZ);
+    // need a cycle for object's components
+    pRenderComponent->Update(DeltaTime);
+    pCollisionComponent->Update(DeltaTime);
+    pMovementComponent->Update(DeltaTime);
+    pInputComponent->Update(DeltaTime);
 }
 
 void PrimitiveGeometry::Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext)
 {
     pRenderComponent->Initialize(pDevice);
+    //pCollisionComponent->Initialize();
+    //pInputComponent->Initialize();
 
     ThrowIfFailed(vertexBuffer.Init(pDevice, vertices.data(), (UINT)vertices.size()));
     ThrowIfFailed(indexBuffer.Init(pDevice, indeces.data(), (UINT)indeces.size()));
@@ -77,4 +88,9 @@ RenderComponent* PrimitiveGeometry::GetRenderComponent() const
 CollisionComponent* PrimitiveGeometry::GetCollisionComponent() const
 {
     return pCollisionComponent;
+}
+
+MovementComponent* PrimitiveGeometry::GetMovementComponent() const
+{
+    return pMovementComponent;
 }

@@ -1,7 +1,12 @@
 cbuffer CBuf : register(b0)
 {
-    row_major matrix transform;
+    /*row_major */matrix transform;
 };
+
+cbuffer CBufChangeOnResize : register(b1)
+{
+    matrix mProjection;
+}
 
 struct VS_IN
 {
