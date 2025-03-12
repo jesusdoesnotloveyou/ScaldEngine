@@ -5,7 +5,7 @@
 class Rect : public PrimitiveGeometry
 {
 public:
-	Rect(float x = 0.2f, float y = 0.2f);
+	Rect();
 	Rect(const STransform& transform);
 	Rect(const std::vector<Vertex>& v, const std::vector<DWORD>& i = { 0, 1, 2,  0, 2, 3 });
 
