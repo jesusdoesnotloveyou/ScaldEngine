@@ -1,5 +1,7 @@
 #pragma once
 
+#include "../../Graphics/ScaldCoreTypes.h"
+
 class IScaldComponent
 {
 public:
