@@ -27,32 +27,16 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> pBuffer;
 	ID3D11DeviceContext* pDeviceContext = nullptr;
 
-	float posX = 0;
-	float posY = 0;
-	float posZ = 0;
-
+	STransform mTransform;
 public:
 	// ?
 	ConstBuffer cb;
 	T curr_data;
 
-	STransform transformation;
 
-	void SetScale(float x, float y, float z)
+	void SetTransform(const STransform& transform)
 	{
-
-	}
-
-	void SetTranslation(float x, float y, float z)
-	{
-		transformation.Translation.x = x;
-		transformation.Translation.y = y;
-		transformation.Translation.z = z;
-	}
-
-	void SetRotation(float x, float y, float z)
-	{
-
+		mTransform = transform;
 	}
 	
 	ID3D11Buffer* Get() const { return pBuffer.Get(); }
@@ -77,7 +61,7 @@ public:
 	bool ApplyChanges(const T& data)
 	{
 		curr_data = data;
-		DirectX::XMMATRIX worldMatrix = DirectX::XMMatrixTranslation(0.0f, transformation.Translation.y, 0.0f);
+		DirectX::XMMATRIX worldMatrix = DirectX::XMMatrixTranslation(0.0f, mTransform.Position.y, 0.0f);
 
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
 		ThrowIfFailed(pDeviceContext->Map(pBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
