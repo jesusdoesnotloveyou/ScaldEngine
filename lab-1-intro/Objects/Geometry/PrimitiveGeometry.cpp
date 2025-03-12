@@ -46,18 +46,21 @@ PrimitiveGeometry::~PrimitiveGeometry()
 
 void PrimitiveGeometry::Update(float DeltaTime)
 {
-    constantBuffer.SetTranslation(posX, posY, posZ);
+    constantBuffer.SetTransform(ObjectTransform);
+
+    pCollisionComponent->UpdateOwnerTransform(ObjectTransform);
+
     // need a cycle for object's components
-    pRenderComponent->Update(DeltaTime);
-    pCollisionComponent->Update(DeltaTime);
-    pMovementComponent->Update(DeltaTime);
-    pInputComponent->Update(DeltaTime);
+    //pCollisionComponent->Update(DeltaTime);
+    //pRenderComponent->Update(DeltaTime);
+    //pMovementComponent->Update(DeltaTime);
+    //pInputComponent->Update(DeltaTime);
 }
 
 void PrimitiveGeometry::Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext)
 {
     pRenderComponent->Initialize(pDevice);
-    //pCollisionComponent->Initialize();
+    pCollisionComponent->Initialize(ObjectTransform);
     //pInputComponent->Initialize();
 
     ThrowIfFailed(vertexBuffer.Init(pDevice, vertices.data(), (UINT)vertices.size()));

@@ -41,17 +41,15 @@ public:
 	UINT stride = { 32 }; // sizeof Vertex structure
 	UINT offset = { 0 };
 
-	float posX = 0;
-	float posY = 0;
-	float posZ = 0;
+	STransform ObjectTransform;
 
 protected:
+	
 	RenderComponent* pRenderComponent = nullptr;
 	CollisionComponent* pCollisionComponent = nullptr;
 	InputComponent* pInputComponent = nullptr;
 	MovementComponent* pMovementComponent = nullptr;
 
-	STransform transform;
 	std::vector<Vertex> vertices;
 	std::vector<DWORD> indeces;
 
