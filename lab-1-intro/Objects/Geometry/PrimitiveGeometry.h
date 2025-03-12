@@ -14,16 +14,16 @@
 #include <vector>
 
 class RenderComponent;
+class CollisionComponent;
+class InputComponent;
+class MovementComponent;
 
 class PrimitiveGeometry
 {
 public:
 	PrimitiveGeometry();
+	// would be changed to normal constructor
 	PrimitiveGeometry(const std::vector<Vertex>& v, const std::vector<DWORD>& i);
-	//PrimitiveGeometry(const PrimitiveGeometry& lhs);
-	//PrimitiveGeometry(PrimitiveGeometry&& rhs);
-	//PrimitiveGeometry& operator=(const PrimitiveGeometry& lhs);
-	//PrimitiveGeometry& operator=(PrimitiveGeometry&& rhs);
 	virtual ~PrimitiveGeometry();
 
 	virtual void Update(float DeltaTime) = 0;
@@ -38,13 +38,14 @@ public:
 	CollisionComponent* GetCollisionComponent() const;
 	MovementComponent* GetMovementComponent() const;
 
+	void SetIsMovable(bool newStatus) { bIsMovable = newStatus; }
+	bool GetIsMovable() const { return bIsMovable; }
+
 	UINT stride = { 32 }; // sizeof Vertex structure
 	UINT offset = { 0 };
 
 	STransform ObjectTransform;
-
 protected:
-	
 	RenderComponent* pRenderComponent = nullptr;
 	CollisionComponent* pCollisionComponent = nullptr;
 	InputComponent* pInputComponent = nullptr;
@@ -57,4 +58,6 @@ private:
 	ConstantBuffer<ConstBuffer> constantBuffer;
 	VertexBuffer<Vertex> vertexBuffer;
 	IndexBuffer indexBuffer;
+
+	bool bIsMovable = false;
 };

@@ -5,7 +5,6 @@ PrimitiveGeometry::PrimitiveGeometry()
 {
     pRenderComponent = new RenderComponent{};
     pCollisionComponent = new CollisionComponent{};
-    pInputComponent = new InputComponent{};
     pMovementComponent = new MovementComponent{};
 }
 
@@ -16,45 +15,32 @@ PrimitiveGeometry::PrimitiveGeometry(const std::vector<Vertex>& v, const std::ve
     indeces = i;
 }
 
-//PrimitiveGeometry::PrimitiveGeometry(const PrimitiveGeometry& lhs)
-//{
-//
-//}
-//
-//PrimitiveGeometry::PrimitiveGeometry(PrimitiveGeometry&& rhs)
-//{
-//    
-//}
-//
-//PrimitiveGeometry& PrimitiveGeometry::operator=(const PrimitiveGeometry& lhs)
-//{
-//
-//}
-//
-//PrimitiveGeometry& PrimitiveGeometry::operator=(PrimitiveGeometry&& rhs)
-//{
-//
-//}
-
 PrimitiveGeometry::~PrimitiveGeometry()
 {
     if (pRenderComponent) delete pRenderComponent;
     if (pCollisionComponent) delete pCollisionComponent;
     if (pMovementComponent) delete pMovementComponent;
-    if (pInputComponent) delete pInputComponent;
 }
 
 void PrimitiveGeometry::Update(float DeltaTime)
-{
+{   
+    if (bIsMovable)
+    {
+        if (ObjectTransform.Translation.y - ObjectTransform.Scale.y > 1.0f || ObjectTransform.Translation.y + ObjectTransform.Scale.y < -1.0f)
+        {
+            auto speed = GetMovementComponent()->GetVelocity();
+            GetMovementComponent()->SetVelocity(speed.x, speed.y * (-1.0f), speed.z);
+        }
+        if (ObjectTransform.Translation.x - ObjectTransform.Scale.x > 1.0f || ObjectTransform.Translation.x + ObjectTransform.Scale.x < -1.0f)
+        {
+            auto speed = GetMovementComponent()->GetVelocity();
+            GetMovementComponent()->SetVelocity(speed.x * (-1.0f), speed.y, speed.z);
+        }
+        ObjectTransform.Translation.x += GetMovementComponent()->GetVelocity().x;
+        ObjectTransform.Translation.y += GetMovementComponent()->GetVelocity().y;
+    }
     constantBuffer.SetTransform(ObjectTransform);
-
     pCollisionComponent->UpdateOwnerTransform(ObjectTransform);
-
-    // need a cycle for object's components
-    //pCollisionComponent->Update(DeltaTime);
-    //pRenderComponent->Update(DeltaTime);
-    //pMovementComponent->Update(DeltaTime);
-    //pInputComponent->Update(DeltaTime);
 }
 
 void PrimitiveGeometry::Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext)
