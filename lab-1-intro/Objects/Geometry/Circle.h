@@ -5,7 +5,7 @@
 class Circle : public PrimitiveGeometry
 {
 public:
-	Circle(float radius);
+	Circle(const STransform& transform);
 	Circle(const std::vector<Vertex>& v, const std::vector<DWORD>& i);
 
 	virtual ~Circle() override;
@@ -15,5 +15,5 @@ public:
 private:
 	float ToRadians(float angle);
 private:
-	float circleRadius = 0.0f;
+	float radius = 0.0f;
 };
