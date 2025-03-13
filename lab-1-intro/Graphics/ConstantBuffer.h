@@ -4,6 +4,8 @@
 #include <wrl.h>
 #include <d3d11.h>
 
+#include "ScaldCoreTypes.h"
+
 #pragma comment(lib, "d3d11.lib")
 
 template<typename T>
@@ -12,14 +14,12 @@ class ConstantBuffer
 public:
 	ConstantBuffer() {}
 	ConstantBuffer(const ConstantBuffer& rhs) = delete;
-
-private:
-	Microsoft::WRL::ComPtr<ID3D11Buffer> pBuffer;
-	ID3D11DeviceContext* pDeviceContext = nullptr;
-
 public:
-	// ?
-	T data;
+
+	void SetTransform(const STransform& transform)
+	{
+		mTransform = transform;
+	}
 	
 	ID3D11Buffer* Get() const { return pBuffer.Get(); }
 	ID3D11Buffer* const* GetAddressOf() const { return pBuffer.GetAddressOf(); }
@@ -37,20 +37,32 @@ public:
 		constantBufDesc.MiscFlags = 0u;
 		constantBufDesc.StructureByteStride = 0u;
 
-		/*D3D11_SUBRESOURCE_DATA constantData = {};
-		constantData.pSysMem = &cb;
-		constantData.SysMemPitch = 0u;
-		constantData.SysMemSlicePitch = 0u;*/
-
 		return device->CreateBuffer(&constantBufDesc, 0, pBuffer.GetAddressOf());
 	}
 
-	bool ApplyChanges(const T& data)
+	bool ApplyChanges()
 	{
+		DirectX::XMMATRIX worldMatrix;
+		worldMatrix =
+			XMMatrixScaling(mTransform.Scale.x, mTransform.Scale.y, mTransform.Scale.z) *
+			XMMatrixRotationRollPitchYaw(mTransform.Rotation.x, mTransform.Rotation.z, mTransform.Rotation.y) *
+			XMMatrixTranslation(mTransform.Translation.x, mTransform.Translation.y, mTransform.Translation.z);
+
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
 		ThrowIfFailed(pDeviceContext->Map(pBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
-		CopyMemory(mappedResource.pData, &data, sizeof(T));
+
+		curr_data.transform = DirectX::XMMatrixTranspose(worldMatrix);
+		CopyMemory(mappedResource.pData, &curr_data, sizeof(T));
 		pDeviceContext->Unmap(pBuffer.Get(), 0);
 		return true;
 	}
+
+public:
+	T curr_data;
+
+private:
+	Microsoft::WRL::ComPtr<ID3D11Buffer> pBuffer;
+	ID3D11DeviceContext* pDeviceContext = nullptr;
+
+	STransform mTransform;
 };

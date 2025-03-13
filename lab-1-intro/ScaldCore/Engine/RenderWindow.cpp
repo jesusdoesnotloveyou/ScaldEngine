@@ -79,6 +79,9 @@ RenderWindow::RenderWindow(int width, int height, const char* windowTitle)
 #pragma endregion Window init
 
 	pGfx = std::make_unique<Graphics>(hWnd, width, height);
+
+	// Pong
+	kbd.autorepeatEnabled = true;
 }
 
 RenderWindow::~RenderWindow()
@@ -111,6 +114,10 @@ std::optional<int> RenderWindow::ProcessMessages() noexcept
 
 Graphics& RenderWindow::GetGfx()
 {
+	if (!pGfx)
+	{
+		throw SCALDWND_LAST_EXCEPT();
+	}
 	return *pGfx;
 }
 
@@ -140,7 +147,7 @@ LRESULT RenderWindow::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
 	case WM_CLOSE:
 		PostQuitMessage(69);
 		return 0;
-		// clear keystate when window loses focus to prevent input getting zombie
+
 	case WM_KILLFOCUS:
 		kbd.ClearState();
 		break;
@@ -148,10 +155,11 @@ LRESULT RenderWindow::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
 	case WM_KEYDOWN:
 		// syskey commands need to be handled to track ALT key (VK_MENU)
 	case WM_SYSKEYDOWN:
-		if (!(lParam & 0x40000000) || kbd.IsAutorepeatEnabled()) // filter autorepeat key event
-		{
+		
+		//if (!(lParam & 0x40000000) || kbd.IsAutorepeatEnabled()) // filter autorepeat key event
+		//{
 			kbd.OnKeyPressed(static_cast<unsigned char>(wParam));
-		}
+		//}
 		break;
 	case WM_KEYUP:
 	case WM_SYSKEYUP:
@@ -162,7 +170,7 @@ LRESULT RenderWindow::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
 		kbd.OnChar(static_cast<unsigned char>(wParam));
 		break;
 		/****************** END KEYBOARD MESSAGES *******************/
-		
+      
 		/****************** MOUSE MESSAGES *******************/
 	case WM_MOUSEMOVE:
 	{
@@ -225,7 +233,9 @@ LRESULT RenderWindow::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
 		mouse.OnWheelDelta(pt.x, pt.y, delta);
 		break;
 	}
-		/****************** END MOUSE MESSAGES *******************/
+
+  /****************** END MOUSE MESSAGES *******************/
+
 	}
 	return DefWindowProc(hWnd, msg, wParam, lParam);
 }

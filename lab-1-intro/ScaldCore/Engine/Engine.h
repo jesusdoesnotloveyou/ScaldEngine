@@ -9,11 +9,27 @@ public:
 	Engine();
 	int Launch();
 
+	float AspectRatio() const;
+  
 private:
+	void SetupScene();
+	void UpdateScene(float DeltaTime);
+	void PollInput();
 	void RenderFrame();
-	void Update();
+	void CalculateFrameStats();
 
-private:
-	RenderWindow renderWindow;
-	ScaldTimer timer;
+	// Pong Specific functions
+	bool CheckCollision(PrimitiveGeometry* ball, PrimitiveGeometry* otherActor);
+	void UpdateCollisionWithPaddle(PrimitiveGeometry* ball, PrimitiveGeometry* otherActor);
+
+protected:
+	std::vector<PrimitiveGeometry*> GameObjects;
+	RenderWindow mRenderWindow;
+	ScaldTimer mTimer;
+
+	int mClientWidth = 1024;
+	int mClientHeight = 768;
+
+	int leftPlayerScore = 0;
+	int rightPlayerScore = 0;
 };

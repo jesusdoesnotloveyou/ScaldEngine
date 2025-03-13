@@ -7,22 +7,26 @@
 
 #include "../../Objects/Components/RenderComponent.h"
 #include "../../Objects/Components/CollisionComponent.h"
+#include "../../Objects/Components/InputComponent.h"
+#include "../../Objects/Components/MovementComponent.h"
 
 #include <cmath>
 #include <vector>
 
 class RenderComponent;
+class CollisionComponent;
+class InputComponent;
+class MovementComponent;
 
 class PrimitiveGeometry
 {
 public:
 	PrimitiveGeometry();
+	// would be changed to normal constructor
 	PrimitiveGeometry(const std::vector<Vertex>& v, const std::vector<DWORD>& i);
-	//PrimitiveGeometry(const PrimitiveGeometry& lhs);
-	//PrimitiveGeometry(PrimitiveGeometry&& rhs);
-	//PrimitiveGeometry& operator=(const PrimitiveGeometry& lhs);
-	//PrimitiveGeometry& operator=(PrimitiveGeometry&& rhs);
 	virtual ~PrimitiveGeometry();
+
+	virtual void Update(float DeltaTime) = 0;
 	virtual void Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext) = 0;
 
 public:
@@ -32,12 +36,24 @@ public:
 
 	RenderComponent* GetRenderComponent() const;
 	CollisionComponent* GetCollisionComponent() const;
+	MovementComponent* GetMovementComponent() const;
 
-	UINT stride = { 32 };
+	void SetIsMovable(bool newStatus) { bIsMovable = newStatus; }
+	bool GetIsMovable() const { return bIsMovable; }
+
+	UINT stride = { 32 }; // sizeof Vertex structure
 	UINT offset = { 0 };
+
+	STransform ObjectTransform;
+
+	// Pong specific
+	void Reset(const XMFLOAT3& newSpeed, const XMFLOAT3& newTranslation);
+
 protected:
 	RenderComponent* pRenderComponent = nullptr;
 	CollisionComponent* pCollisionComponent = nullptr;
+	InputComponent* pInputComponent = nullptr;
+	MovementComponent* pMovementComponent = nullptr;
 
 	std::vector<Vertex> vertices;
 	std::vector<DWORD> indeces;
@@ -46,4 +62,9 @@ private:
 	ConstantBuffer<ConstBuffer> constantBuffer;
 	VertexBuffer<Vertex> vertexBuffer;
 	IndexBuffer indexBuffer;
+
+	bool bIsMovable = false;
+
+	int leftPlayerScore = 0;
+	int rightPlayerScore = 0;
 };

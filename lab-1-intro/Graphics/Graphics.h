@@ -6,11 +6,11 @@
 #include <wrl.h>
 #include <vector>
 
-#include "../Objects/Geometry/PrimitiveGeometry.h"
-
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "dxgi.lib")
+
+class PrimitiveGeometry;
 
 class Graphics
 {
@@ -24,10 +24,11 @@ public:
 	void Setup();
 
 	void ClearBuffer(float r);
-	void Draw(float angle);
+	void DrawScene(std::vector<PrimitiveGeometry*>& gameObjects);
 	void EndFrame();
 
-	std::vector<PrimitiveGeometry*> GameObjects;
+	ID3D11DeviceContext* GetDeviceContext() const;
+	ID3D11Device* GetDevice() const;
 
 private:
 	int screenWidth;

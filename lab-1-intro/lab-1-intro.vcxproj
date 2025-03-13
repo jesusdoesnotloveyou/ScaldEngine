@@ -19,8 +19,13 @@
     </ProjectConfiguration>
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="Delegates\Delegates.cpp" />
     <ClCompile Include="Objects\Components\CollisionComponent.cpp" />
     <ClCompile Include="Graphics\IndexBuffer.h" />
+    <ClCompile Include="Objects\Components\InputComponent.cpp" />
+    <ClCompile Include="Objects\Components\MovementComponent.cpp" />
+    <ClCompile Include="Objects\Components\TransformComponent.cpp" />
+    <ClCompile Include="Objects\Geometry\Circle.cpp" />
     <ClCompile Include="Objects\Geometry\Rectangle.cpp" />
     <ClCompile Include="ScaldCore\Engine\Engine.cpp" />
     <ClCompile Include="Graphics\Graphics.cpp" />
@@ -34,9 +39,15 @@
     <ClCompile Include="Objects\Geometry\Star.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Delegates\catch.hpp" />
+    <ClInclude Include="Delegates\Delegates.h" />
     <ClInclude Include="Graphics\ScaldCoreTypes.h" />
     <ClInclude Include="Objects\Components\CollisionComponent.h" />
     <ClInclude Include="Graphics\ConstantBuffer.h" />
+    <ClInclude Include="Objects\Components\InputComponent.h" />
+    <ClInclude Include="Objects\Components\MovementComponent.h" />
+    <ClInclude Include="Objects\Components\TransformComponent.h" />
+    <ClInclude Include="Objects\Geometry\Circle.h" />
     <ClInclude Include="Objects\Geometry\Rectangle.h" />
     <ClInclude Include="ScaldCore\Engine\Engine.h" />
     <ClInclude Include="Graphics\Graphics.h" />
@@ -54,6 +65,15 @@
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\MyVeryFirstShader.hlsl" />
+    <FxCompile Include="Shaders\MyVerySecondShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">PSMain</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">PSMain</EntryPointName>
+    </FxCompile>
+  </ItemGroup>
+  <ItemGroup>
+    <Natvis Include="Delegates\Delegates.natvis" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
@@ -61,7 +81,7 @@
     <ProjectGuid>{c4a51a1b-e6c2-4e2e-be1a-a8d95942fe17}</ProjectGuid>
     <RootNamespace>lab1intro</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
-    <ProjectName>D3D11_ITMO_labs</ProjectName>
+    <ProjectName>lab-1-intro</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">

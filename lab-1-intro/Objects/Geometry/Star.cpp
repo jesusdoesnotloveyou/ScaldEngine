@@ -38,3 +38,8 @@ void Star::Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext
 
 	PrimitiveGeometry::Initialize(pDevice, pDeviceContext);
 }
+
+void Star::Update(float DeltaTime)
+{
+	PrimitiveGeometry::Update(DeltaTime);
+}
