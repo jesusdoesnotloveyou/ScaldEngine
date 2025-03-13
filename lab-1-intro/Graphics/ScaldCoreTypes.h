@@ -1,24 +1,35 @@
 #pragma once
 
 #include <DirectXMath.h>
+#include <DirectXColors.h>
 
-namespace dx = DirectX;
+using namespace DirectX;
 
 struct Vertex
 {
-	dx::XMFLOAT4 posintion;
-	dx::XMFLOAT4 color;
+	XMFLOAT4 posintion;
+	XMFLOAT4 color;
 };
 
 struct ConstBuffer
 {
-	dx::XMMATRIX transform;
+	XMMATRIX transform;
 };
 
 struct STransform
 {
-	dx::XMFLOAT3 Rotation = { 0.0f, 0.0f, 0.0f };
-	dx::XMFLOAT3 Position = { 0.0f, 0.0f, 0.0f };
-	dx::XMFLOAT3 Scale = { 0.0f, 0.0f, 0.0f };		// real scale in coordinate divided by two ([0,x], [0,y], [0, z])
-	dx::XMFLOAT3 Center = { 0.0f, 0.0f, 0.0f };
+	XMFLOAT3 Scale		 = { 1.0f, 1.0f, 1.0f };
+	XMFLOAT3 Rotation	 = { 0.0f, 0.0f, 0.0f };
+	XMFLOAT3 Translation = { 0.0f, 0.0f, 0.0f };
+
+	STransform(
+		const DirectX::XMFLOAT3& scale = { 1.0f, 1.0f, 1.0f },
+		const DirectX::XMFLOAT3& rotation = { 0.0f, 0.0f, 0.0f },
+		const DirectX::XMFLOAT3& translation = { 0.0f, 0.0f, 0.0f }
+	) 
+		: 
+		Scale(scale), 
+		Rotation(rotation), 
+		Translation(translation)
+		{}
 };

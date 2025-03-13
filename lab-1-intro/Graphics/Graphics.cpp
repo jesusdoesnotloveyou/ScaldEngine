@@ -114,7 +114,7 @@ void Graphics::DrawScene(std::vector<PrimitiveGeometry*>& gameObjects)
 		pContext->IASetInputLayout(geometry->GetRenderComponent()->GetInputLayout());
 		pContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
-		if (!geometry->GetConstantBuffer().ApplyChanges(geometry->GetConstantBuffer().curr_data)) return;
+		if (!geometry->GetConstantBuffer().ApplyChanges()) return;
 		
 		pContext->VSSetConstantBuffers(0u, 1u, geometry->GetConstantBuffer().GetAddressOf());
 		pContext->IASetVertexBuffers(0u, 1u, geometry->GetVertexBuffer().GetAddressOf(), geometry->GetVertexBuffer().GetStridePtr(), &geometry->offset);
