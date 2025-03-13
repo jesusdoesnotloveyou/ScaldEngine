@@ -10,7 +10,7 @@ public:
 	int Launch();
 
 	float AspectRatio() const;
-
+  
 private:
 	void SetupScene();
 	void UpdateScene(float DeltaTime);
