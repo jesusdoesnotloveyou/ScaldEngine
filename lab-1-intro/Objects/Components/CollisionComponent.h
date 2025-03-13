@@ -2,10 +2,12 @@
 
 #include "IScaldComponent.h"
 #include "DirectXCollision.h"
+#include "../../Delegates/Delegates.h"
 
 class CollisionComponent : public IScaldComponent
 {
 public:
+	CollisionComponent() = default;
 	~CollisionComponent() override;
 	virtual void Update(float DeltaTime) override;
 
@@ -18,6 +20,6 @@ public:
 	void SetExtends(const DirectX::XMFLOAT3& extends);
 	void SetCenter(const DirectX::XMFLOAT3& center);
 
-private:
+public:
 	DirectX::BoundingBox BoundingBox;
 };

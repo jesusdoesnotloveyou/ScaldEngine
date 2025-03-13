@@ -9,9 +9,15 @@ void CollisionComponent::Update(float DeltaTime)
 	// TODO: lool at the UpdateOwnerTransform method
 }
 
+void CollisionComponent::UpdateOwnerTransform(const STransform& ownerTransform)
+{
+	BoundingBox.Center = ownerTransform.Translation;
+	BoundingBox.Extents = ownerTransform.Scale;
+}
+
 void CollisionComponent::Initialize(const STransform& ownerTransform)
 {
-	BoundingBox.Center = ownerTransform.Position;
+	BoundingBox.Center = ownerTransform.Translation;
 	BoundingBox.Extents = ownerTransform.Scale;
 }
 
@@ -23,12 +29,6 @@ DirectX::XMFLOAT3 CollisionComponent::GetCenter() const
 DirectX::XMFLOAT3 CollisionComponent::GetExtends() const
 {
 	return BoundingBox.Extents;
-}
-
-void CollisionComponent::UpdateOwnerTransform(const STransform& ownerTransform)
-{
-	BoundingBox.Center = ownerTransform.Position;
-	BoundingBox.Extents = ownerTransform.Scale;
 }
 
 void CollisionComponent::SetExtends(const DirectX::XMFLOAT3& extends)

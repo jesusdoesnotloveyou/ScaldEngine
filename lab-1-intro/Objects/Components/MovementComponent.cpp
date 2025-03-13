@@ -5,12 +5,29 @@ void MovementComponent::Update(float DeltaTime)
 	
 }
 
-float MovementComponent::GetSpeed() const
+XMFLOAT3 MovementComponent::GetVelocity() const
 {
-	return static_cast<float>(sqrt(pow(Velocity.x, 2) + pow(Velocity.y, 2) + pow(Velocity.z, 2)));
+	return Velocity;
 }
 
-void MovementComponent::SetSpeed(dx::XMFLOAT3 newSpeed)
+XMFLOAT3 MovementComponent::GetInitialVelocity() const
+{
+	return InitialVelocity;
+}
+
+XMFLOAT3 MovementComponent::GetInitialTransition() const
+{
+	return InitialTransition;
+}
+
+void MovementComponent::SetVelocity(const XMFLOAT3& newSpeed)
 {
 	Velocity = newSpeed;
+}
+
+void MovementComponent::SetVelocity(float x, float y, float z)
+{
+	Velocity.x = x;
+	Velocity.y = y;
+	Velocity.z = z;
 }
