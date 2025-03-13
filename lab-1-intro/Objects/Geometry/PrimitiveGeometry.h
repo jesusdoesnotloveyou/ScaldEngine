@@ -45,6 +45,10 @@ public:
 	UINT offset = { 0 };
 
 	STransform ObjectTransform;
+
+	// Pong specific
+	void Reset(const XMFLOAT3& newSpeed, const XMFLOAT3& newTranslation);
+
 protected:
 	RenderComponent* pRenderComponent = nullptr;
 	CollisionComponent* pCollisionComponent = nullptr;
@@ -60,4 +64,7 @@ private:
 	IndexBuffer indexBuffer;
 
 	bool bIsMovable = false;
+
+	int leftPlayerScore = 0;
+	int rightPlayerScore = 0;
 };
