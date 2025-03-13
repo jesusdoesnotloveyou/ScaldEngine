@@ -143,7 +143,6 @@ LRESULT WINAPI RenderWindow::HandleMsgThunk(HWND hWnd, UINT msg, WPARAM wParam, 
 
 LRESULT RenderWindow::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept
 {
-	std::ostringstream ss;
 	switch (msg)
 	{
 	case WM_CLOSE:
@@ -161,15 +160,11 @@ LRESULT RenderWindow::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
 		//if (!(lParam & 0x40000000) || kbd.IsAutorepeatEnabled()) // filter autorepeat key event
 		//{
 			kbd.OnKeyPressed(static_cast<unsigned char>(wParam));
-			ss << "Key pressed: " << static_cast<unsigned char>(wParam) << "\n";
 		//}
-		SetTitle(ss.str());
 		break;
 	case WM_KEYUP:
 	case WM_SYSKEYUP:
 		kbd.OnKeyReleased(static_cast<unsigned char>(wParam));
-		ss << "Key released: " << static_cast<unsigned char>(wParam) << "\n";
-		SetTitle(ss.str());
 		break;
 	case WM_CHAR:
 		kbd.OnChar(static_cast<unsigned char>(wParam));
