@@ -47,6 +47,9 @@ void Circle::Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceConte
 
 void Circle::Update(float DeltaTime)
 {
+	ObjectTransform.Translation.x = GetMovementComponent()->GetVelocity().x * DeltaTime * 10.0f;
+	ObjectTransform.Translation.y = GetMovementComponent()->GetVelocity().y * DeltaTime * 10.0f;
+
 	PrimitiveGeometry::Update(DeltaTime);
 }
 
