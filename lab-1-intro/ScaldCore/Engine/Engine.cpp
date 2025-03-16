@@ -84,7 +84,8 @@ void Engine::SetupScene()
 
 void Engine::PollInput()
 {
-	float speed = 0.03f;
+	float speedY = 0.03f;
+	float speedX = 0.01f;
 	while (!mRenderWindow.kbd.IsKeyEmpty())
 	{
 		const auto e = mRenderWindow.kbd.ReadKey();
@@ -93,27 +94,60 @@ void Engine::PollInput()
 			// W
 		case 87:
 		{
-			if (GameObjects[0]->ObjectTransform.Translation.y + GameObjects[0]->ObjectTransform.Scale.y > 1.f ) break;
-			GameObjects[0]->ObjectTransform.Translation.y += speed;
+			if (GameObjects[0]->ObjectTransform.Translation.y + GameObjects[0]->ObjectTransform.Scale.y / 2 > 1.f ) break;
+			GameObjects[0]->ObjectTransform.Translation.y += speedY;
 			break;
 		}
 			// S
 		case 83:
-			if (GameObjects[0]->ObjectTransform.Translation.y - GameObjects[0]->ObjectTransform.Scale.y < -1.f) break;
-			GameObjects[0]->ObjectTransform.Translation.y -= speed;
+		{
+			if (GameObjects[0]->ObjectTransform.Translation.y - GameObjects[0]->ObjectTransform.Scale.y / 2 < -1.f) break;
+			GameObjects[0]->ObjectTransform.Translation.y -= speedY;
 			break;
+		}
+			// D
+		case 68:
+		{
+			if (GameObjects[0]->ObjectTransform.Translation.x + GameObjects[0]->ObjectTransform.Scale.x / 2 > 0.99f) break;
+			GameObjects[0]->ObjectTransform.Translation.x += speedX;
+			break;
+		}
+			// A
+		case 65:
+		{
+			if (GameObjects[0]->ObjectTransform.Translation.x - GameObjects[0]->ObjectTransform.Scale.x / 2 < -0.99f) break;
+			GameObjects[0]->ObjectTransform.Translation.x -= speedX;
+			break;
+		}
 			// up
 		case 38:
 		{
-			if (GameObjects[1]->ObjectTransform.Translation.y + GameObjects[1]->ObjectTransform.Scale.y > 1.f) break;
-			GameObjects[1]->ObjectTransform.Translation.y += speed;
+			if (GameObjects[1]->ObjectTransform.Translation.y + GameObjects[1]->ObjectTransform.Scale.y / 2 > 1.f) break;
+			GameObjects[1]->ObjectTransform.Translation.y += speedY;
 			break;
 		}
-		// down
+			// down
 		case 40:
-			if (GameObjects[1]->ObjectTransform.Translation.y - GameObjects[1]->ObjectTransform.Scale.y < -1.f) break;
-			GameObjects[1]->ObjectTransform.Translation.y -= speed;
+		{
+
+			if (GameObjects[1]->ObjectTransform.Translation.y - GameObjects[1]->ObjectTransform.Scale.y / 2 < -1.f) break;
+			GameObjects[1]->ObjectTransform.Translation.y -= speedY;
 			break;
+		}
+			// left
+		case 37:
+		{
+			if (GameObjects[1]->ObjectTransform.Translation.x - GameObjects[1]->ObjectTransform.Scale.x / 2 < -1.f) break;
+			GameObjects[1]->ObjectTransform.Translation.x -= speedX;
+			break;
+		}
+			// right
+		case 39: 
+		{
+			if (GameObjects[1]->ObjectTransform.Translation.x + GameObjects[1]->ObjectTransform.Scale.x / 2 > 1.f) break;
+			GameObjects[1]->ObjectTransform.Translation.x += speedX;
+			break;
+		}
 		}
 	}
 }

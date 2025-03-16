@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Delegates\Delegates.cpp" />
+    <ClCompile Include="Graphics\Camera.cpp" />
     <ClCompile Include="Objects\Components\CollisionComponent.cpp" />
     <ClCompile Include="Graphics\IndexBuffer.h" />
     <ClCompile Include="Objects\Components\InputComponent.cpp" />
@@ -41,6 +42,7 @@
   <ItemGroup>
     <ClInclude Include="Delegates\catch.hpp" />
     <ClInclude Include="Delegates\Delegates.h" />
+    <ClInclude Include="Graphics\Camera.h" />
     <ClInclude Include="Graphics\ScaldCoreTypes.h" />
     <ClInclude Include="Objects\Components\CollisionComponent.h" />
     <ClInclude Include="Graphics\ConstantBuffer.h" />
@@ -64,16 +66,24 @@
     <ClInclude Include="Graphics\VertexBuffer.h" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Shaders\MyVeryFirstShader.hlsl" />
+    <FxCompile Include="Shaders\MyVeryFirstShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">main</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">main</EntryPointName>
+    </FxCompile>
     <FxCompile Include="Shaders\MyVerySecondShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Pixel</ShaderType>
-      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">PSMain</EntryPointName>
-      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">PSMain</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">main</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">main</EntryPointName>
     </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="Delegates\Delegates.natvis" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="Shaders\ShaderTypes.hlsli" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>

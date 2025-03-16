@@ -24,7 +24,7 @@ void RenderComponent::Initialize(ID3D11Device* pDevice)
 	ThrowIfFailed(D3DCompileFromFile(L"./Shaders/MyVeryFirstShader.hlsl",
 		nullptr /*macros*/,
 		nullptr /*include*/,
-		"VSMain",
+		"main",
 		"vs_5_0",
 		D3DCOMPILE_DEBUG, //| D3DCOMPILE_SKIP_OPTIMIZATION,
 		0u,
@@ -35,10 +35,10 @@ void RenderComponent::Initialize(ID3D11Device* pDevice)
 
 	Microsoft::WRL::ComPtr<ID3DBlob> pPixelBC = nullptr;
 	Microsoft::WRL::ComPtr<ID3DBlob> pErrorPixelCode = nullptr;
-	ThrowIfFailed(D3DCompileFromFile(L"./Shaders/MyVeryFirstShader.hlsl",
+	ThrowIfFailed(D3DCompileFromFile(L"./Shaders/MyVerySecondShader.hlsl",
 		nullptr /*macros*/,
 		nullptr /*include*/,
-		"PSMain",
+		"main",
 		"ps_5_0" /*pixel shader*/,
 		D3DCOMPILE_DEBUG, //| D3DCOMPILE_SKIP_OPTIMIZATION,
 		0u,

@@ -6,6 +6,8 @@
 #include <wrl.h>
 #include <vector>
 
+#include "Camera.h"
+
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "dxgi.lib")
@@ -31,9 +33,11 @@ public:
 	ID3D11Device* GetDevice() const;
 
 private:
-	int screenWidth;
-	int screenHeight;
+	int mScreenWidth;
+	int mScreenHeight;
 	HWND hWnd;
+
+	Camera mCamera;
 
 	Microsoft::WRL::ComPtr<ID3D11Device> pDevice;
 	Microsoft::WRL::ComPtr<IDXGISwapChain> pSwapChain;

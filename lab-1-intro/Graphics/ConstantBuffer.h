@@ -40,10 +40,11 @@ public:
 		return device->CreateBuffer(&constantBufDesc, 0, pBuffer.GetAddressOf());
 	}
 
-	bool ApplyChanges()
+	bool ApplyChanges(const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix)
 	{
-		DirectX::XMMATRIX worldMatrix;
-		worldMatrix =
+		static XMMATRIX world = DirectX::XMMatrixIdentity();
+
+		curr_data.transform = world * viewMatrix * projectionMatrix *
 			XMMatrixScaling(mTransform.Scale.x, mTransform.Scale.y, mTransform.Scale.z) *
 			XMMatrixRotationRollPitchYaw(mTransform.Rotation.x, mTransform.Rotation.z, mTransform.Rotation.y) *
 			XMMatrixTranslation(mTransform.Translation.x, mTransform.Translation.y, mTransform.Translation.z);
@@ -51,7 +52,7 @@ public:
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
 		ThrowIfFailed(pDeviceContext->Map(pBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
 
-		curr_data.transform = DirectX::XMMatrixTranspose(worldMatrix);
+		curr_data.transform = DirectX::XMMatrixTranspose(curr_data.transform);
 		CopyMemory(mappedResource.pData, &curr_data, sizeof(T));
 		pDeviceContext->Unmap(pBuffer.Get(), 0);
 		return true;
