@@ -28,15 +28,13 @@ public:
 			:
 			type(Type::Invalid),
 			code(0u)
-		{
-		}
+		{}
 
 		Event(Type type, unsigned char code) noexcept
 			:
 			type(type),
 			code(code)
-		{
-		}
+		{}
 		bool IsPress() const noexcept
 		{
 			return type == Type::Press;
@@ -123,10 +121,11 @@ public:
 			WheelUp,
 			WheelDown,
 			Move,
+			RawMove,
 			Enter,
 			Leave,
 			Invalid,
-			MAX = 8
+			MAX = 11
 		};
 	private:
 		Type type;
@@ -181,6 +180,7 @@ public:
 
 private:
 	void OnMouseMove(int x, int y) noexcept;
+	void OnMouseMoveRaw(int x, int y) noexcept;
 	void OnMouseEnter() noexcept;
 	void OnMouseLeave() noexcept;
 	void OnLeftPressed(int x, int y) noexcept;
@@ -193,8 +193,8 @@ private:
 	void OnWheelDelta(int x, int y, int delta) noexcept;
 private:
 	static constexpr unsigned int bufferSize = 16u;
-	int x;
-	int y;
+	int x = 0;
+	int y = 0;
 	bool bIsLeftPressed = false;
 	bool bIsRightPressed = false;
 	bool bIsInWindow = false;
