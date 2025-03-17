@@ -27,6 +27,7 @@
     <ClCompile Include="Objects\Components\MovementComponent.cpp" />
     <ClCompile Include="Objects\Components\TransformComponent.cpp" />
     <ClCompile Include="Objects\Geometry\Circle.cpp" />
+    <ClCompile Include="Objects\Geometry\Cube.cpp" />
     <ClCompile Include="Objects\Geometry\Rectangle.cpp" />
     <ClCompile Include="ScaldCore\Engine\Engine.cpp" />
     <ClCompile Include="Graphics\Graphics.cpp" />
@@ -50,6 +51,7 @@
     <ClInclude Include="Objects\Components\MovementComponent.h" />
     <ClInclude Include="Objects\Components\TransformComponent.h" />
     <ClInclude Include="Objects\Geometry\Circle.h" />
+    <ClInclude Include="Objects\Geometry\Cube.h" />
     <ClInclude Include="Objects\Geometry\Rectangle.h" />
     <ClInclude Include="ScaldCore\Engine\Engine.h" />
     <ClInclude Include="Graphics\Graphics.h" />
