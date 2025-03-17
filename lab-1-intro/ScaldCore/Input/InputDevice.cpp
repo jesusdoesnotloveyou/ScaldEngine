@@ -163,6 +163,15 @@ void Mouse::OnMouseMove(int newX, int newY) noexcept
     TrimBuffer();
 }
 
+// !!!
+void Mouse::OnMouseMoveRaw(int newX, int newY) noexcept
+{
+    x = newX;
+    y = newY;
+    mouseBuffer.push(Mouse::Event(Mouse::Event::Type::RawMove, *this));
+    TrimBuffer();
+}
+
 void Mouse::OnMouseEnter() noexcept
 {
     bIsInWindow = true;

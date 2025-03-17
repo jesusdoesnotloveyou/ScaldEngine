@@ -22,6 +22,7 @@ class PrimitiveGeometry
 {
 public:
 	PrimitiveGeometry();
+	PrimitiveGeometry(const STransform& transform);
 	// would be changed to normal constructor
 	PrimitiveGeometry(const std::vector<Vertex>& v, const std::vector<DWORD>& i);
 	virtual ~PrimitiveGeometry();

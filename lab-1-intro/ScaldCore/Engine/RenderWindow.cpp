@@ -80,8 +80,21 @@ RenderWindow::RenderWindow(int width, int height, const char* windowTitle)
 
 	pGfx = std::make_unique<Graphics>(hWnd, width, height);
 
-	// Pong
-	kbd.autorepeatEnabled = true;
+	static bool bIsRawInputInitialized = false;
+	if (!bIsRawInputInitialized)
+	{
+		RAWINPUTDEVICE rid;
+		rid.usUsagePage = 0x01;
+		rid.usUsage = 0x02;
+		rid.dwFlags = 0u;
+		rid.hwndTarget = hWnd;
+
+		if (RegisterRawInputDevices(&rid, 1u, sizeof(rid)) == FALSE)
+		{
+			throw SCALDWND_LAST_EXCEPT();
+		}
+		bIsRawInputInitialized = true;
+	}
 }
 
 RenderWindow::~RenderWindow()
@@ -155,10 +168,10 @@ LRESULT RenderWindow::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
 	case WM_KEYDOWN:
 		// syskey commands need to be handled to track ALT key (VK_MENU)
 	case WM_SYSKEYDOWN:
-		
+
 		//if (!(lParam & 0x40000000) || kbd.IsAutorepeatEnabled()) // filter autorepeat key event
 		//{
-			kbd.OnKeyPressed(static_cast<unsigned char>(wParam));
+		kbd.OnKeyPressed(static_cast<unsigned char>(wParam));
 		//}
 		break;
 	case WM_KEYUP:
@@ -170,7 +183,7 @@ LRESULT RenderWindow::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
 		kbd.OnChar(static_cast<unsigned char>(wParam));
 		break;
 		/****************** END KEYBOARD MESSAGES *******************/
-      
+
 		/****************** MOUSE MESSAGES *******************/
 	case WM_MOUSEMOVE:
 	{
@@ -192,10 +205,10 @@ LRESULT RenderWindow::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
 			if (wParam & (MK_LBUTTON | MK_RBUTTON))
 			{
 				mouse.OnMouseMove(pt.x, pt.y);
-
 			}
 			// button up -> release capture / log event for leaving
-			else {
+			else 
+			{
 				ReleaseCapture();
 				mouse.OnMouseLeave();
 			}
@@ -233,9 +246,26 @@ LRESULT RenderWindow::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
 		mouse.OnWheelDelta(pt.x, pt.y, delta);
 		break;
 	}
+	case WM_INPUT:
+	{
+		UINT dataSize;
+		GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, NULL, &dataSize, sizeof(RAWINPUTHEADER)); //Need to populate data size first
 
-  /****************** END MOUSE MESSAGES *******************/
-
+		if (dataSize > 0)
+		{
+			std::unique_ptr<BYTE[]> rawdata = std::make_unique<BYTE[]>(dataSize);
+			if (GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, rawdata.get(), &dataSize, sizeof(RAWINPUTHEADER)) == dataSize)
+			{
+				RAWINPUT* raw = reinterpret_cast<RAWINPUT*>(rawdata.get());
+				if (raw->header.dwType == RIM_TYPEMOUSE)
+				{
+					mouse.OnMouseMoveRaw(raw->data.mouse.lLastX, raw->data.mouse.lLastY);
+				}
+			}
+		}
+		return DefWindowProc(hWnd, msg, wParam, lParam); //Need to call DefWindowProc for WM_INPUT messages
+	}
+	/****************** END MOUSE MESSAGES *******************/
 	}
 	return DefWindowProc(hWnd, msg, wParam, lParam);
 }

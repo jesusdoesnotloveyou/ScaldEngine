@@ -9,6 +9,13 @@ PrimitiveGeometry::PrimitiveGeometry()
     pMovementComponent = new MovementComponent{};
 }
 
+PrimitiveGeometry::PrimitiveGeometry(const STransform& transform) : PrimitiveGeometry()
+{
+    ObjectTransform = transform;
+    pCollisionComponent->SetCenter(transform.Translation);
+    pCollisionComponent->SetExtends(transform.Scale);
+}
+
 PrimitiveGeometry::PrimitiveGeometry(const std::vector<Vertex>& v, const std::vector<DWORD>& i)
     : PrimitiveGeometry()
 {
@@ -25,7 +32,7 @@ PrimitiveGeometry::~PrimitiveGeometry()
 
 void PrimitiveGeometry::Update(float DeltaTime)
 {   
-    if (bIsMovable)
+    /*if (bIsMovable)
     {
         std::ostringstream oss;
         if (ObjectTransform.Translation.y - ObjectTransform.Scale.y > 1.0f || ObjectTransform.Translation.y + ObjectTransform.Scale.y < -1.0f)
@@ -51,7 +58,7 @@ void PrimitiveGeometry::Update(float DeltaTime)
         ObjectTransform.Translation.x += GetMovementComponent()->GetVelocity().x;
         ObjectTransform.Translation.y += GetMovementComponent()->GetVelocity().y;
     }
-
+    */
     constantBuffer.SetTransform(ObjectTransform);
     pCollisionComponent->UpdateOwnerTransform(ObjectTransform);
 }

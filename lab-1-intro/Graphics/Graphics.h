@@ -32,12 +32,12 @@ public:
 	ID3D11DeviceContext* GetDeviceContext() const;
 	ID3D11Device* GetDevice() const;
 
+	Camera mCamera;
 private:
 	int mScreenWidth;
 	int mScreenHeight;
 	HWND hWnd;
 
-	Camera mCamera;
 
 	Microsoft::WRL::ComPtr<ID3D11Device> pDevice;
 	Microsoft::WRL::ComPtr<IDXGISwapChain> pSwapChain;
