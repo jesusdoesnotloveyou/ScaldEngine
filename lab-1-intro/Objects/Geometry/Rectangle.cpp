@@ -6,10 +6,10 @@ Rect::Rect() : PrimitiveGeometry()
 {
 	vertices =
 	{
-		{ XMFLOAT4(-1.0f,  1.0f, 1.0f, 1.0f), XMFLOAT4(Colors::White) },
-		{ XMFLOAT4( 1.0f,  1.0f, 1.0f, 1.0f), XMFLOAT4(Colors::White) },
-		{ XMFLOAT4( 1.0f, -1.0f, 1.0f, 1.0f), XMFLOAT4(Colors::White) },
-		{ XMFLOAT4(-1.0f, -1.0f, 1.0f, 1.0f), XMFLOAT4(Colors::White) }
+		{ XMFLOAT4(-1.0f, +1.0f, +1.0f, +1.0f), XMFLOAT4(Colors::White) },
+		{ XMFLOAT4(+1.0f, +1.0f, +1.0f, +1.0f), XMFLOAT4(Colors::White) },
+		{ XMFLOAT4(+1.0f, -1.0f, +1.0f, +1.0f), XMFLOAT4(Colors::White) },
+		{ XMFLOAT4(-1.0f, -1.0f, +1.0f, +1.0f), XMFLOAT4(Colors::White) }
 	};
 
 	indeces = {
