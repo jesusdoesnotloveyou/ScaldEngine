@@ -131,7 +131,7 @@ void Graphics::DrawScene(std::vector<PrimitiveGeometry*>& gameObjects)
 		// Step 08: Setup the IA stage
 		pContext->IASetInputLayout(geometry->GetRenderComponent()->GetInputLayout());
 		pContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
+		
 		if (!geometry->GetConstantBuffer().ApplyChanges(mCamera.GetViewMatrix(), mCamera.GetProjectionMatrix())) return;
 		
 		pContext->VSSetConstantBuffers(0u, 1u, geometry->GetConstantBuffer().GetAddressOf());
