@@ -2,15 +2,14 @@
 #include <sstream>
 
 #include "../../Objects/Geometry/Rectangle.h"
-#include "../../Objects/Geometry/Circle.h"
-#include "../../Objects/Geometry/Star.h"
+#include "../../Objects/Geometry/Cube.h"
 
 #include <random>
 #include <ctime>
 
 Engine::Engine()
     :
-    mRenderWindow(1024, 768, "Direct3DApp")
+    mRenderWindow(1600, 900, "Direct3DApp")
 {}
 
 int Engine::Launch()
@@ -55,25 +54,12 @@ void Engine::UpdateCollisionWithPaddle(PrimitiveGeometry* ball, PrimitiveGeometr
 
 void Engine::SetupScene()
 {
-	STransform pongBallTransform;
-	pongBallTransform.Scale = { 0.03f, 0.03f, 0.0f };
-	PrimitiveGeometry* ball = new Rect(pongBallTransform);
-	ball->SetIsMovable(true);
-	ball->Reset(ball->GetMovementComponent()->GetInitialVelocity(), ball->GetMovementComponent()->GetInitialTransition());
-
-	STransform firstRocketTransform;
-	firstRocketTransform.Scale = { 0.01f, 0.2f, 0.0f };
-	firstRocketTransform.Translation = { -0.95f, 0.0f, 0.0f };
-	PrimitiveGeometry* firstRocket = new Rect(firstRocketTransform);
+	STransform firstObjectTransform;
+	firstObjectTransform.Scale = { 1.0f, 1.0f, 1.0f };
+	firstObjectTransform.Translation = { 0.0f, 0.0f, 0.0f };
+	PrimitiveGeometry* firstRocket = new Cube(firstObjectTransform);
 	
-	STransform secondRocketTransform;
-	secondRocketTransform.Scale = { 0.01f, 0.2f, 0.0f };
-	secondRocketTransform.Translation = { 0.95f, 0.0f, 0.0f };
-	PrimitiveGeometry* secondRocket = new Rect(secondRocketTransform);
-
 	GameObjects.push_back(firstRocket);
-	GameObjects.push_back(secondRocket);
-	GameObjects.push_back(ball);
 
 	for (auto geometry : GameObjects)
 	{
@@ -84,79 +70,56 @@ void Engine::SetupScene()
 
 void Engine::PollInput()
 {
-	float speedY = 0.03f;
-	float speedX = 0.01f;
-	while (!mRenderWindow.kbd.IsKeyEmpty())
-	{
-		const auto e = mRenderWindow.kbd.ReadKey();
-		switch (e.GetCode())
-		{
-			// W
-		case 87:
-		{
-			if (GameObjects[0]->ObjectTransform.Translation.y + GameObjects[0]->ObjectTransform.Scale.y / 2 > 1.f ) break;
-			GameObjects[0]->ObjectTransform.Translation.y += speedY;
-			break;
-		}
-			// S
-		case 83:
-		{
-			if (GameObjects[0]->ObjectTransform.Translation.y - GameObjects[0]->ObjectTransform.Scale.y / 2 < -1.f) break;
-			GameObjects[0]->ObjectTransform.Translation.y -= speedY;
-			break;
-		}
-			// D
-		case 68:
-		{
-			if (GameObjects[0]->ObjectTransform.Translation.x + GameObjects[0]->ObjectTransform.Scale.x / 2 > 0.99f) break;
-			GameObjects[0]->ObjectTransform.Translation.x += speedX;
-			break;
-		}
-			// A
-		case 65:
-		{
-			if (GameObjects[0]->ObjectTransform.Translation.x - GameObjects[0]->ObjectTransform.Scale.x / 2 < -0.99f) break;
-			GameObjects[0]->ObjectTransform.Translation.x -= speedX;
-			break;
-		}
-			// up
-		case 38:
-		{
-			if (GameObjects[1]->ObjectTransform.Translation.y + GameObjects[1]->ObjectTransform.Scale.y / 2 > 1.f) break;
-			GameObjects[1]->ObjectTransform.Translation.y += speedY;
-			break;
-		}
-			// down
-		case 40:
-		{
+	while (!mRenderWindow.kbd.IsKeyEmpty()) {
+		const auto keyEvent = mRenderWindow.kbd.ReadKey();
+		unsigned char keyCode = keyEvent.GetCode();
+	}
 
-			if (GameObjects[1]->ObjectTransform.Translation.y - GameObjects[1]->ObjectTransform.Scale.y / 2 < -1.f) break;
-			GameObjects[1]->ObjectTransform.Translation.y -= speedY;
-			break;
-		}
-			// left
-		case 37:
+#pragma region CameraRotation
+	std::ostringstream oss;
+	const auto mouseEvent = mRenderWindow.mouse.Read();
+	if (mRenderWindow.mouse.IsRightPressed()) {
+		if (mouseEvent.GetType() == Mouse::Event::Type::RawMove) 
 		{
-			if (GameObjects[1]->ObjectTransform.Translation.x - GameObjects[1]->ObjectTransform.Scale.x / 2 < -1.f) break;
-			GameObjects[1]->ObjectTransform.Translation.x -= speedX;
-			break;
-		}
-			// right
-		case 39: 
-		{
-			if (GameObjects[1]->ObjectTransform.Translation.x + GameObjects[1]->ObjectTransform.Scale.x / 2 > 1.f) break;
-			GameObjects[1]->ObjectTransform.Translation.x += speedX;
-			break;
-		}
+			mRenderWindow.GetGfx().mCamera.AdjustRotation((float)mouseEvent.GetPosY() * 0.01f, (float)mouseEvent.GetPosX() * 0.01f, 0.0f);
+			oss << "Mouse X: " << mouseEvent.GetPosX() <<
+				" Mouse Y: " << mouseEvent.GetPosY() << "\n";
+			OutputDebugString(oss.str().c_str());
 		}
 	}
+#pragma endregion CameraRotation
+
+#pragma region CameraMovement
+	const float cameraSpeed = 3.f;
+	if (mRenderWindow.kbd.IsKeyPressed('W'))
+	{
+		mRenderWindow.GetGfx().mCamera.AdjustPosition(mRenderWindow.GetGfx().mCamera.GetForwardVector() * cameraSpeed * mTimer.DeltaTime());
+	}
+	if (mRenderWindow.kbd.IsKeyPressed('S'))
+	{
+		mRenderWindow.GetGfx().mCamera.AdjustPosition(mRenderWindow.GetGfx().mCamera.GetBackwardVector() * cameraSpeed * mTimer.DeltaTime());
+	}
+	if (mRenderWindow.kbd.IsKeyPressed('D'))
+	{
+		mRenderWindow.GetGfx().mCamera.AdjustPosition(mRenderWindow.GetGfx().mCamera.GetRightVector() * cameraSpeed * mTimer.DeltaTime());
+	}
+	if (mRenderWindow.kbd.IsKeyPressed('A'))
+	{
+		mRenderWindow.GetGfx().mCamera.AdjustPosition(mRenderWindow.GetGfx().mCamera.GetLeftVector() * cameraSpeed * mTimer.DeltaTime());
+	}
+	if (mRenderWindow.kbd.IsKeyPressed('E'))
+	{
+		mRenderWindow.GetGfx().mCamera.AdjustPosition(0.0f, cameraSpeed * mTimer.DeltaTime(), 0.0f);
+	}
+	if (mRenderWindow.kbd.IsKeyPressed('Q'))
+	{
+		mRenderWindow.GetGfx().mCamera.AdjustPosition(0.0f, -cameraSpeed * mTimer.DeltaTime(), 0.0f);
+	}
+#pragma endregion CameraMovement
 }
 
 void Engine::UpdateScene(float DeltaTime)
 {
-	UpdateCollisionWithPaddle(GameObjects[2], GameObjects[0]);
-	UpdateCollisionWithPaddle(GameObjects[2], GameObjects[1]);
-	
 	for (auto gameObject : GameObjects)
 	{
 		gameObject->Update(DeltaTime);
