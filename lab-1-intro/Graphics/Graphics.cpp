@@ -139,7 +139,7 @@ void Graphics::Setup()
 
 	// Camera setup
 	mCamera.SetPosition(0.0f, 0.0f, -2.0f);
-	mCamera.SetProjectionValues(90.0f, static_cast<float>(mScreenWidth) / mScreenHeight, 0.1f, 1000.0f);
+	mCamera.SetProjectionValues(90.0f, static_cast<float>(mScreenWidth) / static_cast<float>(mScreenHeight), 0.1f, 1000.0f);
 }
 
 void Graphics::DrawScene(std::vector<PrimitiveGeometry*>& gameObjects)

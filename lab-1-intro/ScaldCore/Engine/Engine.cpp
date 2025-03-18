@@ -36,30 +36,26 @@ int Engine::Launch()
 	}
 }
 
-bool Engine::CheckCollision(PrimitiveGeometry* ball, PrimitiveGeometry* otherActor)
-{
-	if (ball->GetCollisionComponent()->BoundingBox.Intersects(otherActor->GetCollisionComponent()->BoundingBox)) return true;
-	return false;
-}
-
-void Engine::UpdateCollisionWithPaddle(PrimitiveGeometry* ball, PrimitiveGeometry* otherActor)
-{
-	if (!CheckCollision(ball, otherActor)) return;
-	
-	auto ballSpeed = ball->GetMovementComponent()->GetVelocity();
-	ballSpeed.x += 0.002f;
-	ballSpeed.y += 0.002f;
-	ball->GetMovementComponent()->SetVelocity(ballSpeed.x * (-1.f), ballSpeed.y, ballSpeed.z);
-}
-
 void Engine::SetupScene()
 {
-	STransform firstObjectTransform;
-	firstObjectTransform.Scale = { 1.0f, 1.0f, 1.0f };
-	firstObjectTransform.Translation = { 0.0f, 0.0f, 0.0f };
-	PrimitiveGeometry* firstRocket = new Cube(firstObjectTransform);
+	STransform SunTransform;
+	SunTransform.Scale = { 1.0f, 1.0f, 1.0f };
+	SunTransform.Translation = { 0.0f, 0.0f, 0.0f };
+	PrimitiveGeometry* sun = new Cube(SunTransform);
+
+	STransform earthTransform;
+	earthTransform.Scale = { 1.0f, 1.0f, 1.0f };
+	earthTransform.Translation = { 3.0f, 0.0f, 3.0f };
+	PrimitiveGeometry* earth = new Cube(earthTransform);
+
+	STransform marsTransform;
+	marsTransform.Scale = { 1.0f, 1.0f, 1.0f };
+	marsTransform.Translation = { -3.0f, 0.0f, -3.0f };
+	PrimitiveGeometry* mars = new Cube(marsTransform);
 	
-	GameObjects.push_back(firstRocket);
+	GameObjects.push_back(sun);
+	GameObjects.push_back(mars);
+	GameObjects.push_back(earth);
 
 	for (auto geometry : GameObjects)
 	{

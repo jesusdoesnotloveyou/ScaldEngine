@@ -18,18 +18,11 @@ private:
 	void RenderFrame();
 	void CalculateFrameStats();
 
-	// Pong Specific functions
-	bool CheckCollision(PrimitiveGeometry* ball, PrimitiveGeometry* otherActor);
-	void UpdateCollisionWithPaddle(PrimitiveGeometry* ball, PrimitiveGeometry* otherActor);
-
 protected:
 	std::vector<PrimitiveGeometry*> GameObjects;
 	RenderWindow mRenderWindow;
 	ScaldTimer mTimer;
 
-	int mClientWidth = 1024;
-	int mClientHeight = 768;
-
-	int leftPlayerScore = 0;
-	int rightPlayerScore = 0;
+	int mClientWidth = 1600;
+	int mClientHeight = 900;
 };
