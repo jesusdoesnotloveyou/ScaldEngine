@@ -63,40 +63,31 @@ Graphics::Graphics(HWND hWnd, int width, int height)
 	ThrowIfFailed(mSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), &pBackTex));
 	ThrowIfFailed(mDevice->CreateRenderTargetView(pBackTex.Get(), nullptr, &mRtv));
 
+	// Describe our Depth/Stencil Buffer
+	D3D11_TEXTURE2D_DESC depthStencilDesc;
+	depthStencilDesc.Width = mScreenWidth;
+	depthStencilDesc.Height = mScreenHeight;
+	depthStencilDesc.MipLevels = 1u;
+	depthStencilDesc.ArraySize = 1u;
+	depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	depthStencilDesc.SampleDesc.Count = 1u;
+	depthStencilDesc.SampleDesc.Quality = 0u;
+	depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
+	depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	depthStencilDesc.CPUAccessFlags = 0u;
+	depthStencilDesc.MiscFlags = 0u;
 
-	//// Describe our Depth/Stencil Buffer
-	//D3D11_TEXTURE2D_DESC depthStencilDesc;
-	//depthStencilDesc.Width = mScreenWidth;
-	//depthStencilDesc.Height = mScreenHeight;
-	//depthStencilDesc.MipLevels = 1u;
-	//depthStencilDesc.ArraySize = 1u;
-	//depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	//depthStencilDesc.SampleDesc.Count = 1u;
-	//depthStencilDesc.SampleDesc.Quality = 0u;
-	//depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
-	//depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-	//depthStencilDesc.CPUAccessFlags = 0u;
-	//depthStencilDesc.MiscFlags = 0u;
+	ThrowIfFailed(mDevice->CreateTexture2D(&depthStencilDesc, nullptr, mDepthStencilBuffer.GetAddressOf()));
+	ThrowIfFailed(mDevice->CreateDepthStencilView(this->mDepthStencilBuffer.Get(), nullptr, mDsv.GetAddressOf()));
+	
+	//Create depth stencil state
+	D3D11_DEPTH_STENCIL_DESC depthstencildesc;
+	ZeroMemory(&depthstencildesc, sizeof(D3D11_DEPTH_STENCIL_DESC));
+	depthstencildesc.DepthEnable = true;
+	depthstencildesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK::D3D11_DEPTH_WRITE_MASK_ALL;
+	depthstencildesc.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS_EQUAL;
 
-	//ThrowIfFailed(mDevice->CreateTexture2D(&depthStencilDesc, nullptr, mDepthStencilBuffer.GetAddressOf()));
-	//ThrowIfFailed(mDevice->CreateDepthStencilView(this->mDepthStencilBuffer.Get(), nullptr, mDsv.GetAddressOf()));
-	//
-	////Create depth stencil state
-	//D3D11_DEPTH_STENCIL_DESC depthstencildesc;
-	//ZeroMemory(&depthstencildesc, sizeof(D3D11_DEPTH_STENCIL_DESC));
-
-	//depthstencildesc.DepthEnable = true;
-	//depthstencildesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK::D3D11_DEPTH_WRITE_MASK_ALL;
-	//depthstencildesc.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS_EQUAL;
-
-	//ThrowIfFailed(mDevice->CreateDepthStencilState(&depthstencildesc, mDepthStencilState.GetAddressOf()));
-}
-
-void Graphics::EndFrame()
-{
-	// Step 15: At the End of While (!isExitRequested): Present the Result
-	mDeviceContext->OMSetRenderTargets(0, nullptr, nullptr);
-	ThrowIfFailed(mSwapChain->Present(1u, /*DXGI_PRESENT_DO_NOT_WAIT*/ 0u));
+	ThrowIfFailed(mDevice->CreateDepthStencilState(&depthstencildesc, mDepthStencilState.GetAddressOf()));
 }
 
 ID3D11DeviceContext* Graphics::GetDeviceContext() const
@@ -140,7 +131,7 @@ void Graphics::Setup()
 	SetupShaders();
 
 	CD3D11_RASTERIZER_DESC rastDesc = {};
-	rastDesc.CullMode = D3D11_CULL_FRONT;
+	rastDesc.CullMode = D3D11_CULL_BACK;
 	rastDesc.FillMode = D3D11_FILL_SOLID;
 
 	ThrowIfFailed(mDevice->CreateRasterizerState(&rastDesc, &mRasterizerState));
@@ -173,29 +164,37 @@ void Graphics::DrawScene(std::vector<PrimitiveGeometry*>& gameObjects)
 		mDeviceContext->IASetInputLayout(mVertexShader.GetInputLayout());
 		mDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 		
-		//mDeviceContext->RSSetState(mRasterizerState.Get());
-		//mDeviceContext->OMSetDepthStencilState(mDepthStencilState.Get(), 0);
+		mDeviceContext->RSSetState(mRasterizerState.Get());
+		mDeviceContext->OMSetDepthStencilState(mDepthStencilState.Get(), 0);
 
 		// Step 09: Set Vertex and Pixel Shaders
 		mDeviceContext->VSSetShader(mVertexShader.Get(), nullptr, 0);
 		mDeviceContext->PSSetShader(mPixelShader.Get(), nullptr, 0);
 
 		if (!geometry->GetConstantBuffer().ApplyChanges(mCamera.GetViewMatrix(), mCamera.GetProjectionMatrix())) return;
-		mDeviceContext->VSSetConstantBuffers(0u, 1u, geometry->GetConstantBuffer().GetAddressOf());
 		mDeviceContext->IASetVertexBuffers(0u, 1u, geometry->GetVertexBuffer().GetAddressOf(), geometry->GetVertexBuffer().GetStridePtr(), &geometry->offset);
 		mDeviceContext->IASetIndexBuffer(geometry->GetIndexBuffer().Get(), DXGI_FORMAT_R32_UINT, 0u);
+		mDeviceContext->VSSetConstantBuffers(0u, 1u, geometry->GetConstantBuffer().GetAddressOf());
 
 		// Step 11: Set BackBuffer for Output merger
-		mDeviceContext->OMSetRenderTargets(1u, mRtv.GetAddressOf(), nullptr);
+		mDeviceContext->OMSetRenderTargets(1u, mRtv.GetAddressOf(), mDsv.Get());
 
 		// Step 14: At the End of While (!isExitRequested): Draw the Triangle
 		mDeviceContext->DrawIndexed(geometry->GetIndexBuffer().GetBufferSize(), 0u, 0);
 	}
 }
 
+// Before rendering every frame we should clear render target view and depth stencil view
 void Graphics::ClearBuffer(float r)
 {
 	float color[] = { r, 0.1f, 0.1f, 1.0f };
 	mDeviceContext->ClearRenderTargetView(mRtv.Get(), color);
-	//mDeviceContext->ClearDepthStencilView(mDsv.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0);
+	mDeviceContext->ClearDepthStencilView(mDsv.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL /*Clearing Both Depth and Stencil*/, 1.0f, 0u);
+}
+
+void Graphics::EndFrame()
+{
+	// Step 15: At the End of While (!isExitRequested): Present the Result
+	mDeviceContext->OMSetRenderTargets(0, nullptr, nullptr);
+	ThrowIfFailed(mSwapChain->Present(1u, /*DXGI_PRESENT_DO_NOT_WAIT*/ 0u));
 }
