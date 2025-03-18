@@ -44,15 +44,17 @@ public:
 	{
 		static XMMATRIX world = XMMatrixIdentity();
 
-		curr_data.transform = world * viewMatrix * projectionMatrix *
+		curr_data.transform = XMMatrixTranspose(
+			
 			XMMatrixScaling(mTransform.Scale.x, mTransform.Scale.y, mTransform.Scale.z) *
 			XMMatrixRotationRollPitchYaw(mTransform.Rotation.x, mTransform.Rotation.y, mTransform.Rotation.z) *
-			XMMatrixTranslation(mTransform.Translation.x, mTransform.Translation.y, mTransform.Translation.z);
+			XMMatrixTranslation(mTransform.Translation.x, mTransform.Translation.y, mTransform.Translation.z) *
+			world * viewMatrix * projectionMatrix
+		);
 
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
 		ThrowIfFailed(pDeviceContext->Map(pBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
 
-		curr_data.transform = XMMatrixTranspose(curr_data.transform);
 		CopyMemory(mappedResource.pData, &curr_data, sizeof(T));
 		pDeviceContext->Unmap(pBuffer.Get(), 0);
 		return true;
