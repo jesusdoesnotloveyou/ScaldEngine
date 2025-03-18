@@ -28,7 +28,7 @@ public:
 	virtual ~PrimitiveGeometry();
 
 	virtual void Update(float DeltaTime) = 0;
-	virtual void Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext) = 0;
+	virtual void Initialize(ID3D11Device* mDevice, ID3D11DeviceContext* pDeviceContext) = 0;
 
 public:
 	VertexBuffer<Vertex>& GetVertexBuffer();

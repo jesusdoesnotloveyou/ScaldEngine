@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "Camera.h"
+#include "Shaders.h"
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dcompiler.lib")
@@ -34,15 +35,25 @@ public:
 
 	Camera mCamera;
 private:
+	void SetupShaders();
+
+private:
 	int mScreenWidth;
 	int mScreenHeight;
 	HWND hWnd;
 
+	VertexShader mVertexShader;
+	PixelShader mPixelShader;
 
-	Microsoft::WRL::ComPtr<ID3D11Device> pDevice;
-	Microsoft::WRL::ComPtr<IDXGISwapChain> pSwapChain;
-	Microsoft::WRL::ComPtr<ID3D11DeviceContext> pContext;
-	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> pRtv;
+	Microsoft::WRL::ComPtr<ID3D11Device> mDevice;
+	Microsoft::WRL::ComPtr<IDXGISwapChain> mSwapChain;
+	Microsoft::WRL::ComPtr<ID3D11DeviceContext> mDeviceContext;
+	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> mRtv;
 
-	Microsoft::WRL::ComPtr<ID3D11RasterizerState> pRastState;
+	// Depth Stencil
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> mDepthStencilBuffer;
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> mDsv;
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> mDepthStencilState;
+
+	Microsoft::WRL::ComPtr<ID3D11RasterizerState> mRasterizerState;
 };

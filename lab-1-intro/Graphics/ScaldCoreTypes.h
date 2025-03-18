@@ -13,7 +13,7 @@ struct Vertex
 
 struct ConstBuffer
 {
-	XMMATRIX transform;
+	XMMATRIX transform = XMMatrixIdentity();
 };
 
 struct STransform
@@ -23,9 +23,9 @@ struct STransform
 	XMFLOAT3 Translation = { 0.0f, 0.0f, 0.0f };
 
 	STransform(
-		const DirectX::XMFLOAT3& scale = { 1.0f, 1.0f, 1.0f },
-		const DirectX::XMFLOAT3& rotation = { 0.0f, 0.0f, 0.0f },
-		const DirectX::XMFLOAT3& translation = { 0.0f, 0.0f, 0.0f }
+		const XMFLOAT3& scale = { 1.0f, 1.0f, 1.0f },
+		const XMFLOAT3& rotation = { 0.0f, 0.0f, 0.0f },
+		const XMFLOAT3& translation = { 0.0f, 0.0f, 0.0f }
 	) 
 		: 
 		Scale(scale), 

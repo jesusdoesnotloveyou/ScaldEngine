@@ -12,6 +12,7 @@ PrimitiveGeometry::PrimitiveGeometry()
 PrimitiveGeometry::PrimitiveGeometry(const STransform& transform) : PrimitiveGeometry()
 {
     ObjectTransform = transform;
+    constantBuffer.SetTransform(ObjectTransform);
     pCollisionComponent->SetCenter(transform.Translation);
     pCollisionComponent->SetExtends(transform.Scale);
 }
@@ -32,45 +33,18 @@ PrimitiveGeometry::~PrimitiveGeometry()
 
 void PrimitiveGeometry::Update(float DeltaTime)
 {   
-    /*if (bIsMovable)
-    {
-        std::ostringstream oss;
-        if (ObjectTransform.Translation.y - ObjectTransform.Scale.y > 1.0f || ObjectTransform.Translation.y + ObjectTransform.Scale.y < -1.0f)
-        {
-            auto speed = GetMovementComponent()->GetVelocity();
-            GetMovementComponent()->SetVelocity(speed.x, speed.y * (-1.0f), speed.z);
-        }
-        if (ObjectTransform.Translation.x - ObjectTransform.Scale.x > 1.0f)
-        {
-            Reset(pMovementComponent->GetInitialVelocity(), pMovementComponent->GetInitialTransition());
-            leftPlayerScore += 1;
-            oss << "Left Player: " << leftPlayerScore << " || " << "Right Player: " << rightPlayerScore << "\n";
-            OutputDebugString(oss.str().c_str());
-        }
-
-        if (ObjectTransform.Translation.x + ObjectTransform.Scale.x < -1.0f)
-        {
-            Reset(pMovementComponent->GetInitialVelocity(), pMovementComponent->GetInitialTransition());
-            rightPlayerScore += 1;
-            oss << "Left Player: " << leftPlayerScore << " || " << "Right Player: " << rightPlayerScore << "\n";
-            OutputDebugString(oss.str().c_str());
-        }
-        ObjectTransform.Translation.x += GetMovementComponent()->GetVelocity().x;
-        ObjectTransform.Translation.y += GetMovementComponent()->GetVelocity().y;
-    }
-    */
-    constantBuffer.SetTransform(ObjectTransform);
+    //constantBuffer.SetTransform(ObjectTransform);
     pCollisionComponent->UpdateOwnerTransform(ObjectTransform);
 }
 
-void PrimitiveGeometry::Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext)
+void PrimitiveGeometry::Initialize(ID3D11Device* mDevice, ID3D11DeviceContext* pDeviceContext)
 {
-    pRenderComponent->Initialize(pDevice);
+    //pRenderComponent->Initialize(mDevice);
     pCollisionComponent->Initialize(ObjectTransform);
 
-    ThrowIfFailed(vertexBuffer.Init(pDevice, vertices.data(), (UINT)vertices.size()));
-    ThrowIfFailed(indexBuffer.Init(pDevice, indeces.data(), (UINT)indeces.size()));
-    ThrowIfFailed(constantBuffer.Init(pDevice, pDeviceContext));
+    ThrowIfFailed(vertexBuffer.Init(mDevice, vertices.data(), (UINT)vertices.size()));
+    ThrowIfFailed(indexBuffer.Init(mDevice, indeces.data(), (UINT)indeces.size()));
+    ThrowIfFailed(constantBuffer.Init(mDevice, pDeviceContext));
 }
 
 VertexBuffer<Vertex>& PrimitiveGeometry::GetVertexBuffer()
