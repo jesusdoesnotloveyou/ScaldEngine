@@ -4,7 +4,7 @@
 #pragma comment(lib, "d3dcompiler.lib")
 
 /////////////////// VERTEX SHADER ///////////////////
-HRESULT VertexShader::Init(ID3D11Device* pDevice, D3D11_INPUT_ELEMENT_DESC* layoutDesc, UINT numElements)
+HRESULT VertexShader::Init(ID3D11Device* mDevice, D3D11_INPUT_ELEMENT_DESC* layoutDesc, UINT numElements)
 {
     // Step 04: Compile the Shaders
     Microsoft::WRL::ComPtr<ID3DBlob> mErrorVertexCode = nullptr;
@@ -21,10 +21,10 @@ HRESULT VertexShader::Init(ID3D11Device* pDevice, D3D11_INPUT_ELEMENT_DESC* layo
 
     if (FAILED(hr)) return hr;
 
-    hr = pDevice->CreateVertexShader(mShaderBuffer->GetBufferPointer(), mShaderBuffer->GetBufferSize(), nullptr, &mShader);
+    hr = mDevice->CreateVertexShader(mShaderBuffer->GetBufferPointer(), mShaderBuffer->GetBufferSize(), nullptr, &mShader);
     if (FAILED(hr)) return hr;
     
-    return pDevice->CreateInputLayout(layoutDesc, numElements, mShaderBuffer->GetBufferPointer(), mShaderBuffer->GetBufferSize(), &mInputLayout);
+    return mDevice->CreateInputLayout(layoutDesc, numElements, mShaderBuffer->GetBufferPointer(), mShaderBuffer->GetBufferSize(), &mInputLayout);
 }
 
 ID3D11VertexShader* VertexShader::Get()
@@ -43,7 +43,7 @@ ID3D11InputLayout* VertexShader::GetInputLayout()
 }
 
 /////////////////// PIXEL SHADER ///////////////////
-HRESULT PixelShader::Init(ID3D11Device* pDevice)
+HRESULT PixelShader::Init(ID3D11Device* mDevice)
 {
     Microsoft::WRL::ComPtr<ID3DBlob> mErrorPixelCode = nullptr;
     HRESULT hr = D3DCompileFromFile(L"./Shaders/MyVerySecondShader.hlsl",
@@ -58,7 +58,7 @@ HRESULT PixelShader::Init(ID3D11Device* pDevice)
 
     if (FAILED(hr)) return hr;
 
-    return pDevice->CreatePixelShader(mShaderBuffer->GetBufferPointer(), mShaderBuffer->GetBufferSize(), nullptr, &mShader);
+    return mDevice->CreatePixelShader(mShaderBuffer->GetBufferPointer(), mShaderBuffer->GetBufferSize(), nullptr, &mShader);
 }
 
 ID3D11PixelShader* PixelShader::Get()

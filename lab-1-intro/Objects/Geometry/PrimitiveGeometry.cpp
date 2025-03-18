@@ -37,14 +37,14 @@ void PrimitiveGeometry::Update(float DeltaTime)
     pCollisionComponent->UpdateOwnerTransform(ObjectTransform);
 }
 
-void PrimitiveGeometry::Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext)
+void PrimitiveGeometry::Initialize(ID3D11Device* mDevice, ID3D11DeviceContext* pDeviceContext)
 {
-    //pRenderComponent->Initialize(pDevice);
+    //pRenderComponent->Initialize(mDevice);
     pCollisionComponent->Initialize(ObjectTransform);
 
-    ThrowIfFailed(vertexBuffer.Init(pDevice, vertices.data(), (UINT)vertices.size()));
-    ThrowIfFailed(indexBuffer.Init(pDevice, indeces.data(), (UINT)indeces.size()));
-    ThrowIfFailed(constantBuffer.Init(pDevice, pDeviceContext));
+    ThrowIfFailed(vertexBuffer.Init(mDevice, vertices.data(), (UINT)vertices.size()));
+    ThrowIfFailed(indexBuffer.Init(mDevice, indeces.data(), (UINT)indeces.size()));
+    ThrowIfFailed(constantBuffer.Init(mDevice, pDeviceContext));
 }
 
 VertexBuffer<Vertex>& PrimitiveGeometry::GetVertexBuffer()

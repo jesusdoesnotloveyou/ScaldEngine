@@ -42,11 +42,11 @@ public:
 
 	bool ApplyChanges(const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix)
 	{
-		static XMMATRIX world = DirectX::XMMatrixIdentity();
+		static XMMATRIX world = XMMatrixIdentity();
 
 		curr_data.transform = world * viewMatrix * projectionMatrix *
 			XMMatrixScaling(mTransform.Scale.x, mTransform.Scale.y, mTransform.Scale.z) *
-			XMMatrixRotationRollPitchYaw(mTransform.Rotation.x, mTransform.Rotation.z, mTransform.Rotation.y) *
+			XMMatrixRotationRollPitchYaw(mTransform.Rotation.x, mTransform.Rotation.y, mTransform.Rotation.z) *
 			XMMatrixTranslation(mTransform.Translation.x, mTransform.Translation.y, mTransform.Translation.z);
 
 		D3D11_MAPPED_SUBRESOURCE mappedResource;

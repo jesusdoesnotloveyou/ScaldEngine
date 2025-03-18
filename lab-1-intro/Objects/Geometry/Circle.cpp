@@ -40,9 +40,9 @@ Circle::~Circle()
 
 }
 
-void Circle::Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext)
+void Circle::Initialize(ID3D11Device* mDevice, ID3D11DeviceContext* pDeviceContext)
 {
-	PrimitiveGeometry::Initialize(pDevice, pDeviceContext);
+	PrimitiveGeometry::Initialize(mDevice, pDeviceContext);
 }
 
 void Circle::Update(float DeltaTime)

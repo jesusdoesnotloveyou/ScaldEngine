@@ -9,7 +9,7 @@ class VertexShader
 public:
 	VertexShader() = default;
 	
-	HRESULT Init(ID3D11Device* pDevice, D3D11_INPUT_ELEMENT_DESC* layoutDesc, UINT numElements);
+	HRESULT Init(ID3D11Device* mDevice, D3D11_INPUT_ELEMENT_DESC* layoutDesc, UINT numElements);
 
 	ID3D11VertexShader* Get();
 	ID3DBlob* GetBuffer();
@@ -26,7 +26,7 @@ class PixelShader
 public:
 	PixelShader() = default;
 
-	HRESULT Init(ID3D11Device* pDevice);
+	HRESULT Init(ID3D11Device* mDevice);
 
 	ID3D11PixelShader* Get();
 	ID3DBlob* GetBuffer();

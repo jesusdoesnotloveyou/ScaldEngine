@@ -9,7 +9,7 @@ public:
 	Circle(const std::vector<Vertex>& v, const std::vector<DWORD>& i);
 
 	virtual ~Circle() override;
-	virtual void Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext) override;
+	virtual void Initialize(ID3D11Device* mDevice, ID3D11DeviceContext* pDeviceContext) override;
 	virtual void Update(float DeltaTime) override;
 
 private:

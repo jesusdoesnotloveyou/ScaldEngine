@@ -22,9 +22,9 @@ void Cube::Update(float DeltaTime)
 	PrimitiveGeometry::Update(DeltaTime);
 }
 
-void Cube::Initialize(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext)
+void Cube::Initialize(ID3D11Device* mDevice, ID3D11DeviceContext* pDeviceContext)
 {
-	PrimitiveGeometry::Initialize(pDevice, pDeviceContext);
+	PrimitiveGeometry::Initialize(mDevice, pDeviceContext);
 }
 
 void Cube::SetIndeces()
