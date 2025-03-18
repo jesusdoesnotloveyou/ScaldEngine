@@ -6,7 +6,6 @@ class Circle : public PrimitiveGeometry
 {
 public:
 	Circle(const STransform& transform);
-	Circle(const std::vector<Vertex>& v, const std::vector<DWORD>& i);
 
 	virtual ~Circle() override;
 	virtual void Initialize(ID3D11Device* mDevice, ID3D11DeviceContext* pDeviceContext) override;

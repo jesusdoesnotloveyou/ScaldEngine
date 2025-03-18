@@ -26,10 +26,6 @@ Star::Star() : PrimitiveGeometry() // explicitly
 	};
 }
 
-Star::Star(const std::vector<Vertex>& v, const std::vector<DWORD>& i)
-	: PrimitiveGeometry(v, i)
-{}
-
 Star::~Star()
 {}
 

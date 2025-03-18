@@ -9,19 +9,14 @@ PrimitiveGeometry::PrimitiveGeometry()
     pMovementComponent = new MovementComponent{};
 }
 
-PrimitiveGeometry::PrimitiveGeometry(const STransform& transform) : PrimitiveGeometry()
+PrimitiveGeometry::PrimitiveGeometry(const STransform& transform) 
+    : 
+    PrimitiveGeometry()
 {
     ObjectTransform = transform;
     constantBuffer.SetTransform(ObjectTransform);
     pCollisionComponent->SetCenter(transform.Translation);
     pCollisionComponent->SetExtends(transform.Scale);
-}
-
-PrimitiveGeometry::PrimitiveGeometry(const std::vector<Vertex>& v, const std::vector<DWORD>& i)
-    : PrimitiveGeometry()
-{
-    vertices = v;
-    indeces = i;
 }
 
 PrimitiveGeometry::~PrimitiveGeometry()
@@ -33,15 +28,10 @@ PrimitiveGeometry::~PrimitiveGeometry()
 
 void PrimitiveGeometry::Update(float DeltaTime)
 {   
-    //constantBuffer.SetTransform(ObjectTransform);
-    pCollisionComponent->UpdateOwnerTransform(ObjectTransform);
 }
 
 void PrimitiveGeometry::Initialize(ID3D11Device* mDevice, ID3D11DeviceContext* pDeviceContext)
 {
-    //pRenderComponent->Initialize(mDevice);
-    pCollisionComponent->Initialize(ObjectTransform);
-
     ThrowIfFailed(vertexBuffer.Init(mDevice, vertices.data(), (UINT)vertices.size()));
     ThrowIfFailed(indexBuffer.Init(mDevice, indeces.data(), (UINT)indeces.size()));
     ThrowIfFailed(constantBuffer.Init(mDevice, pDeviceContext));
@@ -75,10 +65,4 @@ CollisionComponent* PrimitiveGeometry::GetCollisionComponent() const
 MovementComponent* PrimitiveGeometry::GetMovementComponent() const
 {
     return pMovementComponent;
-}
-
-void PrimitiveGeometry::Reset(const XMFLOAT3& newSpeed, const XMFLOAT3& newTranslation)
-{
-    GetMovementComponent()->SetVelocity(newSpeed);
-    ObjectTransform.Translation = newTranslation;
 }

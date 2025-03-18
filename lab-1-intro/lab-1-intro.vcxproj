@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="Delegates\Delegates.cpp" />
     <ClCompile Include="Graphics\Camera.cpp" />
+    <ClCompile Include="Graphics\Shaders.cpp" />
     <ClCompile Include="Objects\Components\CollisionComponent.cpp" />
     <ClCompile Include="Graphics\IndexBuffer.h" />
     <ClCompile Include="Objects\Components\InputComponent.cpp" />
@@ -45,6 +46,7 @@
     <ClInclude Include="Delegates\Delegates.h" />
     <ClInclude Include="Graphics\Camera.h" />
     <ClInclude Include="Graphics\ScaldCoreTypes.h" />
+    <ClInclude Include="Graphics\Shaders.h" />
     <ClInclude Include="Objects\Components\CollisionComponent.h" />
     <ClInclude Include="Graphics\ConstantBuffer.h" />
     <ClInclude Include="Objects\Components\InputComponent.h" />
