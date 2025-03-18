@@ -39,16 +39,10 @@ public:
 	CollisionComponent* GetCollisionComponent() const;
 	MovementComponent* GetMovementComponent() const;
 
-	void SetIsMovable(bool newStatus) { bIsMovable = newStatus; }
-	bool GetIsMovable() const { return bIsMovable; }
-
 	UINT stride = { 32 }; // sizeof Vertex structure
 	UINT offset = { 0 };
 
 	STransform ObjectTransform;
-
-	// Pong specific
-	void Reset(const XMFLOAT3& newSpeed, const XMFLOAT3& newTranslation);
 
 protected:
 	RenderComponent* pRenderComponent = nullptr;
@@ -63,9 +57,4 @@ private:
 	ConstantBuffer<ConstBuffer> constantBuffer;
 	VertexBuffer<Vertex> vertexBuffer;
 	IndexBuffer indexBuffer;
-
-	bool bIsMovable = false;
-
-	int leftPlayerScore = 0;
-	int rightPlayerScore = 0;
 };

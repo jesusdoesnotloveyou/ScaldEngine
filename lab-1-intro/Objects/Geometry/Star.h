@@ -6,7 +6,6 @@ class Star : public PrimitiveGeometry
 {
 public:
 	Star();
-	Star(const std::vector<Vertex>& v, const std::vector<DWORD>& i);
 
 	virtual ~Star() override;
 	virtual void Initialize(ID3D11Device* mDevice, ID3D11DeviceContext* pDeviceContext) override;

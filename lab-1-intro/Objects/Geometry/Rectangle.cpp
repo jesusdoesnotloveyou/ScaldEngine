@@ -27,10 +27,6 @@ Rect::Rect(const STransform& transform)
 	pCollisionComponent->SetExtends(transform.Scale);
 }
 
-Rect::Rect(const std::vector<Vertex>& v, const std::vector<DWORD>& i)
-	: PrimitiveGeometry(v, i)
-{}
-
 Rect::~Rect()
 {}
 

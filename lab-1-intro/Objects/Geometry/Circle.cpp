@@ -31,10 +31,6 @@ Circle::Circle(const STransform& transform)
 	};
 }
 
-Circle::Circle(const std::vector<Vertex>& v, const std::vector<DWORD>& i)
-	: PrimitiveGeometry(v, i)
-{}
-
 Circle::~Circle()
 {
 
