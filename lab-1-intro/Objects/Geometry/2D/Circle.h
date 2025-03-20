@@ -9,7 +9,7 @@ public:
 
 	virtual ~Circle() override;
 	virtual void Initialize(ID3D11Device* mDevice, ID3D11DeviceContext* pDeviceContext) override;
-	virtual void Update(float DeltaTime) override;
+	virtual void Update(const ScaldTimer& st) override;
 
 private:
 	float ToRadians(float angle);

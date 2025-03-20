@@ -1,4 +1,4 @@
-#include "../../ScaldException.h"
+#include "../../../ScaldException.h"
 #include "PrimitiveGeometry.h"
 #include <sstream>
 
@@ -9,14 +9,16 @@ PrimitiveGeometry::PrimitiveGeometry()
     pMovementComponent = new MovementComponent{};
 }
 
-PrimitiveGeometry::PrimitiveGeometry(const STransform& transform) 
-    : 
-    PrimitiveGeometry()
+PrimitiveGeometry::PrimitiveGeometry(const STransform& transform) : PrimitiveGeometry()
 {
     ObjectTransform = transform;
+    // ?
     constantBuffer.SetTransform(ObjectTransform);
-    pCollisionComponent->SetCenter(transform.Translation);
-    pCollisionComponent->SetExtends(transform.Scale);
+}
+
+PrimitiveGeometry::PrimitiveGeometry(const std::tuple<std::vector<Vertex>, std::vector<DWORD>>& viPair)
+{
+
 }
 
 PrimitiveGeometry::~PrimitiveGeometry()
@@ -26,8 +28,10 @@ PrimitiveGeometry::~PrimitiveGeometry()
     if (pMovementComponent) delete pMovementComponent;
 }
 
-void PrimitiveGeometry::Update(float DeltaTime)
+void PrimitiveGeometry::Update(const ScaldTimer& st)
 {   
+    ObjectTransform.Rotation.y += ObjectTransform.Rotation.y / 180.f * XM_PI * st.DeltaTime();
+    ObjectTransform.OrbitalRotation.y += ObjectTransform.OrbitalRotation.y / 180.f * XM_PI * st.DeltaTime();
 }
 
 void PrimitiveGeometry::Initialize(ID3D11Device* mDevice, ID3D11DeviceContext* pDeviceContext)
@@ -35,6 +39,7 @@ void PrimitiveGeometry::Initialize(ID3D11Device* mDevice, ID3D11DeviceContext* p
     ThrowIfFailed(vertexBuffer.Init(mDevice, vertices.data(), (UINT)vertices.size()));
     ThrowIfFailed(indexBuffer.Init(mDevice, indeces.data(), (UINT)indeces.size()));
     ThrowIfFailed(constantBuffer.Init(mDevice, pDeviceContext));
+    constantBuffer.SetTransform(ObjectTransform);
 }
 
 VertexBuffer<Vertex>& PrimitiveGeometry::GetVertexBuffer()
