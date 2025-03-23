@@ -27,19 +27,21 @@
     <ClCompile Include="Objects\Components\InputComponent.cpp" />
     <ClCompile Include="Objects\Components\MovementComponent.cpp" />
     <ClCompile Include="Objects\Components\TransformComponent.cpp" />
-    <ClCompile Include="Objects\Geometry\Circle.cpp" />
-    <ClCompile Include="Objects\Geometry\Cube.cpp" />
-    <ClCompile Include="Objects\Geometry\Rectangle.cpp" />
+    <ClCompile Include="Objects\Geometry\3D\Cube.cpp" />
+    <ClCompile Include="Objects\Geometry\3D\Shapes.cpp" />
+    <ClCompile Include="Objects\Geometry\2D\Circle.cpp" />
+    <ClCompile Include="Objects\Geometry\2D\Rectangle.cpp" />
+    <ClCompile Include="Objects\Geometry\3D\Sphere.cpp" />
     <ClCompile Include="ScaldCore\Engine\Engine.cpp" />
     <ClCompile Include="Graphics\Graphics.cpp" />
     <ClCompile Include="MySuper3DApp.cpp" />
-    <ClCompile Include="Objects\Geometry\PrimitiveGeometry.cpp" />
+    <ClCompile Include="Objects\Geometry\2D\PrimitiveGeometry.cpp" />
     <ClCompile Include="Objects\Components\RenderComponent.cpp" />
     <ClCompile Include="ScaldCore\Engine\RenderWindow.cpp" />
     <ClCompile Include="ScaldCore\Engine\ScaldTimer.cpp" />
     <ClCompile Include="ScaldCore\Input\InputDevice.cpp" />
     <ClCompile Include="ScaldException.cpp" />
-    <ClCompile Include="Objects\Geometry\Star.cpp" />
+    <ClCompile Include="Objects\Geometry\2D\Star.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Delegates\catch.hpp" />
@@ -52,13 +54,16 @@
     <ClInclude Include="Objects\Components\InputComponent.h" />
     <ClInclude Include="Objects\Components\MovementComponent.h" />
     <ClInclude Include="Objects\Components\TransformComponent.h" />
-    <ClInclude Include="Objects\Geometry\Circle.h" />
-    <ClInclude Include="Objects\Geometry\Cube.h" />
-    <ClInclude Include="Objects\Geometry\Rectangle.h" />
+    <ClInclude Include="Objects\Geometry\2D\Circle.h" />
+    <ClInclude Include="Objects\Geometry\2D\Cube.h" />
+    <ClInclude Include="Objects\Geometry\2D\Rectangle.h" />
+    <ClInclude Include="Objects\Geometry\3D\Cube.h" />
+    <ClInclude Include="Objects\Geometry\3D\Shapes.h" />
+    <ClInclude Include="Objects\Geometry\3D\Sphere.h" />
     <ClInclude Include="ScaldCore\Engine\Engine.h" />
     <ClInclude Include="Graphics\Graphics.h" />
     <ClInclude Include="Objects\Components\IScaldComponent.h" />
-    <ClInclude Include="Objects\Geometry\PrimitiveGeometry.h" />
+    <ClInclude Include="Objects\Geometry\2D\PrimitiveGeometry.h" />
     <ClInclude Include="Objects\Components\RenderComponent.h" />
     <ClInclude Include="ScaldCore\Engine\RenderWindow.h" />
     <ClInclude Include="ScaldCore\Engine\ScaldTimer.h" />
@@ -66,7 +71,7 @@
     <ClInclude Include="ScaldCore\Input\Keys.h" />
     <ClInclude Include="ScaldException.h" />
     <ClInclude Include="ScaldCore\Engine\ScaldWindows.h" />
-    <ClInclude Include="Objects\Geometry\Star.h" />
+    <ClInclude Include="Objects\Geometry\2D\Star.h" />
     <ClInclude Include="Graphics\VertexBuffer.h" />
   </ItemGroup>
   <ItemGroup>

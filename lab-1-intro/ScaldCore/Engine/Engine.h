@@ -8,18 +8,18 @@ class Engine
 public:
 	Engine();
 	int Launch();
-
-	float AspectRatio() const;
   
 private:
 	void SetupScene();
-	void UpdateScene(float DeltaTime);
 	void PollInput();
-	void RenderFrame();
+	void UpdateScene(const ScaldTimer& st);
+	void RenderFrame(const ScaldTimer& st);
+
 	void CalculateFrameStats();
+	float AspectRatio() const;
 
 protected:
-	std::vector<PrimitiveGeometry*> GameObjects;
+	std::vector<PrimitiveGeometry*> mGameObjects;
 	RenderWindow mRenderWindow;
 	ScaldTimer mTimer;
 
