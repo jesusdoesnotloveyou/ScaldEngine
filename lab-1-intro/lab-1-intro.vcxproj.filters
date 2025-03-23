@@ -66,10 +66,10 @@
     <ClCompile Include="ScaldCore\Engine\Engine.cpp">
       <Filter>Source Files\ScaldCore\Engine</Filter>
     </ClCompile>
-    <ClCompile Include="Objects\Geometry\Rectangle.cpp">
+    <ClCompile Include="Objects\Geometry\2D\Rectangle.cpp">
       <Filter>Source Files\Geometry</Filter>
     </ClCompile>
-    <ClCompile Include="Objects\Geometry\Star.cpp">
+    <ClCompile Include="Objects\Geometry\2D\Star.cpp">
       <Filter>Source Files\Geometry</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\IndexBuffer.h">
@@ -84,7 +84,7 @@
     <ClCompile Include="Objects\Components\RenderComponent.cpp">
       <Filter>Source Files\Components</Filter>
     </ClCompile>
-    <ClCompile Include="Objects\Geometry\PrimitiveGeometry.cpp">
+    <ClCompile Include="Objects\Geometry\2D\PrimitiveGeometry.cpp">
       <Filter>Source Files\Geometry</Filter>
     </ClCompile>
     <ClCompile Include="ScaldCore\Engine\RenderWindow.cpp">
@@ -96,7 +96,7 @@
     <ClCompile Include="Delegates\Delegates.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Objects\Geometry\Circle.cpp">
+    <ClCompile Include="Objects\Geometry\2D\Circle.cpp">
       <Filter>Source Files\Geometry</Filter>
     </ClCompile>
     <ClCompile Include="Objects\Components\InputComponent.cpp">
@@ -111,11 +111,17 @@
     <ClCompile Include="Graphics\Camera.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Objects\Geometry\Cube.cpp">
-      <Filter>Source Files</Filter>
+    <ClCompile Include="Objects\Geometry\3D\Cube.cpp">
+      <Filter>Source Files\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\Geometry\3D\Sphere.cpp">
+      <Filter>Source Files\Geometry</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\Geometry\3D\Shapes.cpp">
+      <Filter>Source Files\Geometry</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\Shaders.cpp">
-      <Filter>Source Files</Filter>
+      <Filter>Source Files\Graphics</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -134,16 +140,16 @@
     <ClInclude Include="Graphics\Graphics.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Objects\Geometry\Rectangle.h">
+    <ClInclude Include="Objects\Geometry\2D\Rectangle.h">
       <Filter>Header Files\Geometry</Filter>
     </ClInclude>
-    <ClInclude Include="Objects\Geometry\Star.h">
+    <ClInclude Include="Objects\Geometry\2D\Star.h">
       <Filter>Header Files\Geometry</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\VertexBuffer.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Objects\Geometry\PrimitiveGeometry.h">
+    <ClInclude Include="Objects\Geometry\2D\PrimitiveGeometry.h">
       <Filter>Header Files\Geometry</Filter>
     </ClInclude>
     <ClInclude Include="ScaldCore\Input\Keys.h">
@@ -188,13 +194,22 @@
     <ClInclude Include="Objects\Components\MovementComponent.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
-    <ClInclude Include="Objects\Geometry\Circle.h">
+    <ClInclude Include="Objects\Geometry\2D\Circle.h">
       <Filter>Header Files\Geometry</Filter>
     </ClInclude>
-    <ClInclude Include="Objects\Geometry\Cube.h">
+    <ClInclude Include="Objects\Geometry\2D\Cube.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\Shaders.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\Geometry\3D\Shapes.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\Geometry\3D\Cube.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\Geometry\3D\Sphere.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

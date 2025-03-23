@@ -16,9 +16,9 @@ public:
 	ConstantBuffer(const ConstantBuffer& rhs) = delete;
 public:
 
-	void SetTransform(const STransform& transform)
+	void SetTransform(STransform* transform)
 	{
-		mTransform = transform;
+		mOwnerTransform = transform;
 	}
 	
 	ID3D11Buffer* Get() const { return pBuffer.Get(); }
@@ -42,15 +42,34 @@ public:
 
 	bool ApplyChanges(const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix)
 	{
-		static XMMATRIX world = XMMatrixIdentity();
+		// World
+		XMMATRIX localFrame = XMMatrixIdentity();
+		// Parent World
+		XMMATRIX parentFrame = XMMatrixIdentity();
+		XMMATRIX globalFrame = XMMatrixIdentity();
 
-		curr_data.transform = XMMatrixTranspose(
+		if (mOwnerTransform)
+		{
+			localFrame = XMMatrixScaling(mOwnerTransform->Scale.x, mOwnerTransform->Scale.y, mOwnerTransform->Scale.z) *
+				XMMatrixRotationRollPitchYaw(mOwnerTransform->Rotation.x, mOwnerTransform->Rotation.y, mOwnerTransform->Rotation.z) *
+				XMMatrixTranslation(mOwnerTransform->Translation.x, mOwnerTransform->Translation.y, mOwnerTransform->Translation.z);
 			
-			XMMatrixScaling(mTransform.Scale.x, mTransform.Scale.y, mTransform.Scale.z) *
-			XMMatrixRotationRollPitchYaw(mTransform.Rotation.x, mTransform.Rotation.y, mTransform.Rotation.z) *
-			XMMatrixTranslation(mTransform.Translation.x, mTransform.Translation.y, mTransform.Translation.z) *
-			world * viewMatrix * projectionMatrix
-		);
+			if (mOwnerTransform->ParentTransform)
+			{
+				parentFrame = 
+					// Orbit Rotation around parent
+					XMMatrixRotationY(mOwnerTransform->orbitAngle) *
+					XMMatrixTranslation(mOwnerTransform->ParentTransform->Translation.x, mOwnerTransform->ParentTransform->Translation.y, mOwnerTransform->ParentTransform->Translation.z);
+				
+				globalFrame = XMMatrixTranslation(mOwnerTransform->ParentTransform->Translation.x + mOwnerTransform->Translation.x,
+					mOwnerTransform->ParentTransform->Translation.y + mOwnerTransform->Translation.y,
+					mOwnerTransform->ParentTransform->Translation.z + mOwnerTransform->Translation.z);
+			}
+		}
+
+		const XMMATRIX viewProj = viewMatrix * projectionMatrix;
+
+		curr_data.transform = XMMatrixTranspose(localFrame * parentFrame * viewProj);
 
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
 		ThrowIfFailed(pDeviceContext->Map(pBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
@@ -61,11 +80,21 @@ public:
 	}
 
 public:
-	T curr_data;
+
+	T* GetData() const
+	{
+		return &curr_data;
+	}
+
+	void SetData(T data)
+	{
+		curr_data = data;
+	}
 
 private:
+	T curr_data;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> pBuffer;
 	ID3D11DeviceContext* pDeviceContext = nullptr;
 
-	STransform mTransform;
+	STransform* mOwnerTransform = nullptr;
 };

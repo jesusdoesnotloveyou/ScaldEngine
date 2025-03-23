@@ -18,15 +18,6 @@ Rect::Rect() : PrimitiveGeometry()
 	};
 }
 
-Rect::Rect(const STransform& transform)
-	: Rect()
-{
-	ObjectTransform = transform;
-	// the same logic in initialize
-	pCollisionComponent->SetCenter(transform.Translation);
-	pCollisionComponent->SetExtends(transform.Scale);
-}
-
 Rect::~Rect()
 {}
 
@@ -35,7 +26,7 @@ void Rect::Initialize(ID3D11Device* mDevice, ID3D11DeviceContext* pDeviceContext
 	PrimitiveGeometry::Initialize(mDevice, pDeviceContext);
 }
 
-void Rect::Update(float DeltaTime)
+void Rect::Update(const ScaldTimer& st)
 {
-	PrimitiveGeometry::Update(DeltaTime);
+	PrimitiveGeometry::Update(st);
 }

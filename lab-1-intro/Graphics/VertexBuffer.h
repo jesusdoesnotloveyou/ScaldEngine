@@ -47,5 +47,6 @@ public:
 private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> pBuffer;
     UINT stride = 0;
+    UINT offset = 0;
     UINT bufferSize = 0;
 };

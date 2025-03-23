@@ -1,14 +1,16 @@
 #pragma once
 
-#include "../../Graphics/VertexBuffer.h"
-#include "../../Graphics/IndexBuffer.h"
-#include "../../Graphics/ConstantBuffer.h"
-#include "../../Graphics/ScaldCoreTypes.h"
+#include "../../../Graphics/VertexBuffer.h"
+#include "../../../Graphics/IndexBuffer.h"
+#include "../../../Graphics/ConstantBuffer.h"
+#include "../../../Graphics/ScaldCoreTypes.h"
 
-#include "../../Objects/Components/RenderComponent.h"
-#include "../../Objects/Components/CollisionComponent.h"
-#include "../../Objects/Components/InputComponent.h"
-#include "../../Objects/Components/MovementComponent.h"
+#include "../../../ScaldCore/Engine/ScaldTimer.h"
+
+#include "../../../Objects/Components/RenderComponent.h"
+#include "../../../Objects/Components/CollisionComponent.h"
+#include "../../../Objects/Components/InputComponent.h"
+#include "../../../Objects/Components/MovementComponent.h"
 
 #include <cmath>
 #include <vector>
@@ -22,13 +24,14 @@ class PrimitiveGeometry
 {
 public:
 	PrimitiveGeometry();
-	PrimitiveGeometry(const STransform& transform);
+	PrimitiveGeometry(const std::tuple<std::vector<Vertex>, std::vector<DWORD>>& viPair);
 	// would be changed to normal constructor
-	PrimitiveGeometry(const std::vector<Vertex>& v, const std::vector<DWORD>& i);
 	virtual ~PrimitiveGeometry();
 
-	virtual void Update(float DeltaTime) = 0;
+	virtual void Update(const ScaldTimer& st) = 0;
 	virtual void Initialize(ID3D11Device* mDevice, ID3D11DeviceContext* pDeviceContext) = 0;
+
+	void UpdateObjectCBs(const ScaldTimer& st);
 
 public:
 	VertexBuffer<Vertex>& GetVertexBuffer();
@@ -39,8 +42,7 @@ public:
 	CollisionComponent* GetCollisionComponent() const;
 	MovementComponent* GetMovementComponent() const;
 
-	UINT stride = { 32 }; // sizeof Vertex structure
-	UINT offset = { 0 };
+	UINT offset = { 0 };  // wtf
 
 	STransform ObjectTransform;
 

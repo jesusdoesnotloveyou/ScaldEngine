@@ -51,8 +51,10 @@ private:
 	const XMVECTOR DEFAULT_LEFT_VECTOR = XMVectorSet(-1.0f, 0.0f, 0.0f, 0.0f);
 	const XMVECTOR DEFAULT_RIGHT_VECTOR = XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);
 	
-	XMVECTOR vec_forward;
-	XMVECTOR vec_left;
-	XMVECTOR vec_right;
-	XMVECTOR vec_backward;
+	XMVECTOR mForwardVector;
+	XMVECTOR mLeftVector;
+	XMVECTOR mRightVector;
+	XMVECTOR mBackwardVector;
+	
+	float mSpeed = 0.0f;
 };

@@ -3,7 +3,7 @@
 #include "Graphics.h"
 #include <chrono>
 
-#include "../Objects/Geometry/PrimitiveGeometry.h"
+#include "../Objects/Geometry/2D/PrimitiveGeometry.h"
 
 #include <d3d.h>
 #include <d3d11.h>
@@ -138,7 +138,7 @@ void Graphics::Setup()
 	mDeviceContext->RSSetState(mRasterizerState.Get());
 
 	// Camera setup
-	mCamera.SetPosition(0.0f, 0.0f, -2.0f);
+	mCamera.SetPosition(0.0f, 0.0f, -80.0f);
 	mCamera.SetProjectionValues(90.0f, static_cast<float>(mScreenWidth) / static_cast<float>(mScreenHeight), 0.1f, 1000.0f);
 }
 
@@ -171,7 +171,7 @@ void Graphics::DrawScene(std::vector<PrimitiveGeometry*>& gameObjects)
 		mDeviceContext->VSSetShader(mVertexShader.Get(), nullptr, 0);
 		mDeviceContext->PSSetShader(mPixelShader.Get(), nullptr, 0);
 
-		if (!geometry->GetConstantBuffer().ApplyChanges(mCamera.GetViewMatrix(), mCamera.GetProjectionMatrix())) return;
+		if (!geometry->GetConstantBuffer().ApplyChanges(mCamera.GetViewMatrix(), mCamera.GetProjectionMatrix())) continue;
 		mDeviceContext->IASetVertexBuffers(0u, 1u, geometry->GetVertexBuffer().GetAddressOf(), geometry->GetVertexBuffer().GetStridePtr(), &geometry->offset);
 		mDeviceContext->IASetIndexBuffer(geometry->GetIndexBuffer().Get(), DXGI_FORMAT_R32_UINT, 0u);
 		mDeviceContext->VSSetConstantBuffers(0u, 1u, geometry->GetConstantBuffer().GetAddressOf());

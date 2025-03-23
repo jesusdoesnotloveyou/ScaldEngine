@@ -6,10 +6,10 @@ Cube::Cube() : PrimitiveGeometry()
 	SetIndeces();
 }
 
-Cube::Cube(const STransform& transform) : PrimitiveGeometry(transform)
+Cube::Cube(const tuple<vector<Vertex>, vector<DWORD>>& vi) : PrimitiveGeometry()
 {
-	SetVertices();
-	SetIndeces();
+	vertices = std::get<0>(vi);
+	indeces = std::get<1>(vi);
 }
 
 Cube::~Cube()
@@ -17,9 +17,9 @@ Cube::~Cube()
 
 }
 
-void Cube::Update(float DeltaTime)
+void Cube::Update(const ScaldTimer& st)
 {
-	PrimitiveGeometry::Update(DeltaTime);
+	PrimitiveGeometry::Update(st);
 }
 
 void Cube::Initialize(ID3D11Device* mDevice, ID3D11DeviceContext* pDeviceContext)
