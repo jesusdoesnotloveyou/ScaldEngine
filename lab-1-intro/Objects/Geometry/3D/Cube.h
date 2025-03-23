@@ -12,7 +12,6 @@ class Cube : public PrimitiveGeometry
 {
 public:
 	Cube();
-	Cube(const STransform& transform);
 	Cube(const tuple<vector<Vertex>, vector<DWORD>>& vi);
 
 	virtual ~Cube() override;
@@ -21,6 +20,8 @@ public:
 	virtual void Update(const ScaldTimer& st) override;
 	virtual void Initialize(ID3D11Device* mDevice, ID3D11DeviceContext* pDeviceContext) override;
 	//~ End of PrimitiveGeometry interface
+
+
 
 private:
 	void SetIndeces();

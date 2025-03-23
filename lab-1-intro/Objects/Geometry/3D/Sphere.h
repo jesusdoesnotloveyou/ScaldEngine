@@ -12,7 +12,6 @@ class Sphere : public PrimitiveGeometry
 {
 public:
 	Sphere();
-	Sphere(const STransform& transform);
 	Sphere(const tuple<vector<Vertex>, vector<DWORD>>& vi);
 	virtual ~Sphere() override;
 

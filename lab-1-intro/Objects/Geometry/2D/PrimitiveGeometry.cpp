@@ -9,13 +9,6 @@ PrimitiveGeometry::PrimitiveGeometry()
     pMovementComponent = new MovementComponent{};
 }
 
-PrimitiveGeometry::PrimitiveGeometry(const STransform& transform) : PrimitiveGeometry()
-{
-    ObjectTransform = transform;
-    // ?
-    constantBuffer.SetTransform(ObjectTransform);
-}
-
 PrimitiveGeometry::PrimitiveGeometry(const std::tuple<std::vector<Vertex>, std::vector<DWORD>>& viPair)
 {
 
@@ -30,8 +23,14 @@ PrimitiveGeometry::~PrimitiveGeometry()
 
 void PrimitiveGeometry::Update(const ScaldTimer& st)
 {   
-    ObjectTransform.Rotation.y += ObjectTransform.Rotation.y / 180.f * XM_PI * st.DeltaTime();
-    ObjectTransform.OrbitalRotation.y += ObjectTransform.OrbitalRotation.y / 180.f * XM_PI * st.DeltaTime();
+    ObjectTransform.rotationAngle += XMConvertToRadians(ObjectTransform.rotationSpeed) * st.DeltaTime();
+    ObjectTransform.Rotation.y = ObjectTransform.rotationAngle;
+
+    ObjectTransform.orbitAngle += XMConvertToRadians(ObjectTransform.orbitSpeed) * st.DeltaTime();
+    ObjectTransform.Translation.x = ObjectTransform.orbitRadius * cos(XMConvertToRadians(ObjectTransform.orbitAngle));
+    ObjectTransform.Translation.z = ObjectTransform.orbitRadius * sin(XMConvertToRadians(ObjectTransform.orbitAngle));
+
+    //UpdateObjectCBs(st);
 }
 
 void PrimitiveGeometry::Initialize(ID3D11Device* mDevice, ID3D11DeviceContext* pDeviceContext)
@@ -39,7 +38,13 @@ void PrimitiveGeometry::Initialize(ID3D11Device* mDevice, ID3D11DeviceContext* p
     ThrowIfFailed(vertexBuffer.Init(mDevice, vertices.data(), (UINT)vertices.size()));
     ThrowIfFailed(indexBuffer.Init(mDevice, indeces.data(), (UINT)indeces.size()));
     ThrowIfFailed(constantBuffer.Init(mDevice, pDeviceContext));
-    constantBuffer.SetTransform(ObjectTransform);
+
+    constantBuffer.SetTransform(&ObjectTransform);
+}
+
+void PrimitiveGeometry::UpdateObjectCBs(const ScaldTimer& st)
+{
+    constantBuffer.SetTransform(&ObjectTransform);
 }
 
 VertexBuffer<Vertex>& PrimitiveGeometry::GetVertexBuffer()

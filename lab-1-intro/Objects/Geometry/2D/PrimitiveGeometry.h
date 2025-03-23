@@ -24,13 +24,14 @@ class PrimitiveGeometry
 {
 public:
 	PrimitiveGeometry();
-	PrimitiveGeometry(const STransform& transform);
 	PrimitiveGeometry(const std::tuple<std::vector<Vertex>, std::vector<DWORD>>& viPair);
 	// would be changed to normal constructor
 	virtual ~PrimitiveGeometry();
 
 	virtual void Update(const ScaldTimer& st) = 0;
 	virtual void Initialize(ID3D11Device* mDevice, ID3D11DeviceContext* pDeviceContext) = 0;
+
+	void UpdateObjectCBs(const ScaldTimer& st);
 
 public:
 	VertexBuffer<Vertex>& GetVertexBuffer();
@@ -41,8 +42,7 @@ public:
 	CollisionComponent* GetCollisionComponent() const;
 	MovementComponent* GetMovementComponent() const;
 
-	UINT stride = { 32 }; // sizeof Vertex structure
-	UINT offset = { 0 };
+	UINT offset = { 0 };  // wtf
 
 	STransform ObjectTransform;
 

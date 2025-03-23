@@ -4,10 +4,6 @@ Sphere::Sphere() : PrimitiveGeometry()
 {
 }
 
-Sphere::Sphere(const STransform& transform) : PrimitiveGeometry(transform)
-{
-}
-
 Sphere::Sphere(const tuple<vector<Vertex>, vector<DWORD>>& vi) : PrimitiveGeometry()
 {
 	vertices = std::get<0>(vi);

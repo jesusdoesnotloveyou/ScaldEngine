@@ -6,12 +6,6 @@ Cube::Cube() : PrimitiveGeometry()
 	SetIndeces();
 }
 
-Cube::Cube(const STransform& transform) : PrimitiveGeometry(transform)
-{
-	SetVertices();
-	SetIndeces();
-}
-
 Cube::Cube(const tuple<vector<Vertex>, vector<DWORD>>& vi) : PrimitiveGeometry()
 {
 	vertices = std::get<0>(vi);

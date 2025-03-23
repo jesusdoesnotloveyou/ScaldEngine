@@ -18,15 +18,6 @@ Rect::Rect() : PrimitiveGeometry()
 	};
 }
 
-Rect::Rect(const STransform& transform)
-	: Rect()
-{
-	ObjectTransform = transform;
-	// the same logic in initialize
-	pCollisionComponent->SetCenter(transform.Translation);
-	pCollisionComponent->SetExtends(transform.Scale);
-}
-
 Rect::~Rect()
 {}
 
