@@ -27,10 +27,26 @@ void PrimitiveGeometry::Update(const ScaldTimer& st)
     ObjectTransform.Rotation.y = ObjectTransform.rotationAngle;
 
     ObjectTransform.orbitAngle += XMConvertToRadians(ObjectTransform.orbitSpeed) * st.DeltaTime();
-    ObjectTransform.Translation.x = ObjectTransform.orbitRadius * cos(XMConvertToRadians(ObjectTransform.orbitAngle));
-    ObjectTransform.Translation.z = ObjectTransform.orbitRadius * sin(XMConvertToRadians(ObjectTransform.orbitAngle));
+    ObjectTransform.Translation.x = ObjectTransform.orbitRadius * cosf(XMConvertToRadians(ObjectTransform.orbitAngle));
+    ObjectTransform.Translation.z = ObjectTransform.orbitRadius * sinf(XMConvertToRadians(ObjectTransform.orbitAngle));
+
+    UpdateWorldMatrix();
 
     //UpdateObjectCBs(st);
+}
+
+void PrimitiveGeometry::UpdateWorldMatrix()
+{
+    ObjectTransform.localMatrix = XMMatrixScaling(ObjectTransform.Scale.x, ObjectTransform.Scale.y, ObjectTransform.Scale.z) *
+        XMMatrixRotationRollPitchYaw(ObjectTransform.Rotation.x, ObjectTransform.Rotation.y, ObjectTransform.Rotation.z) *
+        XMMatrixTranslation(ObjectTransform.Translation.x, ObjectTransform.Translation.y, ObjectTransform.Translation.z) *
+        // orbit rotation: 0 (no rotation) or some value
+        XMMatrixRotationY(ObjectTransform.orbitAngle);
+
+    if (ObjectTransform.ParentTransform) 
+    {
+        ObjectTransform.worldMatrix = ObjectTransform.localMatrix * ObjectTransform.ParentTransform->worldMatrix;
+    }
 }
 
 void PrimitiveGeometry::Initialize(ID3D11Device* mDevice, ID3D11DeviceContext* pDeviceContext)
@@ -38,6 +54,8 @@ void PrimitiveGeometry::Initialize(ID3D11Device* mDevice, ID3D11DeviceContext* p
     ThrowIfFailed(vertexBuffer.Init(mDevice, vertices.data(), (UINT)vertices.size()));
     ThrowIfFailed(indexBuffer.Init(mDevice, indeces.data(), (UINT)indeces.size()));
     ThrowIfFailed(constantBuffer.Init(mDevice, pDeviceContext));
+
+    UpdateWorldMatrix();
 
     constantBuffer.SetTransform(&ObjectTransform);
 }

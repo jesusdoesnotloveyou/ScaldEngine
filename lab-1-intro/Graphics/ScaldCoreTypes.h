@@ -16,12 +16,15 @@ struct ConstBuffer
 	XMMATRIX transform = XMMatrixIdentity();
 };
 
-struct STransform
+struct Transform
 {
 	// Object local frame
 	XMFLOAT3 Scale		 = { 1.0f, 1.0f, 1.0f };
 	XMFLOAT3 Rotation	 = { 0.0f, 0.0f, 0.0f };
 	XMFLOAT3 Translation = { 0.0f, 0.0f, 0.0f };
+	
+	XMMATRIX worldMatrix;
+	XMMATRIX localMatrix;
 
 	// Solar System specific
 	float rotationAngle	= 0.0f; // Radians by axis
@@ -33,16 +36,20 @@ struct STransform
 	float rotationSpeed = 0.0f; // in Radians per smth
 	float orbitSpeed	= 0.0f; // in Radians per smth
 
-	STransform* ParentTransform = nullptr;
+	Transform* ParentTransform = nullptr;
 
-	STransform(
-		const XMFLOAT3& scale		= { 1.0f, 1.0f, 1.0f },
-		const XMFLOAT3& rotation	= { 0.0f, 0.0f, 0.0f },
-		const XMFLOAT3& translation = { 0.0f, 0.0f, 0.0f }
-	) 
-		: 
-		Scale(scale), 
-		Rotation(rotation), 
-		Translation(translation)
-		{}
+	Transform()
+	{
+		localMatrix = worldMatrix = XMMatrixIdentity();
+	}
+
+	void SetWorldMatrix(const XMMATRIX& worldMat)
+	{
+		worldMatrix = worldMat;
+	}
+
+	void Reset()
+	{
+		localMatrix = worldMatrix = XMMatrixIdentity();
+	}
 };
