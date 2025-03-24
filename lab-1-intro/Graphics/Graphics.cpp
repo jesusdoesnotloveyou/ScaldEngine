@@ -138,7 +138,7 @@ void Graphics::Setup()
 	mDeviceContext->RSSetState(mRasterizerState.Get());
 
 	// Camera setup
-	mCamera.SetPosition(0.0f, 0.0f, -80.0f);
+	mCamera.SetPosition(0.0f, 50.0f, -80.0f);
 	mCamera.SetProjectionValues(90.0f, static_cast<float>(mScreenWidth) / static_cast<float>(mScreenHeight), 0.1f, 1000.0f);
 }
 
