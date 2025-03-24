@@ -65,9 +65,12 @@ void Engine::UpdateCollisionWithBonus(PrimitiveGeometry* bonus, PrimitiveGeometr
 		player->GetMovementComponent()->SetVelocity(newSpeed);
 		return;
 	}
-	else
+	else if (bonus->bIsDirectionChanger)
 	{
-
+		auto newInitVelocity = GameObjects[2]->GetMovementComponent()->GetInitialVelocity();
+		newInitVelocity.x *= (-1.0f);
+		GameObjects[2]->GetMovementComponent()->SetInitialVelocity(newInitVelocity.x, newInitVelocity.y, newInitVelocity.z);
+		return;
 	}
 }
 
@@ -89,14 +92,16 @@ void Engine::SetupScene()
 
 	STransform playerSpeedBonusTransform;
 	playerSpeedBonusTransform.Scale = { 0.02f, 0.02f, 0.0f };
-	playerSpeedBonusTransform.Translation = { 0.5f, 0.0f, 0.0f };
+	playerSpeedBonusTransform.Translation = { -0.5f, 0.0f, 0.0f };
 	PrimitiveGeometry* playerSpeedBonus = new Rect(playerSpeedBonusTransform, Colors::Red);
 	playerSpeedBonus->bIsSpeedIncrease = true;
 
-	STransform ballSpeedBonusTransform;
-	ballSpeedBonusTransform.Scale = { 0.04f, 0.04f, 0.0f };
-	ballSpeedBonusTransform.Translation = { -0.5f, 0.0f, 0.0f };
-	PrimitiveGeometry* ballSpeedBonus = new Rect(ballSpeedBonusTransform, Colors::Aqua);
+	STransform ballDirectionBonusTransform;
+	ballDirectionBonusTransform.Scale = { 0.02f, 0.02f, 0.0f };
+	ballDirectionBonusTransform.Translation = { 0.4f, 0.0f, 0.0f };
+	PrimitiveGeometry* ballDirectionBonus = new Rect(ballDirectionBonusTransform, Colors::Aqua);
+	ballDirectionBonus->bIsDirectionChanger = true;
+
 
 	STransform firstRocketTransform;
 	firstRocketTransform.Scale = { 0.01f, 0.2f, 0.0f };
@@ -113,7 +118,7 @@ void Engine::SetupScene()
 	GameObjects.push_back(ball);
 
 	GameObjects.push_back(playerSpeedBonus);
-	//GameObjects.push_back(ballSpeedBonus);
+	GameObjects.push_back(ballDirectionBonus);
 
 	for (auto geometry : GameObjects)
 	{
@@ -198,10 +203,13 @@ void Engine::UpdateScene(float DeltaTime)
 	UpdateCollisionWithPaddle(GameObjects[2], GameObjects[0]);
 	UpdateCollisionWithPaddle(GameObjects[2], GameObjects[1]);
 
+	// red bonus
 	UpdateCollisionWithBonus(GameObjects[3], GameObjects[0]);
 	UpdateCollisionWithBonus(GameObjects[3], GameObjects[1]);
-	//UpdateCollisionWithBonus(GameObjects[4], GameObjects[0]);
-	//UpdateCollisionWithBonus(GameObjects[4], GameObjects[1]);
+
+	// blue bonus
+	UpdateCollisionWithBonus(GameObjects[4], GameObjects[0]);
+	UpdateCollisionWithBonus(GameObjects[4], GameObjects[1]);
 	
 	for (auto gameObject : GameObjects)
 	{

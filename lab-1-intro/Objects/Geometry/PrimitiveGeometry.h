@@ -51,6 +51,7 @@ public:
 
 	// for bonus (should be enum or smth)
 	bool bIsSpeedIncrease = false;
+	bool bIsDirectionChanger = false;
 
 protected:
 	RenderComponent* pRenderComponent = nullptr;

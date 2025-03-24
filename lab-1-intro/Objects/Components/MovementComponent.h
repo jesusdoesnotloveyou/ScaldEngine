@@ -18,6 +18,7 @@ public:
 
 	XMFLOAT3 GetInitialTransition() const;
 	XMFLOAT3 GetInitialVelocity() const;
+	void SetInitialVelocity(float x, float y, float z);
 	void SetVelocity(const dx::XMFLOAT3&);
 	void SetVelocity(const float velocity);
 	void SetVelocity(float x, float y, float z);

@@ -20,6 +20,13 @@ XMFLOAT3 MovementComponent::GetInitialVelocity() const
 	return InitialVelocity;
 }
 
+void MovementComponent::SetInitialVelocity(float x, float y, float z)
+{
+	InitialVelocity.x = x;
+	InitialVelocity.y = y;
+	InitialVelocity.z = z;
+}
+
 XMFLOAT3 MovementComponent::GetInitialTransition() const
 {
 	return InitialTransition;
