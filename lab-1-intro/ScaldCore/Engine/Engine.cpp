@@ -205,6 +205,25 @@ void Engine::PollInput()
 		unsigned char keyCode = keyEvent.GetCode();
 	}
 
+#pragma region CameraOrbitalMovement
+	if (mRenderWindow.kbd.IsKeyPressed('1'))
+	{
+		// sun
+		mRenderWindow.GetGfx().mCamera.SetPosition(mGameObjects[0]->ObjectTransform.Translation.x, mGameObjects[0]->ObjectTransform.Translation.y, mGameObjects[0]->ObjectTransform.Translation.z);
+		mRenderWindow.GetGfx().mCamera.SetLookAtPosition(mGameObjects[0]->ObjectTransform.Translation);
+	}
+	if (mRenderWindow.kbd.IsKeyPressed('2'))
+	{
+		mRenderWindow.GetGfx().mCamera.SetPosition(mGameObjects[1]->ObjectTransform.Translation.x, mGameObjects[1]->ObjectTransform.Translation.y, mGameObjects[1]->ObjectTransform.Translation.z);
+		mRenderWindow.GetGfx().mCamera.SetLookAtPosition(mGameObjects[1]->ObjectTransform.Translation);
+	}
+	if (mRenderWindow.kbd.IsKeyPressed('3'))
+	{
+		mRenderWindow.GetGfx().mCamera.SetLookAtPosition(mGameObjects[2]->ObjectTransform.Translation);
+	}
+
+#pragma endregion
+
 #pragma region CameraRotation
 	std::ostringstream oss;
 	const auto mouseEvent = mRenderWindow.mouse.Read();
