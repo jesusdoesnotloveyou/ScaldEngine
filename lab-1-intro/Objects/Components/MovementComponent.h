@@ -27,7 +27,7 @@ private:
 	// rad
 	float mRotAngle = 0.0f;
 
-	float Velocity = 0.0f;
+	float mVelocity = 0.0f;
 
 	XMFLOAT3 InitialVelocity = { 0.01f, 0.003f, 0.0f };
 	XMFLOAT3 Velocity = { 0.0f, 0.0f, 0.0f };

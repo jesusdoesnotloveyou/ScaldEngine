@@ -63,21 +63,21 @@ void Engine::SetupScene()
 	PrimitiveGeometry* mercury = new Sphere(mercuryShape);
 	mercury->ObjectTransform.Scale = { 0.5f, 0.5f, 0.5f };
 	mercury->ObjectTransform.rotationSpeed = 100.0f;
-	mercury->ObjectTransform.orbitSpeed = 200.0f;
+	mercury->ObjectTransform.orbitSpeed = 65.0f;
 	mercury->ObjectTransform.orbitRadius = 50.0f;
 	mercury->ObjectTransform.ParentTransform = &sun->ObjectTransform;
 
 	PrimitiveGeometry* venus = new Sphere(venusShape);
 	venus->ObjectTransform.Scale = { 0.95f, 0.95f, 0.95f };
 	venus->ObjectTransform.rotationSpeed = 25.0f;
-	venus->ObjectTransform.orbitSpeed = 160.0f;
+	venus->ObjectTransform.orbitSpeed = 60.0f;
 	venus->ObjectTransform.orbitRadius = 84.0f;
 	venus->ObjectTransform.ParentTransform = &sun->ObjectTransform;
 	
 	PrimitiveGeometry* earth = new Sphere(earthShape);
 	earth->ObjectTransform.Scale = { 1.0f, 1.0f, 1.0f };
 	earth->ObjectTransform.rotationSpeed = 100.0f;
-	earth->ObjectTransform.orbitSpeed = 130.0f;
+	earth->ObjectTransform.orbitSpeed = 50.0f;
 	earth->ObjectTransform.orbitRadius = 114.0f;
 	earth->ObjectTransform.ParentTransform = &sun->ObjectTransform;
 
@@ -91,7 +91,7 @@ void Engine::SetupScene()
 	PrimitiveGeometry* mars = new Sphere(marsShape);
 	mars->ObjectTransform.Scale = { 0.6f, 0.6f, 0.6f };
 	mars->ObjectTransform.rotationSpeed = 90.0f;
-	mars->ObjectTransform.orbitSpeed = 100.0f;
+	mars->ObjectTransform.orbitSpeed = 40.0f;
 	mars->ObjectTransform.orbitRadius = 150.0f;
 	mars->ObjectTransform.ParentTransform = &sun->ObjectTransform;
 
@@ -105,14 +105,14 @@ void Engine::SetupScene()
 	PrimitiveGeometry* deimos = new Sphere(deimosShape);
 	deimos->ObjectTransform.Scale = { 0.1f, 0.1f, 0.1f };
 	deimos->ObjectTransform.rotationSpeed = 25.0f;
-	deimos->ObjectTransform.orbitSpeed = 150.0f;
+	deimos->ObjectTransform.orbitSpeed = 50.0f;
 	deimos->ObjectTransform.orbitRadius = 10.0f;
 	deimos->ObjectTransform.ParentTransform = &mars->ObjectTransform;
 	
 	PrimitiveGeometry* jupiter = new Sphere(jupiterShape);
 	jupiter->ObjectTransform.Scale = { 5.0f, 5.0f, 5.f };
 	jupiter->ObjectTransform.rotationSpeed = 90.0f;
-	jupiter->ObjectTransform.orbitSpeed = 90.0f;
+	jupiter->ObjectTransform.orbitSpeed = 30;
 	jupiter->ObjectTransform.orbitRadius = 220.0f;
 	jupiter->ObjectTransform.ParentTransform = &sun->ObjectTransform;
 
@@ -120,14 +120,14 @@ void Engine::SetupScene()
 	hanimed->ObjectTransform.Scale = { 0.2f, 0.2f, 0.2f };
 	hanimed->ObjectTransform.Rotation = { 0.0f, 0.0f, 10.0f };
 	hanimed->ObjectTransform.rotationSpeed = 25.0f;
-	hanimed->ObjectTransform.orbitSpeed = 150.0f;
+	hanimed->ObjectTransform.orbitSpeed = 15.0f;
 	hanimed->ObjectTransform.orbitRadius = 2.0f;
 	hanimed->ObjectTransform.ParentTransform = &jupiter->ObjectTransform;
 
 	PrimitiveGeometry* io = new Sphere(venusShape);
 	io->ObjectTransform.Scale = { 0.1f, 0.1f, 0.1f };
 	io->ObjectTransform.rotationSpeed = 25.0f;
-	io->ObjectTransform.orbitSpeed = 400.0f;
+	io->ObjectTransform.orbitSpeed = 40.0f;
 	io->ObjectTransform.orbitRadius = 4.0f;
 	io->ObjectTransform.ParentTransform = &jupiter->ObjectTransform;
 
@@ -141,35 +141,35 @@ void Engine::SetupScene()
 	PrimitiveGeometry* saturn = new Sphere(saturnShape);
 	saturn->ObjectTransform.Scale = { 4.2f, 4.2f, 4.2f };
 	saturn->ObjectTransform.rotationSpeed = 50.0f;
-	saturn->ObjectTransform.orbitSpeed = 60.0f;
+	saturn->ObjectTransform.orbitSpeed = 25.0f;
 	saturn->ObjectTransform.orbitRadius = 300.0f;
 	saturn->ObjectTransform.ParentTransform = &sun->ObjectTransform;
 
 	PrimitiveGeometry* titan = new Sphere(titanShape);
 	titan->ObjectTransform.Scale = { 0.2f, 0.2f, 0.2f };
 	titan->ObjectTransform.rotationSpeed = 10.0f;
-	titan->ObjectTransform.orbitSpeed = 60.0f;
+	titan->ObjectTransform.orbitSpeed = 15.0f;
 	titan->ObjectTransform.orbitRadius = 5.0f;
 	titan->ObjectTransform.ParentTransform = &saturn->ObjectTransform;
 
 	PrimitiveGeometry* uranus = new Sphere(uranusShape);
 	uranus->ObjectTransform.Scale = { 2.8f, 2.8f, 2.8f };
 	uranus->ObjectTransform.rotationSpeed = 8.0f;
-	uranus->ObjectTransform.orbitSpeed = 50.0f;
+	uranus->ObjectTransform.orbitSpeed = 20.0f;
 	uranus->ObjectTransform.orbitRadius = 380.f;
 	uranus->ObjectTransform.ParentTransform = &sun->ObjectTransform;
 	
 	PrimitiveGeometry* neptune = new Cube(boxShape);
 	neptune->ObjectTransform.Scale = { 2.5f, 2.5f, 2.5f };
 	neptune->ObjectTransform.rotationSpeed = 8.0f;
-	neptune->ObjectTransform.orbitSpeed = 40.0f;
+	neptune->ObjectTransform.orbitSpeed = 18.0f;
 	neptune->ObjectTransform.orbitRadius = 440.0f;
 	neptune->ObjectTransform.ParentTransform = &sun->ObjectTransform;
 	
 	PrimitiveGeometry* pluto = new Cube(plutoShape);
 	pluto->ObjectTransform.Scale = { 0.1f, 0.1f, 0.1f };
 	pluto->ObjectTransform.rotationSpeed = 30.0f;
-	pluto->ObjectTransform.orbitSpeed = 20.0f;
+	pluto->ObjectTransform.orbitSpeed = 10.0f;
 	pluto->ObjectTransform.orbitRadius = 490.0f;
 	pluto->ObjectTransform.ParentTransform = &sun->ObjectTransform;
 	
