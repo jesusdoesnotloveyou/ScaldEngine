@@ -9,13 +9,13 @@ void CollisionComponent::Update(float DeltaTime)
 	// TODO: lool at the UpdateOwnerTransform method
 }
 
-void CollisionComponent::UpdateOwnerTransform(const STransform& ownerTransform)
+void CollisionComponent::UpdateOwnerTransform(const Transform& ownerTransform)
 {
 	BoundingBox.Center = ownerTransform.Translation;
 	BoundingBox.Extents = ownerTransform.Scale;
 }
 
-void CollisionComponent::Initialize(const STransform& ownerTransform)
+void CollisionComponent::Initialize(const Transform& ownerTransform)
 {
 	BoundingBox.Center = ownerTransform.Translation;
 	BoundingBox.Extents = ownerTransform.Scale;
