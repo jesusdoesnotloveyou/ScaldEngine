@@ -1,6 +1,5 @@
 #include "ScaldWindows.h"
 #include <sstream>
-#include <iostream>
 #include "RenderWindow.h"
 
 RenderWindow::WindowClass RenderWindow::WindowClass::wndClass;
@@ -23,7 +22,7 @@ RenderWindow::WindowClass::WindowClass() noexcept
 #pragma region Window init
 	WNDCLASSEX wc = {};
 
-	wc.cbSize = sizeof(WNDCLASSEX);
+	wc.cbSize = sizeof(wc);
 	wc.style = CS_HREDRAW | CS_VREDRAW | CS_OWNDC;
 	wc.lpfnWndProc = HandleMsgSetup;
 	wc.cbClsExtra = 0;
@@ -148,7 +147,7 @@ LRESULT RenderWindow::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
 	case WM_CLOSE:
 		PostQuitMessage(69);
 		return 0;
-	// clear keystate when window loses focus to prevent input getting zombie
+
 	case WM_KILLFOCUS:
 		kbd.ClearState();
 		break;
@@ -166,11 +165,12 @@ LRESULT RenderWindow::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
 	case WM_SYSKEYUP:
 		kbd.OnKeyReleased(static_cast<unsigned char>(wParam));
 		break;
+
 	case WM_CHAR:
 		kbd.OnChar(static_cast<unsigned char>(wParam));
 		break;
 		/****************** END KEYBOARD MESSAGES *******************/
-
+      
 		/****************** MOUSE MESSAGES *******************/
 	case WM_MOUSEMOVE:
 	{
@@ -233,7 +233,9 @@ LRESULT RenderWindow::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
 		mouse.OnWheelDelta(pt.x, pt.y, delta);
 		break;
 	}
-	/****************** END MOUSE MESSAGES *******************/
+
+  /****************** END MOUSE MESSAGES *******************/
+
 	}
 	return DefWindowProc(hWnd, msg, wParam, lParam);
 }
