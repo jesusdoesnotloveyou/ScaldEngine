@@ -5,8 +5,8 @@
 class Rect : public PrimitiveGeometry
 {
 public:
-	Rect();
-	Rect(const STransform& transform);
+	Rect(XMVECTORF32 Color = Colors::White);
+	Rect(const STransform& transform, XMVECTORF32 Color = Colors::White);
 	Rect(const std::vector<Vertex>& v, const std::vector<DWORD>& i = { 0, 1, 2,  0, 2, 3 });
 
 	virtual ~Rect() override;

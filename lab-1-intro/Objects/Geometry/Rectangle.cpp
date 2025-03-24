@@ -2,14 +2,14 @@
 
 using namespace DirectX;
 
-Rect::Rect() : PrimitiveGeometry()
+Rect::Rect(XMVECTORF32 Color) : PrimitiveGeometry()
 {
 	vertices =
 	{
-		{ XMFLOAT4(-1.0f,  1.0f, 1.0f, 1.0f), XMFLOAT4(Colors::White) },
-		{ XMFLOAT4( 1.0f,  1.0f, 1.0f, 1.0f), XMFLOAT4(Colors::White) },
-		{ XMFLOAT4( 1.0f, -1.0f, 1.0f, 1.0f), XMFLOAT4(Colors::White) },
-		{ XMFLOAT4(-1.0f, -1.0f, 1.0f, 1.0f), XMFLOAT4(Colors::White) }
+		{ XMFLOAT4(-1.0f,  1.0f, 1.0f, 1.0f), XMFLOAT4(Color) },
+		{ XMFLOAT4( 1.0f,  1.0f, 1.0f, 1.0f), XMFLOAT4(Color) },
+		{ XMFLOAT4( 1.0f, -1.0f, 1.0f, 1.0f), XMFLOAT4(Color) },
+		{ XMFLOAT4(-1.0f, -1.0f, 1.0f, 1.0f), XMFLOAT4(Color) }
 	};
 
 	indeces = {
@@ -18,8 +18,8 @@ Rect::Rect() : PrimitiveGeometry()
 	};
 }
 
-Rect::Rect(const STransform& transform)
-	: Rect()
+Rect::Rect(const STransform& transform, XMVECTORF32 Color)
+	: Rect(Color)
 {
 	ObjectTransform = transform;
 	// the same logic in initialize
