@@ -42,8 +42,7 @@ public:
 
 	bool ApplyChanges()
 	{
-		DirectX::XMMATRIX worldMatrix;
-		worldMatrix =
+		const XMMATRIX worldMatrix =
 			XMMatrixScaling(mTransform.Scale.x, mTransform.Scale.y, mTransform.Scale.z) *
 			XMMatrixRotationRollPitchYaw(mTransform.Rotation.x, mTransform.Rotation.z, mTransform.Rotation.y) *
 			XMMatrixTranslation(mTransform.Translation.x, mTransform.Translation.y, mTransform.Translation.z);
@@ -51,7 +50,8 @@ public:
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
 		ThrowIfFailed(pDeviceContext->Map(pBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
 
-		curr_data.transform = DirectX::XMMatrixTranspose(worldMatrix);
+		curr_data.transform = XMMatrixTranspose(worldMatrix);
+		
 		CopyMemory(mappedResource.pData, &curr_data, sizeof(T));
 		pDeviceContext->Unmap(pBuffer.Get(), 0);
 		return true;
