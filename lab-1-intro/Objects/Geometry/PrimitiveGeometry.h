@@ -49,6 +49,9 @@ public:
 	// Pong specific
 	void Reset(const XMFLOAT3& newSpeed, const XMFLOAT3& newTranslation);
 
+	// for bonus (should be enum or smth)
+	bool bIsSpeedIncrease = false;
+
 protected:
 	RenderComponent* pRenderComponent = nullptr;
 	CollisionComponent* pCollisionComponent = nullptr;

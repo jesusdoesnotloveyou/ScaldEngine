@@ -10,6 +10,7 @@ public:
 	int Launch();
 
 	float AspectRatio() const;
+	float randomFloat(float min, float max);
 
 private:
 	void SetupScene();
@@ -21,6 +22,8 @@ private:
 	// Pong Specific functions
 	bool CheckCollision(PrimitiveGeometry* ball, PrimitiveGeometry* otherActor);
 	void UpdateCollisionWithPaddle(PrimitiveGeometry* ball, PrimitiveGeometry* otherActor);
+	void UpdateCollisionWithBonus(PrimitiveGeometry* bonus, PrimitiveGeometry* player);
+	void SetInvisibleAndMove(PrimitiveGeometry* bonus);
 
 protected:
 	std::vector<PrimitiveGeometry*> GameObjects;

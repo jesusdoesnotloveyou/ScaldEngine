@@ -37,9 +37,9 @@ int Engine::Launch()
 	}
 }
 
-bool Engine::CheckCollision(PrimitiveGeometry* ball, PrimitiveGeometry* otherActor)
+bool Engine::CheckCollision(PrimitiveGeometry* actor, PrimitiveGeometry* otherActor)
 {
-	if (ball->GetCollisionComponent()->BoundingBox.Intersects(otherActor->GetCollisionComponent()->BoundingBox)) return true;
+	if (actor->GetCollisionComponent()->BoundingBox.Intersects(otherActor->GetCollisionComponent()->BoundingBox)) return true;
 	return false;
 }
 
@@ -53,6 +53,32 @@ void Engine::UpdateCollisionWithPaddle(PrimitiveGeometry* ball, PrimitiveGeometr
 	ball->GetMovementComponent()->SetVelocity(ballSpeed.x * (-1.f), ballSpeed.y, ballSpeed.z);
 }
 
+void Engine::UpdateCollisionWithBonus(PrimitiveGeometry* bonus, PrimitiveGeometry* player)
+{
+	if (!CheckCollision(bonus, player)) return;
+
+	SetInvisibleAndMove(bonus);
+	
+	if (bonus->bIsSpeedIncrease)
+	{
+		const auto newSpeed = player->GetMovementComponent()->GetSpeed() + 0.005f;
+		player->GetMovementComponent()->SetVelocity(newSpeed);
+		return;
+	}
+	else
+	{
+
+	}
+}
+
+void Engine::SetInvisibleAndMove(PrimitiveGeometry* bonus)
+{
+	const float randXPos = randomFloat(-0.99f, 0.99f);
+	const float randYPos = randomFloat(-0.99f, 0.99f);
+	bonus->ObjectTransform.Translation.x = randXPos;
+	bonus->ObjectTransform.Translation.y = randYPos;
+}
+
 void Engine::SetupScene()
 {
 	STransform pongBallTransform;
@@ -60,6 +86,17 @@ void Engine::SetupScene()
 	PrimitiveGeometry* ball = new Rect(pongBallTransform);
 	ball->SetIsMovable(true);
 	ball->Reset(ball->GetMovementComponent()->GetInitialVelocity(), ball->GetMovementComponent()->GetInitialTransition());
+
+	STransform playerSpeedBonusTransform;
+	playerSpeedBonusTransform.Scale = { 0.02f, 0.02f, 0.0f };
+	playerSpeedBonusTransform.Translation = { 0.5f, 0.0f, 0.0f };
+	PrimitiveGeometry* playerSpeedBonus = new Rect(playerSpeedBonusTransform, Colors::Red);
+	playerSpeedBonus->bIsSpeedIncrease = true;
+
+	STransform ballSpeedBonusTransform;
+	ballSpeedBonusTransform.Scale = { 0.04f, 0.04f, 0.0f };
+	ballSpeedBonusTransform.Translation = { -0.5f, 0.0f, 0.0f };
+	PrimitiveGeometry* ballSpeedBonus = new Rect(ballSpeedBonusTransform, Colors::Aqua);
 
 	STransform firstRocketTransform;
 	firstRocketTransform.Scale = { 0.01f, 0.2f, 0.0f };
@@ -75,6 +112,9 @@ void Engine::SetupScene()
 	GameObjects.push_back(secondRocket);
 	GameObjects.push_back(ball);
 
+	GameObjects.push_back(playerSpeedBonus);
+	//GameObjects.push_back(ballSpeedBonus);
+
 	for (auto geometry : GameObjects)
 	{
 		if (!geometry) continue;
@@ -84,7 +124,8 @@ void Engine::SetupScene()
 
 void Engine::PollInput()
 {
-	float speed = 0.03f;
+	const float leftSpeed = GameObjects[0]->GetMovementComponent()->GetSpeed();
+	const float rightSpeed = GameObjects[1]->GetMovementComponent()->GetSpeed();
 	while (!mRenderWindow.kbd.IsKeyEmpty())
 	{
 		const auto e = mRenderWindow.kbd.ReadKey();
@@ -94,26 +135,60 @@ void Engine::PollInput()
 		case 87:
 		{
 			if (GameObjects[0]->ObjectTransform.Translation.y + GameObjects[0]->ObjectTransform.Scale.y > 1.f ) break;
-			GameObjects[0]->ObjectTransform.Translation.y += speed;
+			GameObjects[0]->ObjectTransform.Translation.y += leftSpeed;
 			break;
 		}
 			// S
 		case 83:
+		{
 			if (GameObjects[0]->ObjectTransform.Translation.y - GameObjects[0]->ObjectTransform.Scale.y < -1.f) break;
-			GameObjects[0]->ObjectTransform.Translation.y -= speed;
+			GameObjects[0]->ObjectTransform.Translation.y -= leftSpeed;
 			break;
+		}
+			// D
+		case 68:
+		{
+			if (GameObjects[0]->ObjectTransform.Translation.x + GameObjects[0]->ObjectTransform.Scale.x > 1.f) break;
+			GameObjects[0]->ObjectTransform.Translation.x += leftSpeed;
+			break;
+		}
+			// A
+		case 65:
+		{
+			if (GameObjects[0]->ObjectTransform.Translation.x - GameObjects[0]->ObjectTransform.Scale.x < -1.f) break;
+			GameObjects[0]->ObjectTransform.Translation.x -= leftSpeed;
+			break;
+		}
 			// up
 		case 38:
 		{
 			if (GameObjects[1]->ObjectTransform.Translation.y + GameObjects[1]->ObjectTransform.Scale.y > 1.f) break;
-			GameObjects[1]->ObjectTransform.Translation.y += speed;
+			GameObjects[1]->ObjectTransform.Translation.y += rightSpeed;
 			break;
 		}
 		// down
 		case 40:
+		{
+
 			if (GameObjects[1]->ObjectTransform.Translation.y - GameObjects[1]->ObjectTransform.Scale.y < -1.f) break;
-			GameObjects[1]->ObjectTransform.Translation.y -= speed;
+			GameObjects[1]->ObjectTransform.Translation.y -= rightSpeed;
 			break;
+		}
+		// right
+		case 39:
+		{
+			if (GameObjects[1]->ObjectTransform.Translation.x + GameObjects[1]->ObjectTransform.Scale.x > 1.f) break;
+			GameObjects[1]->ObjectTransform.Translation.x += rightSpeed;
+			break;
+		}
+		// left
+		case 37:
+		{
+
+			if (GameObjects[1]->ObjectTransform.Translation.x - GameObjects[1]->ObjectTransform.Scale.x < -1.f) break;
+			GameObjects[1]->ObjectTransform.Translation.x -= rightSpeed;
+			break;
+		}
 		}
 	}
 }
@@ -122,6 +197,11 @@ void Engine::UpdateScene(float DeltaTime)
 {
 	UpdateCollisionWithPaddle(GameObjects[2], GameObjects[0]);
 	UpdateCollisionWithPaddle(GameObjects[2], GameObjects[1]);
+
+	UpdateCollisionWithBonus(GameObjects[3], GameObjects[0]);
+	UpdateCollisionWithBonus(GameObjects[3], GameObjects[1]);
+	//UpdateCollisionWithBonus(GameObjects[4], GameObjects[0]);
+	//UpdateCollisionWithBonus(GameObjects[4], GameObjects[1]);
 	
 	for (auto gameObject : GameObjects)
 	{
@@ -164,4 +244,13 @@ void Engine::CalculateFrameStats()
 float Engine::AspectRatio()const
 {
 	return static_cast<float>(mClientWidth) / mClientHeight;
+}
+
+float Engine::randomFloat(float min, float max)
+{
+	std::random_device rd;
+	std::mt19937 gen(rd());
+	std::uniform_real_distribution<float> dist(min, max);
+	
+	return dist(gen);
 }
