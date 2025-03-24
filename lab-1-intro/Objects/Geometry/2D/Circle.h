@@ -5,7 +5,7 @@
 class Circle : public PrimitiveGeometry
 {
 public:
-	Circle(const STransform& transform);
+	Circle(const Transform& transform);
 
 	virtual ~Circle() override;
 	virtual void Initialize(ID3D11Device* mDevice, ID3D11DeviceContext* pDeviceContext) override;

@@ -2,7 +2,7 @@
 
 #define PI 3.14159
 
-Circle::Circle(const STransform& transform)
+Circle::Circle(const Transform& transform)
 	: PrimitiveGeometry()
 {
 	radius = transform.Scale.x;
