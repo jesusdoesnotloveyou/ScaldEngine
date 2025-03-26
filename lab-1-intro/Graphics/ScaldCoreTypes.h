@@ -23,8 +23,8 @@ struct Transform
 	XMFLOAT3 Rotation	 = { 0.0f, 0.0f, 0.0f };
 	XMFLOAT3 Translation = { 0.0f, 0.0f, 0.0f };
 	
-	XMMATRIX worldMatrix;
-	XMMATRIX localMatrix;
+	XMMATRIX mWorldMatrix;
+	XMMATRIX mLocalMatrix;
 
 	// Solar System specific
 	float rotationAngle	= 0.0f; // Radians by axis
@@ -36,16 +36,16 @@ struct Transform
 
 	Transform()
 	{
-		localMatrix = worldMatrix = XMMatrixIdentity();
+		mLocalMatrix = mWorldMatrix = XMMatrixIdentity();
 	}
 
 	void SetWorldMatrix(const XMMATRIX& worldMat)
 	{
-		worldMatrix = worldMat;
+		mWorldMatrix = worldMat;
 	}
 
 	void Reset()
 	{
-		localMatrix = worldMatrix = XMMatrixIdentity();
+		mLocalMatrix = mWorldMatrix = XMMatrixIdentity();
 	}
 };

@@ -42,7 +42,7 @@ public:
 
 	bool ApplyChanges(const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix)
 	{
-		const XMMATRIX world = mOwnerTransform->worldMatrix;
+		const XMMATRIX world = mOwnerTransform->mWorldMatrix;
 
 		curr_data.transform = XMMatrixTranspose(world * viewMatrix * projectionMatrix);
 
