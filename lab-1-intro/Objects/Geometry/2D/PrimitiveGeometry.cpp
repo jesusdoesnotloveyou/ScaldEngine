@@ -10,9 +10,7 @@ PrimitiveGeometry::PrimitiveGeometry()
 }
 
 PrimitiveGeometry::PrimitiveGeometry(const std::tuple<std::vector<Vertex>, std::vector<DWORD>>& viPair)
-{
-
-}
+{}
 
 PrimitiveGeometry::~PrimitiveGeometry()
 {
@@ -26,26 +24,20 @@ void PrimitiveGeometry::Update(const ScaldTimer& st)
     ObjectTransform.rotationAngle += XMConvertToRadians(ObjectTransform.rotationSpeed) * st.DeltaTime();
     ObjectTransform.Rotation.y = ObjectTransform.rotationAngle;
 
-    ObjectTransform.orbitAngle += XMConvertToRadians(ObjectTransform.orbitSpeed) * st.DeltaTime();
-    ObjectTransform.Translation.x = ObjectTransform.orbitRadius * cosf(XMConvertToRadians(ObjectTransform.orbitAngle));
-    ObjectTransform.Translation.z = ObjectTransform.orbitRadius * sinf(XMConvertToRadians(ObjectTransform.orbitAngle));
-
     UpdateWorldMatrix();
-
-    //UpdateObjectCBs(st);
 }
 
 void PrimitiveGeometry::UpdateWorldMatrix()
 {
-    ObjectTransform.localMatrix = XMMatrixScaling(ObjectTransform.Scale.x, ObjectTransform.Scale.y, ObjectTransform.Scale.z) *
-        XMMatrixRotationRollPitchYaw(ObjectTransform.Rotation.x, ObjectTransform.Rotation.y, ObjectTransform.Rotation.z) *
+    // SRT - default order of matrix multiplication
+    // (S)TR - orbit effect for Solar system could be used
+    ObjectTransform.mLocalMatrix = XMMatrixScaling(ObjectTransform.Scale.x, ObjectTransform.Scale.y, ObjectTransform.Scale.z) *
         XMMatrixTranslation(ObjectTransform.Translation.x, ObjectTransform.Translation.y, ObjectTransform.Translation.z) *
-        // orbit rotation: 0 (no rotation) or some value
-        XMMatrixRotationY(ObjectTransform.orbitAngle);
+        XMMatrixRotationRollPitchYaw(ObjectTransform.Rotation.x, ObjectTransform.Rotation.y, ObjectTransform.Rotation.z);
 
-    if (ObjectTransform.ParentTransform) 
+    if (ObjectTransform.ParentTransform)
     {
-        ObjectTransform.worldMatrix = ObjectTransform.localMatrix * ObjectTransform.ParentTransform->worldMatrix;
+        ObjectTransform.mWorldMatrix = ObjectTransform.mLocalMatrix * ObjectTransform.ParentTransform->mWorldMatrix;
     }
 }
 
@@ -54,10 +46,9 @@ void PrimitiveGeometry::Initialize(ID3D11Device* mDevice, ID3D11DeviceContext* p
     ThrowIfFailed(vertexBuffer.Init(mDevice, vertices.data(), (UINT)vertices.size()));
     ThrowIfFailed(indexBuffer.Init(mDevice, indeces.data(), (UINT)indeces.size()));
     ThrowIfFailed(constantBuffer.Init(mDevice, pDeviceContext));
-
-    UpdateWorldMatrix();
-
     constantBuffer.SetTransform(&ObjectTransform);
+
+    ObjectTransform.Translation.x = ObjectTransform.orbitRadius;
 }
 
 void PrimitiveGeometry::UpdateObjectCBs(const ScaldTimer& st)

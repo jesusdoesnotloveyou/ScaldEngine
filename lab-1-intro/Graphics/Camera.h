@@ -3,6 +3,8 @@
 #include "DirectXMath.h"
 using namespace DirectX;
 
+struct Transform;
+
 class Camera
 {
 public:
@@ -29,11 +31,20 @@ public:
 	void AdjustRotation(float x, float y, float z);
 
 	void SetLookAtPosition(XMFLOAT3 lookAtPosition);
+	void SetLookAtPosition(XMVECTOR lookAtPosition);
 
 	const XMVECTOR& GetForwardVector();
 	const XMVECTOR& GetRightVector();
 	const XMVECTOR& GetBackwardVector();
 	const XMVECTOR& GetLeftVector();
+
+	// camera orbital rotation specific
+	void SetupAttachment(Transform* transformToAttach);
+	void ClearAttachment();
+	__forceinline bool IsAttached() const { return bIsAttached; }
+
+	Transform* mAttachmentTransform = nullptr;
+
 private:
 	void UpdateViewMatrix();
 
@@ -57,4 +68,5 @@ private:
 	XMVECTOR mBackwardVector;
 	
 	float mSpeed = 0.0f;
+	bool bIsAttached = false;
 };

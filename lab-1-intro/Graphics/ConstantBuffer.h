@@ -42,36 +42,7 @@ public:
 
 	bool ApplyChanges(const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix)
 	{
-		//// World
-		//XMMATRIX localFrame = XMMatrixIdentity();
-		//// Parent World
-		//XMMATRIX parentFrame = XMMatrixIdentity();
-		//XMMATRIX globalFrame = XMMatrixIdentity();
-
-		//if (mOwnerTransform)
-		//{
-		//	localFrame = XMMatrixScaling(mOwnerTransform->Scale.x, mOwnerTransform->Scale.y, mOwnerTransform->Scale.z) *
-		//		XMMatrixRotationRollPitchYaw(mOwnerTransform->Rotation.x, mOwnerTransform->Rotation.y, mOwnerTransform->Rotation.z) *
-		//		XMMatrixTranslation(mOwnerTransform->Translation.x, mOwnerTransform->Translation.y, mOwnerTransform->Translation.z);
-		//	
-		//	if (mOwnerTransform->ParentTransform)
-		//	{
-		//		parentFrame =
-		//			// Orbit Rotation around parent
-		//			XMMatrixRotationY(mOwnerTransform->orbitAngle);
-		//			//* XMMatrixTranslation(mOwnerTransform->ParentTransform->Translation.x, mOwnerTransform->ParentTransform->Translation.y, mOwnerTransform->ParentTransform->Translation.z);
-		//		
-		//		globalFrame = XMMatrixTranslation(mOwnerTransform->ParentTransform->Translation.x + mOwnerTransform->Translation.x,
-		//			mOwnerTransform->ParentTransform->Translation.y + mOwnerTransform->Translation.y,
-		//			mOwnerTransform->ParentTransform->Translation.z + mOwnerTransform->Translation.z);
-		//	}
-		//}
-
-		const XMMATRIX world = mOwnerTransform->worldMatrix;
-
-		//const XMMATRIX viewProj = viewMatrix * projectionMatrix;
-
-		//curr_data.transform = XMMatrixTranspose(localFrame * parentFrame * viewProj);
+		const XMMATRIX world = mOwnerTransform->mWorldMatrix;
 
 		curr_data.transform = XMMatrixTranspose(world * viewMatrix * projectionMatrix);
 

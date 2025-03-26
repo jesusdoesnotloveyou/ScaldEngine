@@ -1,4 +1,5 @@
 #include "Camera.h"
+#include "ScaldCoreTypes.h"
 
 Camera::Camera()
 {
@@ -132,6 +133,13 @@ void Camera::SetLookAtPosition(XMFLOAT3 lookAtPosition)
 	SetRotation(pitch, yaw, 0.0f);
 }
 
+void Camera::SetLookAtPosition(XMVECTOR lookAtPosition)
+{
+	XMFLOAT3 tmp;
+	XMStoreFloat3(&tmp, lookAtPosition);
+	SetLookAtPosition(tmp);
+}
+
 const XMVECTOR& Camera::GetForwardVector()
 {
 	return mForwardVector;
@@ -150,6 +158,18 @@ const XMVECTOR& Camera::GetBackwardVector()
 const XMVECTOR& Camera::GetLeftVector()
 {
 	return mLeftVector;
+}
+
+void Camera::SetupAttachment(Transform* transformToAttach)
+{
+	mAttachmentTransform = transformToAttach;
+	bIsAttached = true;
+}
+
+void Camera::ClearAttachment()
+{
+	mAttachmentTransform = nullptr;
+	bIsAttached = false;
 }
 
 void Camera::UpdateViewMatrix()

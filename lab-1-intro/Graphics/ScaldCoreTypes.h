@@ -23,33 +23,29 @@ struct Transform
 	XMFLOAT3 Rotation	 = { 0.0f, 0.0f, 0.0f };
 	XMFLOAT3 Translation = { 0.0f, 0.0f, 0.0f };
 	
-	XMMATRIX worldMatrix;
-	XMMATRIX localMatrix;
+	XMMATRIX mWorldMatrix;
+	XMMATRIX mLocalMatrix;
 
 	// Solar System specific
 	float rotationAngle	= 0.0f; // Radians by axis
-	float orbitAngle	= 0.0f; // Radians by axis
-	
 	float orbitRadius	= 0.0f; // by axis
-
 	// Should be in movement component probably
 	float rotationSpeed = 0.0f; // in Radians per smth
-	float orbitSpeed	= 0.0f; // in Radians per smth
 
 	Transform* ParentTransform = nullptr;
 
 	Transform()
 	{
-		localMatrix = worldMatrix = XMMatrixIdentity();
+		mLocalMatrix = mWorldMatrix = XMMatrixIdentity();
 	}
 
 	void SetWorldMatrix(const XMMATRIX& worldMat)
 	{
-		worldMatrix = worldMat;
+		mWorldMatrix = worldMat;
 	}
 
 	void Reset()
 	{
-		localMatrix = worldMatrix = XMMatrixIdentity();
+		mLocalMatrix = mWorldMatrix = XMMatrixIdentity();
 	}
 };
