@@ -1,4 +1,5 @@
 #include "Camera.h"
+#include "ScaldCoreTypes.h"
 
 Camera::Camera()
 {
@@ -150,6 +151,12 @@ const XMVECTOR& Camera::GetBackwardVector()
 const XMVECTOR& Camera::GetLeftVector()
 {
 	return mLeftVector;
+}
+
+void Camera::SetupAttachment(Transform* transformToAttach)
+{
+	mAttachmentTransform = transformToAttach;
+	bIsAttached = true;
 }
 
 void Camera::UpdateViewMatrix()
