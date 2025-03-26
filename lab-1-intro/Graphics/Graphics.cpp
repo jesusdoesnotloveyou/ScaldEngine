@@ -127,15 +127,27 @@ void Graphics::SetupShaders()
 }
 
 void Graphics::Setup()
-{	
+{
 	SetupShaders();
 
 	CD3D11_RASTERIZER_DESC rastDesc = {};
 	rastDesc.CullMode = D3D11_CULL_BACK;
 	rastDesc.FillMode = D3D11_FILL_SOLID;
+	rastDesc.FrontCounterClockwise = false;
 
-	ThrowIfFailed(mDevice->CreateRasterizerState(&rastDesc, &mRasterizerState));
+	ThrowIfFailed(mDevice->CreateRasterizerState(&rastDesc, &mRasterizerState)); // or mRasterizerState.GetAddressOf()
 	mDeviceContext->RSSetState(mRasterizerState.Get());
+
+	D3D11_SAMPLER_DESC sampDesc = {};
+	ZeroMemory(&sampDesc, sizeof(sampDesc));
+	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	sampDesc.MinLOD = 0;
+	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+	ThrowIfFailed(mDevice->CreateSamplerState(&sampDesc, &mSamplerState)); // or mSamplerState.GetAddressOf()
 
 	// Camera setup
 	mCamera.SetPosition(0.0f, 50.0f, -80.0f);
