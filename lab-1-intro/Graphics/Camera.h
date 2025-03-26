@@ -31,6 +31,7 @@ public:
 	void AdjustRotation(float x, float y, float z);
 
 	void SetLookAtPosition(XMFLOAT3 lookAtPosition);
+	void SetLookAtPosition(XMVECTOR lookAtPosition);
 
 	const XMVECTOR& GetForwardVector();
 	const XMVECTOR& GetRightVector();
@@ -39,6 +40,7 @@ public:
 
 	// camera orbital rotation specific
 	void SetupAttachment(Transform* transformToAttach);
+	void ClearAttachment();
 	__forceinline bool IsAttached() const { return bIsAttached; }
 
 	Transform* mAttachmentTransform = nullptr;
