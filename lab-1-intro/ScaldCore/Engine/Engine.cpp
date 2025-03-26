@@ -41,25 +41,24 @@ void Engine::SetupScene()
 {
 	auto boxShape = Shapes::GetBoxShape(1.0f, 1.0f, 1.0f, Colors::Indigo);
 	auto sunShape = Shapes::GetSphereShape(20.0f, 16, 16, Colors::Gold);
-	auto mercuryShape = Shapes::GetSphereShape(1.0f, 16, 16, Colors::SandyBrown);
+	auto mercuryShape = Shapes::GetSphereShape(1.0f, 16, 16, Colors::Orchid);
 	auto venusShape = Shapes::GetSphereShape(1.0f, 16, 16, Colors::DarkOrange);
 	auto earthShape = Shapes::GetSphereShape(1.0f, 16, 16, Colors::Aqua);
 	auto moonShape = Shapes::GetSphereShape(1.0f, 16, 16, Colors::Gray);
 	auto marsShape = Shapes::GetSphereShape(1.0f, 16, 16, Colors::DarkRed);
 	auto phobosShape = Shapes::GetSphereShape(1.0f, 16, 16, Colors::Gray);
 	auto deimosShape = Shapes::GetSphereShape(1.0f, 16, 16, Colors::IndianRed);
-	auto jupiterShape = Shapes::GetSphereShape(1.0f, 16, 16, Colors::Brown);
+	auto jupiterShape = Shapes::GetSphereShape(1.0f, 16, 16, Colors::Chocolate);
 	auto saturnShape = Shapes::GetSphereShape(1.0f, 16, 16, Colors::BurlyWood);
 	auto titanShape = Shapes::GetSphereShape(1.0f, 16, 16, Colors::Goldenrod);
 	auto uranusShape = Shapes::GetSphereShape(1.0f, 16, 16, Colors::Blue);
 	auto neptuneShape = Shapes::GetSphereShape(1.0f, 16, 16, Colors::Indigo);
-	auto plutoShape = Shapes::GetSphereShape(1.0f, 16, 16, Colors::AntiqueWhite);
+	auto plutoShape = Shapes::GetSphereShape(1.0f, 16, 16, Colors::Silver);
 
 	PrimitiveGeometry* sun = new Sphere(sunShape);
 	sun->ObjectTransform.Scale = { 18.0f, 18.0f, 18.0f };
 	sun->ObjectTransform.rotationSpeed = 60.0f;
 	
-	// orbit speed could be deleted probably
 	PrimitiveGeometry* mercury = new Sphere(mercuryShape);
 	mercury->ObjectTransform.Scale = { 0.5f, 0.5f, 0.5f };
 	mercury->ObjectTransform.rotationSpeed = 55.0f;
@@ -158,21 +157,21 @@ void Engine::SetupScene()
 	
 	mGameObjects.push_back(sun);
 	mGameObjects.push_back(mercury);
-	mGameObjects.push_back(moon);
-	mGameObjects.push_back(earth);
 	mGameObjects.push_back(venus);
+	mGameObjects.push_back(earth);
 	mGameObjects.push_back(mars);
-	mGameObjects.push_back(phobos);
-	mGameObjects.push_back(deimos);
 	mGameObjects.push_back(jupiter);
-	mGameObjects.push_back(hanimed);
-	mGameObjects.push_back(io);
-	mGameObjects.push_back(europe);
 	mGameObjects.push_back(saturn);
-	mGameObjects.push_back(titan);
 	mGameObjects.push_back(uranus);
 	mGameObjects.push_back(neptune);
 	mGameObjects.push_back(pluto);
+	mGameObjects.push_back(moon);
+	mGameObjects.push_back(phobos);
+	mGameObjects.push_back(deimos);
+	mGameObjects.push_back(hanimed);
+	mGameObjects.push_back(io);
+	mGameObjects.push_back(europe);
+	mGameObjects.push_back(titan);
 
 	for (auto geometry : mGameObjects)
 	{
@@ -189,23 +188,84 @@ void Engine::PollInput()
 	}
 
 #pragma region CameraOrbitalMovement
+	XMVECTOR outScale;
+	XMVECTOR outQuat;
+	XMVECTOR outTrans;
+
+	// sun
 	if (mRenderWindow.kbd.IsKeyPressed('1'))
 	{
-		// sun
 		mRenderWindow.GetGfx().mCamera.SetupAttachment(&mGameObjects[0]->ObjectTransform);
-		//mRenderWindow.GetGfx().mCamera.SetLookAtPosition(mGameObjects[0]->ObjectTransform.Translation);
+		if (XMMatrixDecompose(&outScale, &outQuat, &outTrans, mGameObjects[0]->ObjectTransform.mWorldMatrix))
+		{
+			mRenderWindow.GetGfx().mCamera.SetLookAtPosition(outTrans);
+			mRenderWindow.GetGfx().mCamera.SetPosition(outTrans);
+		}
 	}
+	// mercury
 	if (mRenderWindow.kbd.IsKeyPressed('2'))
 	{
-		// mercury
 		mRenderWindow.GetGfx().mCamera.SetupAttachment(&mGameObjects[1]->ObjectTransform);
-		//mRenderWindow.GetGfx().mCamera.SetLookAtPosition(mGameObjects[1]->ObjectTransform.Translation);
+		if (XMMatrixDecompose(&outScale, &outQuat, &outTrans, mGameObjects[1]->ObjectTransform.mWorldMatrix))
+		{
+			mRenderWindow.GetGfx().mCamera.SetLookAtPosition(outTrans);
+			mRenderWindow.GetGfx().mCamera.SetPosition(outTrans);
+		}
 	}
+	// venus
 	if (mRenderWindow.kbd.IsKeyPressed('3'))
 	{
-		// venus
 		mRenderWindow.GetGfx().mCamera.SetupAttachment(&mGameObjects[2]->ObjectTransform);
-		//mRenderWindow.GetGfx().mCamera.SetLookAtPosition(mGameObjects[2]->ObjectTransform.Translation);
+		if (XMMatrixDecompose(&outScale, &outQuat, &outTrans, mGameObjects[2]->ObjectTransform.mWorldMatrix))
+		{
+			mRenderWindow.GetGfx().mCamera.SetLookAtPosition(outTrans);
+			mRenderWindow.GetGfx().mCamera.SetPosition(outTrans);
+		}
+	}
+	// earth
+	if (mRenderWindow.kbd.IsKeyPressed('4'))
+	{
+		mRenderWindow.GetGfx().mCamera.SetupAttachment(&mGameObjects[3]->ObjectTransform);
+		if (XMMatrixDecompose(&outScale, &outQuat, &outTrans, mGameObjects[3]->ObjectTransform.mWorldMatrix))
+		{
+			mRenderWindow.GetGfx().mCamera.SetLookAtPosition(outTrans);
+			mRenderWindow.GetGfx().mCamera.SetPosition(outTrans);
+		}
+	}
+	// mars
+	if (mRenderWindow.kbd.IsKeyPressed('5'))
+	{
+		mRenderWindow.GetGfx().mCamera.SetupAttachment(&mGameObjects[4]->ObjectTransform);
+		if (XMMatrixDecompose(&outScale, &outQuat, &outTrans, mGameObjects[4]->ObjectTransform.mWorldMatrix))
+		{
+			mRenderWindow.GetGfx().mCamera.SetLookAtPosition(outTrans);
+			mRenderWindow.GetGfx().mCamera.SetPosition(outTrans);
+		}
+	}
+	// jupiter
+	if (mRenderWindow.kbd.IsKeyPressed('6'))
+	{
+		mRenderWindow.GetGfx().mCamera.SetupAttachment(&mGameObjects[5]->ObjectTransform);
+		if (XMMatrixDecompose(&outScale, &outQuat, &outTrans, mGameObjects[5]->ObjectTransform.mWorldMatrix))
+		{
+			mRenderWindow.GetGfx().mCamera.SetLookAtPosition(outTrans);
+			mRenderWindow.GetGfx().mCamera.SetPosition(outTrans);
+		}
+	}
+	// saturn
+	if (mRenderWindow.kbd.IsKeyPressed('7'))
+	{
+		mRenderWindow.GetGfx().mCamera.SetupAttachment(&mGameObjects[6]->ObjectTransform);
+		if (XMMatrixDecompose(&outScale, &outQuat, &outTrans, mGameObjects[6]->ObjectTransform.mWorldMatrix))
+		{
+			mRenderWindow.GetGfx().mCamera.SetLookAtPosition(outTrans);
+			mRenderWindow.GetGfx().mCamera.SetPosition(outTrans);
+		}
+	}
+	// free fps
+	if (mRenderWindow.kbd.IsKeyPressed(VK_SPACE))
+	{
+		mRenderWindow.GetGfx().mCamera.ClearAttachment();
 	}
 
 #pragma endregion
@@ -227,7 +287,7 @@ void Engine::PollInput()
 #pragma endregion CameraRotation
 
 #pragma region CameraMovement
-	const float cameraSpeed = 140.f;
+	const float cameraSpeed = 120.f;
 	if (mRenderWindow.kbd.IsKeyPressed('W'))
 	{
 		mRenderWindow.GetGfx().mCamera.AdjustPosition(mRenderWindow.GetGfx().mCamera.GetForwardVector() * cameraSpeed * mTimer.DeltaTime());
@@ -262,20 +322,10 @@ void Engine::UpdateScene(const ScaldTimer& st)
 		gameObject->Update(st);
 	}
 
-	if (mRenderWindow.GetGfx().mCamera.IsAttached())
-	{
-		XMFLOAT3 newCameraPos;
-		XMVECTOR currCameraPos = mRenderWindow.GetGfx().mCamera.GetPositionVector();
-		XMVector3TransformCoord(currCameraPos, mRenderWindow.GetGfx().mCamera.mAttachmentTransform->localMatrix);
-		XMStoreFloat3(&newCameraPos, currCameraPos);
-		mRenderWindow.GetGfx().mCamera.SetPosition(newCameraPos.x, newCameraPos.y, newCameraPos.z);
-	}
-
 #pragma region CameraPosDebug
 	std::ostringstream oss;
-	oss << "Camera's position: " << mRenderWindow.GetGfx().mCamera.GetPositionFloat3().x << ", "
-		<< mRenderWindow.GetGfx().mCamera.GetPositionFloat3().y << ", "
-		<< mRenderWindow.GetGfx().mCamera.GetPositionFloat3().z << "\n";
+	const auto CameraPos = mRenderWindow.GetGfx().mCamera.GetPositionFloat3();
+	oss << "Camera's position: " << CameraPos.x << ", " << CameraPos.y << ", " << CameraPos.z << "\n";
 	OutputDebugString(oss.str().c_str());
 #pragma endregion CameraPosDebug
 }
