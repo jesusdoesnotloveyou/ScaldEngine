@@ -3,8 +3,11 @@
 #include <d3d11.h>
 #include <d3dcompiler.h>
 #include <d3d.h>
+
 #include <wrl.h>
 #include <vector>
+
+#include <WICTextureLoader.h>
 
 #include "Camera.h"
 #include "Shaders.h"
@@ -58,4 +61,5 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> mRasterizerState;
 
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> mSamplerState;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mTexture;
 };

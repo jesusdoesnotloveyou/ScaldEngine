@@ -124,6 +124,8 @@ void Graphics::SetupShaders()
 
 	ThrowIfFailed(mVertexShader.Init(GetDevice(), inputElements, (UINT)std::size(inputElements)));
 	ThrowIfFailed(mPixelShader.Init(GetDevice()));
+
+	CreateWICTextureFromFile(GetDevice(), L"./Textures/planks.png", nullptr, mTexture.GetAddressOf());
 }
 
 void Graphics::Setup()
@@ -185,6 +187,7 @@ void Graphics::DrawScene(std::vector<PrimitiveGeometry*>& gameObjects)
 		mDeviceContext->PSSetShader(mPixelShader.Get(), nullptr, 0);
 
 		if (!geometry->GetConstantBuffer().ApplyChanges(mCamera.GetViewMatrix(), mCamera.GetProjectionMatrix())) continue;
+		mDeviceContext->PSSetShaderResources(0u, 1u, mTexture.GetAddressOf());
 		mDeviceContext->IASetVertexBuffers(0u, 1u, geometry->GetVertexBuffer().GetAddressOf(), geometry->GetVertexBuffer().GetStridePtr(), &geometry->offset);
 		mDeviceContext->IASetIndexBuffer(geometry->GetIndexBuffer().Get(), DXGI_FORMAT_R32_UINT, 0u);
 		mDeviceContext->VSSetConstantBuffers(0u, 1u, geometry->GetConstantBuffer().GetAddressOf());

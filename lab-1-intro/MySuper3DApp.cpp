@@ -7,6 +7,8 @@ int CALLBACK WinMain(
 	int nCmdShow
 	)
 {
+	ThrowIfFailed(CoInitialize(nullptr));
+
 	Engine engine;
 	engine.Launch();
 		
