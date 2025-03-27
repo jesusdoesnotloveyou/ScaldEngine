@@ -29,8 +29,6 @@
     <ClCompile Include="Objects\Components\TransformComponent.cpp" />
     <ClCompile Include="Objects\Geometry\3D\Cube.cpp" />
     <ClCompile Include="Objects\Geometry\3D\Shapes.cpp" />
-    <ClCompile Include="Objects\Geometry\2D\Circle.cpp" />
-    <ClCompile Include="Objects\Geometry\2D\Rectangle.cpp" />
     <ClCompile Include="Objects\Geometry\3D\Sphere.cpp" />
     <ClCompile Include="ScaldCore\Engine\Engine.cpp" />
     <ClCompile Include="Graphics\Graphics.cpp" />
@@ -41,7 +39,6 @@
     <ClCompile Include="ScaldCore\Engine\ScaldTimer.cpp" />
     <ClCompile Include="ScaldCore\Input\InputDevice.cpp" />
     <ClCompile Include="ScaldException.cpp" />
-    <ClCompile Include="Objects\Geometry\2D\Star.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Delegates\catch.hpp" />
@@ -54,9 +51,6 @@
     <ClInclude Include="Objects\Components\InputComponent.h" />
     <ClInclude Include="Objects\Components\MovementComponent.h" />
     <ClInclude Include="Objects\Components\TransformComponent.h" />
-    <ClInclude Include="Objects\Geometry\2D\Circle.h" />
-    <ClInclude Include="Objects\Geometry\2D\Cube.h" />
-    <ClInclude Include="Objects\Geometry\2D\Rectangle.h" />
     <ClInclude Include="Objects\Geometry\3D\Cube.h" />
     <ClInclude Include="Objects\Geometry\3D\Shapes.h" />
     <ClInclude Include="Objects\Geometry\3D\Sphere.h" />
@@ -71,7 +65,6 @@
     <ClInclude Include="ScaldCore\Input\Keys.h" />
     <ClInclude Include="ScaldException.h" />
     <ClInclude Include="ScaldCore\Engine\ScaldWindows.h" />
-    <ClInclude Include="Objects\Geometry\2D\Star.h" />
     <ClInclude Include="Graphics\VertexBuffer.h" />
   </ItemGroup>
   <ItemGroup>

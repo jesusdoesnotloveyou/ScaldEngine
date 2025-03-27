@@ -1,7 +1,6 @@
 #include "Engine.h"
 #include <sstream>
 
-#include "../../Objects/Geometry/2D/Rectangle.h"
 #include "../../Objects/Geometry/3D/Cube.h"
 #include "../../Objects/Geometry/3D/Sphere.h"
 #include "../../Objects/Geometry/3D/Shapes.h"
@@ -59,49 +58,7 @@ void Engine::SetupScene()
 	sun->ObjectTransform.Scale = { 18.0f, 18.0f, 18.0f };
 	sun->ObjectTransform.rotationSpeed = 60.0f;
 	
-	PrimitiveGeometry* mercury = new Sphere(mercuryShape);
-	mercury->ObjectTransform.Scale = { 0.5f, 0.5f, 0.5f };
-	mercury->ObjectTransform.rotationSpeed = 55.0f;
-	mercury->ObjectTransform.orbitRadius = 50.0f;
-	mercury->ObjectTransform.ParentTransform = &sun->ObjectTransform;
-
-	PrimitiveGeometry* venus = new Sphere(venusShape);
-	venus->ObjectTransform.Scale = { 0.95f, 0.95f, 0.95f };
-	venus->ObjectTransform.rotationSpeed = 50.0f;
-	venus->ObjectTransform.orbitRadius = 84.0f;
-	venus->ObjectTransform.ParentTransform = &sun->ObjectTransform;
-	
-	PrimitiveGeometry* earth = new Sphere(earthShape);
-	earth->ObjectTransform.Scale = { 1.0f, 1.0f, 1.0f };
-	earth->ObjectTransform.rotationSpeed = 45.0f;
-	earth->ObjectTransform.orbitRadius = 114.0f;
-	earth->ObjectTransform.ParentTransform = &sun->ObjectTransform;
-
-	PrimitiveGeometry* moon = new Sphere(moonShape);
-	moon->ObjectTransform.Scale = { 0.3f, 0.3f, 0.3f };
-	moon->ObjectTransform.rotationSpeed = 25.0f;
-	moon->ObjectTransform.orbitRadius = 7.0f;
-	moon->ObjectTransform.ParentTransform = &earth->ObjectTransform;
-
-	PrimitiveGeometry* mars = new Sphere(marsShape);
-	mars->ObjectTransform.Scale = { 0.6f, 0.6f, 0.6f };
-	mars->ObjectTransform.rotationSpeed = 35.0f;
-	mars->ObjectTransform.orbitRadius = 150.0f;
-	mars->ObjectTransform.ParentTransform = &sun->ObjectTransform;
-
-	PrimitiveGeometry* phobos = new Sphere(phobosShape);
-	phobos->ObjectTransform.Scale = { 0.2f, 0.2f, 0.2f };
-	phobos->ObjectTransform.rotationSpeed = 60.0f;
-	phobos->ObjectTransform.orbitRadius = 5.0f;
-	phobos->ObjectTransform.ParentTransform = &mars->ObjectTransform;
-
-	PrimitiveGeometry* deimos = new Sphere(deimosShape);
-	deimos->ObjectTransform.Scale = { 0.25f, 0.25f, 0.25f };
-	deimos->ObjectTransform.rotationSpeed = 25.0f;
-	deimos->ObjectTransform.orbitRadius = 10.0f;
-	deimos->ObjectTransform.ParentTransform = &mars->ObjectTransform;
-	
-	PrimitiveGeometry* jupiter = new Sphere(jupiterShape);
+	/*PrimitiveGeometry* jupiter = new Sphere(jupiterShape);
 	jupiter->ObjectTransform.Scale = { 5.0f, 5.0f, 5.f };
 	jupiter->ObjectTransform.rotationSpeed = 25.0f;
 	jupiter->ObjectTransform.orbitRadius = 220.0f;
@@ -149,30 +106,18 @@ void Engine::SetupScene()
 	neptune->ObjectTransform.orbitRadius = 440.0f;
 	neptune->ObjectTransform.ParentTransform = &sun->ObjectTransform;
 	
-	PrimitiveGeometry* pluto = new Cube(plutoShape);
-	pluto->ObjectTransform.Scale = { 0.1f, 0.1f, 0.1f };
-	pluto->ObjectTransform.rotationSpeed = 30.0f;
-	pluto->ObjectTransform.orbitRadius = 490.0f;
-	pluto->ObjectTransform.ParentTransform = &sun->ObjectTransform;
-	
-	mGameObjects.push_back(sun);
 	mGameObjects.push_back(mercury);
-	mGameObjects.push_back(venus);
-	mGameObjects.push_back(earth);
-	mGameObjects.push_back(mars);
 	mGameObjects.push_back(jupiter);
 	mGameObjects.push_back(saturn);
 	mGameObjects.push_back(uranus);
 	mGameObjects.push_back(neptune);
-	mGameObjects.push_back(pluto);
-	mGameObjects.push_back(moon);
-	mGameObjects.push_back(phobos);
-	mGameObjects.push_back(deimos);
 	mGameObjects.push_back(hanimed);
 	mGameObjects.push_back(io);
 	mGameObjects.push_back(europe);
-	mGameObjects.push_back(titan);
+	mGameObjects.push_back(titan);*/
 
+	mGameObjects.push_back(sun);
+	
 	for (auto geometry : mGameObjects)
 	{
 		if (!geometry) continue;
@@ -202,66 +147,7 @@ void Engine::PollInput()
 			mRenderWindow.GetGfx().mCamera.SetPosition(outTrans);
 		}
 	}
-	// mercury
-	if (mRenderWindow.kbd.IsKeyPressed('2'))
-	{
-		mRenderWindow.GetGfx().mCamera.SetupAttachment(&mGameObjects[1]->ObjectTransform);
-		if (XMMatrixDecompose(&outScale, &outQuat, &outTrans, mGameObjects[1]->ObjectTransform.mWorldMatrix))
-		{
-			mRenderWindow.GetGfx().mCamera.SetLookAtPosition(outTrans);
-			mRenderWindow.GetGfx().mCamera.SetPosition(outTrans);
-		}
-	}
-	// venus
-	if (mRenderWindow.kbd.IsKeyPressed('3'))
-	{
-		mRenderWindow.GetGfx().mCamera.SetupAttachment(&mGameObjects[2]->ObjectTransform);
-		if (XMMatrixDecompose(&outScale, &outQuat, &outTrans, mGameObjects[2]->ObjectTransform.mWorldMatrix))
-		{
-			mRenderWindow.GetGfx().mCamera.SetLookAtPosition(outTrans);
-			mRenderWindow.GetGfx().mCamera.SetPosition(outTrans);
-		}
-	}
-	// earth
-	if (mRenderWindow.kbd.IsKeyPressed('4'))
-	{
-		mRenderWindow.GetGfx().mCamera.SetupAttachment(&mGameObjects[3]->ObjectTransform);
-		if (XMMatrixDecompose(&outScale, &outQuat, &outTrans, mGameObjects[3]->ObjectTransform.mWorldMatrix))
-		{
-			mRenderWindow.GetGfx().mCamera.SetLookAtPosition(outTrans);
-			mRenderWindow.GetGfx().mCamera.SetPosition(outTrans);
-		}
-	}
-	// mars
-	if (mRenderWindow.kbd.IsKeyPressed('5'))
-	{
-		mRenderWindow.GetGfx().mCamera.SetupAttachment(&mGameObjects[4]->ObjectTransform);
-		if (XMMatrixDecompose(&outScale, &outQuat, &outTrans, mGameObjects[4]->ObjectTransform.mWorldMatrix))
-		{
-			mRenderWindow.GetGfx().mCamera.SetLookAtPosition(outTrans);
-			mRenderWindow.GetGfx().mCamera.SetPosition(outTrans);
-		}
-	}
-	// jupiter
-	if (mRenderWindow.kbd.IsKeyPressed('6'))
-	{
-		mRenderWindow.GetGfx().mCamera.SetupAttachment(&mGameObjects[5]->ObjectTransform);
-		if (XMMatrixDecompose(&outScale, &outQuat, &outTrans, mGameObjects[5]->ObjectTransform.mWorldMatrix))
-		{
-			mRenderWindow.GetGfx().mCamera.SetLookAtPosition(outTrans);
-			mRenderWindow.GetGfx().mCamera.SetPosition(outTrans);
-		}
-	}
-	// saturn
-	if (mRenderWindow.kbd.IsKeyPressed('7'))
-	{
-		mRenderWindow.GetGfx().mCamera.SetupAttachment(&mGameObjects[6]->ObjectTransform);
-		if (XMMatrixDecompose(&outScale, &outQuat, &outTrans, mGameObjects[6]->ObjectTransform.mWorldMatrix))
-		{
-			mRenderWindow.GetGfx().mCamera.SetLookAtPosition(outTrans);
-			mRenderWindow.GetGfx().mCamera.SetPosition(outTrans);
-		}
-	}
+	
 	// free fps
 	if (mRenderWindow.kbd.IsKeyPressed(VK_SPACE))
 	{
