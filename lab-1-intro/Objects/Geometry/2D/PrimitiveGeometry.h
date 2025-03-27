@@ -29,8 +29,13 @@ public:
 	virtual ~PrimitiveGeometry();
 
 	virtual void Update(const ScaldTimer& st) = 0;
-	void UpdateWorldMatrix();
 	virtual void Initialize(ID3D11Device* mDevice, ID3D11DeviceContext* pDeviceContext) = 0;
+	
+private:
+	void UpdateOrbitRotation(const ScaldTimer& st);
+	void UpdateRotation(const ScaldTimer& st);
+	void UpdateLocalMatrix();
+	void UpdateWorldMatrix();
 
 	void UpdateObjectCBs(const ScaldTimer& st);
 

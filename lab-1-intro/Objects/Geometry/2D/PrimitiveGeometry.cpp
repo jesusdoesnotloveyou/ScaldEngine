@@ -21,23 +21,52 @@ PrimitiveGeometry::~PrimitiveGeometry()
 
 void PrimitiveGeometry::Update(const ScaldTimer& st)
 {   
-    ObjectTransform.rotationAngle += XMConvertToRadians(ObjectTransform.rotationSpeed) * st.DeltaTime();
-    ObjectTransform.Rotation.y = ObjectTransform.rotationAngle;
+    UpdateRotation(st);
+    UpdateOrbitRotation(st);
 
     UpdateWorldMatrix();
 }
 
-void PrimitiveGeometry::UpdateWorldMatrix()
+void PrimitiveGeometry::UpdateOrbitRotation(const ScaldTimer& st)
+{
+    ObjectTransform.orbitRot += XMConvertToRadians(ObjectTransform.orbitAngle) * st.DeltaTime();
+    if (ObjectTransform.orbitRot >= 6.28f)
+        ObjectTransform.orbitRot = 0.0f;
+}
+
+void PrimitiveGeometry::UpdateRotation(const ScaldTimer& st)
+{
+    ObjectTransform.rot += XMConvertToRadians(ObjectTransform.rotAngle) * st.DeltaTime();
+    if (ObjectTransform.rot >= 6.28f)
+        ObjectTransform.rot = 0.0f;
+}
+
+void PrimitiveGeometry::UpdateLocalMatrix()
 {
     // SRT - default order of matrix multiplication
     // (S)TR - orbit effect for Solar system could be used
-    ObjectTransform.mLocalMatrix = XMMatrixScaling(ObjectTransform.Scale.x, ObjectTransform.Scale.y, ObjectTransform.Scale.z) *
+    ObjectTransform.mLocalMatrix =
+        XMMatrixScaling(ObjectTransform.Scale.x, ObjectTransform.Scale.y, ObjectTransform.Scale.z) *
+        XMMatrixRotationY(ObjectTransform.rot) *
         XMMatrixTranslation(ObjectTransform.Translation.x, ObjectTransform.Translation.y, ObjectTransform.Translation.z) *
-        XMMatrixRotationRollPitchYaw(ObjectTransform.Rotation.x, ObjectTransform.Rotation.y, ObjectTransform.Rotation.z);
+        XMMatrixRotationY(ObjectTransform.orbitRot);
+}
+
+void PrimitiveGeometry::UpdateWorldMatrix()
+{
+    UpdateLocalMatrix();
 
     if (ObjectTransform.ParentTransform)
     {
-        ObjectTransform.mWorldMatrix = ObjectTransform.mLocalMatrix * ObjectTransform.ParentTransform->mWorldMatrix;
+        XMVECTOR outScale;
+        XMVECTOR outRot;
+        XMVECTOR outTrans;
+        XMMatrixDecompose(&outScale, &outRot, &outTrans, ObjectTransform.ParentTransform->mWorldMatrix);
+        ObjectTransform.mWorldMatrix = ObjectTransform.mLocalMatrix * XMMatrixTranslationFromVector(outTrans);
+    }
+    else
+    {
+        ObjectTransform.mWorldMatrix = ObjectTransform.mLocalMatrix;
     }
 }
 

@@ -132,7 +132,7 @@ void Graphics::Setup()
 
 	CD3D11_RASTERIZER_DESC rastDesc = {};
 	rastDesc.CullMode = D3D11_CULL_BACK;
-	rastDesc.FillMode = D3D11_FILL_SOLID;
+	rastDesc.FillMode = D3D11_FILL_WIREFRAME;
 
 	ThrowIfFailed(mDevice->CreateRasterizerState(&rastDesc, &mRasterizerState));
 	mDeviceContext->RSSetState(mRasterizerState.Get());
