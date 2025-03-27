@@ -9,8 +9,8 @@ using namespace DirectX;
 struct Vertex
 {
 	Vertex() {}
-	Vertex(float x, float y, float z, float w, 
-		   float r, float g, float b, float a)
+	Vertex(float x, float y, float z, float w,
+		float r, float g, float b, float a)
 		:
 		position(x, y, z, w),
 		color(r, g, b, a)
@@ -34,7 +34,7 @@ struct VertexTex
 	VertexTex() {}
 
 	VertexTex(float x, float y, float z, float w,
-			  float u, float v)
+		float u, float v)
 		:
 		position(x, y, z, w),
 		texCoord(u, v)
@@ -55,15 +55,17 @@ struct Transform
 	XMFLOAT3 Scale		 = { 1.0f, 1.0f, 1.0f };
 	XMFLOAT3 Rotation	 = { 0.0f, 0.0f, 0.0f };
 	XMFLOAT3 Translation = { 0.0f, 0.0f, 0.0f };
-	
+
 	XMMATRIX mWorldMatrix;
 	XMMATRIX mLocalMatrix;
 
 	// Solar System specific
-	float rotationAngle	= 0.0f; // Radians by axis
-	float orbitRadius	= 0.0f; // by axis
+	float orbitRadius	= 0.0f;
 	// Should be in movement component probably
-	float rotationSpeed = 0.0f; // in Radians per smth
+	float orbitRot		= 0.0f;
+	float rot			= 0.0f;
+	float orbitAngle	= 0.0f;
+	float rotAngle		= 0.0f;
 
 	Transform* ParentTransform = nullptr;
 

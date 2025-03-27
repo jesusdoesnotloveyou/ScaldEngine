@@ -49,11 +49,11 @@ void Engine::SetupScene()
 
 	PrimitiveGeometry* box = new Cube(boxShape);
 	box->ObjectTransform.Scale = { 18.0f, 18.0f, 18.0f };
-	box->ObjectTransform.rotationSpeed = 60.0f;
+	box->ObjectTransform.rotAngle = 60.0f;
 
 	PrimitiveGeometry* sun = new Sphere(sunShape);
 	sun->ObjectTransform.Scale = { 18.0f, 18.0f, 18.0f };
-	sun->ObjectTransform.rotationSpeed = 60.0f;
+	sun->ObjectTransform.rotAngle = 60.0f;
 	
 	/*PrimitiveGeometry* jupiter = new Sphere(jupiterShape);
 	jupiter->ObjectTransform.Scale = { 5.0f, 5.0f, 5.f };
