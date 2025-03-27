@@ -7,8 +7,31 @@ using namespace DirectX;
 
 struct Vertex
 {
-	XMFLOAT4 position	= { 0.0f, 0.0f, 0.0f, 1.0f };
-	XMFLOAT4 color		= { 1.0f, 1.0f, 1.0f, 1.0f };
+	Vertex() {}
+	Vertex(float x, float y, float z, float w, 
+		   float r, float g, float b, float a)
+		:
+		position(x, y, z, w),
+		color(r, g, b, a)
+	{}
+
+	XMFLOAT4 position = { 0.0f, 0.0f, 0.0f, 1.0f };
+	XMFLOAT4 color	  = { 1.0f, 1.0f, 1.0f, 1.0f };
+};
+
+struct VertexTex
+{
+	VertexTex() {}
+
+	VertexTex(float x, float y, float z, float w,
+			  float u, float v)
+		:
+		position(x, y, z, w),
+		texCoord(u, v)
+	{}
+
+	XMFLOAT4 position = { 0.0f, 0.0f, 0.0f, 1.0f };
+	XMFLOAT2 texCoord = { 0.0f, 0.0f };
 };
 
 struct ConstBuffer
