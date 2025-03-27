@@ -38,21 +38,18 @@ int Engine::Launch()
 
 void Engine::SetupScene()
 {
-	auto boxShape = Shapes::GetBoxShape(1.0f, 1.0f, 1.0f, Colors::Indigo);
-	auto sunShape = Shapes::GetSphereShape(20.0f, 16, 16, Colors::Gold);
-	auto mercuryShape = Shapes::GetSphereShape(1.0f, 16, 16, Colors::Orchid);
-	auto venusShape = Shapes::GetSphereShape(1.0f, 16, 16, Colors::DarkOrange);
-	auto earthShape = Shapes::GetSphereShape(1.0f, 16, 16, Colors::Aqua);
-	auto moonShape = Shapes::GetSphereShape(1.0f, 16, 16, Colors::Gray);
-	auto marsShape = Shapes::GetSphereShape(1.0f, 16, 16, Colors::DarkRed);
-	auto phobosShape = Shapes::GetSphereShape(1.0f, 16, 16, Colors::Gray);
-	auto deimosShape = Shapes::GetSphereShape(1.0f, 16, 16, Colors::IndianRed);
+	auto boxShape = Shapes::GetBoxShape(18.0f, 18.0f, 18.0f, 1.0f, 1.0f);
+	auto sunShape = Shapes::GetSphereShape(20.0f, 16, 16, 1.0f, 1.0f);
+	
 	auto jupiterShape = Shapes::GetSphereShape(1.0f, 16, 16, Colors::Chocolate);
 	auto saturnShape = Shapes::GetSphereShape(1.0f, 16, 16, Colors::BurlyWood);
 	auto titanShape = Shapes::GetSphereShape(1.0f, 16, 16, Colors::Goldenrod);
 	auto uranusShape = Shapes::GetSphereShape(1.0f, 16, 16, Colors::Blue);
 	auto neptuneShape = Shapes::GetSphereShape(1.0f, 16, 16, Colors::Indigo);
-	auto plutoShape = Shapes::GetSphereShape(1.0f, 16, 16, Colors::Silver);
+
+	PrimitiveGeometry* box = new Cube(boxShape);
+	box->ObjectTransform.Scale = { 18.0f, 18.0f, 18.0f };
+	box->ObjectTransform.rotationSpeed = 60.0f;
 
 	PrimitiveGeometry* sun = new Sphere(sunShape);
 	sun->ObjectTransform.Scale = { 18.0f, 18.0f, 18.0f };
@@ -116,7 +113,8 @@ void Engine::SetupScene()
 	mGameObjects.push_back(europe);
 	mGameObjects.push_back(titan);*/
 
-	mGameObjects.push_back(sun);
+	//mGameObjects.push_back(sun);
+	mGameObjects.push_back(box);
 	
 	for (auto geometry : mGameObjects)
 	{
