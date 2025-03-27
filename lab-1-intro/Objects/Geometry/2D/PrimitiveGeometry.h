@@ -24,7 +24,7 @@ class PrimitiveGeometry
 {
 public:
 	PrimitiveGeometry();
-	PrimitiveGeometry(const std::tuple<std::vector<Vertex>, std::vector<DWORD>>& viPair);
+	PrimitiveGeometry(const std::tuple<std::vector<VertexTex>, std::vector<DWORD>>& vi);
 	// would be changed to normal constructor
 	virtual ~PrimitiveGeometry();
 
@@ -35,7 +35,7 @@ public:
 	void UpdateObjectCBs(const ScaldTimer& st);
 
 public:
-	VertexBuffer<Vertex>& GetVertexBuffer();
+	VertexBuffer<VertexTex>& GetVertexBuffer();
 	IndexBuffer& GetIndexBuffer();
 	ConstantBuffer<ConstBuffer>& GetConstantBuffer();
 
@@ -53,11 +53,12 @@ protected:
 	InputComponent* pInputComponent = nullptr;
 	MovementComponent* pMovementComponent = nullptr;
 
-	std::vector<Vertex> vertices;
+	// std::vector<T>
+	std::vector<VertexTex> vertices;
 	std::vector<DWORD> indeces;
 
 private:
 	ConstantBuffer<ConstBuffer> constantBuffer;
-	VertexBuffer<Vertex> vertexBuffer;
+	VertexBuffer<VertexTex> vertexBuffer;
 	IndexBuffer indexBuffer;
 };

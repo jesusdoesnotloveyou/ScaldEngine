@@ -12,7 +12,7 @@ class Sphere : public PrimitiveGeometry
 {
 public:
 	Sphere();
-	Sphere(const tuple<vector<Vertex>, vector<DWORD>>& vi);
+	Sphere(const tuple<vector<VertexTex>, vector<DWORD>>& vi);
 	virtual ~Sphere() override;
 
 	//~ Begin of PrimitiveGeometry interface

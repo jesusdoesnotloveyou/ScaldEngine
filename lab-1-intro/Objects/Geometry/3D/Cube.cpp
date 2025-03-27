@@ -6,7 +6,7 @@ Cube::Cube() : PrimitiveGeometry()
 	SetIndeces();
 }
 
-Cube::Cube(const tuple<vector<Vertex>, vector<DWORD>>& vi) : PrimitiveGeometry()
+Cube::Cube(const tuple<vector<VertexTex>, vector<DWORD>>& vi) : PrimitiveGeometry()
 {
 	vertices = std::get<0>(vi);
 	indeces = std::get<1>(vi);
@@ -54,13 +54,13 @@ void Cube::SetIndeces()
 void Cube::SetVertices()
 {
 	vertices = {
-		Vertex(-1.0f, -1.0f, -1.0f, 1.0f, Colors::White),
-		Vertex(-1.0f, +1.0f, -1.0f, 1.0f, Colors::Black),
-		Vertex(+1.0f, +1.0f, -1.0f, 1.0f, Colors::Red),
-		Vertex(+1.0f, -1.0f, -1.0f, 1.0f, Colors::Green),
-		Vertex(-1.0f, -1.0f, +1.0f, 1.0f, Colors::Blue),
-		Vertex(-1.0f, +1.0f, +1.0f, 1.0f, Colors::Yellow),
-		Vertex(+1.0f, +1.0f, +1.0f, 1.0f, Colors::Cyan),
-		Vertex(+1.0f, -1.0f, +1.0f, 1.0f, Colors::Magenta)
+		VertexTex(-1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f),
+		VertexTex(-1.0f, +1.0f, -1.0f, 1.0f, 0.0f, 0.0f),
+		VertexTex(+1.0f, +1.0f, -1.0f, 1.0f, 0.0f, 0.0f),
+		VertexTex(+1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f),
+		VertexTex(-1.0f, -1.0f, +1.0f, 1.0f, 0.0f, 0.0f),
+		VertexTex(-1.0f, +1.0f, +1.0f, 1.0f, 0.0f, 0.0f),
+		VertexTex(+1.0f, +1.0f, +1.0f, 1.0f, 0.0f, 0.0f),
+		VertexTex(+1.0f, -1.0f, +1.0f, 1.0f, 0.0f, 0.0f)
 	};
 }

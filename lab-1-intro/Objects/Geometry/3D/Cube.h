@@ -12,7 +12,8 @@ class Cube : public PrimitiveGeometry
 {
 public:
 	Cube();
-	Cube(const tuple<vector<Vertex>, vector<DWORD>>& vi);
+	//Cube(const tuple<vector<Vertex>, vector<DWORD>>& vi);
+	Cube(const tuple<vector<VertexTex>, vector<DWORD>>& vi);
 
 	virtual ~Cube() override;
 

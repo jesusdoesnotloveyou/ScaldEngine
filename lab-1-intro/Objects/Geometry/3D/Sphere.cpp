@@ -4,7 +4,7 @@ Sphere::Sphere() : PrimitiveGeometry()
 {
 }
 
-Sphere::Sphere(const tuple<vector<Vertex>, vector<DWORD>>& vi) : PrimitiveGeometry()
+Sphere::Sphere(const tuple<vector<VertexTex>, vector<DWORD>>& vi) : PrimitiveGeometry()
 {
 	vertices = std::get<0>(vi);
 	indeces = std::get<1>(vi);

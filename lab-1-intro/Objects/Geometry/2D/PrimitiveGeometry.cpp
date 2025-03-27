@@ -9,7 +9,7 @@ PrimitiveGeometry::PrimitiveGeometry()
     pMovementComponent = new MovementComponent{};
 }
 
-PrimitiveGeometry::PrimitiveGeometry(const std::tuple<std::vector<Vertex>, std::vector<DWORD>>& viPair)
+PrimitiveGeometry::PrimitiveGeometry(const std::tuple<std::vector<VertexTex>, std::vector<DWORD>>& vi)
 {}
 
 PrimitiveGeometry::~PrimitiveGeometry()
@@ -56,7 +56,7 @@ void PrimitiveGeometry::UpdateObjectCBs(const ScaldTimer& st)
     constantBuffer.SetTransform(&ObjectTransform);
 }
 
-VertexBuffer<Vertex>& PrimitiveGeometry::GetVertexBuffer()
+VertexBuffer<VertexTex>& PrimitiveGeometry::GetVertexBuffer()
 {
     return vertexBuffer;
 }
