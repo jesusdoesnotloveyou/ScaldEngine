@@ -96,8 +96,10 @@ MovementComponent* PrimitiveGeometry::GetMovementComponent() const
     return pMovementComponent;
 }
 
+extern bool IsLeft;
 void PrimitiveGeometry::Reset(const XMFLOAT3& newSpeed, const XMFLOAT3& newTranslation)
 {
     GetMovementComponent()->SetVelocity(newSpeed);
     ObjectTransform.Translation = newTranslation;
+    IsLeft = false;
 }

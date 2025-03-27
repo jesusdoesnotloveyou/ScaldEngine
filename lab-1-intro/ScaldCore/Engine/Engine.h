@@ -21,7 +21,7 @@ private:
 
 	// Pong Specific functions
 	bool CheckCollision(PrimitiveGeometry* ball, PrimitiveGeometry* otherActor);
-	void UpdateCollisionWithPaddle(PrimitiveGeometry* ball, PrimitiveGeometry* otherActor);
+	bool UpdateCollisionWithPaddle(PrimitiveGeometry* ball, PrimitiveGeometry* otherActor);
 	void UpdateCollisionWithBonus(PrimitiveGeometry* bonus, PrimitiveGeometry* player);
 	void SetInvisibleAndMove(PrimitiveGeometry* bonus);
 

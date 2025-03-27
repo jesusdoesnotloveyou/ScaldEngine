@@ -43,14 +43,15 @@ bool Engine::CheckCollision(PrimitiveGeometry* actor, PrimitiveGeometry* otherAc
 	return false;
 }
 
-void Engine::UpdateCollisionWithPaddle(PrimitiveGeometry* ball, PrimitiveGeometry* otherActor)
+bool Engine::UpdateCollisionWithPaddle(PrimitiveGeometry* ball, PrimitiveGeometry* otherActor)
 {
-	if (!CheckCollision(ball, otherActor)) return;
+	if (!CheckCollision(ball, otherActor)) return false;
 	
 	auto ballSpeed = ball->GetMovementComponent()->GetVelocity();
 	ballSpeed.x += 0.002f;
 	ballSpeed.y += 0.002f;
 	ball->GetMovementComponent()->SetVelocity(ballSpeed.x * (-1.f), ballSpeed.y, ballSpeed.z);
+	return true;
 }
 
 void Engine::UpdateCollisionWithBonus(PrimitiveGeometry* bonus, PrimitiveGeometry* player)
@@ -198,10 +199,24 @@ void Engine::PollInput()
 	}
 }
 
+bool IsLeft = false;
 void Engine::UpdateScene(float DeltaTime)
 {
-	UpdateCollisionWithPaddle(GameObjects[2], GameObjects[0]);
-	UpdateCollisionWithPaddle(GameObjects[2], GameObjects[1]);
+	if (IsLeft)
+	{
+		if (UpdateCollisionWithPaddle(GameObjects[2], GameObjects[0]))
+		{
+			IsLeft = !IsLeft;
+		}
+		
+	}
+	else 
+	{
+		if (UpdateCollisionWithPaddle(GameObjects[2], GameObjects[1]))
+		{
+			IsLeft = !IsLeft;
+		}
+	}
 
 	// red bonus
 	UpdateCollisionWithBonus(GameObjects[3], GameObjects[0]);
