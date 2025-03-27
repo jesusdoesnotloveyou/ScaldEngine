@@ -76,35 +76,35 @@ tuple<vector<VertexTex>, vector<DWORD>> Shapes::GetBoxShape(float width, float h
 	// 24 so for normals, tangents
 	vector<VertexTex> boxVertices
 	{
-		VertexTex(-w / 2, -h / 2, -d / 2, 1.0f, u, v),
-		VertexTex(-w / 2, +h / 2, -d / 2, 1.0f, u, v),
-		VertexTex(+w / 2, +h / 2, -d / 2, 1.0f, u, v),
-		VertexTex(+w / 2, -h / 2, -d / 2, 1.0f, u, v),
+		VertexTex(-w / 2, -h / 2, -d / 2, 1.0f, 0.0f, 1.0f),
+		VertexTex(-w / 2, +h / 2, -d / 2, 1.0f, 0.0f, 0.0f),
+		VertexTex(+w / 2, +h / 2, -d / 2, 1.0f, 1.0f, 0.0f),
+		VertexTex(+w / 2, -h / 2, -d / 2, 1.0f, 1.0f, 1.0f),
 
-		VertexTex(+w / 2, +h / 2, +d / 2, 1.0f, u, v),
-		VertexTex(-w / 2, +h / 2, +d / 2, 1.0f, u, v),
-		VertexTex(-w / 2, -h / 2, +d / 2, 1.0f, u, v),
-		VertexTex(+w / 2, -h / 2, +d / 2, 1.0f, u, v),
+		VertexTex(+w / 2, +h / 2, +d / 2, 1.0f, 0.0f, 1.0f),
+		VertexTex(-w / 2, +h / 2, +d / 2, 1.0f, 0.0f, 0.0f),
+		VertexTex(-w / 2, -h / 2, +d / 2, 1.0f, 1.0f, 0.0f),
+		VertexTex(+w / 2, -h / 2, +d / 2, 1.0f, 1.0f, 1.0f),
 
-		VertexTex(-w / 2, -h / 2, -d / 2, 1.0f, u, v),
-		VertexTex(-w / 2, -h / 2, +d / 2, 1.0f, u, v),
-		VertexTex(-w / 2, +h / 2, +d / 2, 1.0f, u, v),
-		VertexTex(-w / 2, +h / 2, -d / 2, 1.0f, u, v),
+		VertexTex(-w / 2, -h / 2, -d / 2, 1.0f, 0.0f, 1.0f),
+		VertexTex(-w / 2, -h / 2, +d / 2, 1.0f, 0.0f, 0.0f),
+		VertexTex(-w / 2, +h / 2, +d / 2, 1.0f, 1.0f, 0.0f),
+		VertexTex(-w / 2, +h / 2, -d / 2, 1.0f, 1.0f, 1.0f),
 
-		VertexTex(+w / 2, +h / 2, -d / 2, 1.0f, u, v),
-		VertexTex(+w / 2, -h / 2, -d / 2, 1.0f, u, v),
-		VertexTex(+w / 2, -h / 2, +d / 2, 1.0f, u, v),
-		VertexTex(+w / 2, +h / 2, +d / 2, 1.0f, u, v),
+		VertexTex(+w / 2, +h / 2, -d / 2, 1.0f, 0.0f, 1.0f),
+		VertexTex(+w / 2, -h / 2, -d / 2, 1.0f, 0.0f, 0.0f),
+		VertexTex(+w / 2, -h / 2, +d / 2, 1.0f, 1.0f, 0.0f),
+		VertexTex(+w / 2, +h / 2, +d / 2, 1.0f, 1.0f, 1.0f),
 
-		VertexTex(-w / 2, +h / 2, -d / 2, 1.0f, u, v),
-		VertexTex(+w / 2, +h / 2, -d / 2, 1.0f, u, v),
-		VertexTex(+w / 2, +h / 2, +d / 2, 1.0f, u, v),
-		VertexTex(-w / 2, +h / 2, +d / 2, 1.0f, u, v),
+		VertexTex(-w / 2, +h / 2, -d / 2, 1.0f, 0.0f, 1.0f),
+		VertexTex(+w / 2, +h / 2, -d / 2, 1.0f, 0.0f, 0.0f),
+		VertexTex(+w / 2, +h / 2, +d / 2, 1.0f, 1.0f, 0.0f),
+		VertexTex(-w / 2, +h / 2, +d / 2, 1.0f, 1.0f, 1.0f),
 
-		VertexTex(-w / 2, -h / 2, -d / 2, 1.0f, u, v),
-		VertexTex(+w / 2, -h / 2, -d / 2, 1.0f, u, v),
-		VertexTex(+w / 2, -h / 2, +d / 2, 1.0f, u, v),
-		VertexTex(-w / 2, -h / 2, +d / 2, 1.0f, u, v),
+		VertexTex(-w / 2, -h / 2, -d / 2, 1.0f, 0.0f, 1.0f),
+		VertexTex(+w / 2, -h / 2, -d / 2, 1.0f, 0.0f, 0.0f),
+		VertexTex(+w / 2, -h / 2, +d / 2, 1.0f, 1.0f, 0.0f),
+		VertexTex(-w / 2, -h / 2, +d / 2, 1.0f, 1.0f, 1.0f),
 	};
 
 	vector<DWORD> boxIndices
