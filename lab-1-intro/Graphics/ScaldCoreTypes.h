@@ -27,10 +27,12 @@ struct Transform
 	XMMATRIX mLocalMatrix;
 
 	// Solar System specific
-	float rotationAngle	= 0.0f; // Radians by axis
+	float orbitRot		= 0.0f; // Radians by axis
+	float rot			= 0.0f;
+	float orbitAngle	= 0.0f;
+	float rotAngle		= 0.0f;
 	float orbitRadius	= 0.0f; // by axis
 	// Should be in movement component probably
-	float rotationSpeed = 0.0f; // in Radians per smth
 
 	Transform* ParentTransform = nullptr;
 
