@@ -207,5 +207,11 @@
     <None Include="Shaders\ShaderTypes.hlsli">
       <Filter>Shaders</Filter>
     </None>
+    <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Textures\test_texture.png">
+      <Filter>Resource Files</Filter>
+    </Image>
   </ItemGroup>
 </Project>
