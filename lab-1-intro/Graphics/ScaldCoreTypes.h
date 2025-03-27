@@ -5,6 +5,7 @@
 
 using namespace DirectX;
 
+// just position and color
 struct Vertex
 {
 	Vertex() {}
@@ -15,10 +16,19 @@ struct Vertex
 		color(r, g, b, a)
 	{}
 
+	// to support direct colors
+	Vertex(float x, float y, float z, float w, const XMVECTORF32 v)
+		:
+		position(x, y, z, w),
+		color(v.f[0], v.f[1], v.f[2], v.f[3])
+	{
+	}
+
 	XMFLOAT4 position = { 0.0f, 0.0f, 0.0f, 1.0f };
 	XMFLOAT4 color	  = { 1.0f, 1.0f, 1.0f, 1.0f };
 };
 
+// position & texture 
 struct VertexTex
 {
 	VertexTex() {}

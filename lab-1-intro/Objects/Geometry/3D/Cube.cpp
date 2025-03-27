@@ -54,13 +54,13 @@ void Cube::SetIndeces()
 void Cube::SetVertices()
 {
 	vertices = {
-		{ XMFLOAT4(-1.0f, -1.0f, -1.0f, 1.0f), XMFLOAT4(Colors::White) },
-		{ XMFLOAT4(-1.0f, +1.0f, -1.0f, 1.0f), XMFLOAT4(Colors::Black) },
-		{ XMFLOAT4(+1.0f, +1.0f, -1.0f, 1.0f), XMFLOAT4(Colors::Red) },
-		{ XMFLOAT4(+1.0f, -1.0f, -1.0f, 1.0f), XMFLOAT4(Colors::Green) },
-		{ XMFLOAT4(-1.0f, -1.0f, +1.0f, 1.0f), XMFLOAT4(Colors::Blue) },
-		{ XMFLOAT4(-1.0f, +1.0f, +1.0f, 1.0f), XMFLOAT4(Colors::Yellow) },
-		{ XMFLOAT4(+1.0f, +1.0f, +1.0f, 1.0f), XMFLOAT4(Colors::Cyan) },
-		{ XMFLOAT4(+1.0f, -1.0f, +1.0f, 1.0f), XMFLOAT4(Colors::Magenta) }
+		Vertex(-1.0f, -1.0f, -1.0f, 1.0f, Colors::White),
+		Vertex(-1.0f, +1.0f, -1.0f, 1.0f, Colors::Black),
+		Vertex(+1.0f, +1.0f, -1.0f, 1.0f, Colors::Red),
+		Vertex(+1.0f, -1.0f, -1.0f, 1.0f, Colors::Green),
+		Vertex(-1.0f, -1.0f, +1.0f, 1.0f, Colors::Blue),
+		Vertex(-1.0f, +1.0f, +1.0f, 1.0f, Colors::Yellow),
+		Vertex(+1.0f, +1.0f, +1.0f, 1.0f, Colors::Cyan),
+		Vertex(+1.0f, -1.0f, +1.0f, 1.0f, Colors::Magenta)
 	};
 }

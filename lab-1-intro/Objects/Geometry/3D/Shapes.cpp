@@ -12,35 +12,35 @@ tuple<vector<Vertex>, vector<DWORD>> Shapes::GetBoxShape(float width, float heig
 	// 24 so for normals, tangents
 	vector<Vertex> boxVertices
 	{
-		Vertex{ XMFLOAT4(-w / 2, -h / 2, -d / 2, 1.0f), XMFLOAT4(color) },
-		Vertex{ XMFLOAT4(-w / 2, +h / 2, -d / 2, 1.0f), XMFLOAT4(color) },
-		Vertex{ XMFLOAT4(+w / 2, +h / 2, -d / 2, 1.0f), XMFLOAT4(color) },
-		Vertex{ XMFLOAT4(+w / 2, -h / 2, -d / 2, 1.0f), XMFLOAT4(color) },
+		Vertex(-w / 2, -h / 2, -d / 2, 1.0f, color.f[0], color.f[1], color.f[2], color.f[3]),
+		Vertex(-w / 2, +h / 2, -d / 2, 1.0f, color.f[0], color.f[1], color.f[2], color.f[3]),
+		Vertex(+w / 2, +h / 2, -d / 2, 1.0f, color.f[0], color.f[1], color.f[2], color.f[3]),
+		Vertex(+w / 2, -h / 2, -d / 2, 1.0f, color.f[0], color.f[1], color.f[2], color.f[3]),
+		
+		Vertex(+w / 2, +h / 2, +d / 2, 1.0f, color.f[0], color.f[1], color.f[2], color.f[3]),
+		Vertex(-w / 2, +h / 2, +d / 2, 1.0f, color.f[0], color.f[1], color.f[2], color.f[3]),
+		Vertex(-w / 2, -h / 2, +d / 2, 1.0f, color.f[0], color.f[1], color.f[2], color.f[3]),
+		Vertex(+w / 2, -h / 2, +d / 2, 1.0f, color.f[0], color.f[1], color.f[2], color.f[3]),
 
-		Vertex{ XMFLOAT4(+w / 2, +h / 2, +d / 2, 1.0f), XMFLOAT4(color) },
-		Vertex{ XMFLOAT4(-w / 2, +h / 2, +d / 2, 1.0f), XMFLOAT4(color) },
-		Vertex{ XMFLOAT4(-w / 2, -h / 2, +d / 2, 1.0f), XMFLOAT4(color) },
-		Vertex{ XMFLOAT4(+w / 2, -h / 2, +d / 2, 1.0f), XMFLOAT4(color) },
+		Vertex(-w / 2, -h / 2, -d / 2, 1.0f, color.f[0], color.f[1], color.f[2], color.f[3]),
+		Vertex(-w / 2, -h / 2, +d / 2, 1.0f, color.f[0], color.f[1], color.f[2], color.f[3]),
+		Vertex(-w / 2, +h / 2, +d / 2, 1.0f, color.f[0], color.f[1], color.f[2], color.f[3]),
+		Vertex(-w / 2, +h / 2, -d / 2, 1.0f, color.f[0], color.f[1], color.f[2], color.f[3]),
+		
+		Vertex(+w / 2, +h / 2, -d / 2, 1.0f, color.f[0], color.f[1], color.f[2], color.f[3]),
+		Vertex(+w / 2, -h / 2, -d / 2, 1.0f, color.f[0], color.f[1], color.f[2], color.f[3]),
+		Vertex(+w / 2, -h / 2, +d / 2, 1.0f, color.f[0], color.f[1], color.f[2], color.f[3]),
+		Vertex(+w / 2, +h / 2, +d / 2, 1.0f, color.f[0], color.f[1], color.f[2], color.f[3]),
 
-		Vertex{ XMFLOAT4(-w / 2, -h / 2, -d / 2, 1.0f), XMFLOAT4(color) },
-		Vertex{ XMFLOAT4(-w / 2, -h / 2, +d / 2, 1.0f), XMFLOAT4(color) },
-		Vertex{ XMFLOAT4(-w / 2, +h / 2, +d / 2, 1.0f), XMFLOAT4(color) },
-		Vertex{ XMFLOAT4(-w / 2, +h / 2, -d / 2, 1.0f), XMFLOAT4(color) },
-
-		Vertex{ XMFLOAT4(+w / 2, +h / 2, -d / 2, 1.0f), XMFLOAT4(color) },
-		Vertex{ XMFLOAT4(+w / 2, -h / 2, -d / 2, 1.0f), XMFLOAT4(color) },
-		Vertex{ XMFLOAT4(+w / 2, -h / 2, +d / 2, 1.0f), XMFLOAT4(color) },
-		Vertex{ XMFLOAT4(+w / 2, +h / 2, +d / 2, 1.0f), XMFLOAT4(color) },
-
-		Vertex{ XMFLOAT4(-w / 2, +h / 2, -d / 2, 1.0f), XMFLOAT4(color) },
-		Vertex{ XMFLOAT4(+w / 2, +h / 2, -d / 2, 1.0f), XMFLOAT4(color) },
-		Vertex{ XMFLOAT4(+w / 2, +h / 2, +d / 2, 1.0f), XMFLOAT4(color) },
-		Vertex{ XMFLOAT4(-w / 2, +h / 2, +d / 2, 1.0f), XMFLOAT4(color) },
-
-		Vertex{ XMFLOAT4(-w / 2, -h / 2, -d / 2, 1.0f), XMFLOAT4(color) },
-		Vertex{ XMFLOAT4(+w / 2, -h / 2, -d / 2, 1.0f), XMFLOAT4(color) },
-		Vertex{ XMFLOAT4(+w / 2, -h / 2, +d / 2, 1.0f), XMFLOAT4(color) },
-		Vertex{ XMFLOAT4(-w / 2, -h / 2, +d / 2, 1.0f), XMFLOAT4(color) },
+		Vertex(-w / 2, +h / 2, -d / 2, 1.0f, color.f[0], color.f[1], color.f[2], color.f[3]),
+		Vertex(+w / 2, +h / 2, -d / 2, 1.0f, color.f[0], color.f[1], color.f[2], color.f[3]),
+		Vertex(+w / 2, +h / 2, +d / 2, 1.0f, color.f[0], color.f[1], color.f[2], color.f[3]),
+		Vertex(-w / 2, +h / 2, +d / 2, 1.0f, color.f[0], color.f[1], color.f[2], color.f[3]),
+		
+		Vertex(-w / 2, -h / 2, -d / 2, 1.0f, color.f[0], color.f[1], color.f[2], color.f[3]),
+		Vertex(+w / 2, -h / 2, -d / 2, 1.0f, color.f[0], color.f[1], color.f[2], color.f[3]),
+		Vertex(+w / 2, -h / 2, +d / 2, 1.0f, color.f[0], color.f[1], color.f[2], color.f[3]),
+		Vertex(-w / 2, -h / 2, +d / 2, 1.0f, color.f[0], color.f[1], color.f[2], color.f[3]),
 	};
 
 	vector<DWORD> boxIndices
