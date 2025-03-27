@@ -191,6 +191,7 @@ void Engine::PollInput()
 	XMVECTOR outScale;
 	XMVECTOR outQuat;
 	XMVECTOR outTrans;
+	XMVECTOR offset;
 
 	// sun
 	if (mRenderWindow.kbd.IsKeyPressed('1'))
@@ -199,7 +200,8 @@ void Engine::PollInput()
 		if (XMMatrixDecompose(&outScale, &outQuat, &outTrans, mGameObjects[0]->ObjectTransform.mWorldMatrix))
 		{
 			mRenderWindow.GetGfx().mCamera.SetLookAtPosition(outTrans);
-			mRenderWindow.GetGfx().mCamera.SetPosition(outTrans);
+			offset = XMLoadFloat3(&mGameObjects[0]->ObjectTransform.Scale);
+			mRenderWindow.GetGfx().mCamera.SetPosition(outTrans - offset);
 		}
 	}
 	// mercury
@@ -209,7 +211,8 @@ void Engine::PollInput()
 		if (XMMatrixDecompose(&outScale, &outQuat, &outTrans, mGameObjects[1]->ObjectTransform.mWorldMatrix))
 		{
 			mRenderWindow.GetGfx().mCamera.SetLookAtPosition(outTrans);
-			mRenderWindow.GetGfx().mCamera.SetPosition(outTrans);
+			offset = XMLoadFloat3(&mGameObjects[1]->ObjectTransform.Scale);
+			mRenderWindow.GetGfx().mCamera.SetPosition(outTrans - offset);
 		}
 	}
 	// venus
@@ -219,7 +222,8 @@ void Engine::PollInput()
 		if (XMMatrixDecompose(&outScale, &outQuat, &outTrans, mGameObjects[2]->ObjectTransform.mWorldMatrix))
 		{
 			mRenderWindow.GetGfx().mCamera.SetLookAtPosition(outTrans);
-			mRenderWindow.GetGfx().mCamera.SetPosition(outTrans);
+			offset = XMLoadFloat3(&mGameObjects[2]->ObjectTransform.Scale);
+			mRenderWindow.GetGfx().mCamera.SetPosition(outTrans - offset);
 		}
 	}
 	// earth
@@ -229,7 +233,8 @@ void Engine::PollInput()
 		if (XMMatrixDecompose(&outScale, &outQuat, &outTrans, mGameObjects[3]->ObjectTransform.mWorldMatrix))
 		{
 			mRenderWindow.GetGfx().mCamera.SetLookAtPosition(outTrans);
-			mRenderWindow.GetGfx().mCamera.SetPosition(outTrans);
+			offset = XMLoadFloat3(&mGameObjects[3]->ObjectTransform.Scale);
+			mRenderWindow.GetGfx().mCamera.SetPosition(outTrans - offset);
 		}
 	}
 	// mars
@@ -239,7 +244,8 @@ void Engine::PollInput()
 		if (XMMatrixDecompose(&outScale, &outQuat, &outTrans, mGameObjects[4]->ObjectTransform.mWorldMatrix))
 		{
 			mRenderWindow.GetGfx().mCamera.SetLookAtPosition(outTrans);
-			mRenderWindow.GetGfx().mCamera.SetPosition(outTrans);
+			offset = XMLoadFloat3(&mGameObjects[4]->ObjectTransform.Scale);
+			mRenderWindow.GetGfx().mCamera.SetPosition(outTrans - offset);
 		}
 	}
 	// jupiter
@@ -249,7 +255,8 @@ void Engine::PollInput()
 		if (XMMatrixDecompose(&outScale, &outQuat, &outTrans, mGameObjects[5]->ObjectTransform.mWorldMatrix))
 		{
 			mRenderWindow.GetGfx().mCamera.SetLookAtPosition(outTrans);
-			mRenderWindow.GetGfx().mCamera.SetPosition(outTrans);
+			offset = XMLoadFloat3(&mGameObjects[5]->ObjectTransform.Scale);
+			mRenderWindow.GetGfx().mCamera.SetPosition(outTrans - offset);
 		}
 	}
 	// saturn
@@ -259,7 +266,8 @@ void Engine::PollInput()
 		if (XMMatrixDecompose(&outScale, &outQuat, &outTrans, mGameObjects[6]->ObjectTransform.mWorldMatrix))
 		{
 			mRenderWindow.GetGfx().mCamera.SetLookAtPosition(outTrans);
-			mRenderWindow.GetGfx().mCamera.SetPosition(outTrans);
+			offset = XMLoadFloat3(&mGameObjects[6]->ObjectTransform.Scale);
+			mRenderWindow.GetGfx().mCamera.SetPosition(outTrans - offset);
 		}
 	}
 	// free fps
