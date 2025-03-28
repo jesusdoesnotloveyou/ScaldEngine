@@ -38,82 +38,21 @@ int Engine::Launch()
 
 void Engine::SetupScene()
 {
-	auto boxShape = Shapes::GetBoxShape(18.0f, 18.0f, 18.0f, 1.0f, 1.0f);
-	auto sunShape = Shapes::GetSphereShape(20.0f, 16, 16, 1.0f, 1.0f);
-	
-	auto jupiterShape = Shapes::GetSphereShape(1.0f, 16, 16, Colors::Chocolate);
-	auto saturnShape = Shapes::GetSphereShape(1.0f, 16, 16, Colors::BurlyWood);
-	auto titanShape = Shapes::GetSphereShape(1.0f, 16, 16, Colors::Goldenrod);
-	auto uranusShape = Shapes::GetSphereShape(1.0f, 16, 16, Colors::Blue);
-	auto neptuneShape = Shapes::GetSphereShape(1.0f, 16, 16, Colors::Indigo);
+	auto boxShape = Shapes::GetBoxShape(1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
+	auto sphereShape = Shapes::GetSphereShape(1.0f, 16, 16, 0.0f, 0.0f);
 
 	PrimitiveGeometry* box = new Cube(boxShape);
-	box->ObjectTransform.Scale = { 18.0f, 18.0f, 18.0f };
+	box->ObjectTransform.Scale = { 15.0f, 15.0f, 15.0f };
 	box->ObjectTransform.rotAngle = 60.0f;
 
-	PrimitiveGeometry* sun = new Sphere(sunShape);
-	sun->ObjectTransform.Scale = { 18.0f, 18.0f, 18.0f };
-	sun->ObjectTransform.rotAngle = 60.0f;
-	
-	/*PrimitiveGeometry* jupiter = new Sphere(jupiterShape);
-	jupiter->ObjectTransform.Scale = { 5.0f, 5.0f, 5.f };
-	jupiter->ObjectTransform.rotationSpeed = 25.0f;
-	jupiter->ObjectTransform.orbitRadius = 220.0f;
-	jupiter->ObjectTransform.ParentTransform = &sun->ObjectTransform;
+	PrimitiveGeometry* sphere = new Sphere(sphereShape);
+	sphere->ObjectTransform.Scale = { 10.0f, 10.0f, 10.0f };
+	sphere->ObjectTransform.rotAngle = 60.0f;
+	sphere->ObjectTransform.orbitAngle = 80.0f;
+	sphere->ObjectTransform.orbitRadius = 50.0f;
+	sphere->ObjectTransform.ParentTransform = &box->ObjectTransform;
 
-	PrimitiveGeometry* hanimed = new Sphere(moonShape);
-	hanimed->ObjectTransform.Scale = { 0.2f, 0.2f, 0.2f };
-	hanimed->ObjectTransform.rotationSpeed = 100.0f;
-	hanimed->ObjectTransform.orbitRadius = 2.0f;
-	hanimed->ObjectTransform.ParentTransform = &jupiter->ObjectTransform;
-
-	PrimitiveGeometry* io = new Sphere(venusShape);
-	io->ObjectTransform.Scale = { 0.1f, 0.1f, 0.1f };
-	io->ObjectTransform.rotationSpeed = 50.0f;
-	io->ObjectTransform.orbitRadius = 4.0f;
-	io->ObjectTransform.ParentTransform = &jupiter->ObjectTransform;
-
-	PrimitiveGeometry* europe = new Sphere(moonShape);
-	europe->ObjectTransform.Scale = { 0.15f, 0.15f, 0.15f };
-	europe->ObjectTransform.rotationSpeed = 25.0f;
-	europe->ObjectTransform.orbitRadius = 5.0f;
-	europe->ObjectTransform.ParentTransform = &jupiter->ObjectTransform;
-	
-	PrimitiveGeometry* saturn = new Sphere(saturnShape);
-	saturn->ObjectTransform.Scale = { 4.2f, 4.2f, 4.2f };
-	saturn->ObjectTransform.rotationSpeed = 20.0f;
-	saturn->ObjectTransform.orbitRadius = 300.0f;
-	saturn->ObjectTransform.ParentTransform = &sun->ObjectTransform;
-
-	PrimitiveGeometry* titan = new Sphere(titanShape);
-	titan->ObjectTransform.Scale = { 0.2f, 0.2f, 0.2f };
-	titan->ObjectTransform.rotationSpeed = 100.0f;
-	titan->ObjectTransform.orbitRadius = 5.0f;
-	titan->ObjectTransform.ParentTransform = &saturn->ObjectTransform;
-
-	PrimitiveGeometry* uranus = new Sphere(uranusShape);
-	uranus->ObjectTransform.Scale = { 2.8f, 2.8f, 2.8f };
-	uranus->ObjectTransform.rotationSpeed = 15.0f;
-	uranus->ObjectTransform.orbitRadius = 380.f;
-	uranus->ObjectTransform.ParentTransform = &sun->ObjectTransform;
-	
-	PrimitiveGeometry* neptune = new Cube(boxShape);
-	neptune->ObjectTransform.Scale = { 2.5f, 2.5f, 2.5f };
-	neptune->ObjectTransform.rotationSpeed = 8.0f;
-	neptune->ObjectTransform.orbitRadius = 440.0f;
-	neptune->ObjectTransform.ParentTransform = &sun->ObjectTransform;
-	
-	mGameObjects.push_back(mercury);
-	mGameObjects.push_back(jupiter);
-	mGameObjects.push_back(saturn);
-	mGameObjects.push_back(uranus);
-	mGameObjects.push_back(neptune);
-	mGameObjects.push_back(hanimed);
-	mGameObjects.push_back(io);
-	mGameObjects.push_back(europe);
-	mGameObjects.push_back(titan);*/
-
-	//mGameObjects.push_back(sun);
+	mGameObjects.push_back(sphere);
 	mGameObjects.push_back(box);
 	
 	for (auto geometry : mGameObjects)
@@ -134,6 +73,7 @@ void Engine::PollInput()
 	XMVECTOR outScale;
 	XMVECTOR outQuat;
 	XMVECTOR outTrans;
+	XMFLOAT3 tmp;
 
 	// sun
 	if (mRenderWindow.kbd.IsKeyPressed('1'))
@@ -141,8 +81,11 @@ void Engine::PollInput()
 		mRenderWindow.GetGfx().mCamera.SetupAttachment(&mGameObjects[0]->ObjectTransform);
 		if (XMMatrixDecompose(&outScale, &outQuat, &outTrans, mGameObjects[0]->ObjectTransform.mWorldMatrix))
 		{
+			XMStoreFloat3(&tmp, outScale);
+			tmp.y = 0.0f;
+			outScale = XMLoadFloat3(&tmp);
 			mRenderWindow.GetGfx().mCamera.SetLookAtPosition(outTrans);
-			mRenderWindow.GetGfx().mCamera.SetPosition(outTrans);
+			mRenderWindow.GetGfx().mCamera.SetPosition(outTrans - outScale);
 		}
 	}
 	
