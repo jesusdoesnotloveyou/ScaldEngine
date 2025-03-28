@@ -4,6 +4,7 @@
 #include "../../Objects/Geometry/3D/Cube.h"
 #include "../../Objects/Geometry/3D/Sphere.h"
 #include "../../Objects/Geometry/3D/Shapes.h"
+#include "../../Graphics/Model.h"
 
 #include <random>
 #include <ctime>
@@ -41,25 +42,24 @@ void Engine::SetupScene()
 	auto boxShape = Shapes::GetBoxShape(1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
 	auto sphereShape = Shapes::GetSphereShape(1.0f, 16, 16, 0.0f, 0.0f);
 
-	PrimitiveGeometry* box = new Cube(boxShape);
-	box->ObjectTransform.Scale = { 15.0f, 15.0f, 15.0f };
-	box->ObjectTransform.rotAngle = 60.0f;
+	SceneGeometry* box = new Cube(boxShape);
+	box->GetTransform()->Scale = { 15.0f, 15.0f, 15.0f };
+	box->GetTransform()->rotAngle = 60.0f;
 
-	PrimitiveGeometry* sphere = new Sphere(sphereShape);
-	sphere->ObjectTransform.Scale = { 10.0f, 10.0f, 10.0f };
-	sphere->ObjectTransform.rotAngle = 60.0f;
-	sphere->ObjectTransform.orbitAngle = 80.0f;
-	sphere->ObjectTransform.orbitRadius = 50.0f;
-	sphere->ObjectTransform.ParentTransform = &box->ObjectTransform;
+	SceneGeometry* sphere = new Sphere(sphereShape);
+	sphere->GetTransform()->Scale = { 10.0f, 10.0f, 10.0f };
+	sphere->GetTransform()->rotAngle = 60.0f;
+	sphere->GetTransform()->orbitAngle = 80.0f;
+	sphere->GetTransform()->orbitRadius = 50.0f;
+	sphere->GetTransform()->ParentTransform = box->GetTransform();
 
-	mGameObjects.push_back(sphere);
-	mGameObjects.push_back(box);
+	SceneGeometry* boxModel = new Model(boxShape);
+
+	mSceneObjects.push_back(sphere);
+	mSceneObjects.push_back(box);
+	mSceneObjects.push_back(boxModel);
 	
-	for (auto geometry : mGameObjects)
-	{
-		if (!geometry) continue;
-		geometry->Initialize(mRenderWindow.GetGfx().GetDevice(), mRenderWindow.GetGfx().GetDeviceContext());
-	}
+	mRenderWindow.GetGfx().InitSceneObjects(mSceneObjects);
 }
 
 void Engine::PollInput()
@@ -78,8 +78,7 @@ void Engine::PollInput()
 	// sun
 	if (mRenderWindow.kbd.IsKeyPressed('1'))
 	{
-		mRenderWindow.GetGfx().mCamera.SetupAttachment(&mGameObjects[0]->ObjectTransform);
-		if (XMMatrixDecompose(&outScale, &outQuat, &outTrans, mGameObjects[0]->ObjectTransform.mWorldMatrix))
+		if (XMMatrixDecompose(&outScale, &outQuat, &outTrans, mSceneObjects[0]->GetTransform()->mWorldMatrix))
 		{
 			XMStoreFloat3(&tmp, outScale);
 			tmp.y = 0.0f;
@@ -87,12 +86,6 @@ void Engine::PollInput()
 			mRenderWindow.GetGfx().mCamera.SetLookAtPosition(outTrans);
 			mRenderWindow.GetGfx().mCamera.SetPosition(outTrans - outScale);
 		}
-	}
-	
-	// free fps
-	if (mRenderWindow.kbd.IsKeyPressed(VK_SPACE))
-	{
-		mRenderWindow.GetGfx().mCamera.ClearAttachment();
 	}
 
 #pragma endregion
@@ -114,7 +107,7 @@ void Engine::PollInput()
 #pragma endregion CameraRotation
 
 #pragma region CameraMovement
-	const float cameraSpeed = 120.f;
+	const float cameraSpeed = 80.f;
 	if (mRenderWindow.kbd.IsKeyPressed('W'))
 	{
 		mRenderWindow.GetGfx().mCamera.AdjustPosition(mRenderWindow.GetGfx().mCamera.GetForwardVector() * cameraSpeed * mTimer.DeltaTime());
@@ -144,9 +137,9 @@ void Engine::PollInput()
 
 void Engine::UpdateScene(const ScaldTimer& st)
 {
-	for (auto gameObject : mGameObjects)
+	for (auto sceneObject : mSceneObjects)
 	{
-		gameObject->Update(st);
+		sceneObject->Update(st);
 	}
 
 #pragma region CameraPosDebug
@@ -161,7 +154,7 @@ void Engine::RenderFrame(const ScaldTimer& st)
 {
 	//const float color = static_cast<float>(sin(mTimer.DeltaTime()) + 1.0f);
 	mRenderWindow.GetGfx().ClearBuffer(0.1f);
-	mRenderWindow.GetGfx().DrawScene(mGameObjects);
+	mRenderWindow.GetGfx().DrawScene(mSceneObjects);
 	mRenderWindow.GetGfx().EndFrame();
 }
 

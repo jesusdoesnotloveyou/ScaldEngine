@@ -19,7 +19,7 @@ private:
 	float AspectRatio() const;
 
 protected:
-	std::vector<PrimitiveGeometry*> mGameObjects;
+	std::vector<SceneGeometry*> mSceneObjects;
 	RenderWindow mRenderWindow;
 	ScaldTimer mTimer;
 
