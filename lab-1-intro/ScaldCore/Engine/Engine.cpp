@@ -208,88 +208,84 @@ void Engine::PollInput()
 	XMVECTOR outQuat;
 	XMVECTOR outTrans;
 	XMVECTOR offset;
+	XMFLOAT3 tmp;
 
 	// sun
 	if (mRenderWindow.kbd.IsKeyPressed('1'))
 	{
-		mRenderWindow.GetGfx().mCamera.SetupAttachment(&mGameObjects[0]->ObjectTransform);
 		if (XMMatrixDecompose(&outScale, &outQuat, &outTrans, mGameObjects[0]->ObjectTransform.mWorldMatrix))
-		{
-			mRenderWindow.GetGfx().mCamera.SetLookAtPosition(outTrans);
-			offset = XMLoadFloat3(&mGameObjects[0]->ObjectTransform.Scale);
-			mRenderWindow.GetGfx().mCamera.SetPosition(outTrans - offset);
-		}
+			XMStoreFloat3(&tmp, outScale);
+		
+		tmp.y = 0.0f;
+		offset = XMLoadFloat3(&tmp);
+		mRenderWindow.GetGfx().mCamera.SetLookAtPosition(outTrans);
+		mRenderWindow.GetGfx().mCamera.SetPosition(outTrans - offset);
 	}
 	// mercury
 	if (mRenderWindow.kbd.IsKeyPressed('2'))
 	{
-		mRenderWindow.GetGfx().mCamera.SetupAttachment(&mGameObjects[1]->ObjectTransform);
 		if (XMMatrixDecompose(&outScale, &outQuat, &outTrans, mGameObjects[1]->ObjectTransform.mWorldMatrix))
-		{
-			mRenderWindow.GetGfx().mCamera.SetLookAtPosition(outTrans);
-			offset = XMLoadFloat3(&mGameObjects[1]->ObjectTransform.Scale);
-			mRenderWindow.GetGfx().mCamera.SetPosition(outTrans - offset);
-		}
+			XMStoreFloat3(&tmp, outScale);
+
+		tmp.y = 0.0f;
+		offset = XMLoadFloat3(&tmp);
+		mRenderWindow.GetGfx().mCamera.SetLookAtPosition(outTrans);
+		mRenderWindow.GetGfx().mCamera.SetPosition(outTrans - offset);
 	}
 	// venus
 	if (mRenderWindow.kbd.IsKeyPressed('3'))
 	{
-		mRenderWindow.GetGfx().mCamera.SetupAttachment(&mGameObjects[2]->ObjectTransform);
 		if (XMMatrixDecompose(&outScale, &outQuat, &outTrans, mGameObjects[2]->ObjectTransform.mWorldMatrix))
-		{
-			mRenderWindow.GetGfx().mCamera.SetLookAtPosition(outTrans);
-			offset = XMLoadFloat3(&mGameObjects[2]->ObjectTransform.Scale);
-			mRenderWindow.GetGfx().mCamera.SetPosition(outTrans - offset);
-		}
+			XMStoreFloat3(&tmp, outScale);
+
+		tmp.y = 0.0f;
+		offset = XMLoadFloat3(&tmp);
+		mRenderWindow.GetGfx().mCamera.SetLookAtPosition(outTrans);
+		mRenderWindow.GetGfx().mCamera.SetPosition(outTrans - offset);
 	}
 	// earth
 	if (mRenderWindow.kbd.IsKeyPressed('4'))
 	{
-		mRenderWindow.GetGfx().mCamera.SetupAttachment(&mGameObjects[3]->ObjectTransform);
 		if (XMMatrixDecompose(&outScale, &outQuat, &outTrans, mGameObjects[3]->ObjectTransform.mWorldMatrix))
-		{
-			mRenderWindow.GetGfx().mCamera.SetLookAtPosition(outTrans);
-			offset = XMLoadFloat3(&mGameObjects[3]->ObjectTransform.Scale);
-			mRenderWindow.GetGfx().mCamera.SetPosition(outTrans - offset);
-		}
+			XMStoreFloat3(&tmp, outScale);
+
+		tmp.y = 0.0f;
+		offset = XMLoadFloat3(&tmp);
+		mRenderWindow.GetGfx().mCamera.SetLookAtPosition(outTrans);
+		mRenderWindow.GetGfx().mCamera.SetPosition(outTrans - offset);
 	}
 	// mars
 	if (mRenderWindow.kbd.IsKeyPressed('5'))
 	{
-		mRenderWindow.GetGfx().mCamera.SetupAttachment(&mGameObjects[4]->ObjectTransform);
 		if (XMMatrixDecompose(&outScale, &outQuat, &outTrans, mGameObjects[4]->ObjectTransform.mWorldMatrix))
-		{
-			mRenderWindow.GetGfx().mCamera.SetLookAtPosition(outTrans);
-			offset = XMLoadFloat3(&mGameObjects[4]->ObjectTransform.Scale);
-			mRenderWindow.GetGfx().mCamera.SetPosition(outTrans - offset);
-		}
+			XMStoreFloat3(&tmp, outScale);
+
+		tmp.y = 0.0f;
+		offset = XMLoadFloat3(&tmp);
+		mRenderWindow.GetGfx().mCamera.SetLookAtPosition(outTrans);
+		mRenderWindow.GetGfx().mCamera.SetPosition(outTrans - offset);
 	}
 	// jupiter
 	if (mRenderWindow.kbd.IsKeyPressed('6'))
 	{
-		mRenderWindow.GetGfx().mCamera.SetupAttachment(&mGameObjects[5]->ObjectTransform);
 		if (XMMatrixDecompose(&outScale, &outQuat, &outTrans, mGameObjects[5]->ObjectTransform.mWorldMatrix))
-		{
-			mRenderWindow.GetGfx().mCamera.SetLookAtPosition(outTrans);
-			offset = XMLoadFloat3(&mGameObjects[5]->ObjectTransform.Scale);
-			mRenderWindow.GetGfx().mCamera.SetPosition(outTrans - offset);
-		}
+			XMStoreFloat3(&tmp, outScale);
+
+		tmp.y = 0.0f;
+		offset = XMLoadFloat3(&tmp);
+		mRenderWindow.GetGfx().mCamera.SetLookAtPosition(outTrans);
+		mRenderWindow.GetGfx().mCamera.SetPosition(outTrans - offset);
 	}
 	// saturn
 	if (mRenderWindow.kbd.IsKeyPressed('7'))
 	{
-		mRenderWindow.GetGfx().mCamera.SetupAttachment(&mGameObjects[6]->ObjectTransform);
 		if (XMMatrixDecompose(&outScale, &outQuat, &outTrans, mGameObjects[6]->ObjectTransform.mWorldMatrix))
-		{
-			mRenderWindow.GetGfx().mCamera.SetLookAtPosition(outTrans);
-			offset = XMLoadFloat3(&mGameObjects[6]->ObjectTransform.Scale);
-			mRenderWindow.GetGfx().mCamera.SetPosition(outTrans - offset);
-		}
-	}
-	// free fps
-	if (mRenderWindow.kbd.IsKeyPressed(VK_SPACE))
-	{
-		mRenderWindow.GetGfx().mCamera.ClearAttachment();
+			XMStoreFloat3(&tmp, outScale);
+
+		tmp.y = 0.0f;
+		offset = XMLoadFloat3(&tmp);
+		mRenderWindow.GetGfx().mCamera.SetLookAtPosition(outTrans);
+		mRenderWindow.GetGfx().mCamera.SetPosition(outTrans - offset);
 	}
 
 #pragma endregion
