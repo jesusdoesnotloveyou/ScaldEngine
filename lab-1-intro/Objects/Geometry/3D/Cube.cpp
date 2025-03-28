@@ -1,12 +1,12 @@
 #include "Cube.h"
 
-Cube::Cube() : PrimitiveGeometry()
+Cube::Cube() : SceneGeometry()
 {
 	SetVertices();
 	SetIndeces();
 }
 
-Cube::Cube(const tuple<vector<VertexTex>, vector<DWORD>>& vi) : PrimitiveGeometry()
+Cube::Cube(const tuple<vector<VertexTex>, vector<DWORD>>& vi) : SceneGeometry()
 {
 	vertices = std::get<0>(vi);
 	indeces = std::get<1>(vi);
@@ -17,14 +17,14 @@ Cube::~Cube()
 
 }
 
-void Cube::Update(const ScaldTimer& st)
+void Cube::Init(ID3D11Device* mDevice, ID3D11DeviceContext* pDeviceContext, ID3D11ShaderResourceView* pTexture)
 {
-	PrimitiveGeometry::Update(st);
+	SceneGeometry::Init(mDevice, pDeviceContext, pTexture);
 }
 
-void Cube::Initialize(ID3D11Device* mDevice, ID3D11DeviceContext* pDeviceContext)
+void Cube::Update(const ScaldTimer& st)
 {
-	PrimitiveGeometry::Initialize(mDevice, pDeviceContext);
+	SceneGeometry::Update(st);
 }
 
 void Cube::SetIndeces()

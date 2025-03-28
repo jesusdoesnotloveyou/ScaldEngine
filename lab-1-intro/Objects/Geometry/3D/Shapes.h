@@ -1,8 +1,8 @@
 #pragma once
 
-#include<vector>
 #include <d3d11.h>
 #include <tuple>
+#include <vector>
 
 #include "../../../Graphics/ScaldCoreTypes.h"
 
