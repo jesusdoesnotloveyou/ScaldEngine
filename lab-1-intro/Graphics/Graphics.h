@@ -16,7 +16,7 @@
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "dxgi.lib")
 
-class PrimitiveGeometry;
+class SceneGeometry;
 
 class Graphics
 {
@@ -28,13 +28,11 @@ public:
 	Graphics& operator=(const Graphics&) = delete;
 	
 	void Setup();
+	void InitSceneObjects(std::vector<SceneGeometry*>& sceneObjects);
 
 	void ClearBuffer(float r);
-	void DrawScene(std::vector<PrimitiveGeometry*>& gameObjects);
+	void DrawScene(std::vector<SceneGeometry*>& sceneObjects);
 	void EndFrame();
-
-	ID3D11DeviceContext* GetDeviceContext() const;
-	ID3D11Device* GetDevice() const;
 
 	Camera mCamera;
 private:
@@ -58,8 +56,10 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> mDsv;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> mDepthStencilState;
 
+	// Rast
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> mRasterizerState;
 
+	// Sampler
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> mSamplerState;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mTexture;
 };
