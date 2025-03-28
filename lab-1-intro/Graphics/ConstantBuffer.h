@@ -1,10 +1,9 @@
 #pragma once
 
 #include "../ScaldException.h"
+#include "../Objects/Components/TransformComponent.h"
 #include <wrl.h>
 #include <d3d11.h>
-
-#include "ScaldCoreTypes.h"
 
 #pragma comment(lib, "d3d11.lib")
 
@@ -16,7 +15,7 @@ public:
 	ConstantBuffer(const ConstantBuffer& rhs) = delete;
 public:
 
-	void SetTransform(Transform* transform)
+	void SetTransform(TransformComponent* transform)
 	{
 		mOwnerTransform = transform;
 	}
@@ -43,7 +42,6 @@ public:
 	bool ApplyChanges(const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix)
 	{
 		const XMMATRIX world = mOwnerTransform->mWorldMatrix;
-
 		curr_data.transform = XMMatrixTranspose(world * viewMatrix * projectionMatrix);
 
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -61,9 +59,9 @@ public:
 		return &curr_data;
 	}
 
-	void SetData(T data)
+	void SetData(const XMMATRIX& data)
 	{
-		curr_data = data;
+		curr_data.transform = data;
 	}
 
 private:
@@ -71,5 +69,5 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Buffer> pBuffer;
 	ID3D11DeviceContext* pDeviceContext = nullptr;
 
-	Transform* mOwnerTransform = nullptr;
+	TransformComponent* mOwnerTransform = nullptr;
 };

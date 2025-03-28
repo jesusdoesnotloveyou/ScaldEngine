@@ -1,26 +1,5 @@
 #include "CollisionComponent.h"
 
-CollisionComponent::~CollisionComponent()
-{
-}
-
-void CollisionComponent::Update(float DeltaTime)
-{
-	// TODO: lool at the UpdateOwnerTransform method
-}
-
-void CollisionComponent::UpdateOwnerTransform(const Transform& ownerTransform)
-{
-	BoundingBox.Center = ownerTransform.Translation;
-	BoundingBox.Extents = ownerTransform.Scale;
-}
-
-void CollisionComponent::Initialize(const Transform& ownerTransform)
-{
-	BoundingBox.Center = ownerTransform.Translation;
-	BoundingBox.Extents = ownerTransform.Scale;
-}
-
 DirectX::XMFLOAT3 CollisionComponent::GetCenter() const
 {
 	return BoundingBox.Center;

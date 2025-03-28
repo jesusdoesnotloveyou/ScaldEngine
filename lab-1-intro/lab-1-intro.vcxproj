@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="Delegates\Delegates.cpp" />
     <ClCompile Include="Graphics\Camera.cpp" />
+    <ClCompile Include="Graphics\Model.cpp" />
     <ClCompile Include="Graphics\Shaders.cpp" />
     <ClCompile Include="Objects\Components\CollisionComponent.cpp" />
     <ClCompile Include="Graphics\IndexBuffer.h" />
@@ -29,24 +30,22 @@
     <ClCompile Include="Objects\Components\TransformComponent.cpp" />
     <ClCompile Include="Objects\Geometry\3D\Cube.cpp" />
     <ClCompile Include="Objects\Geometry\3D\Shapes.cpp" />
-    <ClCompile Include="Objects\Geometry\2D\Circle.cpp" />
-    <ClCompile Include="Objects\Geometry\2D\Rectangle.cpp" />
     <ClCompile Include="Objects\Geometry\3D\Sphere.cpp" />
     <ClCompile Include="ScaldCore\Engine\Engine.cpp" />
     <ClCompile Include="Graphics\Graphics.cpp" />
     <ClCompile Include="MySuper3DApp.cpp" />
-    <ClCompile Include="Objects\Geometry\2D\PrimitiveGeometry.cpp" />
+    <ClCompile Include="Objects\Geometry\SceneGeometry.cpp" />
     <ClCompile Include="Objects\Components\RenderComponent.cpp" />
     <ClCompile Include="ScaldCore\Engine\RenderWindow.cpp" />
     <ClCompile Include="ScaldCore\Engine\ScaldTimer.cpp" />
     <ClCompile Include="ScaldCore\Input\InputDevice.cpp" />
     <ClCompile Include="ScaldException.cpp" />
-    <ClCompile Include="Objects\Geometry\2D\Star.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Delegates\catch.hpp" />
     <ClInclude Include="Delegates\Delegates.h" />
     <ClInclude Include="Graphics\Camera.h" />
+    <ClInclude Include="Graphics\Model.h" />
     <ClInclude Include="Graphics\ScaldCoreTypes.h" />
     <ClInclude Include="Graphics\Shaders.h" />
     <ClInclude Include="Objects\Components\CollisionComponent.h" />
@@ -54,16 +53,13 @@
     <ClInclude Include="Objects\Components\InputComponent.h" />
     <ClInclude Include="Objects\Components\MovementComponent.h" />
     <ClInclude Include="Objects\Components\TransformComponent.h" />
-    <ClInclude Include="Objects\Geometry\2D\Circle.h" />
-    <ClInclude Include="Objects\Geometry\2D\Cube.h" />
-    <ClInclude Include="Objects\Geometry\2D\Rectangle.h" />
     <ClInclude Include="Objects\Geometry\3D\Cube.h" />
     <ClInclude Include="Objects\Geometry\3D\Shapes.h" />
     <ClInclude Include="Objects\Geometry\3D\Sphere.h" />
     <ClInclude Include="ScaldCore\Engine\Engine.h" />
     <ClInclude Include="Graphics\Graphics.h" />
     <ClInclude Include="Objects\Components\IScaldComponent.h" />
-    <ClInclude Include="Objects\Geometry\2D\PrimitiveGeometry.h" />
+    <ClInclude Include="Objects\Geometry\SceneGeometry.h" />
     <ClInclude Include="Objects\Components\RenderComponent.h" />
     <ClInclude Include="ScaldCore\Engine\RenderWindow.h" />
     <ClInclude Include="ScaldCore\Engine\ScaldTimer.h" />
@@ -71,7 +67,6 @@
     <ClInclude Include="ScaldCore\Input\Keys.h" />
     <ClInclude Include="ScaldException.h" />
     <ClInclude Include="ScaldCore\Engine\ScaldWindows.h" />
-    <ClInclude Include="Objects\Geometry\2D\Star.h" />
     <ClInclude Include="Graphics\VertexBuffer.h" />
   </ItemGroup>
   <ItemGroup>
@@ -92,7 +87,11 @@
     <Natvis Include="Delegates\Delegates.natvis" />
   </ItemGroup>
   <ItemGroup>
+    <None Include="packages.config" />
     <None Include="Shaders\ShaderTypes.hlsli" />
+  </ItemGroup>
+  <ItemGroup>
+    <Image Include="Textures\test_texture.png" />
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>17.0</VCProjectVersion>
@@ -154,6 +153,8 @@
       <PreprocessorDefinitions>WIN32;_DEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -173,6 +174,8 @@
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <ConformanceMode>true</ConformanceMode>
       <LanguageStandard>stdcpp17</LanguageStandard>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -194,8 +197,10 @@
       <LanguageStandard>stdcpp17</LanguageStandard>
       <MultiProcessorCompilation>true</MultiProcessorCompilation>
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
-      <RuntimeLibrary>MultiThreadedDebug</RuntimeLibrary>
+      <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <FloatingPointModel>Fast</FloatingPointModel>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -219,6 +224,8 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FloatingPointModel>Fast</FloatingPointModel>
+      <AdditionalIncludeDirectories>
+      </AdditionalIncludeDirectories>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -233,5 +240,12 @@
   </ItemDefinitionGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
+    <Import Project="..\packages\directxtk_desktop_win10.2025.3.21.2\build\native\directxtk_desktop_win10.targets" Condition="Exists('..\packages\directxtk_desktop_win10.2025.3.21.2\build\native\directxtk_desktop_win10.targets')" />
   </ImportGroup>
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\directxtk_desktop_win10.2025.3.21.2\build\native\directxtk_desktop_win10.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\directxtk_desktop_win10.2025.3.21.2\build\native\directxtk_desktop_win10.targets'))" />
+  </Target>
 </Project>

@@ -6,7 +6,7 @@ class InputComponent : public IScaldComponent
 {
 public:
 	InputComponent() = default;
-	virtual ~InputComponent() noexcept override = default;
+	virtual ~InputComponent() noexcept override {}
 
-	virtual void Update(float DeltaTime) override {}
+	virtual void Update(const ScaldTimer& st) override {}
 };

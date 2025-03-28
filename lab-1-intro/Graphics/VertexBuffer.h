@@ -16,8 +16,12 @@ public:
 	ID3D11Buffer* Get() const { return pBuffer.Get(); }
 	ID3D11Buffer* const* GetAddressOf() const { return pBuffer.GetAddressOf(); }
     UINT GetBufferSize() const { return bufferSize; }
+    
     UINT GetStride() const { return stride; }
     const UINT* GetStridePtr() const { return &stride; }
+
+    UINT GetOffset() const { return offset; }
+    const UINT* GetOffsetPtr() const { return &offset; }
 
 	HRESULT Init(ID3D11Device* device, T* data, UINT numVertices)
 	{

@@ -1,10 +1,5 @@
 #include "MovementComponent.h"
 
-void MovementComponent::Update(float DeltaTime)
-{
-	
-}
-
 XMFLOAT3 MovementComponent::GetVelocity() const
 {
 	return Velocity;

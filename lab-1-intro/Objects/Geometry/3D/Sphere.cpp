@@ -1,10 +1,10 @@
 #include "Sphere.h"
 
-Sphere::Sphere() : PrimitiveGeometry()
+Sphere::Sphere() : SceneGeometry()
 {
 }
 
-Sphere::Sphere(const tuple<vector<Vertex>, vector<DWORD>>& vi) : PrimitiveGeometry()
+Sphere::Sphere(const tuple<vector<VertexTex>, vector<DWORD>>& vi) : SceneGeometry()
 {
 	vertices = std::get<0>(vi);
 	indeces = std::get<1>(vi);
@@ -14,12 +14,13 @@ Sphere::~Sphere()
 {
 }
 
-void Sphere::Update(const ScaldTimer& st)
+void Sphere::Init(ID3D11Device* mDevice, ID3D11DeviceContext* pDeviceContext, ID3D11ShaderResourceView* pTexture)
 {
-	PrimitiveGeometry::Update(st);
+	SceneGeometry::Init(mDevice, pDeviceContext, pTexture);
 }
 
-void Sphere::Initialize(ID3D11Device* mDevice, ID3D11DeviceContext* pDeviceContext)
+void Sphere::Update(const ScaldTimer& st)
 {
-	PrimitiveGeometry::Initialize(mDevice, pDeviceContext);
+	SceneGeometry::Update(st);
 }
+

@@ -1,9 +1,8 @@
 #include "../ScaldException.h"
-#include "ScaldCoreTypes.h"
 #include "Graphics.h"
 #include <chrono>
 
-#include "../Objects/Geometry/2D/PrimitiveGeometry.h"
+#include "Model.h"
 
 #include <d3d.h>
 #include <d3d11.h>
@@ -90,16 +89,6 @@ Graphics::Graphics(HWND hWnd, int width, int height)
 	ThrowIfFailed(mDevice->CreateDepthStencilState(&depthstencildesc, mDepthStencilState.GetAddressOf()));
 }
 
-ID3D11DeviceContext* Graphics::GetDeviceContext() const
-{
-	return mDeviceContext.Get();
-}
-
-ID3D11Device* Graphics::GetDevice() const
-{
-	return mDevice.Get();
-}
-
 void Graphics::SetupShaders()
 {
 	// Step 05: Create Input Layout for IA Stage
@@ -113,36 +102,59 @@ void Graphics::SetupShaders()
 			D3D11_INPUT_PER_VERTEX_DATA,
 			0u},
 		D3D11_INPUT_ELEMENT_DESC {
-			"COLOR",
+			"TEXCOORD",
 			0u,
-			DXGI_FORMAT_R32G32B32A32_FLOAT,
+			DXGI_FORMAT_R32G32_FLOAT,
 			0u,
 			D3D11_APPEND_ALIGNED_ELEMENT,
 			D3D11_INPUT_PER_VERTEX_DATA,
 			0u}
 	};
 
-	ThrowIfFailed(mVertexShader.Init(GetDevice(), inputElements, (UINT)std::size(inputElements)));
-	ThrowIfFailed(mPixelShader.Init(GetDevice()));
+	ThrowIfFailed(mVertexShader.Init(mDevice.Get(), inputElements, (UINT)std::size(inputElements)));
+	ThrowIfFailed(mPixelShader.Init(mDevice.Get()));
+
+	CreateWICTextureFromFile(mDevice.Get(), L"./Textures/valakas.png", nullptr, mTexture.GetAddressOf());
 }
 
 void Graphics::Setup()
-{	
+{
 	SetupShaders();
 
 	CD3D11_RASTERIZER_DESC rastDesc = {};
 	rastDesc.CullMode = D3D11_CULL_BACK;
 	rastDesc.FillMode = D3D11_FILL_WIREFRAME;
+	rastDesc.FillMode = D3D11_FILL_SOLID;
+	rastDesc.FrontCounterClockwise = false;
 
-	ThrowIfFailed(mDevice->CreateRasterizerState(&rastDesc, &mRasterizerState));
+	ThrowIfFailed(mDevice->CreateRasterizerState(&rastDesc, &mRasterizerState)); // or mRasterizerState.GetAddressOf()
 	mDeviceContext->RSSetState(mRasterizerState.Get());
 
+	D3D11_SAMPLER_DESC sampDesc = {};
+	ZeroMemory(&sampDesc, sizeof(sampDesc));
+	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	sampDesc.MinLOD = 0;
+	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+	ThrowIfFailed(mDevice->CreateSamplerState(&sampDesc, &mSamplerState)); // or mSamplerState.GetAddressOf()
+
 	// Camera setup
-	mCamera.SetPosition(0.0f, 50.0f, -80.0f);
+	mCamera.SetPosition(0.0f, 20.0f, -100.0f);
 	mCamera.SetProjectionValues(90.0f, static_cast<float>(mScreenWidth) / static_cast<float>(mScreenHeight), 0.1f, 1000.0f);
 }
 
-void Graphics::DrawScene(std::vector<PrimitiveGeometry*>& gameObjects)
+void Graphics::InitSceneObjects(std::vector<SceneGeometry*>& sceneObjects)
+{
+	for (auto sceneObject : sceneObjects)
+	{
+		sceneObject->Init(mDevice.Get(), mDeviceContext.Get());
+	}
+}
+
+void Graphics::DrawScene(std::vector<SceneGeometry*>& sceneObjects)
 {
 	mDeviceContext->ClearState();
 	mDeviceContext->RSSetState(mRasterizerState.Get());
@@ -158,29 +170,32 @@ void Graphics::DrawScene(std::vector<PrimitiveGeometry*>& gameObjects)
 
 	mDeviceContext->RSSetViewports(1u, &currentViewport);
 
-	for (auto geometry : gameObjects)
+	mDeviceContext->IASetInputLayout(mVertexShader.GetInputLayout());
+	mDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	
+	mDeviceContext->RSSetState(mRasterizerState.Get());
+	mDeviceContext->OMSetDepthStencilState(mDepthStencilState.Get(), 0);
+	mDeviceContext->PSSetSamplers(0u, 1u, mSamplerState.GetAddressOf());
+
+	// Step 09: Set Vertex and Pixel Shaders
+	mDeviceContext->VSSetShader(mVertexShader.Get(), nullptr, 0);
+	mDeviceContext->PSSetShader(mPixelShader.Get(), nullptr, 0);
+	// Step 11: Set BackBuffer for Output merger
+	mDeviceContext->OMSetRenderTargets(1u, mRtv.GetAddressOf(), mDsv.Get());
+
+	for (auto sceneObject : sceneObjects)
 	{
 		// Step 08: Setup the IA stage
-		mDeviceContext->IASetInputLayout(mVertexShader.GetInputLayout());
-		mDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-		
-		mDeviceContext->RSSetState(mRasterizerState.Get());
-		mDeviceContext->OMSetDepthStencilState(mDepthStencilState.Get(), 0);
 
-		// Step 09: Set Vertex and Pixel Shaders
-		mDeviceContext->VSSetShader(mVertexShader.Get(), nullptr, 0);
-		mDeviceContext->PSSetShader(mPixelShader.Get(), nullptr, 0);
-
-		if (!geometry->GetConstantBuffer().ApplyChanges(mCamera.GetViewMatrix(), mCamera.GetProjectionMatrix())) continue;
-		mDeviceContext->IASetVertexBuffers(0u, 1u, geometry->GetVertexBuffer().GetAddressOf(), geometry->GetVertexBuffer().GetStridePtr(), &geometry->offset);
-		mDeviceContext->IASetIndexBuffer(geometry->GetIndexBuffer().Get(), DXGI_FORMAT_R32_UINT, 0u);
-		mDeviceContext->VSSetConstantBuffers(0u, 1u, geometry->GetConstantBuffer().GetAddressOf());
-
-		// Step 11: Set BackBuffer for Output merger
-		mDeviceContext->OMSetRenderTargets(1u, mRtv.GetAddressOf(), mDsv.Get());
-
+		// Scene object specific (same stage in Model.cpp)
+		if (!sceneObject->GetConstantBuffer().ApplyChanges(mCamera.GetViewMatrix(), mCamera.GetProjectionMatrix())) continue;
+		mDeviceContext->PSSetShaderResources(0u, 1u, mTexture.GetAddressOf());
+		mDeviceContext->IASetVertexBuffers(0u, 1u, sceneObject->GetVertexBuffer().GetAddressOf(), sceneObject->GetVertexBuffer().GetStridePtr(), sceneObject->GetVertexBuffer().GetOffsetPtr());
+		mDeviceContext->IASetIndexBuffer(sceneObject->GetIndexBuffer().Get(), DXGI_FORMAT_R32_UINT, 0u);
+		mDeviceContext->VSSetConstantBuffers(0u, 1u, sceneObject->GetConstantBuffer().GetAddressOf());
 		// Step 14: At the End of While (!isExitRequested): Draw the Triangle
-		mDeviceContext->DrawIndexed(geometry->GetIndexBuffer().GetBufferSize(), 0u, 0);
+		mDeviceContext->DrawIndexed(sceneObject->GetIndexBuffer().GetBufferSize(), 0u, 0);
+		//
 	}
 }
 

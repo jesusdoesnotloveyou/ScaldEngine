@@ -9,33 +9,26 @@ cbuffer CBufChangeOnResize : register(b1)
     matrix mProjection;
 }
 
+
 struct VS_IN
 {
-    float4 pos : POSITION0;
-    float4 col : COLOR0;
+    float4 inPosition : POSITION0;
+    float2 inTexCoord : TEXCOORD;
 };
 
-struct PS_IN
+struct VS_OUT
 {
-    float4 pos : SV_POSITION;
-    float4 col : COLOR;
+    float4 outPosition : SV_POSITION;
+    float2 outTexCoord : TEXCOORD;
 };
 
-PS_IN main( VS_IN input )
+
+VS_OUT main(VS_IN input)
 {
-	PS_IN output = (PS_IN)0;
+    VS_OUT output = (VS_OUT) 0;
 	
-    output.pos = mul(input.pos, transform);
-	output.col = input.col;
+    output.outPosition = mul(float4(input.inPosition.xyz, 1.0f), transform);
+    output.outTexCoord = input.inTexCoord;
 	
 	return output;
 }
-
-//float4 PSMain( PS_IN input ) : SV_Target
-//{
-//	float4 col = input.col;
-////#ifdef TEST
-////	if (input.pos.x > 400) col = TCOLOR;
-////#endif
-//	return col;
-//}
