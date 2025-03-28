@@ -1,7 +1,16 @@
 #include "TransformComponent.h"
 
-//void TransformComponent::Update()
-//{
-//
-//
-//}
+TransformComponent::TransformComponent()
+{
+	mLocalMatrix = mWorldMatrix = XMMatrixIdentity();
+}
+
+void TransformComponent::SetWorldMatrix(const XMMATRIX& worldMat)
+{
+	mWorldMatrix = worldMat;
+}
+
+void TransformComponent::Reset()
+{
+	mLocalMatrix = mWorldMatrix = XMMatrixIdentity();
+}

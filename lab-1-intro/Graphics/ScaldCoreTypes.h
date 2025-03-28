@@ -1,5 +1,9 @@
 #pragma once
 
+// SCALD MACRO
+#define FORCEINLINE __forceinline
+//
+
 #include <DirectXMath.h>
 #include <DirectXColors.h>
 
@@ -44,43 +48,13 @@ struct VertexTex
 	XMFLOAT2 texCoord = { 0.0f, 0.0f };
 };
 
-struct ConstBuffer
+// Constant buffer types
+struct ConstBufferVS
 {
 	XMMATRIX transform = XMMatrixIdentity();
 };
 
-struct Transform
+struct ConstBufferPS
 {
-	// Object local frame
-	XMFLOAT3 Scale		 = { 1.0f, 1.0f, 1.0f };
-	XMFLOAT3 Rotation	 = { 0.0f, 0.0f, 0.0f };
-	XMFLOAT3 Translation = { 0.0f, 0.0f, 0.0f };
-
-	XMMATRIX mWorldMatrix;
-	XMMATRIX mLocalMatrix;
-
-	// Solar System specific
-	float orbitRadius	= 0.0f;
-	// Should be in movement component probably
-	float orbitRot		= 0.0f;
-	float rot			= 0.0f;
-	float orbitAngle	= 0.0f;
-	float rotAngle		= 0.0f;
-
-	Transform* ParentTransform = nullptr;
-
-	Transform()
-	{
-		mLocalMatrix = mWorldMatrix = XMMatrixIdentity();
-	}
-
-	void SetWorldMatrix(const XMMATRIX& worldMat)
-	{
-		mWorldMatrix = worldMat;
-	}
-
-	void Reset()
-	{
-		mLocalMatrix = mWorldMatrix = XMMatrixIdentity();
-	}
+	float alpha = 1.0f;
 };
