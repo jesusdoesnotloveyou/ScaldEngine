@@ -9,9 +9,9 @@ class MovementComponent : IScaldComponent
 {
 public:
 	MovementComponent() = default;
-	virtual ~MovementComponent() noexcept override = default;
+	virtual ~MovementComponent() noexcept override {}
 
-	virtual void Update(float DeltaTime) override;
+	virtual void Update(const ScaldTimer& st) override {}
 
 	XMFLOAT3 GetVelocity() const;
 

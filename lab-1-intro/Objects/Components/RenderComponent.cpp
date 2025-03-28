@@ -6,16 +6,7 @@ RenderComponent::RenderComponent()
 
 }
 
-RenderComponent::~RenderComponent() noexcept
+void RenderComponent::Update(const ScaldTimer& st)
 {
 
-}
-
-void RenderComponent::Update(float DeltaTime)
-{
-
-}
-
-void RenderComponent::Initialize(ID3D11Device* mDevice)
-{
 }

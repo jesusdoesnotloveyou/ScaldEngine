@@ -13,11 +13,9 @@ class RenderComponent : public IScaldComponent
 {
 public:
 	RenderComponent();
-	virtual ~RenderComponent() noexcept override;
+	virtual ~RenderComponent() noexcept override {}
 
 	// Begin of IScaldComponent interface
-	virtual void Update(float DeltaTime) override;
+	virtual void Update(const ScaldTimer& st) override;
 	// End of IScaldComponent interface
-
-	void Initialize(ID3D11Device* mDevice);
 };

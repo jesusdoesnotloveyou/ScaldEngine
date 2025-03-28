@@ -6,6 +6,9 @@ class TransformComponent : public IScaldComponent
 {
 public:
 	TransformComponent();
+	virtual ~TransformComponent() noexcept override {}
+	virtual void Update(const ScaldTimer& st) override {}
+
 	void SetWorldMatrix(const XMMATRIX& worldMat);
 	void Reset();
 
@@ -26,8 +29,4 @@ public:
 	float rotAngle = 0.0f;
 
 	TransformComponent* ParentTransform = nullptr;
-
-public:
-	virtual void Update(const ScaldTimer& st) override {}
-	virtual ~TransformComponent() override {}
 };

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "../../Graphics/ScaldCoreTypes.h"
+#include "../../ScaldCore/Engine/ScaldTimer.h"
 
 class IScaldComponent
 {
@@ -9,5 +10,5 @@ public:
 	IScaldComponent() {};
 
 	virtual ~IScaldComponent() = 0 {};
-	virtual void Update(float DeltaTime) = 0;
+	virtual void Update(const ScaldTimer& st) = 0;
 };

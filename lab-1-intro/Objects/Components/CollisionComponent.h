@@ -8,15 +8,12 @@ class CollisionComponent : public IScaldComponent
 {
 public:
 	CollisionComponent() = default;
-	~CollisionComponent() override;
-	virtual void Update(float DeltaTime) override;
-
-	void Initialize(const Transform& ownerTransform/*DirectX::XMFLOAT3 center, DirectX::XMFLOAT3 extends*/);
+	virtual ~CollisionComponent() override {}
+	virtual void Update(const ScaldTimer& st) override {}
 
 	DirectX::XMFLOAT3 GetCenter() const;
 	DirectX::XMFLOAT3 GetExtends() const;
 
-	void UpdateOwnerTransform(const Transform& ownerTransform);
 	void SetExtends(const DirectX::XMFLOAT3& extends);
 	void SetCenter(const DirectX::XMFLOAT3& center);
 
