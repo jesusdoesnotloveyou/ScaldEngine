@@ -78,7 +78,7 @@
     <ClCompile Include="Objects\Components\RenderComponent.cpp">
       <Filter>Source Files\Components</Filter>
     </ClCompile>
-    <ClCompile Include="Objects\Geometry\2D\PrimitiveGeometry.cpp">
+    <ClCompile Include="Objects\Geometry\SceneGeometry.cpp">
       <Filter>Source Files\Geometry</Filter>
     </ClCompile>
     <ClCompile Include="ScaldCore\Engine\RenderWindow.cpp">
@@ -114,6 +114,9 @@
     <ClCompile Include="Graphics\Shaders.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\Model.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ScaldException.h">
@@ -134,7 +137,7 @@
     <ClInclude Include="Graphics\VertexBuffer.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Objects\Geometry\2D\PrimitiveGeometry.h">
+    <ClInclude Include="Objects\Geometry\SceneGeometry.h">
       <Filter>Header Files\Geometry</Filter>
     </ClInclude>
     <ClInclude Include="ScaldCore\Input\Keys.h">
@@ -190,6 +193,9 @@
     </ClInclude>
     <ClInclude Include="Graphics\Shaders.h">
       <Filter>Header Files\Graphics</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Model.h">
+      <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

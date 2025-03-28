@@ -21,6 +21,7 @@
   <ItemGroup>
     <ClCompile Include="Delegates\Delegates.cpp" />
     <ClCompile Include="Graphics\Camera.cpp" />
+    <ClCompile Include="Graphics\Model.cpp" />
     <ClCompile Include="Graphics\Shaders.cpp" />
     <ClCompile Include="Objects\Components\CollisionComponent.cpp" />
     <ClCompile Include="Graphics\IndexBuffer.h" />
@@ -33,7 +34,7 @@
     <ClCompile Include="ScaldCore\Engine\Engine.cpp" />
     <ClCompile Include="Graphics\Graphics.cpp" />
     <ClCompile Include="MySuper3DApp.cpp" />
-    <ClCompile Include="Objects\Geometry\2D\PrimitiveGeometry.cpp" />
+    <ClCompile Include="Objects\Geometry\SceneGeometry.cpp" />
     <ClCompile Include="Objects\Components\RenderComponent.cpp" />
     <ClCompile Include="ScaldCore\Engine\RenderWindow.cpp" />
     <ClCompile Include="ScaldCore\Engine\ScaldTimer.cpp" />
@@ -44,6 +45,7 @@
     <ClInclude Include="Delegates\catch.hpp" />
     <ClInclude Include="Delegates\Delegates.h" />
     <ClInclude Include="Graphics\Camera.h" />
+    <ClInclude Include="Graphics\Model.h" />
     <ClInclude Include="Graphics\ScaldCoreTypes.h" />
     <ClInclude Include="Graphics\Shaders.h" />
     <ClInclude Include="Objects\Components\CollisionComponent.h" />
@@ -57,7 +59,7 @@
     <ClInclude Include="ScaldCore\Engine\Engine.h" />
     <ClInclude Include="Graphics\Graphics.h" />
     <ClInclude Include="Objects\Components\IScaldComponent.h" />
-    <ClInclude Include="Objects\Geometry\2D\PrimitiveGeometry.h" />
+    <ClInclude Include="Objects\Geometry\SceneGeometry.h" />
     <ClInclude Include="Objects\Components\RenderComponent.h" />
     <ClInclude Include="ScaldCore\Engine\RenderWindow.h" />
     <ClInclude Include="ScaldCore\Engine\ScaldTimer.h" />
