@@ -27,7 +27,7 @@ VS_OUT main(VS_IN input)
 {
     VS_OUT output = (VS_OUT) 0;
 	
-    output.outPosition = mul(input.inPosition, transform);
+    output.outPosition = mul(float4(input.inPosition.xyz, 1.0f), transform);
     output.outTexCoord = input.inTexCoord;
 	
 	return output;
