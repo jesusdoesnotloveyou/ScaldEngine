@@ -34,10 +34,12 @@ public:
 
 	virtual void Update(const ScaldTimer& st) = 0;
 	virtual void Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, ID3D11ShaderResourceView* pTexture = nullptr) = 0;	
+	virtual void Draw(const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix);
 protected:
 	void UpdateLocalMatrix();
 	void UpdateWorldMatrix();
 
+	// @todo: From Luna's book
 	void UpdateObjectCBs(const ScaldTimer& st);
 
 	// probably should be in movement component
