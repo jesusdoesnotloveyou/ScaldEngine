@@ -149,7 +149,7 @@ void Graphics::InitSceneObjects(std::vector<SceneGeometry*>& sceneObjects)
 {
 	for (auto sceneObject : sceneObjects)
 	{
-		sceneObject->Init(mDevice.Get(), mDeviceContext.Get());
+		sceneObject->Init(mDevice.Get(), mDeviceContext.Get(), mTexture.Get());
 	}
 }
 
