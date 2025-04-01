@@ -42,11 +42,11 @@ void Engine::SetupScene()
 	auto boxShape = Shapes::GetBoxShape(1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
 	auto sphereShape = Shapes::GetSphereShape(1.0f, 16, 16, 0.0f, 0.0f);
 
-	SceneGeometry* box = new Cube(boxShape);
+	SceneGeometry* box = new Model(boxShape);
 	box->GetTransform()->Scale = { 15.0f, 15.0f, 15.0f };
 	box->GetTransform()->rotAngle = 60.0f;
 
-	SceneGeometry* sphere = new Sphere(sphereShape);
+	SceneGeometry* sphere = new Model(sphereShape);
 	sphere->GetTransform()->Scale = { 10.0f, 10.0f, 10.0f };
 	sphere->GetTransform()->rotAngle = 60.0f;
 	sphere->GetTransform()->orbitAngle = 80.0f;
@@ -54,6 +54,8 @@ void Engine::SetupScene()
 	sphere->GetTransform()->ParentTransform = box->GetTransform();
 
 	SceneGeometry* boxModel = new Model(boxShape);
+	boxModel->GetTransform()->Scale = { 10.0f, 10.0f, 10.0f };
+	boxModel->GetTransform()->orbitRadius = 80.0f;
 
 	mSceneObjects.push_back(sphere);
 	mSceneObjects.push_back(box);

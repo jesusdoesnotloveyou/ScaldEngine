@@ -27,10 +27,7 @@ void SceneGeometry::Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceCont
     ThrowIfFailed(mIB.Init(pDevice, indeces.data(), (UINT)indeces.size()));
     ThrowIfFailed(mCB.Init(pDevice, pDeviceContext));
 
-    // will be removed since we will pass only world matrix to the constant buffer
-    // all calculations are in scene geometry class
-    mCB.SetTransform(GetTransform());
-
+    // redundant
     UpdateWorldMatrix();
 
     GetTransform()->Translation.x = GetTransform()->orbitRadius;
@@ -56,6 +53,11 @@ void SceneGeometry::UpdateRotation(const ScaldTimer& st)
     GetTransform()->rot += XMConvertToRadians(GetTransform()->rotAngle) * st.DeltaTime();
     if (GetTransform()->rot >= 6.28f)
         GetTransform()->rot = 0.0f;
+}
+
+void SceneGeometry::Draw(const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix)
+{
+
 }
 
 void SceneGeometry::UpdateLocalMatrix()
@@ -85,11 +87,6 @@ void SceneGeometry::UpdateWorldMatrix()
     {
         GetTransform()->mWorldMatrix = GetTransform()->mLocalMatrix;
     }
-}
-
-void SceneGeometry::UpdateObjectCBs(const ScaldTimer& st)
-{
-    mCB.SetTransform(GetTransform());
 }
 
 VertexBuffer<VertexTex>& SceneGeometry::GetVertexBuffer()

@@ -14,12 +14,6 @@ public:
 	ConstantBuffer() {}
 	ConstantBuffer(const ConstantBuffer& rhs) = delete;
 public:
-
-	void SetTransform(TransformComponent* transform)
-	{
-		mOwnerTransform = transform;
-	}
-	
 	ID3D11Buffer* Get() const { return pBuffer.Get(); }
 	ID3D11Buffer* const* GetAddressOf() const { return pBuffer.GetAddressOf(); }
 	
@@ -39,11 +33,8 @@ public:
 		return device->CreateBuffer(&constantBufDesc, 0, pBuffer.GetAddressOf());
 	}
 
-	bool ApplyChanges(const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix)
+	bool ApplyChanges()
 	{
-		const XMMATRIX world = mOwnerTransform->mWorldMatrix;
-		curr_data.transform = XMMatrixTranspose(world * viewMatrix * projectionMatrix);
-
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
 		ThrowIfFailed(pDeviceContext->Map(pBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
 
@@ -68,6 +59,4 @@ private:
 	T curr_data;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> pBuffer;
 	ID3D11DeviceContext* pDeviceContext = nullptr;
-
-	TransformComponent* mOwnerTransform = nullptr;
 };
