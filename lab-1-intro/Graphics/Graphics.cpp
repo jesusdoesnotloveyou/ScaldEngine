@@ -182,21 +182,6 @@ void Graphics::DrawScene(std::vector<SceneGeometry*>& sceneObjects)
 	// Step 11: Set BackBuffer for Output merger
 	mDeviceContext->OMSetRenderTargets(1u, mRtv.GetAddressOf(), mDsv.Get());
 
-	//for (auto sceneObject : sceneObjects)
-	//{
-	//	// Step 08: Setup the IA stage
-
-	//	// Scene object specific (same stage in Model.cpp)
-	//	if (!sceneObject->GetConstantBuffer().ApplyChanges(mCamera.GetViewMatrix(), mCamera.GetProjectionMatrix())) continue;
-	//	mDeviceContext->PSSetShaderResources(0u, 1u, mTexture.GetAddressOf());
-	//	mDeviceContext->IASetVertexBuffers(0u, 1u, sceneObject->GetVertexBuffer().GetAddressOf(), sceneObject->GetVertexBuffer().GetStridePtr(), sceneObject->GetVertexBuffer().GetOffsetPtr());
-	//	mDeviceContext->IASetIndexBuffer(sceneObject->GetIndexBuffer().Get(), DXGI_FORMAT_R32_UINT, 0u);
-	//	mDeviceContext->VSSetConstantBuffers(0u, 1u, sceneObject->GetConstantBuffer().GetAddressOf());
-	//	// Step 14: At the End of While (!isExitRequested): Draw the Triangle
-	//	mDeviceContext->DrawIndexed(sceneObject->GetIndexBuffer().GetBufferSize(), 0u, 0);
-	//	//
-	//}
-
 	for (auto model : sceneObjects)
 	{
 		model->Draw(mCamera.GetViewMatrix(), mCamera.GetProjectionMatrix());
