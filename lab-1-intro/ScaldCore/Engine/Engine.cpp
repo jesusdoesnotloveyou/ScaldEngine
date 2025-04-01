@@ -54,6 +54,8 @@ void Engine::SetupScene()
 	sphere->GetTransform()->ParentTransform = box->GetTransform();
 
 	SceneGeometry* boxModel = new Model(boxShape);
+	boxModel->GetTransform()->Scale = { 10.0f, 10.0f, 10.0f };
+	boxModel->GetTransform()->orbitRadius = 80.0f;
 
 	mSceneObjects.push_back(sphere);
 	mSceneObjects.push_back(box);
