@@ -27,6 +27,7 @@ void SceneGeometry::Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceCont
     ThrowIfFailed(mIB.Init(pDevice, indeces.data(), (UINT)indeces.size()));
     ThrowIfFailed(mCB.Init(pDevice, pDeviceContext));
 
+    // redundant
     UpdateWorldMatrix();
 
     GetTransform()->Translation.x = GetTransform()->orbitRadius;
