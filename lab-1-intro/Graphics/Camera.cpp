@@ -54,6 +54,13 @@ void Camera::SetPosition(const XMVECTOR& posVector)
 	UpdateViewMatrix();
 }
 
+void Camera::SetPosition(const XMFLOAT3& pos)
+{
+	mPos = pos;
+	mPosVector = XMLoadFloat3(&mPos);
+	UpdateViewMatrix();
+}
+
 void Camera::SetPosition(float x, float y, float z)
 {
 	mPos = XMFLOAT3(x, y, z);
@@ -65,6 +72,15 @@ void Camera::AdjustPosition(const XMVECTOR& posVector)
 {
 	mPosVector += posVector;
 	XMStoreFloat3(&mPos, mPosVector);
+	UpdateViewMatrix();
+}
+
+void Camera::AdjustPosition(const XMFLOAT3& pos)
+{
+	mPos.x += pos.x;
+	mPos.y += pos.y;
+	mPos.z += pos.z;
+	mPosVector = XMLoadFloat3(&mPos);
 	UpdateViewMatrix();
 }
 
@@ -84,6 +100,13 @@ void Camera::SetRotation(const XMVECTOR& rotVector)
 	UpdateViewMatrix();
 }
 
+void Camera::SetRotation(const XMFLOAT3& rot)
+{
+	mRot = rot;
+	mRotVector = XMLoadFloat3(&mRot);
+	UpdateViewMatrix();
+}
+
 void Camera::SetRotation(float x, float y, float z)
 {
 	mRot = XMFLOAT3(x, y, z);
@@ -95,6 +118,15 @@ void Camera::AdjustRotation(const XMVECTOR& rotVector)
 {
 	mRotVector += rotVector;
 	XMStoreFloat3(&mRot, mRotVector);
+	UpdateViewMatrix();
+}
+
+void Camera::AdjustRotation(const XMFLOAT3& rot)
+{
+	mRot.x += rot.x;
+	mRot.y += rot.y;
+	mRot.z += rot.z;
+	mRotVector = XMLoadFloat3(&mRot);
 	UpdateViewMatrix();
 }
 
