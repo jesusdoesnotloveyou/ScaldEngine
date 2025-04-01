@@ -13,7 +13,7 @@ public:
 	virtual void Update(const ScaldTimer& st) override;
 
 	void SetTexture(ID3D11ShaderResourceView* texture);
-	void Draw(const XMMATRIX& viewProjectionMatrix);
+	virtual void Draw(const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix) override;
 
 private:
 	ID3D11Device* pDevice = nullptr;

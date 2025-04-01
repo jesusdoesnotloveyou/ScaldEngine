@@ -26,10 +26,11 @@ void Model::SetTexture(ID3D11ShaderResourceView* texture)
     mTexture = texture;
 }
 
-void Model::Draw(const XMMATRIX& viewProjectionMatrix)
+void Model::Draw(const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix)
 {
-    mCB.SetData(XMMatrixTranspose(GetTransform()->mWorldMatrix * viewProjectionMatrix));
-    //modelCB->ApplyChanges();
+    const XMMATRIX worldMatrix = GetTransform()->mWorldMatrix;
+    mCB.SetData(XMMatrixTranspose(worldMatrix * viewMatrix * projectionMatrix));
+    mCB.ApplyChanges();
 
     pDeviceContext->PSSetShaderResources(0u, 1u, &mTexture);
     pDeviceContext->IASetVertexBuffers(0u, 1u, mVB.GetAddressOf(), mVB.GetStridePtr(), mVB.GetOffsetPtr());
