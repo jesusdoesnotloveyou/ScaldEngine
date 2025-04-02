@@ -14,7 +14,7 @@ public:
 
 	void SetTexture(ID3D11ShaderResourceView* texture);
 	virtual void Draw(const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix) override;
-
+	
 private:
 	ID3D11Device* pDevice = nullptr;
 	ID3D11DeviceContext* pDeviceContext = nullptr;
