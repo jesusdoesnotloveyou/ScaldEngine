@@ -1,28 +1,34 @@
 #include "MovementComponent.h"
 
-XMFLOAT3 MovementComponent::GetVelocity() const
+MovementComponent::MovementComponent()
+	:
+	mOrbitAngle(0.0f),
+	mRotAngle(0.0f),
+	mVelocity(0.0f, 0.0f, 0.0f)
 {
-	return Velocity;
+	mVectorVelocity = XMLoadFloat3(&mVelocity);
 }
 
-XMFLOAT3 MovementComponent::GetInitialVelocity() const
+void MovementComponent::SetVelocity(const XMVECTOR& newVelocity)
 {
-	return InitialVelocity;
+	mVectorVelocity = newVelocity;
+	XMStoreFloat3(&mVelocity, mVectorVelocity);
 }
 
-XMFLOAT3 MovementComponent::GetInitialTransition() const
+void MovementComponent::SetVelocity(const XMFLOAT3& newVelocity)
 {
-	return InitialTransition;
+	mVelocity = newVelocity;
+	mVectorVelocity = XMLoadFloat3(&mVelocity);
 }
 
-void MovementComponent::SetVelocity(const XMFLOAT3& newSpeed)
+void MovementComponent::SetRotAngle(float rotAngle)
 {
-	Velocity = newSpeed;
+	if (mRotAngle == rotAngle) return;
+	mRotAngle = rotAngle;
 }
 
-void MovementComponent::SetVelocity(float x, float y, float z)
+void MovementComponent::SetOrbitAngle(float orbitAngle)
 {
-	Velocity.x = x;
-	Velocity.y = y;
-	Velocity.z = z;
+	if (mOrbitAngle == orbitAngle) return;
+	mOrbitAngle = orbitAngle;
 }
