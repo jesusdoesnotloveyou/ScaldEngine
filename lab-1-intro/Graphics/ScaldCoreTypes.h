@@ -9,6 +9,16 @@
 
 using namespace DirectX;
 
+// SCALD MATH
+namespace ScaldMath
+{
+	const XMVECTOR ForwardVector = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
+	const XMVECTOR BackVector	 = XMVectorSet(0.0f, 0.0f, -1.0f, 0.0f);
+	const XMVECTOR UpVector		 = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
+	const XMVECTOR LeftVector	 = XMVectorSet(-1.0f, 0.0f, 0.0f, 0.0f);
+	const XMVECTOR RightVector	 = XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);
+}
+
 // just position and color
 struct Vertex
 {

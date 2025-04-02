@@ -43,19 +43,19 @@ void Engine::SetupScene()
 	auto sphereShape = Shapes::GetSphereShape(1.0f, 16, 16, 0.0f, 0.0f);
 
 	SceneGeometry* box = new Model(boxShape);
-	box->GetTransform()->Scale = { 15.0f, 15.0f, 15.0f };
-	box->GetTransform()->rotAngle = 60.0f;
+	box->GetTransform()->mScale = { 15.0f, 15.0f, 15.0f };
+	box->GetMovement()->SetRotAngle(60.0f);
 
 	SceneGeometry* sphere = new Model(sphereShape);
-	sphere->GetTransform()->Scale = { 10.0f, 10.0f, 10.0f };
-	sphere->GetTransform()->rotAngle = 60.0f;
-	sphere->GetTransform()->orbitAngle = 80.0f;
-	sphere->GetTransform()->orbitRadius = 50.0f;
+	sphere->GetTransform()->mScale = { 10.0f, 10.0f, 10.0f };
+	sphere->GetTransform()->mPos.x = 50.0f;
 	sphere->GetTransform()->ParentTransform = box->GetTransform();
+	sphere->GetMovement()->SetRotAngle(60.0f);
+	sphere->GetMovement()->SetOrbitAngle(80.0f);
 
 	SceneGeometry* boxModel = new Model(boxShape);
-	boxModel->GetTransform()->Scale = { 10.0f, 10.0f, 10.0f };
-	boxModel->GetTransform()->orbitRadius = 80.0f;
+	boxModel->GetTransform()->mScale = { 10.0f, 10.0f, 10.0f };
+	boxModel->GetTransform()->mPos.x = 80.0f;
 
 	mSceneObjects.push_back(sphere);
 	mSceneObjects.push_back(box);

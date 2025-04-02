@@ -26,33 +26,30 @@ void SceneGeometry::Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceCont
     ThrowIfFailed(mVB.Init(pDevice, vertices.data(), (UINT)vertices.size()));
     ThrowIfFailed(mIB.Init(pDevice, indeces.data(), (UINT)indeces.size()));
     ThrowIfFailed(mCB.Init(pDevice, pDeviceContext));
-
-    // redundant
-    UpdateWorldMatrix();
-
-    GetTransform()->Translation.x = GetTransform()->orbitRadius;
 }
 
 void SceneGeometry::Update(const ScaldTimer& st)
 {
     UpdateRotation(st);
     UpdateOrbitRotation(st);
+    mTransformComponent->Update(st);
 
-    UpdateWorldMatrix();
+    mCollisionComponent->Update(st);
+    mMovementComponent->Update(st);
 }
 
 void SceneGeometry::UpdateOrbitRotation(const ScaldTimer& st)
 {
-    GetTransform()->orbitRot += XMConvertToRadians(GetTransform()->orbitAngle) * st.DeltaTime();
-    if (GetTransform()->orbitRot >= 6.28f)
-        GetTransform()->orbitRot = 0.0f;
+    GetTransform()->mOrbitRot += XMConvertToRadians(GetMovement()->GetOrbitAngle()) * st.DeltaTime();
+    if (GetTransform()->mOrbitRot >= 6.28f)
+        GetTransform()->mOrbitRot = 0.0f;
 }
 
 void SceneGeometry::UpdateRotation(const ScaldTimer& st)
 {
-    GetTransform()->rot += XMConvertToRadians(GetTransform()->rotAngle) * st.DeltaTime();
-    if (GetTransform()->rot >= 6.28f)
-        GetTransform()->rot = 0.0f;
+    GetTransform()->mRot.y += XMConvertToRadians(GetMovement()->GetRotAngle()) * st.DeltaTime();
+    if (GetTransform()->mRot.y >= 6.28f)
+        GetTransform()->mRot.y = 0.0f;
 }
 
 void SceneGeometry::Draw(const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix)
@@ -60,33 +57,24 @@ void SceneGeometry::Draw(const XMMATRIX& viewMatrix, const XMMATRIX& projectionM
 
 }
 
-void SceneGeometry::UpdateLocalMatrix()
+XMVECTOR SceneGeometry::GetForwardVector() const
 {
-    // SRT - default order of matrix multiplication
-    // (S)TR - orbit effect for Solar system could be used
-    GetTransform()->mLocalMatrix =
-        XMMatrixScaling(GetTransform()->Scale.x, GetTransform()->Scale.y, GetTransform()->Scale.z) *
-        XMMatrixRotationY(GetTransform()->rot) *
-        XMMatrixTranslation(GetTransform()->Translation.x, GetTransform()->Translation.y, GetTransform()->Translation.z) *
-        XMMatrixRotationY(GetTransform()->orbitRot);
+    return GetTransform()->GetForwardVector();
 }
 
-void SceneGeometry::UpdateWorldMatrix()
+XMVECTOR SceneGeometry::GetRightVector() const
 {
-    UpdateLocalMatrix();
+    return GetTransform()->GetRightVector();
+}
 
-    if (GetTransform()->ParentTransform)
-    {
-        XMVECTOR outScale;
-        XMVECTOR outRot;
-        XMVECTOR outTrans;
-        XMMatrixDecompose(&outScale, &outRot, &outTrans, GetTransform()->ParentTransform->mWorldMatrix);
-        GetTransform()->mWorldMatrix = GetTransform()->mLocalMatrix * XMMatrixTranslationFromVector(outTrans);
-    }
-    else
-    {
-        GetTransform()->mWorldMatrix = GetTransform()->mLocalMatrix;
-    }
+XMVECTOR SceneGeometry::GetBackVector() const
+{
+    return GetTransform()->GetBackVector();
+}
+
+XMVECTOR SceneGeometry::GetLeftVector() const
+{
+    return GetTransform()->GetLeftVector();
 }
 
 VertexBuffer<VertexTex>& SceneGeometry::GetVertexBuffer()

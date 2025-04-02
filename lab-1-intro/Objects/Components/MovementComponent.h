@@ -1,35 +1,35 @@
 #pragma once
 
 #include "IScaldComponent.h"
-#include "DirectXMath.h"
-
-namespace dx = DirectX;
 
 class MovementComponent : IScaldComponent
 {
 public:
-	MovementComponent() = default;
+	MovementComponent();
 	virtual ~MovementComponent() noexcept override {}
 
 	virtual void Update(const ScaldTimer& st) override {}
 
-	XMFLOAT3 GetVelocity() const;
+	void SetVelocity(const XMVECTOR& newVelocity);
+	void SetVelocity(const XMFLOAT3& newVelocity);
 
-	XMFLOAT3 GetInitialTransition() const;
-	XMFLOAT3 GetInitialVelocity() const;
-	void SetVelocity(const dx::XMFLOAT3&);
-	void SetVelocity(float x, float y, float z);
+	FORCEINLINE XMVECTOR GetVelocity() const { mVectorVelocity; }
+	FORCEINLINE float GetVelocityScalar() const 
+	{ 
+		return sqrtf(mVelocity.x * mVelocity.x + mVelocity.y * mVelocity.y + mVelocity.z * mVelocity.z); 
+	}
 
+	void SetRotAngle(float rotAngle);
+	void SetOrbitAngle(float orbitAngle);
+
+	FORCEINLINE float GetRotAngle() const { return mRotAngle; }
+	FORCEINLINE float GetOrbitAngle() const { return mOrbitAngle; }
 private:
+	// the angle by which an object rotates around another object's particular axis, in radians
+	float mOrbitAngle;
+	// the angle by which an object rotates around a particular axis, in radians
+	float mRotAngle;
 
-	// rad/time unit
-	float mAngleSpeed = 0.0f;
-	// rad
-	float mRotAngle = 0.0f;
-
-	float mVelocity = 0.0f;
-
-	XMFLOAT3 InitialVelocity = { 0.01f, 0.003f, 0.0f };
-	XMFLOAT3 Velocity = { 0.0f, 0.0f, 0.0f };
-	XMFLOAT3 InitialTransition = { 0.0f, 0.0f, 0.0f };
+	XMFLOAT3 mVelocity;
+	XMVECTOR mVectorVelocity;
 };
