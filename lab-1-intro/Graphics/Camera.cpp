@@ -209,17 +209,17 @@ void Camera::UpdateViewMatrix()
 	//Calculate camera rotation matrix
 	XMMATRIX cameraRotationMatrix = XMMatrixRotationRollPitchYaw(mRot.x, mRot.y, mRot.z);
 	//Calculate unit vector of cam target based off camera forward value transformed by cam rotation matrix
-	XMVECTOR camTarget = XMVector3TransformCoord(DEFAULT_FORWARD_VECTOR, cameraRotationMatrix);
+	XMVECTOR camTarget = XMVector3TransformCoord(ScaldMath::ForwardVector, cameraRotationMatrix);
 	//Adjust cam target to be offset by the camera's current position
 	camTarget += mPosVector;
 	//Calculate up direction based on current rotation
-	XMVECTOR upDir = XMVector3TransformCoord(DEFAULT_UP_VECTOR, cameraRotationMatrix);
+	XMVECTOR upDir = XMVector3TransformCoord(ScaldMath::UpVector, cameraRotationMatrix);
 	//Rebuild view matrix
 	mViewMatrix = XMMatrixLookAtLH(mPosVector, camTarget, upDir);
 
 	XMMATRIX vecRotationMatrix = XMMatrixRotationRollPitchYaw(0.0f, mRot.y, 0.0f);
-	mForwardVector = XMVector3TransformCoord(DEFAULT_FORWARD_VECTOR, vecRotationMatrix);
-	mBackwardVector = XMVector3TransformCoord(DEFAULT_BACKWARD_VECTOR, vecRotationMatrix);
-	mLeftVector = XMVector3TransformCoord(DEFAULT_LEFT_VECTOR, vecRotationMatrix);
-	mRightVector = XMVector3TransformCoord(DEFAULT_RIGHT_VECTOR, vecRotationMatrix);
+	mForwardVector = XMVector3TransformCoord(ScaldMath::ForwardVector, vecRotationMatrix);
+	mBackwardVector = XMVector3TransformCoord(ScaldMath::BackVector, vecRotationMatrix);
+	mLeftVector = XMVector3TransformCoord(ScaldMath::LeftVector, vecRotationMatrix);
+	mRightVector = XMVector3TransformCoord(ScaldMath::RightVector, vecRotationMatrix);
 }
