@@ -52,6 +52,7 @@ public:
 	XMVECTOR mPosVector;
 	
 	// Need to init
+	// local object's orientation vectors
 	XMVECTOR mForwardVector;
 	XMVECTOR mLeftVector;
 	XMVECTOR mRightVector;

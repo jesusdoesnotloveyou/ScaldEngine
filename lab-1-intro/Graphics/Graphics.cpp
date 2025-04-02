@@ -2,7 +2,7 @@
 #include "Graphics.h"
 #include <chrono>
 
-#include "Model.h"
+#include "Actor.h"
 
 #include <d3d.h>
 #include <d3d11.h>

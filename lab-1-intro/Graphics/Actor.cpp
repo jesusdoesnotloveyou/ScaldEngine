@@ -1,18 +1,18 @@
-#include "Model.h"
+#include "Actor.h"
 
-Model::Model() : SceneGeometry()
+Actor::Actor() : SceneGeometry()
 {}
 
-Model::Model(const tuple<vector<VertexTex>, vector<DWORD>>& vi) : SceneGeometry()
+Actor::Actor(const tuple<vector<VertexTex>, vector<DWORD>>& vi) : SceneGeometry()
 {
     vertices = std::get<0>(vi);
     indeces = std::get<1>(vi);
 }
 
-Model::~Model()
+Actor::~Actor()
 {}
 
-void Model::Init(ID3D11Device* device, ID3D11DeviceContext* deviceContext, ID3D11ShaderResourceView* texture)
+void Actor::Init(ID3D11Device* device, ID3D11DeviceContext* deviceContext, ID3D11ShaderResourceView* texture)
 {
     pDevice = device;
     pDeviceContext = deviceContext;
@@ -21,17 +21,17 @@ void Model::Init(ID3D11Device* device, ID3D11DeviceContext* deviceContext, ID3D1
     SceneGeometry::Init(device, deviceContext);
 }
 
-void Model::Update(const ScaldTimer& st)
+void Actor::Update(const ScaldTimer& st)
 {
     SceneGeometry::Update(st);
 }
 
-void Model::SetTexture(ID3D11ShaderResourceView* texture)
+void Actor::SetTexture(ID3D11ShaderResourceView* texture)
 {
     mTexture = texture;
 }
 
-void Model::Draw(const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix)
+void Actor::Draw(const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix)
 {
     const XMMATRIX worldMatrix = GetTransform()->mWorldMatrix;
     mCB.SetData(XMMatrixTranspose(worldMatrix * viewMatrix * projectionMatrix));

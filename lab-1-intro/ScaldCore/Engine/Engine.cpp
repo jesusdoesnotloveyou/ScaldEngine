@@ -4,7 +4,7 @@
 #include "../../Objects/Geometry/3D/Cube.h"
 #include "../../Objects/Geometry/3D/Sphere.h"
 #include "../../Objects/Geometry/3D/Shapes.h"
-#include "../../Graphics/Model.h"
+#include "../../Graphics/Actor.h"
 
 #include <random>
 #include <ctime>
@@ -42,18 +42,18 @@ void Engine::SetupScene()
 	auto boxShape = Shapes::GetBoxShape(1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
 	auto sphereShape = Shapes::GetSphereShape(1.0f, 16, 16, 0.0f, 0.0f);
 
-	SceneGeometry* box = new Model(boxShape);
+	SceneGeometry* box = new Actor(boxShape);
 	box->GetTransform()->mScale = { 15.0f, 15.0f, 15.0f };
 	box->GetMovement()->SetRotAngle(60.0f);
 
-	SceneGeometry* sphere = new Model(sphereShape);
+	SceneGeometry* sphere = new Actor(sphereShape);
 	sphere->GetTransform()->mScale = { 10.0f, 10.0f, 10.0f };
 	sphere->GetTransform()->mPos.x = 50.0f;
 	sphere->GetTransform()->ParentTransform = box->GetTransform();
 	sphere->GetMovement()->SetRotAngle(60.0f);
 	sphere->GetMovement()->SetOrbitAngle(80.0f);
 
-	SceneGeometry* boxModel = new Model(boxShape);
+	SceneGeometry* boxModel = new Actor(boxShape);
 	boxModel->GetTransform()->mScale = { 10.0f, 10.0f, 10.0f };
 	boxModel->GetTransform()->mPos.x = 80.0f;
 

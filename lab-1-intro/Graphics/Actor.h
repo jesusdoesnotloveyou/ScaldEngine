@@ -2,12 +2,12 @@
 
 #include "../Objects/Geometry/SceneGeometry.h"
 
-class Model : public SceneGeometry
+class Actor : public SceneGeometry
 {
 public:
-	Model();
-	Model(const tuple<vector<VertexTex>, vector<DWORD>>& vi);
-	virtual ~Model() override;
+	Actor();
+	Actor(const tuple<vector<VertexTex>, vector<DWORD>>& vi);
+	virtual ~Actor() override;
 
 	virtual void Init(ID3D11Device* mDevice, ID3D11DeviceContext* pDeviceContext, ID3D11ShaderResourceView* texture) override;
 	virtual void Update(const ScaldTimer& st) override;

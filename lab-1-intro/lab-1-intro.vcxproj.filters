@@ -114,7 +114,7 @@
     <ClCompile Include="Graphics\Shaders.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\Model.cpp">
+    <ClCompile Include="Graphics\Actor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -194,7 +194,7 @@
     <ClInclude Include="Graphics\Shaders.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\Model.h">
+    <ClInclude Include="Graphics\Actor.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
