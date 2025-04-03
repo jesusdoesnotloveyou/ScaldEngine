@@ -1,8 +1,7 @@
 #pragma once
 
-#include "IScaldComponent.h"
+#include "../IScaldComponent.h"
 #include "DirectXCollision.h"
-#include "../../Delegates/Delegates.h"
 
 class CollisionComponent : public IScaldComponent
 {
