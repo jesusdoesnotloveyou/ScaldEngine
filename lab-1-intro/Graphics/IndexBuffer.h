@@ -12,8 +12,8 @@ public:
 
 	IndexBuffer(const IndexBuffer& rhs) = delete;
 
-	ID3D11Buffer* Get() const { return pBuffer.Get(); }
-	ID3D11Buffer* const* GetAddressOf() const { return pBuffer.GetAddressOf(); }
+	ID3D11Buffer* Get() const { return mBuffer.Get(); }
+	ID3D11Buffer* const* GetAddressOf() const { return mBuffer.GetAddressOf(); }
 	UINT GetBufferSize() const { return bufferSize; }
 
 	HRESULT Init(ID3D11Device* device, DWORD* data, UINT numIndeces)
@@ -34,10 +34,10 @@ public:
 		indexData.SysMemPitch = 0u;
 		indexData.SysMemSlicePitch = 0u;
 
-		return device->CreateBuffer(&indexBufDesc, &indexData, pBuffer.GetAddressOf());
+		return device->CreateBuffer(&indexBufDesc, &indexData, mBuffer.GetAddressOf());
 	}
 
 private:
-	Microsoft::WRL::ComPtr<ID3D11Buffer> pBuffer;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> mBuffer;
 	UINT bufferSize = 0;
 };
