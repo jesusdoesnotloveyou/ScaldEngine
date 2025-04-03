@@ -11,10 +11,25 @@ class VertexBuffer
 public:
     VertexBuffer() {}
 
-    VertexBuffer(const VertexBuffer& rhs) = delete;
+    VertexBuffer(const VertexBuffer<T>& lhs)
+    {
+        mBuffer = lhs.mBuffer;
+        bufferSize = lhs.bufferSize;
+        stride = lhs.stride;
+        offset = lhs.offset;
+    }
 
-	ID3D11Buffer* Get() const { return pBuffer.Get(); }
-	ID3D11Buffer* const* GetAddressOf() const { return pBuffer.GetAddressOf(); }
+    VertexBuffer<T>& operator=(const VertexBuffer<T>& lhs)
+    {
+        mBuffer = lhs.mBuffer;
+        bufferSize = lhs.bufferSize;
+        stride = lhs.stride;
+        offset = lhs.offset;
+        return *this;
+    }
+
+	ID3D11Buffer* Get() const { return mBuffer.Get(); }
+	ID3D11Buffer* const* GetAddressOf() const { return mBuffer.GetAddressOf(); }
     UINT GetBufferSize() const { return bufferSize; }
     
     UINT GetStride() const { return stride; }
@@ -46,10 +61,10 @@ public:
         vertexData.SysMemPitch = 0;
         vertexData.SysMemSlicePitch = 0;
 
-        return device->CreateBuffer(&vertexBufDesc, &vertexData, pBuffer.GetAddressOf());
+        return device->CreateBuffer(&vertexBufDesc, &vertexData, mBuffer.GetAddressOf());
 	}
 private:
-	Microsoft::WRL::ComPtr<ID3D11Buffer> pBuffer;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> mBuffer;
     UINT stride = 0;
     UINT offset = 0;
     UINT bufferSize = 0;
