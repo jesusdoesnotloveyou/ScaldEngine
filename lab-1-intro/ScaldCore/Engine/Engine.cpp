@@ -1,10 +1,7 @@
 #include "Engine.h"
 #include <sstream>
 
-#include "../../Objects/Geometry/3D/Cube.h"
-#include "../../Objects/Geometry/3D/Sphere.h"
-#include "../../Objects/Geometry/3D/Shapes.h"
-#include "../../Graphics/Model.h"
+#include "../../Objects/Geometry/Actor.h"
 
 #include <random>
 #include <ctime>
@@ -39,27 +36,24 @@ int Engine::Launch()
 
 void Engine::SetupScene()
 {
-	auto boxShape = Shapes::GetBoxShape(1.0f, 1.0f, 1.0f, 1.0f, 1.0f);
-	auto sphereShape = Shapes::GetSphereShape(1.0f, 16, 16, 0.0f, 0.0f);
+	SceneGeometry* ball1 = new Actor();
+	ball1->GetTransform()->SetScale(15.0f, 15.0f, 15.0f);
+	ball1->GetMovement()->SetRotAngle(60.0f);
 
-	SceneGeometry* box = new Model(boxShape);
-	box->GetTransform()->mScale = { 15.0f, 15.0f, 15.0f };
-	box->GetMovement()->SetRotAngle(60.0f);
+	SceneGeometry* ball2 = new Actor();
+	ball2->GetTransform()->SetScale(10.0f, 10.0f, 10.0f);
+	ball2->GetTransform()->SetPosition(50.0f, 0.0f, 0.0f);
+	ball2->GetTransform()->SetParentTransform(ball1->GetTransform());
+	ball2->GetMovement()->SetRotAngle(60.0f);
+	ball2->GetMovement()->SetOrbitAngle(80.0f);
 
-	SceneGeometry* sphere = new Model(sphereShape);
-	sphere->GetTransform()->mScale = { 10.0f, 10.0f, 10.0f };
-	sphere->GetTransform()->mPos.x = 50.0f;
-	sphere->GetTransform()->ParentTransform = box->GetTransform();
-	sphere->GetMovement()->SetRotAngle(60.0f);
-	sphere->GetMovement()->SetOrbitAngle(80.0f);
+	SceneGeometry* ball3 = new Actor();
+	ball3->GetTransform()->SetScale(10.0f, 10.0f, 10.0f);
+	ball3->GetTransform()->SetPosition(80.0f, 0.0f, 0.0f);;
 
-	SceneGeometry* boxModel = new Model(boxShape);
-	boxModel->GetTransform()->mScale = { 10.0f, 10.0f, 10.0f };
-	boxModel->GetTransform()->mPos.x = 80.0f;
-
-	mSceneObjects.push_back(sphere);
-	mSceneObjects.push_back(box);
-	mSceneObjects.push_back(boxModel);
+	mSceneObjects.push_back(ball1);
+	mSceneObjects.push_back(ball2);
+	mSceneObjects.push_back(ball3);
 	
 	mRenderWindow.GetGfx().InitSceneObjects(mSceneObjects);
 }
@@ -109,7 +103,7 @@ void Engine::PollInput()
 #pragma endregion CameraRotation
 
 #pragma region CameraMovement
-	const float cameraSpeed = 80.f;
+	const float cameraSpeed = 150.f;
 	if (mRenderWindow.kbd.IsKeyPressed('W'))
 	{
 		mRenderWindow.GetGfx().mCamera.AdjustPosition(mRenderWindow.GetGfx().mCamera.GetForwardVector() * cameraSpeed * mTimer.DeltaTime());

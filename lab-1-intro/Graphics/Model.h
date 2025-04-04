@@ -1,22 +1,35 @@
 #pragma once
 
-#include "../Objects/Geometry/SceneGeometry.h"
+#include "../ScaldCore/Engine/ScaldWindows.h"
+#include "Mesh.h"
+#include <assimp/Importer.hpp>
+#include <assimp/postprocess.h>
+#include <assimp/scene.h>
+#include <string>
 
-class Model : public SceneGeometry
+// Model for scene object
+class Model
 {
 public:
-	Model();
-	Model(const tuple<vector<VertexTex>, vector<DWORD>>& vi);
-	virtual ~Model() override;
+	Model() = default;
+	~Model() = default;
 
-	virtual void Init(ID3D11Device* mDevice, ID3D11DeviceContext* pDeviceContext, ID3D11ShaderResourceView* texture) override;
-	virtual void Update(const ScaldTimer& st) override;
-
+	bool Init(const std::string& filePath, ID3D11Device* mDevice, ID3D11DeviceContext* pDeviceContext, ID3D11ShaderResourceView* texture);
 	void SetTexture(ID3D11ShaderResourceView* texture);
-	virtual void Draw(const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix) override;
-	
+	void Draw();
+
+	ConstantBuffer<ConstBufferVS>& GetConstantBuffer();
+
 private:
+	bool LoadModel(const std::string& filePath);
+	void ProcessNode(aiNode* node, const aiScene* scene);
+	Mesh ProcessMesh(aiMesh* mesh, const aiScene* scene);
+
+	ConstantBuffer<ConstBufferVS> mCB;
+	
+	std::vector<Mesh> mMeshes;
 	ID3D11Device* pDevice = nullptr;
 	ID3D11DeviceContext* pDeviceContext = nullptr;
-	ID3D11ShaderResourceView* mTexture = nullptr;
+
+	ID3D11ShaderResourceView* pTexture = nullptr;
 };

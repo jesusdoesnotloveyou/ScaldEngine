@@ -1,7 +1,6 @@
 #pragma once
 
 #include "../ScaldException.h"
-#include "../Objects/Components/TransformComponent.h"
 #include <wrl.h>
 #include <d3d11.h>
 
@@ -14,8 +13,8 @@ public:
 	ConstantBuffer() {}
 	ConstantBuffer(const ConstantBuffer& rhs) = delete;
 public:
-	ID3D11Buffer* Get() const { return pBuffer.Get(); }
-	ID3D11Buffer* const* GetAddressOf() const { return pBuffer.GetAddressOf(); }
+	ID3D11Buffer* Get() const { return mBuffer.Get(); }
+	ID3D11Buffer* const* GetAddressOf() const { return mBuffer.GetAddressOf(); }
 	
 	HRESULT Init(ID3D11Device* device, ID3D11DeviceContext* deviceContext)
 	{
@@ -30,16 +29,16 @@ public:
 		constantBufDesc.MiscFlags = 0u;
 		constantBufDesc.StructureByteStride = 0u;
 
-		return device->CreateBuffer(&constantBufDesc, 0, pBuffer.GetAddressOf());
+		return device->CreateBuffer(&constantBufDesc, 0, mBuffer.GetAddressOf());
 	}
 
 	bool ApplyChanges()
 	{
 		D3D11_MAPPED_SUBRESOURCE mappedResource;
-		ThrowIfFailed(pDeviceContext->Map(pBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
+		ThrowIfFailed(pDeviceContext->Map(mBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
 
 		CopyMemory(mappedResource.pData, &curr_data, sizeof(T));
-		pDeviceContext->Unmap(pBuffer.Get(), 0);
+		pDeviceContext->Unmap(mBuffer.Get(), 0);
 		return true;
 	}
 
@@ -52,11 +51,11 @@ public:
 
 	void SetData(const XMMATRIX& data)
 	{
-		curr_data.transform = data;
+		curr_data.gWorldViewProj = data;
 	}
 
 private:
 	T curr_data;
-	Microsoft::WRL::ComPtr<ID3D11Buffer> pBuffer;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> mBuffer;
 	ID3D11DeviceContext* pDeviceContext = nullptr;
 };

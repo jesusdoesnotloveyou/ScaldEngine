@@ -22,8 +22,9 @@
     <ClCompile Include="Delegates\Delegates.cpp" />
     <ClCompile Include="Graphics\Camera.cpp" />
     <ClCompile Include="Graphics\Model.cpp" />
+    <ClCompile Include="Graphics\Mesh.cpp" />
     <ClCompile Include="Graphics\Shaders.cpp" />
-    <ClCompile Include="Objects\Components\CollisionComponent.cpp" />
+    <ClCompile Include="Objects\Components\Collision\CollisionComponent.cpp" />
     <ClCompile Include="Graphics\IndexBuffer.h" />
     <ClCompile Include="Objects\Components\InputComponent.cpp" />
     <ClCompile Include="Objects\Components\MovementComponent.cpp" />
@@ -31,6 +32,7 @@
     <ClCompile Include="Objects\Geometry\3D\Cube.cpp" />
     <ClCompile Include="Objects\Geometry\3D\Shapes.cpp" />
     <ClCompile Include="Objects\Geometry\3D\Sphere.cpp" />
+    <ClCompile Include="Objects\Geometry\Actor.cpp" />
     <ClCompile Include="ScaldCore\Engine\Engine.cpp" />
     <ClCompile Include="Graphics\Graphics.cpp" />
     <ClCompile Include="MySuper3DApp.cpp" />
@@ -46,9 +48,10 @@
     <ClInclude Include="Delegates\Delegates.h" />
     <ClInclude Include="Graphics\Camera.h" />
     <ClInclude Include="Graphics\Model.h" />
+    <ClInclude Include="Graphics\Mesh.h" />
     <ClInclude Include="Graphics\ScaldCoreTypes.h" />
     <ClInclude Include="Graphics\Shaders.h" />
-    <ClInclude Include="Objects\Components\CollisionComponent.h" />
+    <ClInclude Include="Objects\Components\Collision\CollisionComponent.h" />
     <ClInclude Include="Graphics\ConstantBuffer.h" />
     <ClInclude Include="Objects\Components\InputComponent.h" />
     <ClInclude Include="Objects\Components\MovementComponent.h" />
@@ -56,6 +59,7 @@
     <ClInclude Include="Objects\Geometry\3D\Cube.h" />
     <ClInclude Include="Objects\Geometry\3D\Shapes.h" />
     <ClInclude Include="Objects\Geometry\3D\Sphere.h" />
+    <ClInclude Include="Objects\Geometry\Actor.h" />
     <ClInclude Include="ScaldCore\Engine\Engine.h" />
     <ClInclude Include="Graphics\Graphics.h" />
     <ClInclude Include="Objects\Components\IScaldComponent.h" />
@@ -241,11 +245,15 @@
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">
     <Import Project="..\packages\directxtk_desktop_win10.2025.3.21.2\build\native\directxtk_desktop_win10.targets" Condition="Exists('..\packages\directxtk_desktop_win10.2025.3.21.2\build\native\directxtk_desktop_win10.targets')" />
+    <Import Project="..\packages\Assimp.redist.3.0.0\build\native\Assimp.redist.targets" Condition="Exists('..\packages\Assimp.redist.3.0.0\build\native\Assimp.redist.targets')" />
+    <Import Project="..\packages\Assimp.3.0.0\build\native\Assimp.targets" Condition="Exists('..\packages\Assimp.3.0.0\build\native\Assimp.targets')" />
   </ImportGroup>
   <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
     <PropertyGroup>
       <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
     </PropertyGroup>
     <Error Condition="!Exists('..\packages\directxtk_desktop_win10.2025.3.21.2\build\native\directxtk_desktop_win10.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\directxtk_desktop_win10.2025.3.21.2\build\native\directxtk_desktop_win10.targets'))" />
+    <Error Condition="!Exists('..\packages\Assimp.redist.3.0.0\build\native\Assimp.redist.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Assimp.redist.3.0.0\build\native\Assimp.redist.targets'))" />
+    <Error Condition="!Exists('..\packages\Assimp.3.0.0\build\native\Assimp.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\Assimp.3.0.0\build\native\Assimp.targets'))" />
   </Target>
 </Project>
