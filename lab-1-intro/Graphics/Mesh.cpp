@@ -34,8 +34,3 @@ IndexBuffer& Mesh::GetIndexBuffer()
 {
     return mIB;
 }
-
-ID3D11ShaderResourceView* Mesh::GetTexture() const
-{
-    return mTexture.Get();
-}
