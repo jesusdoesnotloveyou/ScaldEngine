@@ -1,7 +1,6 @@
-cbuffer CBuf : register(b0)
+cbuffer cbPerObject : register(b0)
 {
-    // matrices are column_major by default
-    /*row_major */matrix transform;
+    matrix gWorldViewProj;
 };
 
 cbuffer CBufChangeOnResize : register(b1)
@@ -27,7 +26,7 @@ VS_OUT main(VS_IN input)
 {
     VS_OUT output = (VS_OUT) 0;
 	
-    output.outPosition = mul(float4(input.inPosition.xyz, 1.0f), transform);
+    output.outPosition = mul(float4(input.inPosition.xyz, 1.0f), gWorldViewProj);
     output.outTexCoord = input.inTexCoord;
 	
 	return output;

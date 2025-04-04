@@ -61,7 +61,7 @@ struct VertexTex
 // Constant buffer types
 struct ConstBufferVS
 {
-	XMMATRIX transform = XMMatrixIdentity();
+	XMMATRIX gWorldViewProj = XMMatrixIdentity();
 };
 
 struct ConstBufferPS

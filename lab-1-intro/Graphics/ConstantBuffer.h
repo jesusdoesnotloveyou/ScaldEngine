@@ -51,7 +51,7 @@ public:
 
 	void SetData(const XMMATRIX& data)
 	{
-		curr_data.transform = data;
+		curr_data.gWorldViewProj = data;
 	}
 
 private:
