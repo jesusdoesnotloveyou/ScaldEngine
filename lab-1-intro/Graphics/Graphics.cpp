@@ -63,30 +63,24 @@ Graphics::Graphics(HWND hWnd, int width, int height)
 	ThrowIfFailed(mDevice->CreateRenderTargetView(pBackTex.Get(), nullptr, &mRtv));
 
 	// Describe our Depth/Stencil Buffer
-	D3D11_TEXTURE2D_DESC depthStencilDesc;
-	depthStencilDesc.Width = mScreenWidth;
-	depthStencilDesc.Height = mScreenHeight;
-	depthStencilDesc.MipLevels = 1u;
-	depthStencilDesc.ArraySize = 1u;
-	depthStencilDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	depthStencilDesc.SampleDesc.Count = 1u;
-	depthStencilDesc.SampleDesc.Quality = 0u;
-	depthStencilDesc.Usage = D3D11_USAGE_DEFAULT;
-	depthStencilDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-	depthStencilDesc.CPUAccessFlags = 0u;
-	depthStencilDesc.MiscFlags = 0u;
+	D3D11_TEXTURE2D_DESC depthStencilTextureDesc;
+	depthStencilTextureDesc.Width = mScreenWidth;
+	depthStencilTextureDesc.Height = mScreenHeight;
+	depthStencilTextureDesc.MipLevels = 1u;
+	depthStencilTextureDesc.ArraySize = 1u;
+	depthStencilTextureDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	depthStencilTextureDesc.SampleDesc.Count = 1u;
+	depthStencilTextureDesc.SampleDesc.Quality = 0u;
+	depthStencilTextureDesc.Usage = D3D11_USAGE_DEFAULT;
+	depthStencilTextureDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	depthStencilTextureDesc.CPUAccessFlags = 0u;
+	depthStencilTextureDesc.MiscFlags = 0u;
 
-	ThrowIfFailed(mDevice->CreateTexture2D(&depthStencilDesc, nullptr, mDepthStencilBuffer.GetAddressOf()));
-	ThrowIfFailed(mDevice->CreateDepthStencilView(this->mDepthStencilBuffer.Get(), nullptr, mDsv.GetAddressOf()));
-	
-	//Create depth stencil state
-	D3D11_DEPTH_STENCIL_DESC depthstencildesc;
-	ZeroMemory(&depthstencildesc, sizeof(D3D11_DEPTH_STENCIL_DESC));
-	depthstencildesc.DepthEnable = true;
-	depthstencildesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK::D3D11_DEPTH_WRITE_MASK_ALL;
-	depthstencildesc.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS_EQUAL;
+	ThrowIfFailed(mDevice->CreateTexture2D(&depthStencilTextureDesc, nullptr, mDepthStencilBuffer.GetAddressOf()));
+	ThrowIfFailed(mDevice->CreateDepthStencilView(mDepthStencilBuffer.Get(), nullptr, mDsv.GetAddressOf()));
 
-	ThrowIfFailed(mDevice->CreateDepthStencilState(&depthstencildesc, mDepthStencilState.GetAddressOf()));
+	// Step 11: Set BackBuffer for Output merger
+	mDeviceContext->OMSetRenderTargets(1u, mRtv.GetAddressOf(), mDsv.Get());
 }
 
 void Graphics::SetupShaders()
@@ -113,22 +107,34 @@ void Graphics::SetupShaders()
 
 	ThrowIfFailed(mVertexShader.Init(mDevice.Get(), inputElements, (UINT)std::size(inputElements)));
 	ThrowIfFailed(mPixelShader.Init(mDevice.Get()));
-
-	CreateWICTextureFromFile(mDevice.Get(), L"./Data/Textures/brick.png", nullptr, mTexture.GetAddressOf());
 }
 
 void Graphics::Setup()
 {
-	SetupShaders();
+	//Create depth stencil state
+	CD3D11_DEPTH_STENCIL_DESC depthStencilDesc;
+	ZeroMemory(&depthStencilDesc, sizeof(CD3D11_DEPTH_STENCIL_DESC));
+	depthStencilDesc.DepthEnable = true;
+	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK::D3D11_DEPTH_WRITE_MASK_ALL;
+	depthStencilDesc.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS_EQUAL;
+	ThrowIfFailed(mDevice->CreateDepthStencilState(&depthStencilDesc, mDepthStencilState.GetAddressOf()));
+
+	// Step 10: Setup Rasterizer Stage and Viewport
+	D3D11_VIEWPORT currentViewport;
+	currentViewport.TopLeftX = 0.0f;
+	currentViewport.TopLeftY = 0.0f;
+	currentViewport.Width = static_cast<float>(mScreenWidth);
+	currentViewport.Height = static_cast<float>(mScreenHeight);
+	currentViewport.MinDepth = 0.0f;
+	currentViewport.MaxDepth = 1.0f;
+	mDeviceContext->RSSetViewports(1u, &currentViewport);
 
 	CD3D11_RASTERIZER_DESC rastDesc = {};
 	rastDesc.CullMode = D3D11_CULL_BACK;
 	rastDesc.FillMode = D3D11_FILL_WIREFRAME;
 	rastDesc.FillMode = D3D11_FILL_SOLID;
 	rastDesc.FrontCounterClockwise = false;
-
-	ThrowIfFailed(mDevice->CreateRasterizerState(&rastDesc, &mRasterizerState)); // or mRasterizerState.GetAddressOf()
-	mDeviceContext->RSSetState(mRasterizerState.Get());
+	ThrowIfFailed(mDevice->CreateRasterizerState(&rastDesc, mRasterizerState.GetAddressOf()));
 
 	D3D11_SAMPLER_DESC sampDesc = {};
 	ZeroMemory(&sampDesc, sizeof(sampDesc));
@@ -139,7 +145,7 @@ void Graphics::Setup()
 	sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
 	sampDesc.MinLOD = 0;
 	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
-	ThrowIfFailed(mDevice->CreateSamplerState(&sampDesc, &mSamplerState)); // or mSamplerState.GetAddressOf()
+	ThrowIfFailed(mDevice->CreateSamplerState(&sampDesc, mSamplerState.GetAddressOf()));
 
 	// Camera setup
 	mCamera.SetPosition(0.0f, 20.0f, -100.0f);
@@ -148,6 +154,9 @@ void Graphics::Setup()
 
 void Graphics::InitSceneObjects(std::vector<SceneGeometry*>& sceneObjects)
 {
+	CreateWICTextureFromFile(mDevice.Get(), L"./Data/Textures/brick.png", nullptr, mTexture.GetAddressOf());
+	SetupShaders();
+
 	for (auto sceneObject : sceneObjects)
 	{
 		auto actor = static_cast<Actor*>(sceneObject);
@@ -157,19 +166,8 @@ void Graphics::InitSceneObjects(std::vector<SceneGeometry*>& sceneObjects)
 
 void Graphics::DrawScene(std::vector<SceneGeometry*>& sceneObjects)
 {
-	mDeviceContext->ClearState();
-	mDeviceContext->RSSetState(mRasterizerState.Get());
-
-	// Step 10: Setup Rasterizer Stage and Viewport
-	D3D11_VIEWPORT currentViewport;
-		currentViewport.TopLeftX = 0.0f;
-		currentViewport.TopLeftY = 0.0f;
-		currentViewport.Width = static_cast<float>(mScreenWidth);
-		currentViewport.Height = static_cast<float>(mScreenHeight);
-		currentViewport.MinDepth = 0.0f;
-		currentViewport.MaxDepth = 1.0f;
-
-	mDeviceContext->RSSetViewports(1u, &currentViewport);
+	// Step 11: Set BackBuffer for Output merger
+	mDeviceContext->OMSetRenderTargets(1u, mRtv.GetAddressOf(), mDsv.Get());
 
 	mDeviceContext->IASetInputLayout(mVertexShader.GetInputLayout());
 	mDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
@@ -181,8 +179,6 @@ void Graphics::DrawScene(std::vector<SceneGeometry*>& sceneObjects)
 	// Step 09: Set Vertex and Pixel Shaders
 	mDeviceContext->VSSetShader(mVertexShader.Get(), nullptr, 0);
 	mDeviceContext->PSSetShader(mPixelShader.Get(), nullptr, 0);
-	// Step 11: Set BackBuffer for Output merger
-	mDeviceContext->OMSetRenderTargets(1u, mRtv.GetAddressOf(), mDsv.Get());
 
 	for (auto actor : sceneObjects)
 	{
@@ -196,6 +192,7 @@ void Graphics::ClearBuffer(float r)
 	float color[] = { r, 0.1f, 0.1f, 1.0f };
 	mDeviceContext->ClearRenderTargetView(mRtv.Get(), color);
 	mDeviceContext->ClearDepthStencilView(mDsv.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL /*Clearing Both Depth and Stencil*/, 1.0f, 0u);
+	//mDeviceContext->ClearState();
 }
 
 void Graphics::EndFrame()
