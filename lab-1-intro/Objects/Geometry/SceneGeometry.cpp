@@ -1,7 +1,7 @@
 #include "../../ScaldException.h"
 #include "SceneGeometry.h"
-#include <sstream>
 
+// could be used to set materials and models
 SceneGeometry::SceneGeometry()
 {
     mTransformComponent = new TransformComponent();
@@ -21,40 +21,47 @@ SceneGeometry::~SceneGeometry()
     if (mMovementComponent) delete mMovementComponent;
 }
 
-void SceneGeometry::Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, ID3D11ShaderResourceView* pTexture)
+void SceneGeometry::Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, ID3D11ShaderResourceView* pTexture, const std::string& filePath)
 {
-    ThrowIfFailed(mVB.Init(pDevice, vertices.data(), (UINT)vertices.size()));
-    ThrowIfFailed(mIB.Init(pDevice, indeces.data(), (UINT)indeces.size()));
-    ThrowIfFailed(mCB.Init(pDevice, pDeviceContext));
+    if (!model.Init(filePath, pDevice, pDeviceContext, pTexture))
+    {
+        throw std::exception{};
+    }
 }
 
 void SceneGeometry::Update(const ScaldTimer& st)
 {
-    UpdateRotation(st);
-    UpdateOrbitRotation(st);
     mTransformComponent->Update(st);
-
     mCollisionComponent->Update(st);
     mMovementComponent->Update(st);
+    UpdateObjectCBs(st);
 }
 
-void SceneGeometry::UpdateOrbitRotation(const ScaldTimer& st)
+#pragma region ToDelete
+//void SceneGeometry::UpdateOrbitRotation(const ScaldTimer& st)
+//{
+//    GetTransform()->mOrbitRot += XMConvertToRadians(GetMovement()->GetOrbitAngle()) * st.DeltaTime();
+//    if (GetTransform()->mOrbitRot >= 6.28f)
+//        GetTransform()->mOrbitRot = 0.0f;
+//}
+//
+//void SceneGeometry::UpdateRotation(const ScaldTimer& st)
+//{
+//    GetTransform()->mRot.y += XMConvertToRadians(GetMovement()->GetRotAngle()) * st.DeltaTime();
+//    if (GetTransform()->mRot.y >= 6.28f)
+//        GetTransform()->mRot.y = 0.0f;
+//}
+#pragma endregion ToDelete
+
+void SceneGeometry::Draw(const XMMATRIX& viewProjectionMatrix)
 {
-    GetTransform()->mOrbitRot += XMConvertToRadians(GetMovement()->GetOrbitAngle()) * st.DeltaTime();
-    if (GetTransform()->mOrbitRot >= 6.28f)
-        GetTransform()->mOrbitRot = 0.0f;
+    model.GetConstantBuffer().SetData(XMMatrixTranspose(GetTransform()->mWorldMatrix * viewProjectionMatrix));
+    model.Draw();
 }
 
-void SceneGeometry::UpdateRotation(const ScaldTimer& st)
+void SceneGeometry::UpdateObjectCBs(const ScaldTimer& st)
 {
-    GetTransform()->mRot.y += XMConvertToRadians(GetMovement()->GetRotAngle()) * st.DeltaTime();
-    if (GetTransform()->mRot.y >= 6.28f)
-        GetTransform()->mRot.y = 0.0f;
-}
-
-void SceneGeometry::Draw(const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix)
-{
-
+    model.GetConstantBuffer().ApplyChanges();
 }
 
 XMVECTOR SceneGeometry::GetForwardVector() const
@@ -75,19 +82,4 @@ XMVECTOR SceneGeometry::GetBackVector() const
 XMVECTOR SceneGeometry::GetLeftVector() const
 {
     return GetTransform()->GetLeftVector();
-}
-
-VertexBuffer<VertexTex>& SceneGeometry::GetVertexBuffer()
-{
-    return mVB;
-}
-
-IndexBuffer& SceneGeometry::GetIndexBuffer()
-{
-    return mIB;
-}
-
-ConstantBuffer<ConstBufferVS>& SceneGeometry::GetConstantBuffer()
-{
-    return mCB;
 }
