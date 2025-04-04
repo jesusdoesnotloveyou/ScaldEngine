@@ -50,6 +50,8 @@ private:
 	void UpdateWorldMatrix();
 	// Object local frame
 private:
+	TransformComponent* mParentTransform = nullptr;
+
 	XMFLOAT3 mScale = { 1.0f, 1.0f, 1.0f };
 	XMFLOAT3 mRot	= { 0.0f, 0.0f, 0.0f };
 	XMFLOAT3 mPos	= { 0.0f, 0.0f, 0.0f };
@@ -62,13 +64,10 @@ private:
 	XMVECTOR mLeftVector;
 	XMVECTOR mRightVector;
 	XMVECTOR mBackVector;
-
-	XMMATRIX mLocalMatrix;
 public:
+	XMMATRIX mLocalMatrix;
 	XMMATRIX mWorldMatrix;
 
 	// Solar System specific
 	float mOrbitRot;
-private:
-	TransformComponent* mParentTransform = nullptr;
 };

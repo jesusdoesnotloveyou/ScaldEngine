@@ -2,7 +2,7 @@
 #include "Graphics.h"
 #include <chrono>
 
-#include "Actor.h"
+#include "../Objects/Geometry/Actor.h"
 
 #include <d3d.h>
 #include <d3d11.h>
@@ -114,7 +114,7 @@ void Graphics::SetupShaders()
 	ThrowIfFailed(mVertexShader.Init(mDevice.Get(), inputElements, (UINT)std::size(inputElements)));
 	ThrowIfFailed(mPixelShader.Init(mDevice.Get()));
 
-	CreateWICTextureFromFile(mDevice.Get(), L"./Textures/valakas.png", nullptr, mTexture.GetAddressOf());
+	CreateWICTextureFromFile(mDevice.Get(), L"./Data/Textures/brick.png", nullptr, mTexture.GetAddressOf());
 }
 
 void Graphics::Setup()
@@ -142,14 +142,15 @@ void Graphics::Setup()
 
 	// Camera setup
 	mCamera.SetPosition(0.0f, 20.0f, -100.0f);
-	mCamera.SetProjectionValues(90.0f, static_cast<float>(mScreenWidth) / static_cast<float>(mScreenHeight), 0.1f, 1000.0f);
+	mCamera.SetProjectionValues(90.0f, static_cast<float>(mScreenWidth) / static_cast<float>(mScreenHeight), 0.1f, 3000.0f);
 }
 
 void Graphics::InitSceneObjects(std::vector<SceneGeometry*>& sceneObjects)
 {
 	for (auto sceneObject : sceneObjects)
 	{
-		sceneObject->Init(mDevice.Get(), mDeviceContext.Get(), mTexture.Get());
+		auto actor = static_cast<Actor*>(sceneObject);
+		actor->Init(mDevice.Get(), mDeviceContext.Get(), mTexture.Get(), "./Data/Models/BasketBall/BasketBall.obj");
 	}
 }
 
@@ -182,9 +183,9 @@ void Graphics::DrawScene(std::vector<SceneGeometry*>& sceneObjects)
 	// Step 11: Set BackBuffer for Output merger
 	mDeviceContext->OMSetRenderTargets(1u, mRtv.GetAddressOf(), mDsv.Get());
 
-	for (auto model : sceneObjects)
+	for (auto actor : sceneObjects)
 	{
-		model->Draw(mCamera.GetViewMatrix(), mCamera.GetProjectionMatrix());
+		actor->Draw(mCamera.GetViewMatrix() * mCamera.GetProjectionMatrix());
 	}
 }
 

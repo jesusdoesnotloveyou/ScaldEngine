@@ -1,10 +1,7 @@
 #include "Engine.h"
 #include <sstream>
 
-#include "../../Objects/Geometry/3D/Cube.h"
-#include "../../Objects/Geometry/3D/Sphere.h"
-#include "../../Objects/Geometry/3D/Shapes.h"
-#include "../../Graphics/Actor.h"
+#include "../../Objects/Geometry/Actor.h"
 
 #include <random>
 #include <ctime>
