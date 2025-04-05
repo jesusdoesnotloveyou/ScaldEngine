@@ -37,19 +37,19 @@ int Engine::Launch()
 void Engine::SetupScene()
 {
 	SceneGeometry* ball1 = new Actor();
-	ball1->GetTransform()->SetScale(15.0f, 15.0f, 15.0f);
+	ball1->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
 	ball1->GetMovement()->SetRotAngle(60.0f);
 
 	SceneGeometry* ball2 = new Actor();
-	ball2->GetTransform()->SetScale(10.0f, 10.0f, 10.0f);
-	ball2->GetTransform()->SetPosition(50.0f, 0.0f, 0.0f);
+	ball2->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
+	ball2->GetTransform()->SetPosition(100.0f, 0.0f, 0.0f);
 	ball2->GetTransform()->SetParentTransform(ball1->GetTransform());
 	ball2->GetMovement()->SetRotAngle(60.0f);
 	ball2->GetMovement()->SetOrbitAngle(80.0f);
 
 	SceneGeometry* ball3 = new Actor();
-	ball3->GetTransform()->SetScale(10.0f, 10.0f, 10.0f);
-	ball3->GetTransform()->SetPosition(80.0f, 0.0f, 0.0f);;
+	ball3->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
+	ball3->GetTransform()->SetPosition(200.0f, 0.0f, 0.0f);;
 
 	mSceneObjects.push_back(ball1);
 	mSceneObjects.push_back(ball2);
@@ -103,7 +103,7 @@ void Engine::PollInput()
 #pragma endregion CameraRotation
 
 #pragma region CameraMovement
-	const float cameraSpeed = 150.f;
+	const float cameraSpeed = 50.f;
 	if (mRenderWindow.kbd.IsKeyPressed('W'))
 	{
 		mRenderWindow.GetGfx().mCamera.AdjustPosition(mRenderWindow.GetGfx().mCamera.GetForwardVector() * cameraSpeed * mTimer.DeltaTime());
