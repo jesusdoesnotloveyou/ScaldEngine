@@ -153,17 +153,12 @@ void Graphics::Setup()
 
 void Graphics::InitSceneObjects(std::vector<SceneGeometry*>& sceneObjects)
 {
-	CreateWICTextureFromFile(mDevice.Get(), L"./Data/Textures/brick.png", nullptr, mTexture.GetAddressOf());
 	SetupShaders();
 
 	for (auto sceneObject : sceneObjects)
 	{
 		auto actor = static_cast<Actor*>(sceneObject);
-		//actor->Init(mDevice.Get(), mDeviceContext.Get(), mTexture.Get(), "./Data/Models/Box/Box2.obj");
-		//actor->Init(mDevice.Get(), mDeviceContext.Get(), mTexture.Get(), "./Data/Models/Chair/monoblock_CHAIR.obj");
-		//actor->Init(mDevice.Get(), mDeviceContext.Get(), mTexture.Get(), "./Data/Models/Rock/rock.obj");
-		//actor->Init(mDevice.Get(), mDeviceContext.Get(), mTexture.Get(), "./Data/Models/Marvel/Model.obj");
-		actor->Init(mDevice.Get(), mDeviceContext.Get(), mTexture.Get(), "./Data/Models/AlienFemale/Alien_Female_Lores.obj");
+		actor->Init(mDevice.Get(), mDeviceContext.Get());
 	}
 }
 
