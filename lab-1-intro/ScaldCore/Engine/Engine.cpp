@@ -2,6 +2,7 @@
 #include <sstream>
 
 #include "../../Objects/Geometry/Actor.h"
+#include "../../Data/ModelData.h"
 
 #include <random>
 #include <ctime>
@@ -36,24 +37,30 @@ int Engine::Launch()
 
 void Engine::SetupScene()
 {
-	SceneGeometry* ball1 = new Actor();
-	ball1->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
-	ball1->GetMovement()->SetRotAngle(60.0f);
+	ModelData* alienFemaleModel = new ModelData("./Data/Models/AlienFemale/Alien_Female_Lores.obj", L"./Data/Textures/brick.png");
+	ModelData* boxModel = new ModelData("./Data/Models/Box/box2.obj", L"./Data/Textures/planks.png");
+	ModelData* chairModel = new ModelData("./Data/Models/Chair/monoblock_CHAIR.obj", L"./Data/Textures/valakas.png");
+	ModelData* rock = new ModelData("./Data/Models/Rock/rock.obj", L"./Data/Textures/planks.png");
+	ModelData* marvel = new ModelData("./Data/Models/Marvel/Model.obj", L"./Data/Textures/planks.png");
 
-	SceneGeometry* ball2 = new Actor();
-	ball2->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
-	ball2->GetTransform()->SetPosition(100.0f, 0.0f, 0.0f);
-	ball2->GetTransform()->SetParentTransform(ball1->GetTransform());
-	ball2->GetMovement()->SetRotAngle(60.0f);
-	ball2->GetMovement()->SetOrbitAngle(80.0f);
+	SceneGeometry* alien = new Actor(alienFemaleModel);
+	alien->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
+	alien->GetMovement()->SetRotAngle(60.0f);
 
-	SceneGeometry* ball3 = new Actor();
-	ball3->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
-	ball3->GetTransform()->SetPosition(200.0f, 0.0f, 0.0f);;
+	SceneGeometry* box = new Actor(boxModel);
+	box->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
+	box->GetTransform()->SetPosition(100.0f, 0.0f, 0.0f);
+	box->GetTransform()->SetParentTransform(alien->GetTransform());
+	box->GetMovement()->SetRotAngle(60.0f);
+	box->GetMovement()->SetOrbitAngle(80.0f);
 
-	mSceneObjects.push_back(ball1);
-	mSceneObjects.push_back(ball2);
-	mSceneObjects.push_back(ball3);
+	SceneGeometry* chair = new Actor(chairModel);
+	chair->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
+	chair->GetTransform()->SetPosition(200.0f, 0.0f, 0.0f);;
+
+	mSceneObjects.push_back(alien);
+	mSceneObjects.push_back(box);
+	mSceneObjects.push_back(chair);
 	
 	mRenderWindow.GetGfx().InitSceneObjects(mSceneObjects);
 }
