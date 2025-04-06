@@ -7,8 +7,6 @@
 #include <wrl.h>
 #include <vector>
 
-#include <WICTextureLoader.h>
-
 #include "Camera.h"
 #include "Shaders.h"
 
@@ -61,5 +59,4 @@ private:
 
 	// Sampler
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> mSamplerState;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mTexture;
 };

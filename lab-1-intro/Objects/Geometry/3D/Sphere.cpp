@@ -14,9 +14,9 @@ Sphere::~Sphere()
 {
 }
 
-void Sphere::Init(ID3D11Device* mDevice, ID3D11DeviceContext* pDeviceContext, ID3D11ShaderResourceView* pTexture, const std::string& filePath)
+void Sphere::Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, const std::string& filePath, const std::wstring& texturePath)
 {
-	SceneGeometry::Init(mDevice, pDeviceContext, pTexture, filePath);
+	SceneGeometry::Init(pDevice, pDeviceContext);
 }
 
 void Sphere::Update(const ScaldTimer& st)

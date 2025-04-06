@@ -14,10 +14,10 @@
 using std::vector;
 using std::tuple;
 
-class RenderComponent;
-class CollisionComponent;
-class InputComponent;
-class MovementComponent;
+//class RenderComponent;
+//class CollisionComponent;
+//class InputComponent;
+//class MovementComponent;
 
 class SceneGeometry
 {
@@ -27,7 +27,7 @@ public:
 	// would be changed to normal constructor
 	virtual ~SceneGeometry();
 
-	virtual void Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, ID3D11ShaderResourceView* pTexture = nullptr, const std::string& filePath = "") = 0;
+	virtual void Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, const std::string& filePath = "", const std::wstring& texturePath = L"") = 0;
 	virtual void Update(const ScaldTimer& st) = 0;
 	virtual void Draw(const XMMATRIX& viewMatrixProjectionMatrix);
 protected:

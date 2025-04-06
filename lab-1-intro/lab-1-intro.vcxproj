@@ -44,6 +44,7 @@
     <ClCompile Include="ScaldException.cpp" />
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="Data\ModelData.h" />
     <ClInclude Include="Delegates\catch.hpp" />
     <ClInclude Include="Delegates\Delegates.h" />
     <ClInclude Include="Graphics\Camera.h" />

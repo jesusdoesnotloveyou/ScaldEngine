@@ -21,9 +21,9 @@ SceneGeometry::~SceneGeometry()
     if (mMovementComponent) delete mMovementComponent;
 }
 
-void SceneGeometry::Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, ID3D11ShaderResourceView* pTexture, const std::string& filePath)
+void SceneGeometry::Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, const std::string& filePath, const std::wstring& texturePath)
 {
-    if (!model.Init(filePath, pDevice, pDeviceContext, pTexture))
+    if (!model.Init(pDevice, pDeviceContext, filePath, texturePath))
     {
         throw std::exception{};
     }
@@ -31,6 +31,7 @@ void SceneGeometry::Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceCont
 
 void SceneGeometry::Update(const ScaldTimer& st)
 {
+    mTransformComponent->AdjustRotation(0.0f, 0.1f * st.DeltaTime(), 0.0f);
     mTransformComponent->Update(st);
     mCollisionComponent->Update(st);
     mMovementComponent->Update(st);
