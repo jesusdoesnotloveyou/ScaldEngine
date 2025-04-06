@@ -1,23 +1,26 @@
 #include "Model.h"
+#include <WICTextureLoader.h>
 
-bool Model::Init(const std::string& filePath, ID3D11Device* device, ID3D11DeviceContext* deviceContext, ID3D11ShaderResourceView* texture)
+bool Model::Init(ID3D11Device* device, ID3D11DeviceContext* deviceContext, const std::string& modelFilePath, const std::wstring& textureFilePath)
 {
     pDevice = device;
     pDeviceContext = deviceContext;
-    pTexture = texture;
+    //mTexture = texture;
     ThrowIfFailed(mCB.Init(pDevice, pDeviceContext));
+    ThrowIfFailed(CreateWICTextureFromFile(pDevice, textureFilePath.data(), nullptr, mTexture.GetAddressOf()));
+    if (!LoadModel(modelFilePath)) return false;
 
-    if (!LoadModel(filePath)) return false;
+    return true;
 }
 
 void Model::SetTexture(ID3D11ShaderResourceView* texture)
 {
-    pTexture = texture;
+    mTexture = texture;
 }
 
 void Model::Draw()
 {
-    pDeviceContext->PSSetShaderResources(0u, 1u, &pTexture);
+    pDeviceContext->PSSetShaderResources(0u, 1u, mTexture.GetAddressOf());
     pDeviceContext->VSSetConstantBuffers(0u, 1u, mCB.GetAddressOf());
 
     for (auto& mesh : mMeshes)

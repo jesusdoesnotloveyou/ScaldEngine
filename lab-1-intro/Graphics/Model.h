@@ -14,7 +14,7 @@ public:
 	Model() = default;
 	~Model() = default;
 
-	bool Init(const std::string& filePath, ID3D11Device* mDevice, ID3D11DeviceContext* pDeviceContext, ID3D11ShaderResourceView* texture);
+	bool Init(ID3D11Device* device, ID3D11DeviceContext* deviceContext, const std::string& modelFilePath, const std::wstring& textureFilePath);
 	void SetTexture(ID3D11ShaderResourceView* texture);
 	void Draw();
 
@@ -28,8 +28,8 @@ private:
 	ConstantBuffer<ConstBufferVS> mCB;
 	
 	std::vector<Mesh> mMeshes;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mTexture;
+
 	ID3D11Device* pDevice = nullptr;
 	ID3D11DeviceContext* pDeviceContext = nullptr;
-
-	ID3D11ShaderResourceView* pTexture = nullptr;
 };
