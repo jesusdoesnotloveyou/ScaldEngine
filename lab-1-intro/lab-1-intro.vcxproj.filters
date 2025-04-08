@@ -212,6 +212,9 @@
     <ClInclude Include="Data\ModelData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\ThirdPersonCamera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\MyVeryFirstShader.hlsl">

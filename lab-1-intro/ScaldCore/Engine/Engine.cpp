@@ -72,26 +72,26 @@ void Engine::PollInput()
 		unsigned char keyCode = keyEvent.GetCode();
 	}
 
+#pragma region FPSCamera
 #pragma region CameraOrbitalMovement
 	XMVECTOR outScale;
 	XMVECTOR outQuat;
 	XMVECTOR outTrans;
 	XMFLOAT3 tmp;
 
-	// sun
 	if (mRenderWindow.kbd.IsKeyPressed('1'))
 	{
-		if (XMMatrixDecompose(&outScale, &outQuat, &outTrans, mSceneObjects[0]->GetTransform()->mWorldMatrix))
+		if (XMMatrixDecompose(&outScale, &outQuat, &outTrans, mSceneObjects[1]->GetTransform()->mWorldMatrix))
 		{
 			XMStoreFloat3(&tmp, outScale);
 			tmp.y = 0.0f;
 			outScale = XMLoadFloat3(&tmp);
+			XMVECTOR offsetY = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
 			mRenderWindow.GetGfx().mCamera.SetLookAtPosition(outTrans);
-			mRenderWindow.GetGfx().mCamera.SetPosition(outTrans - outScale);
+			mRenderWindow.GetGfx().mCamera.SetPosition(outTrans - outScale + offsetY);
 		}
 	}
-
-#pragma endregion
+#pragma endregion CameraOrbitalMovement
 
 #pragma region CameraRotation
 	std::ostringstream oss;
@@ -114,28 +114,33 @@ void Engine::PollInput()
 	if (mRenderWindow.kbd.IsKeyPressed('W'))
 	{
 		mRenderWindow.GetGfx().mCamera.AdjustPosition(mRenderWindow.GetGfx().mCamera.GetForwardVector() * cameraSpeed * mTimer.DeltaTime());
+		mSceneObjects[1]->GetTransform()->AdjustPosition(mRenderWindow.GetGfx().mCamera.GetForwardVector() * cameraSpeed * mTimer.DeltaTime());
 	}
 	if (mRenderWindow.kbd.IsKeyPressed('S'))
 	{
 		mRenderWindow.GetGfx().mCamera.AdjustPosition(mRenderWindow.GetGfx().mCamera.GetBackwardVector() * cameraSpeed * mTimer.DeltaTime());
+		mSceneObjects[1]->GetTransform()->AdjustPosition(mRenderWindow.GetGfx().mCamera.GetBackwardVector() * cameraSpeed * mTimer.DeltaTime());
 	}
 	if (mRenderWindow.kbd.IsKeyPressed('D'))
 	{
 		mRenderWindow.GetGfx().mCamera.AdjustPosition(mRenderWindow.GetGfx().mCamera.GetRightVector() * cameraSpeed * mTimer.DeltaTime());
+		mSceneObjects[1]->GetTransform()->AdjustPosition(mRenderWindow.GetGfx().mCamera.GetRightVector() * cameraSpeed * mTimer.DeltaTime());
 	}
 	if (mRenderWindow.kbd.IsKeyPressed('A'))
 	{
 		mRenderWindow.GetGfx().mCamera.AdjustPosition(mRenderWindow.GetGfx().mCamera.GetLeftVector() * cameraSpeed * mTimer.DeltaTime());
+		mSceneObjects[1]->GetTransform()->AdjustPosition(mRenderWindow.GetGfx().mCamera.GetLeftVector() * cameraSpeed * mTimer.DeltaTime());
 	}
-	if (mRenderWindow.kbd.IsKeyPressed('E'))
+	/*if (mRenderWindow.kbd.IsKeyPressed('E'))
 	{
 		mRenderWindow.GetGfx().mCamera.AdjustPosition(0.0f, cameraSpeed * mTimer.DeltaTime(), 0.0f);
 	}
 	if (mRenderWindow.kbd.IsKeyPressed('Q'))
 	{
 		mRenderWindow.GetGfx().mCamera.AdjustPosition(0.0f, -cameraSpeed * mTimer.DeltaTime(), 0.0f);
-	}
+	}*/
 #pragma endregion CameraMovement
+#pragma endregion FPSCamera
 }
 
 void Engine::UpdateScene(const ScaldTimer& st)

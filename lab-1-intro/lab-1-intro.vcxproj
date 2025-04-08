@@ -52,6 +52,7 @@
     <ClInclude Include="Graphics\Mesh.h" />
     <ClInclude Include="Graphics\ScaldCoreTypes.h" />
     <ClInclude Include="Graphics\Shaders.h" />
+    <ClInclude Include="Graphics\ThirdPersonCamera.h" />
     <ClInclude Include="Objects\Components\Collision\CollisionComponent.h" />
     <ClInclude Include="Graphics\ConstantBuffer.h" />
     <ClInclude Include="Objects\Components\InputComponent.h" />
