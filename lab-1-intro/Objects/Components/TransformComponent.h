@@ -36,9 +36,6 @@ public:
 	void AdjustPosition(const XMFLOAT3& pos);
 	void AdjustPosition(float x, float y, float z);
 
-	void SetLookAtPosition(XMFLOAT3 lookAtPosition);
-	void SetLookAtPosition(XMVECTOR lookAtPosition);
-
 	XMVECTOR GetForwardVector()const;
 	XMVECTOR GetRightVector()const;
 	XMVECTOR GetBackVector()const;
