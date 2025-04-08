@@ -3,10 +3,7 @@
 
 Camera::Camera()
 {
-	mPos = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	mRot = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	mPosVector = XMLoadFloat3(&mPos);
-	mRotVector = XMLoadFloat3(&mRot);
+	mTransformComponent = new TransformComponent();
 	UpdateViewMatrix();
 }
 
@@ -26,126 +23,74 @@ const XMMATRIX& Camera::GetProjectionMatrix() const
 	return mProjectionMatrix;
 }
 
-const XMVECTOR& Camera::GetPositionVector() const
+const XMVECTOR& Camera::GetPosition() const
 {
-	return mPosVector;
+	return mTransformComponent->GetPositionVector();
 }
 
-const XMFLOAT3& Camera::GetPositionFloat3() const
+const XMVECTOR& Camera::GetRotation() const
 {
-	return mPos;
+	return mTransformComponent->GetRotationVector();
 }
 
-const XMVECTOR& Camera::GetRotationVector() const
+void Camera::SetPosition(const XMVECTOR& pos)
 {
-	return mRotVector;
-}
-
-const XMFLOAT3& Camera::GetRotationFloat3() const
-{
-	return mRot;
-}
-
-void Camera::SetPosition(const XMVECTOR& posVector)
-{
-	// proper way to update vector's value
-	XMStoreFloat3(&mPos, posVector);
-	mPosVector = posVector;
-	UpdateViewMatrix();
-}
-
-void Camera::SetPosition(const XMFLOAT3& pos)
-{
-	mPos = pos;
-	mPosVector = XMLoadFloat3(&mPos);
+	mTransformComponent->SetPosition(pos);
 	UpdateViewMatrix();
 }
 
 void Camera::SetPosition(float x, float y, float z)
 {
-	mPos = XMFLOAT3(x, y, z);
-	mPosVector = XMLoadFloat3(&mPos);
+	mTransformComponent->SetPosition(x, y, z);
 	UpdateViewMatrix();
 }
 
-void Camera::AdjustPosition(const XMVECTOR& posVector)
+void Camera::AdjustPosition(const XMVECTOR& pos)
 {
-	mPosVector += posVector;
-	XMStoreFloat3(&mPos, mPosVector);
-	UpdateViewMatrix();
-}
-
-void Camera::AdjustPosition(const XMFLOAT3& pos)
-{
-	mPos.x += pos.x;
-	mPos.y += pos.y;
-	mPos.z += pos.z;
-	mPosVector = XMLoadFloat3(&mPos);
+	mTransformComponent->AdjustPosition(pos);
 	UpdateViewMatrix();
 }
 
 void Camera::AdjustPosition(float x, float y, float z)
 {
-	mPos.x += x;
-	mPos.y += y;
-	mPos.z += z;
-	mPosVector = XMLoadFloat3(&mPos);
+	mTransformComponent->AdjustPosition(x, y, z);
 	UpdateViewMatrix();
 }
 
-void Camera::SetRotation(const XMVECTOR& rotVector)
+void Camera::SetRotation(const XMVECTOR& rot)
 {
-	mRotVector = rotVector;
-	XMStoreFloat3(&mRot, rotVector);
-	UpdateViewMatrix();
-}
-
-void Camera::SetRotation(const XMFLOAT3& rot)
-{
-	mRot = rot;
-	mRotVector = XMLoadFloat3(&mRot);
+	mTransformComponent->SetRotation(rot);
 	UpdateViewMatrix();
 }
 
 void Camera::SetRotation(float x, float y, float z)
 {
-	mRot = XMFLOAT3(x, y, z);
-	mRotVector = XMLoadFloat3(&mRot);
+	mTransformComponent->SetRotation(x, y, z);
 	UpdateViewMatrix();
 }
 
-void Camera::AdjustRotation(const XMVECTOR& rotVector)
+void Camera::AdjustRotation(const XMVECTOR& rot)
 {
-	mRotVector += rotVector;
-	XMStoreFloat3(&mRot, mRotVector);
-	UpdateViewMatrix();
-}
-
-void Camera::AdjustRotation(const XMFLOAT3& rot)
-{
-	mRot.x += rot.x;
-	mRot.y += rot.y;
-	mRot.z += rot.z;
-	mRotVector = XMLoadFloat3(&mRot);
+	mTransformComponent->AdjustRotation(rot);
 	UpdateViewMatrix();
 }
 
 void Camera::AdjustRotation(float x, float y, float z)
 {
-	mRot.x += x;
-	mRot.y += y;
-	mRot.z += z;
-	mRotVector = XMLoadFloat3(&mRot);
+	mTransformComponent->AdjustRotation(x, y, z);
 	UpdateViewMatrix();
 }
 
 void Camera::SetLookAtPosition(XMFLOAT3 lookAtPosition)
 {
-	if (lookAtPosition.x == mPos.x && lookAtPosition.y == mPos.y && lookAtPosition.z == mPos.z) return;
+	if (lookAtPosition.x == mTransformComponent->GetPositionFloat3().x
+		&& lookAtPosition.y == mTransformComponent->GetPositionFloat3().y
+		&& lookAtPosition.z == mTransformComponent->GetPositionFloat3().z)
+		return;
 
-	lookAtPosition.x = mPos.x - lookAtPosition.x;
-	lookAtPosition.y = mPos.y - lookAtPosition.y;
-	lookAtPosition.z = mPos.z - lookAtPosition.z;
+	lookAtPosition.x = mTransformComponent->GetPositionFloat3().x - lookAtPosition.x;
+	lookAtPosition.y = mTransformComponent->GetPositionFloat3().y - lookAtPosition.y;
+	lookAtPosition.z = mTransformComponent->GetPositionFloat3().z - lookAtPosition.z;
 
 	float pitch = 0.0f;
 	if (lookAtPosition.y != 0.0f)
@@ -162,7 +107,7 @@ void Camera::SetLookAtPosition(XMFLOAT3 lookAtPosition)
 	if (lookAtPosition.z > 0)
 		yaw += XM_PI;
 
-	SetRotation(pitch, yaw, 0.0f);
+	mTransformComponent->SetRotation(pitch, yaw, 0.0f);
 }
 
 void Camera::SetLookAtPosition(XMVECTOR lookAtPosition)
@@ -172,24 +117,44 @@ void Camera::SetLookAtPosition(XMVECTOR lookAtPosition)
 	SetLookAtPosition(tmp);
 }
 
-const XMVECTOR& Camera::GetForwardVector()
+XMVECTOR Camera::GetForwardVector()const
 {
-	return mForwardVector;
+	return mTransformComponent->GetForwardVector();
 }
 
-const XMVECTOR& Camera::GetRightVector()
+XMVECTOR Camera::GetRightVector()const
 {
-	return mRightVector;
+	return mTransformComponent->GetRightVector();
 }
 
-const XMVECTOR& Camera::GetBackwardVector()
+XMVECTOR Camera::GetBackVector()const
 {
-	return mBackwardVector;
+	return mTransformComponent->GetBackVector();
 }
 
-const XMVECTOR& Camera::GetLeftVector()
+XMVECTOR Camera::GetLeftVector()const
 {
-	return mLeftVector;
+	return mTransformComponent->GetLeftVector();
+}
+
+void Camera::SetForwardVector(const XMVECTOR& relativeForwardVector)
+{
+	mTransformComponent->SetForwardVector(relativeForwardVector);
+}
+
+void Camera::SetRightVector(const XMVECTOR& relativeRightVector)
+{
+	mTransformComponent->SetRightVector(relativeRightVector);
+}
+
+void Camera::SetBackVector(const XMVECTOR& relativeBackVector)
+{
+	mTransformComponent->SetBackVector(relativeBackVector);
+}
+
+void Camera::SetLeftVector(const XMVECTOR& relativeLeftVector)
+{
+	mTransformComponent->SetLeftVector(relativeLeftVector);
 }
 
 void Camera::SetupAttachment(TransformComponent* transformToAttach)
@@ -207,19 +172,19 @@ void Camera::ClearAttachment()
 void Camera::UpdateViewMatrix()
 {
 	//Calculate camera rotation matrix
-	XMMATRIX cameraRotationMatrix = XMMatrixRotationRollPitchYaw(mRot.x, mRot.y, mRot.z);
+	XMMATRIX cameraRotationMatrix = XMMatrixRotationRollPitchYawFromVector(GetRotation());
 	//Calculate unit vector of cam target based off camera forward value transformed by cam rotation matrix
 	XMVECTOR camTarget = XMVector3TransformCoord(ScaldMath::ForwardVector, cameraRotationMatrix);
 	//Adjust cam target to be offset by the camera's current position
-	camTarget += mPosVector;
+	camTarget += GetPosition();
 	//Calculate up direction based on current rotation
 	XMVECTOR upDir = XMVector3TransformCoord(ScaldMath::UpVector, cameraRotationMatrix);
 	//Rebuild view matrix
-	mViewMatrix = XMMatrixLookAtLH(mPosVector, camTarget, upDir);
+	mViewMatrix = XMMatrixLookAtLH(GetPosition(), camTarget, upDir);
 
-	XMMATRIX vecRotationMatrix = XMMatrixRotationRollPitchYaw(0.0f, mRot.y, 0.0f);
-	mForwardVector = XMVector3TransformCoord(ScaldMath::ForwardVector, vecRotationMatrix);
-	mBackwardVector = XMVector3TransformCoord(ScaldMath::BackVector, vecRotationMatrix);
-	mLeftVector = XMVector3TransformCoord(ScaldMath::LeftVector, vecRotationMatrix);
-	mRightVector = XMVector3TransformCoord(ScaldMath::RightVector, vecRotationMatrix);
+	XMMATRIX vecRotationMatrix = XMMatrixRotationRollPitchYaw(0.0f, XMVectorGetY(GetPosition()), 0.0f);
+	SetForwardVector(XMVector3TransformCoord(ScaldMath::ForwardVector, vecRotationMatrix));
+	SetBackVector(XMVector3TransformCoord(ScaldMath::BackVector, vecRotationMatrix));
+	SetLeftVector(XMVector3TransformCoord(ScaldMath::LeftVector, vecRotationMatrix));
+	SetRightVector(XMVector3TransformCoord(ScaldMath::RightVector, vecRotationMatrix));
 }

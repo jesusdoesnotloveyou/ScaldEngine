@@ -41,6 +41,11 @@ public:
 	XMVECTOR GetBackVector()const;
 	XMVECTOR GetLeftVector()const;
 
+	void SetForwardVector(const XMVECTOR& ForwardVector);
+	void SetRightVector(const XMVECTOR& RightVector);
+	void SetBackVector(const XMVECTOR& BackVector);
+	void SetLeftVector(const XMVECTOR& LeftVector);
+
 	void SetParentTransform(TransformComponent* parentTransform);
 private:
 	void UpdateLocalMatrix();

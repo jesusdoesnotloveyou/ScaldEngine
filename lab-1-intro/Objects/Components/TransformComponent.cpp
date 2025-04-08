@@ -3,7 +3,7 @@
 TransformComponent::TransformComponent()
 {
 	mLocalMatrix = mWorldMatrix = XMMatrixIdentity();
-	mScale = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	mScale = XMFLOAT3(1.0f, 1.0f, 1.0f);
 	mRot = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	mPos = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	mScaleVector = XMLoadFloat3(&mScale);
@@ -178,6 +178,26 @@ XMVECTOR TransformComponent::GetBackVector()const
 XMVECTOR TransformComponent::GetLeftVector()const
 {
 	return mLeftVector;
+}
+
+void TransformComponent::SetForwardVector(const XMVECTOR& ForwardVector)
+{
+	mForwardVector = ForwardVector;
+}
+
+void TransformComponent::SetRightVector(const XMVECTOR& RightVector)
+{
+	mRightVector = RightVector;
+}
+
+void TransformComponent::SetBackVector(const XMVECTOR& BackVector)
+{
+	mBackVector = BackVector;
+}
+
+void TransformComponent::SetLeftVector(const XMVECTOR& LeftVector)
+{
+	mLeftVector = LeftVector;
 }
 
 void TransformComponent::SetParentTransform(TransformComponent* parentTransform)
