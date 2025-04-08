@@ -194,13 +194,13 @@ const XMVECTOR& Camera::GetLeftVector()
 
 void Camera::SetupAttachment(TransformComponent* transformToAttach)
 {
-	mAttachmentTransform = transformToAttach;
+	mTransformComponent->SetParentTransform(transformToAttach);
 	bIsAttached = true;
 }
 
 void Camera::ClearAttachment()
 {
-	mAttachmentTransform = nullptr;
+	mTransformComponent->SetParentTransform(nullptr);
 	bIsAttached = false;
 }
 
