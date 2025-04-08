@@ -4,7 +4,7 @@
 
 using namespace DirectX;
 
-struct Transform;
+class TransformComponent;
 
 class Camera
 {
@@ -44,13 +44,13 @@ public:
 	const XMVECTOR& GetLeftVector();
 
 	// camera orbital rotation specific
-	void SetupAttachment(Transform* transformToAttach);
+	void SetupAttachment(TransformComponent* transformToAttach);
 	void ClearAttachment();
 	FORCEINLINE bool IsAttached() const { return bIsAttached; }
 
-	Transform* mAttachmentTransform = nullptr;
+	TransformComponent* mAttachmentTransform = nullptr;
 
-private:
+protected:
 	void UpdateViewMatrix();
 
 	XMFLOAT3 mPos;

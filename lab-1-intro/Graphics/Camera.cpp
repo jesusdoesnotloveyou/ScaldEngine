@@ -1,5 +1,5 @@
 #include "Camera.h"
-#include "ScaldCoreTypes.h"
+#include "../Objects/Components/TransformComponent.h"
 
 Camera::Camera()
 {
@@ -192,7 +192,7 @@ const XMVECTOR& Camera::GetLeftVector()
 	return mLeftVector;
 }
 
-void Camera::SetupAttachment(Transform* transformToAttach)
+void Camera::SetupAttachment(TransformComponent* transformToAttach)
 {
 	mAttachmentTransform = transformToAttach;
 	bIsAttached = true;
