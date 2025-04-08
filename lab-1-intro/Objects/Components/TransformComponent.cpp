@@ -3,7 +3,7 @@
 TransformComponent::TransformComponent()
 {
 	mLocalMatrix = mWorldMatrix = XMMatrixIdentity();
-	mScale = XMFLOAT3(0.0f, 0.0f, 0.0f);
+	mScale = XMFLOAT3(1.0f, 1.0f, 1.0f);
 	mRot = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	mPos = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	mScaleVector = XMLoadFloat3(&mScale);
@@ -160,39 +160,6 @@ void TransformComponent::AdjustRotation(float x, float y, float z)
 	UpdateWorldMatrix();
 }
 
-void TransformComponent::SetLookAtPosition(XMFLOAT3 lookAtPosition)
-{
-	if (lookAtPosition.x == mPos.x && lookAtPosition.y == mPos.y && lookAtPosition.z == mPos.z) return;
-
-	lookAtPosition.x = mPos.x - lookAtPosition.x;
-	lookAtPosition.y = mPos.y - lookAtPosition.y;
-	lookAtPosition.z = mPos.z - lookAtPosition.z;
-
-	float pitch = 0.0f;
-	if (lookAtPosition.y != 0.0f)
-	{
-		const float distance = static_cast<float>(sqrt(lookAtPosition.x * lookAtPosition.x + lookAtPosition.z * lookAtPosition.z));
-		pitch = static_cast<float>(atan(lookAtPosition.y / distance));
-	}
-
-	float yaw = 0.0f;
-	if (lookAtPosition.x != 0.0f)
-	{
-		yaw = static_cast<float>(atan(lookAtPosition.x / lookAtPosition.z));
-	}
-	if (lookAtPosition.z > 0)
-		yaw += XM_PI;
-
-	SetRotation(pitch, yaw, 0.0f);
-}
-
-void TransformComponent::SetLookAtPosition(XMVECTOR lookAtPosition)
-{
-	XMFLOAT3 tmp;
-	XMStoreFloat3(&tmp, lookAtPosition);
-	SetLookAtPosition(tmp);
-}
-
 XMVECTOR TransformComponent::GetForwardVector()const
 {
 	return mForwardVector;
@@ -211,6 +178,26 @@ XMVECTOR TransformComponent::GetBackVector()const
 XMVECTOR TransformComponent::GetLeftVector()const
 {
 	return mLeftVector;
+}
+
+void TransformComponent::SetForwardVector(const XMVECTOR& ForwardVector)
+{
+	mForwardVector = ForwardVector;
+}
+
+void TransformComponent::SetRightVector(const XMVECTOR& RightVector)
+{
+	mRightVector = RightVector;
+}
+
+void TransformComponent::SetBackVector(const XMVECTOR& BackVector)
+{
+	mBackVector = BackVector;
+}
+
+void TransformComponent::SetLeftVector(const XMVECTOR& LeftVector)
+{
+	mLeftVector = LeftVector;
 }
 
 void TransformComponent::SetParentTransform(TransformComponent* parentTransform)

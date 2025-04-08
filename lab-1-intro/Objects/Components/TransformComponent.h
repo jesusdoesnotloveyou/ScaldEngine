@@ -36,13 +36,15 @@ public:
 	void AdjustPosition(const XMFLOAT3& pos);
 	void AdjustPosition(float x, float y, float z);
 
-	void SetLookAtPosition(XMFLOAT3 lookAtPosition);
-	void SetLookAtPosition(XMVECTOR lookAtPosition);
-
 	XMVECTOR GetForwardVector()const;
 	XMVECTOR GetRightVector()const;
 	XMVECTOR GetBackVector()const;
 	XMVECTOR GetLeftVector()const;
+
+	void SetForwardVector(const XMVECTOR& ForwardVector);
+	void SetRightVector(const XMVECTOR& RightVector);
+	void SetBackVector(const XMVECTOR& BackVector);
+	void SetLeftVector(const XMVECTOR& LeftVector);
 
 	void SetParentTransform(TransformComponent* parentTransform);
 private:

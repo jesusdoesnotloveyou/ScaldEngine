@@ -3,6 +3,8 @@
 #include <chrono>
 
 #include "../Objects/Geometry/Actor.h"
+#include "Camera.h"
+#include "ThirdPersonCamera.h"
 
 #include <d3d.h>
 #include <d3d11.h>
@@ -81,6 +83,15 @@ Graphics::Graphics(HWND hWnd, int width, int height)
 
 	// Step 11: Set BackBuffer for Output merger
 	mDeviceContext->OMSetRenderTargets(1u, mRtv.GetAddressOf(), mDsv.Get());
+
+	//mCamera = new Camera();
+	mTPCamera = new ThirdPersonCamera();
+}
+
+Graphics::~Graphics()
+{
+	//if (mCamera) delete mCamera;
+	if (mTPCamera) delete mTPCamera;
 }
 
 void Graphics::SetupShaders()
@@ -148,13 +159,19 @@ void Graphics::Setup()
 	ThrowIfFailed(mDevice->CreateSamplerState(&sampDesc, mSamplerState.GetAddressOf()));
 
 	// Camera setup
-	mCamera.SetPosition(0.0f, 20.0f, -100.0f);
-	mCamera.SetProjectionValues(90.0f, static_cast<float>(mScreenWidth) / static_cast<float>(mScreenHeight), 0.1f, 3000.0f);
+	mTPCamera->SetPosition(0.0f, 20.0f, -100.0f);
+	mTPCamera->SetProjectionValues(90.0f, static_cast<float>(mScreenWidth) / static_cast<float>(mScreenHeight), 0.1f, 3000.0f);
 }
 
 void Graphics::InitSceneObjects(std::vector<SceneGeometry*>& sceneObjects)
 {
+	mTPCamera->SetPlayerCharacter(sceneObjects[0]);
+
 	SetupShaders();
+
+	XMVECTOR cameraOffset = XMVectorSet(-1.0f, +1.0f, -1.0f, 0.0f);
+	mTPCamera->SetPosition(sceneObjects[1]->GetTransform()->GetPositionVector() + cameraOffset);
+	mTPCamera->SetLookAtPosition(sceneObjects[1]->GetTransform()->GetPositionVector());
 
 	for (auto sceneObject : sceneObjects)
 	{
@@ -181,7 +198,7 @@ void Graphics::DrawScene(std::vector<SceneGeometry*>& sceneObjects)
 
 	for (auto actor : sceneObjects)
 	{
-		actor->Draw(mCamera.GetViewMatrix() * mCamera.GetProjectionMatrix());
+		actor->Draw(mTPCamera->GetViewMatrix() * mTPCamera->GetProjectionMatrix());
 	}
 }
 

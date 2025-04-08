@@ -20,6 +20,7 @@ void Model::SetTexture(ID3D11ShaderResourceView* texture)
 
 void Model::Draw()
 {
+                                                 // &mTexture will delete texture, since & clears memory
     pDeviceContext->PSSetShaderResources(0u, 1u, mTexture.GetAddressOf());
     pDeviceContext->VSSetConstantBuffers(0u, 1u, mCB.GetAddressOf());
 

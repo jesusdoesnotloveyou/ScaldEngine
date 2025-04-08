@@ -7,7 +7,6 @@
 #include <wrl.h>
 #include <vector>
 
-#include "Camera.h"
 #include "Shaders.h"
 
 #pragma comment(lib, "d3d11.lib")
@@ -15,12 +14,14 @@
 #pragma comment(lib, "dxgi.lib")
 
 class SceneGeometry;
+class Camera;
+class ThirdPersonCamera;
 
 class Graphics
 {
 public:
 	Graphics(HWND hWnd, int width, int height);
-	~Graphics() = default;
+	~Graphics();
 
 	Graphics(const Graphics&) = delete;
 	Graphics& operator=(const Graphics&) = delete;
@@ -32,7 +33,8 @@ public:
 	void DrawScene(std::vector<SceneGeometry*>& sceneObjects);
 	void EndFrame();
 
-	Camera mCamera;
+	Camera* mCamera = nullptr;
+	ThirdPersonCamera* mTPCamera = nullptr;
 private:
 	void SetupShaders();
 
