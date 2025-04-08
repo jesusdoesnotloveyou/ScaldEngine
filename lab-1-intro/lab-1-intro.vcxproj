@@ -24,6 +24,7 @@
     <ClCompile Include="Graphics\Model.cpp" />
     <ClCompile Include="Graphics\Mesh.cpp" />
     <ClCompile Include="Graphics\Shaders.cpp" />
+    <ClCompile Include="Graphics\ThirdPersonCamera.cpp" />
     <ClCompile Include="Objects\Components\Collision\CollisionComponent.cpp" />
     <ClCompile Include="Graphics\IndexBuffer.h" />
     <ClCompile Include="Objects\Components\InputComponent.cpp" />
