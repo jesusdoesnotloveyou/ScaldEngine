@@ -3,6 +3,8 @@
 
 #include "../../Objects/Geometry/Actor.h"
 #include "../../Data/ModelData.h"
+#include "../../Graphics/Camera.h"
+#include "../../Graphics/ThirdPersonCamera.h"
 
 #include <random>
 #include <ctime>
@@ -87,8 +89,8 @@ void Engine::PollInput()
 			tmp.y = 0.0f;
 			outScale = XMLoadFloat3(&tmp);
 			XMVECTOR offsetY = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-			mRenderWindow.GetGfx().mCamera.SetLookAtPosition(outTrans);
-			mRenderWindow.GetGfx().mCamera.SetPosition(outTrans - outScale + offsetY);
+			mRenderWindow.GetGfx().mCamera->SetLookAtPosition(outTrans);
+			mRenderWindow.GetGfx().mCamera->SetPosition(outTrans - outScale + offsetY);
 		}
 	}
 #pragma endregion CameraOrbitalMovement
@@ -99,7 +101,7 @@ void Engine::PollInput()
 	if (mRenderWindow.mouse.IsRightPressed()) {
 		if (mouseEvent.GetType() == Mouse::Event::Type::RawMove) 
 		{
-			mRenderWindow.GetGfx().mCamera.AdjustRotation((float)mouseEvent.GetPosY() * 0.01f, (float)mouseEvent.GetPosX() * 0.01f, 0.0f);
+			mRenderWindow.GetGfx().mCamera->AdjustRotation((float)mouseEvent.GetPosY() * 0.01f, (float)mouseEvent.GetPosX() * 0.01f, 0.0f);
 #if 0
 			oss << "Mouse X: " << mouseEvent.GetPosX() <<
 				" Mouse Y: " << mouseEvent.GetPosY() << "\n";
@@ -113,23 +115,23 @@ void Engine::PollInput()
 	const float cameraSpeed = 50.f;
 	if (mRenderWindow.kbd.IsKeyPressed('W'))
 	{
-		mRenderWindow.GetGfx().mCamera.AdjustPosition(mRenderWindow.GetGfx().mCamera.GetForwardVector() * cameraSpeed * mTimer.DeltaTime());
-		mSceneObjects[1]->GetTransform()->AdjustPosition(mRenderWindow.GetGfx().mCamera.GetForwardVector() * cameraSpeed * mTimer.DeltaTime());
+		mRenderWindow.GetGfx().mCamera->AdjustPosition(mRenderWindow.GetGfx().mCamera->GetForwardVector() * cameraSpeed * mTimer.DeltaTime());
+		mSceneObjects[1]->GetTransform()->AdjustPosition(mRenderWindow.GetGfx().mCamera->GetForwardVector() * cameraSpeed * mTimer.DeltaTime());
 	}
 	if (mRenderWindow.kbd.IsKeyPressed('S'))
 	{
-		mRenderWindow.GetGfx().mCamera.AdjustPosition(mRenderWindow.GetGfx().mCamera.GetBackwardVector() * cameraSpeed * mTimer.DeltaTime());
-		mSceneObjects[1]->GetTransform()->AdjustPosition(mRenderWindow.GetGfx().mCamera.GetBackwardVector() * cameraSpeed * mTimer.DeltaTime());
+		mRenderWindow.GetGfx().mCamera->AdjustPosition(mRenderWindow.GetGfx().mCamera->GetBackwardVector() * cameraSpeed * mTimer.DeltaTime());
+		mSceneObjects[1]->GetTransform()->AdjustPosition(mRenderWindow.GetGfx().mCamera->GetBackwardVector() * cameraSpeed * mTimer.DeltaTime());
 	}
 	if (mRenderWindow.kbd.IsKeyPressed('D'))
 	{
-		mRenderWindow.GetGfx().mCamera.AdjustPosition(mRenderWindow.GetGfx().mCamera.GetRightVector() * cameraSpeed * mTimer.DeltaTime());
-		mSceneObjects[1]->GetTransform()->AdjustPosition(mRenderWindow.GetGfx().mCamera.GetRightVector() * cameraSpeed * mTimer.DeltaTime());
+		mRenderWindow.GetGfx().mCamera->AdjustPosition(mRenderWindow.GetGfx().mCamera->GetRightVector() * cameraSpeed * mTimer.DeltaTime());
+		mSceneObjects[1]->GetTransform()->AdjustPosition(mRenderWindow.GetGfx().mCamera->GetRightVector() * cameraSpeed * mTimer.DeltaTime());
 	}
 	if (mRenderWindow.kbd.IsKeyPressed('A'))
 	{
-		mRenderWindow.GetGfx().mCamera.AdjustPosition(mRenderWindow.GetGfx().mCamera.GetLeftVector() * cameraSpeed * mTimer.DeltaTime());
-		mSceneObjects[1]->GetTransform()->AdjustPosition(mRenderWindow.GetGfx().mCamera.GetLeftVector() * cameraSpeed * mTimer.DeltaTime());
+		mRenderWindow.GetGfx().mCamera->AdjustPosition(mRenderWindow.GetGfx().mCamera->GetLeftVector() * cameraSpeed * mTimer.DeltaTime());
+		mSceneObjects[1]->GetTransform()->AdjustPosition(mRenderWindow.GetGfx().mCamera->GetLeftVector() * cameraSpeed * mTimer.DeltaTime());
 	}
 	/*if (mRenderWindow.kbd.IsKeyPressed('E'))
 	{
@@ -152,7 +154,7 @@ void Engine::UpdateScene(const ScaldTimer& st)
 
 #pragma region CameraPosDebug
 	std::ostringstream oss;
-	const auto CameraPos = mRenderWindow.GetGfx().mCamera.GetPositionFloat3();
+	const auto CameraPos = mRenderWindow.GetGfx().mCamera->GetPositionFloat3();
 	oss << "Camera's position: " << CameraPos.x << ", " << CameraPos.y << ", " << CameraPos.z << "\n";
 	OutputDebugString(oss.str().c_str());
 #pragma endregion CameraPosDebug
