@@ -7,7 +7,7 @@ class SceneGeometry;
 class ThirdPersonCamera : public Camera
 {
 public:
-	ThirdPersonCamera() = default;
+	ThirdPersonCamera();
 
 	void SetPlayerCharacter(SceneGeometry* PlayerCharacter);
 
