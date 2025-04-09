@@ -34,12 +34,6 @@ protected:
 	// @todo: From Luna's book
 	void UpdateObjectCBs(const ScaldTimer& st);
 
-private:
-	// probably should be in movement component
-	void UpdateOrbitRotation(const ScaldTimer& st);
-	// probably should be in movement component
-	void UpdateRotation(const ScaldTimer& st);
-
 public:
 	FORCEINLINE MovementComponent*	GetMovement()const				{ return mMovementComponent; }
 	FORCEINLINE TransformComponent* GetTransform()const				{ return mTransformComponent; }
@@ -49,8 +43,7 @@ public:
 
 	XMVECTOR GetForwardVector()const;
 	XMVECTOR GetRightVector()const;
-	XMVECTOR GetBackVector()const;
-	XMVECTOR GetLeftVector()const;
+	XMVECTOR GetUpVector() const;
 
 protected:
 	Model model;

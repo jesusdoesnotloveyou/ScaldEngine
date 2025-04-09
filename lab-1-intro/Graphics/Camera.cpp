@@ -23,12 +23,12 @@ const XMMATRIX& Camera::GetProjectionMatrix() const
 	return mProjectionMatrix;
 }
 
-const XMVECTOR& Camera::GetPosition() const
+XMVECTOR Camera::GetPosition() const
 {
 	return mTransformComponent->GetPositionVector();
 }
 
-const XMVECTOR& Camera::GetRotation() const
+XMVECTOR Camera::GetRotation() const
 {
 	return mTransformComponent->GetRotationVector();
 }
@@ -127,14 +127,9 @@ XMVECTOR Camera::GetRightVector()const
 	return mTransformComponent->GetRightVector();
 }
 
-XMVECTOR Camera::GetBackVector()const
+XMVECTOR Camera::GetUpVector()const
 {
-	return mTransformComponent->GetBackVector();
-}
-
-XMVECTOR Camera::GetLeftVector()const
-{
-	return mTransformComponent->GetLeftVector();
+	return mTransformComponent->GetUpVector();
 }
 
 void Camera::SetForwardVector(const XMVECTOR& relativeForwardVector)
@@ -147,14 +142,9 @@ void Camera::SetRightVector(const XMVECTOR& relativeRightVector)
 	mTransformComponent->SetRightVector(relativeRightVector);
 }
 
-void Camera::SetBackVector(const XMVECTOR& relativeBackVector)
+void Camera::SetUpVector(const XMVECTOR& relativeUpVector)
 {
-	mTransformComponent->SetBackVector(relativeBackVector);
-}
-
-void Camera::SetLeftVector(const XMVECTOR& relativeLeftVector)
-{
-	mTransformComponent->SetLeftVector(relativeLeftVector);
+	mTransformComponent->SetUpVector(relativeUpVector);
 }
 
 void Camera::SetupAttachment(TransformComponent* transformToAttach)
@@ -184,13 +174,14 @@ void Camera::UpdateViewMatrix()
 	//Rebuild view matrix
 	mViewMatrix = XMMatrixLookAtLH(pos, camTarget, upDir);
 
-	XMMATRIX vecRotationMatrix = XMMatrixRotationRollPitchYaw(0.0f, XMVectorGetY(pos), 0.0f);
+	const auto posY = XMVectorGetY(pos);
+	XMMATRIX vecRotationMatrix = XMMatrixRotationRollPitchYaw(0.0f, posY, 0.0f);
+
 	const auto forward = XMVector3TransformCoord(ScaldMath::ForwardVector, vecRotationMatrix);
-	const auto back = XMVector3TransformCoord(ScaldMath::BackVector, vecRotationMatrix);
-	const auto left = XMVector3TransformCoord(ScaldMath::LeftVector, vecRotationMatrix);
 	const auto right = XMVector3TransformCoord(ScaldMath::RightVector, vecRotationMatrix);
+	const auto up = XMVector3TransformCoord(ScaldMath::UpVector, vecRotationMatrix);
+
 	SetForwardVector(forward);
-	SetBackVector(back);
-	SetLeftVector(left);
 	SetRightVector(right);
+	SetUpVector(up);
 }
