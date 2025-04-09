@@ -13,10 +13,10 @@ public:
 	void Reset();
 
 public:
-	const XMVECTOR& GetPositionVector() const;
-	const XMFLOAT3& GetPositionFloat3() const;
-	const XMVECTOR& GetRotationVector() const;
-	const XMFLOAT3& GetRotationFloat3() const;
+	XMVECTOR GetPositionVector() const;
+	XMFLOAT3 GetPositionFloat3() const;
+	XMVECTOR GetRotationVector() const;
+	XMFLOAT3 GetRotationFloat3() const;
 
 	void SetScale(const XMVECTOR& scale);
 	void SetScale(const XMFLOAT3& scale);
@@ -38,13 +38,11 @@ public:
 
 	XMVECTOR GetForwardVector()const;
 	XMVECTOR GetRightVector()const;
-	XMVECTOR GetBackVector()const;
-	XMVECTOR GetLeftVector()const;
+	XMVECTOR GetUpVector()const;
 
 	void SetForwardVector(const XMVECTOR& ForwardVector);
 	void SetRightVector(const XMVECTOR& RightVector);
-	void SetBackVector(const XMVECTOR& BackVector);
-	void SetLeftVector(const XMVECTOR& LeftVector);
+	void SetUpVector(const XMVECTOR& UpVector);
 
 	void SetParentTransform(TransformComponent* parentTransform);
 private:
@@ -62,14 +60,11 @@ private:
 	XMVECTOR mPosVector;
 	// Need to init
 	// local object's orientation vectors
-	XMVECTOR mForwardVector;
-	XMVECTOR mLeftVector;
-	XMVECTOR mRightVector;
-	XMVECTOR mBackVector;
+
+	XMVECTOR mForwardVector = ScaldMath::ForwardVector;
+	XMVECTOR mRightVector = ScaldMath::RightVector;
+	XMVECTOR mUpVector = ScaldMath::UpVector;
 public:
 	XMMATRIX mLocalMatrix;
 	XMMATRIX mWorldMatrix;
-
-	// Solar System specific
-	float mOrbitRot;
 };

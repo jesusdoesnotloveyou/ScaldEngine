@@ -90,33 +90,32 @@ void Engine::PollInput()
 	if (mRenderWindow.kbd.IsKeyPressed('W'))
 	{
 		mRenderWindow.GetGfx().mTPCamera->AdjustPosition(mRenderWindow.GetGfx().mTPCamera->GetForwardVector() * cameraSpeed * mTimer.DeltaTime());
-		mSceneObjects[1]->GetTransform()->AdjustPosition(mRenderWindow.GetGfx().mTPCamera->GetForwardVector() * cameraSpeed * mTimer.DeltaTime());
+		//mSceneObjects[1]->GetTransform()->AdjustPosition(mRenderWindow.GetGfx().mTPCamera->GetForwardVector() * cameraSpeed * mTimer.DeltaTime());
 	}
 	if (mRenderWindow.kbd.IsKeyPressed('S'))
 	{
-		mRenderWindow.GetGfx().mTPCamera->AdjustPosition(mRenderWindow.GetGfx().mTPCamera->GetBackVector() * cameraSpeed * mTimer.DeltaTime());
-		mSceneObjects[1]->GetTransform()->AdjustPosition(mRenderWindow.GetGfx().mTPCamera->GetBackVector() * cameraSpeed * mTimer.DeltaTime());
+		mRenderWindow.GetGfx().mTPCamera->AdjustPosition(-mRenderWindow.GetGfx().mTPCamera->GetForwardVector() * cameraSpeed * mTimer.DeltaTime());
+		//mSceneObjects[1]->GetTransform()->AdjustPosition(mRenderWindow.GetGfx().mTPCamera->GetBackVector() * cameraSpeed * mTimer.DeltaTime());
 	}
 	if (mRenderWindow.kbd.IsKeyPressed('D'))
 	{
 		mRenderWindow.GetGfx().mTPCamera->AdjustPosition(mRenderWindow.GetGfx().mTPCamera->GetRightVector() * cameraSpeed * mTimer.DeltaTime());
-		mSceneObjects[1]->GetTransform()->AdjustPosition(mRenderWindow.GetGfx().mTPCamera->GetRightVector() * cameraSpeed * mTimer.DeltaTime());
+		//mSceneObjects[1]->GetTransform()->AdjustPosition(mRenderWindow.GetGfx().mTPCamera->GetRightVector() * cameraSpeed * mTimer.DeltaTime());
 	}
 	if (mRenderWindow.kbd.IsKeyPressed('A'))
 	{
-		mRenderWindow.GetGfx().mTPCamera->AdjustPosition(mRenderWindow.GetGfx().mTPCamera->GetLeftVector() * cameraSpeed * mTimer.DeltaTime());
-		mSceneObjects[1]->GetTransform()->AdjustPosition(mRenderWindow.GetGfx().mTPCamera->GetLeftVector() * cameraSpeed * mTimer.DeltaTime());
+		mRenderWindow.GetGfx().mTPCamera->AdjustPosition(-mRenderWindow.GetGfx().mTPCamera->GetRightVector() * cameraSpeed * mTimer.DeltaTime());
+		//mSceneObjects[1]->GetTransform()->AdjustPosition(mRenderWindow.GetGfx().mTPCamera->GetLeftVector() * cameraSpeed * mTimer.DeltaTime());
 	}
-	XMVECTOR up = XMVector3Cross(mRenderWindow.GetGfx().mTPCamera->GetLeftVector(), mRenderWindow.GetGfx().mTPCamera->GetForwardVector());
 	if (mRenderWindow.kbd.IsKeyPressed('E'))
 	{
-		mRenderWindow.GetGfx().mTPCamera->AdjustPosition(up * cameraSpeed * mTimer.DeltaTime());
-		mSceneObjects[1]->GetTransform()->AdjustPosition(up * cameraSpeed * mTimer.DeltaTime());
+		mRenderWindow.GetGfx().mTPCamera->AdjustPosition(mRenderWindow.GetGfx().mTPCamera->GetUpVector() * cameraSpeed * mTimer.DeltaTime());
+		//mSceneObjects[1]->GetTransform()->AdjustPosition(up * cameraSpeed * mTimer.DeltaTime());
 	}
 	if (mRenderWindow.kbd.IsKeyPressed('Q'))
 	{
-		mRenderWindow.GetGfx().mTPCamera->AdjustPosition(-up * cameraSpeed * mTimer.DeltaTime());
-		mSceneObjects[1]->GetTransform()->AdjustPosition(-up * cameraSpeed * mTimer.DeltaTime());
+		mRenderWindow.GetGfx().mTPCamera->AdjustPosition(-mRenderWindow.GetGfx().mTPCamera->GetUpVector() * cameraSpeed * mTimer.DeltaTime());
+		//mSceneObjects[1]->GetTransform()->AdjustPosition(-up * cameraSpeed * mTimer.DeltaTime());
 	}
 #pragma endregion CameraMovement
 #pragma endregion FPSCamera

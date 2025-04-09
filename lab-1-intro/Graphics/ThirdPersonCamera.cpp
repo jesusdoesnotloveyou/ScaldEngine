@@ -13,5 +13,5 @@ void ThirdPersonCamera::SetPlayerCharacter(SceneGeometry* PlayerCharacter)
 
 	mTransformComponent->SetParentTransform(PlayerCharacter->GetTransform());
 
-	UpdateViewMatrix();
+	//UpdateViewMatrix();
 }

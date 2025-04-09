@@ -14,8 +14,8 @@ public:
 	const XMMATRIX& GetViewMatrix() const;
 	const XMMATRIX& GetProjectionMatrix() const;
 
-	const XMVECTOR& GetPosition() const;
-	const XMVECTOR& GetRotation() const;
+	XMVECTOR GetPosition() const;
+	XMVECTOR GetRotation() const;
 
 	void SetPosition(const XMVECTOR& pos);
 	void SetPosition(float x, float y, float z);
@@ -34,13 +34,11 @@ public:
 
 	XMVECTOR GetForwardVector()const;
 	XMVECTOR GetRightVector()const;
-	XMVECTOR GetBackVector()const;
-	XMVECTOR GetLeftVector()const;
+	XMVECTOR GetUpVector()const;
 
 	void SetForwardVector(const XMVECTOR& relativeForwardVector);
 	void SetRightVector(const XMVECTOR& relativeRightVector);
-	void SetBackVector(const XMVECTOR& relativeBackVector);
-	void SetLeftVector(const XMVECTOR& relativeLeftVector);
+	void SetUpVector(const XMVECTOR& relativeUpVector);
 
 	// camera orbital rotation specific
 	void SetupAttachment(TransformComponent* transformToAttach);

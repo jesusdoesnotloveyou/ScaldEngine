@@ -38,22 +38,6 @@ void SceneGeometry::Update(const ScaldTimer& st)
     UpdateObjectCBs(st);
 }
 
-#pragma region ToDelete
-//void SceneGeometry::UpdateOrbitRotation(const ScaldTimer& st)
-//{
-//    GetTransform()->mOrbitRot += XMConvertToRadians(GetMovement()->GetOrbitAngle()) * st.DeltaTime();
-//    if (GetTransform()->mOrbitRot >= 6.28f)
-//        GetTransform()->mOrbitRot = 0.0f;
-//}
-//
-//void SceneGeometry::UpdateRotation(const ScaldTimer& st)
-//{
-//    GetTransform()->mRot.y += XMConvertToRadians(GetMovement()->GetRotAngle()) * st.DeltaTime();
-//    if (GetTransform()->mRot.y >= 6.28f)
-//        GetTransform()->mRot.y = 0.0f;
-//}
-#pragma endregion ToDelete
-
 void SceneGeometry::Draw(const XMMATRIX& viewProjectionMatrix)
 {
     model.GetConstantBuffer().SetData(XMMatrixTranspose(GetTransform()->mWorldMatrix * viewProjectionMatrix));
@@ -67,20 +51,15 @@ void SceneGeometry::UpdateObjectCBs(const ScaldTimer& st)
 
 XMVECTOR SceneGeometry::GetForwardVector() const
 {
-    return GetTransform()->GetForwardVector();
+    return mTransformComponent->GetForwardVector();
 }
 
 XMVECTOR SceneGeometry::GetRightVector() const
 {
-    return GetTransform()->GetRightVector();
+    return mTransformComponent->GetRightVector();
 }
 
-XMVECTOR SceneGeometry::GetBackVector() const
+XMVECTOR SceneGeometry::GetUpVector() const
 {
-    return GetTransform()->GetBackVector();
-}
-
-XMVECTOR SceneGeometry::GetLeftVector() const
-{
-    return GetTransform()->GetLeftVector();
+    return mTransformComponent->GetUpVector();
 }

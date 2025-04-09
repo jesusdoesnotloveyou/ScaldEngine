@@ -6,10 +6,12 @@ TransformComponent::TransformComponent()
 	mScale = XMFLOAT3(1.0f, 1.0f, 1.0f);
 	mRot = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	mPos = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	mScaleVector = XMLoadFloat3(&mScale);
+	/*mScaleVector = XMLoadFloat3(&mScale);
 	mRotVector = XMLoadFloat3(&mRot);
-	mPosVector = XMLoadFloat3(&mPos);
-	mOrbitRot = 0.0f;
+	mPosVector = XMLoadFloat3(&mPos);*/
+	mScaleVector = XMVectorSet(mScale.x, mScale.y, mScale.z, 0.0f);
+	mRotVector = XMVectorSet(mRot.x, mRot.y, mRot.z, 0.0f);
+	mPosVector = XMVectorSet(mPos.x, mPos.y, mPos.z, 0.0f);
 }
 
 void TransformComponent::Update(const ScaldTimer& st)
@@ -27,22 +29,22 @@ void TransformComponent::Reset()
 	mLocalMatrix = mWorldMatrix = XMMatrixIdentity();
 }
 
-const XMVECTOR& TransformComponent::GetPositionVector() const
+XMVECTOR TransformComponent::GetPositionVector() const
 {
 	return mPosVector;
 }
 
-const XMFLOAT3& TransformComponent::GetPositionFloat3() const
+XMFLOAT3 TransformComponent::GetPositionFloat3() const
 {
 	return mPos;
 }
 
-const XMVECTOR& TransformComponent::GetRotationVector() const
+XMVECTOR TransformComponent::GetRotationVector() const
 {
 	return mRotVector;
 }
 
-const XMFLOAT3& TransformComponent::GetRotationFloat3() const
+XMFLOAT3 TransformComponent::GetRotationFloat3() const
 {
 	return mRot;
 }
@@ -51,49 +53,49 @@ void TransformComponent::SetScale(const XMVECTOR& scaleVector)
 {
 	XMStoreFloat3(&mScale, scaleVector);
 	mScaleVector = scaleVector;
-	UpdateWorldMatrix();
+	//UpdateWorldMatrix();
 }
 
 void TransformComponent::SetScale(const XMFLOAT3& scale)
 {
 	mScale = scale;
 	mScaleVector = XMLoadFloat3(&mScale);
-	UpdateWorldMatrix();
+	//UpdateWorldMatrix();
 }
 
 void TransformComponent::SetScale(float x, float y, float z)
 {
 	mScale = XMFLOAT3(x, y, z);
 	mScaleVector = XMLoadFloat3(&mScale);
-	UpdateWorldMatrix();
+	//UpdateWorldMatrix();
 }
 
 void TransformComponent::SetPosition(const XMVECTOR& posVector)
 {
 	XMStoreFloat3(&mPos, posVector);
 	mPosVector = posVector;
-	UpdateWorldMatrix();
+	//UpdateWorldMatrix();
 }
 
 void TransformComponent::SetPosition(const XMFLOAT3& pos)
 {
 	mPos = pos;
 	mPosVector = XMLoadFloat3(&mPos);
-	UpdateWorldMatrix();
+	//UpdateWorldMatrix();
 }
 
 void TransformComponent::SetPosition(float x, float y, float z)
 {
 	mPos = XMFLOAT3(x, y, z);
 	mPosVector = XMLoadFloat3(&mPos);
-	UpdateWorldMatrix();
+	//UpdateWorldMatrix();
 }
 
 void TransformComponent::AdjustPosition(const XMVECTOR& posVector)
 {
 	mPosVector += posVector;
 	XMStoreFloat3(&mPos, mPosVector);
-	UpdateWorldMatrix();
+	//UpdateWorldMatrix();
 }
 
 void TransformComponent::AdjustPosition(const XMFLOAT3& pos)
@@ -102,7 +104,7 @@ void TransformComponent::AdjustPosition(const XMFLOAT3& pos)
 	mPos.y += pos.y;
 	mPos.z += pos.z;
 	mPosVector = XMLoadFloat3(&mPos);
-	UpdateWorldMatrix();
+	//UpdateWorldMatrix();
 }
 
 void TransformComponent::AdjustPosition(float x, float y, float z)
@@ -111,35 +113,35 @@ void TransformComponent::AdjustPosition(float x, float y, float z)
 	mPos.y += y;
 	mPos.z += z;
 	mPosVector = XMLoadFloat3(&mPos);
-	UpdateWorldMatrix();
+	//UpdateWorldMatrix();
 }
 
 void TransformComponent::SetRotation(const XMVECTOR& rotVector)
 {
 	mRotVector = rotVector;
 	XMStoreFloat3(&mRot, rotVector);
-	UpdateWorldMatrix();
+	//UpdateWorldMatrix();
 }
 
 void TransformComponent::SetRotation(const XMFLOAT3& rot)
 {
 	mRot = rot;
 	mRotVector = XMLoadFloat3(&mRot);
-	UpdateWorldMatrix();
+	//UpdateWorldMatrix();
 }
 
 void TransformComponent::SetRotation(float x, float y, float z)
 {
 	mRot = XMFLOAT3(x, y, z);
 	mRotVector = XMLoadFloat3(&mRot);
-	UpdateWorldMatrix();
+	//UpdateWorldMatrix();
 }
 
 void TransformComponent::AdjustRotation(const XMVECTOR& rotVector)
 {
 	mRotVector += rotVector;
 	XMStoreFloat3(&mRot, mRotVector);
-	UpdateWorldMatrix();
+	//UpdateWorldMatrix();
 }
 
 void TransformComponent::AdjustRotation(const XMFLOAT3& rot)
@@ -148,7 +150,7 @@ void TransformComponent::AdjustRotation(const XMFLOAT3& rot)
 	mRot.y += rot.y;
 	mRot.z += rot.z;
 	mRotVector = XMLoadFloat3(&mRot);
-	UpdateWorldMatrix();
+	//UpdateWorldMatrix();
 }
 
 void TransformComponent::AdjustRotation(float x, float y, float z)
@@ -157,7 +159,7 @@ void TransformComponent::AdjustRotation(float x, float y, float z)
 	mRot.y += y;
 	mRot.z += z;
 	mRotVector = XMLoadFloat3(&mRot);
-	UpdateWorldMatrix();
+	//UpdateWorldMatrix();
 }
 
 XMVECTOR TransformComponent::GetForwardVector()const
@@ -170,14 +172,9 @@ XMVECTOR TransformComponent::GetRightVector()const
 	return mRightVector;
 }
 
-XMVECTOR TransformComponent::GetBackVector()const
+XMVECTOR TransformComponent::GetUpVector() const
 {
-	return mBackVector;
-}
-
-XMVECTOR TransformComponent::GetLeftVector()const
-{
-	return mLeftVector;
+	return mUpVector;
 }
 
 void TransformComponent::SetForwardVector(const XMVECTOR& ForwardVector)
@@ -190,14 +187,9 @@ void TransformComponent::SetRightVector(const XMVECTOR& RightVector)
 	mRightVector = RightVector;
 }
 
-void TransformComponent::SetBackVector(const XMVECTOR& BackVector)
+void TransformComponent::SetUpVector(const XMVECTOR& UpVector)
 {
-	mBackVector = BackVector;
-}
-
-void TransformComponent::SetLeftVector(const XMVECTOR& LeftVector)
-{
-	mLeftVector = LeftVector;
+	mUpVector = UpVector;
 }
 
 void TransformComponent::SetParentTransform(TransformComponent* parentTransform)
@@ -212,8 +204,8 @@ void TransformComponent::UpdateLocalMatrix()
 	mLocalMatrix =
 		XMMatrixScalingFromVector(mScaleVector) *
 		XMMatrixRotationRollPitchYawFromVector(mRotVector) *
-		XMMatrixTranslationFromVector(mPosVector) *
-		XMMatrixRotationY(mOrbitRot);
+		XMMatrixTranslationFromVector(mPosVector);
+		//*XMMatrixRotationY(mOrbitRot);
 }
 
 void TransformComponent::UpdateWorldMatrix()
