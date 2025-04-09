@@ -158,7 +158,6 @@ void Graphics::Setup()
 	ThrowIfFailed(mDevice->CreateSamplerState(&sampDesc, mSamplerState.GetAddressOf()));
 
 	// Camera setup
-	mTPCamera->SetPosition(0.0f, 20.0f, -100.0f);
 	mTPCamera->SetProjectionValues(90.0f, static_cast<float>(mScreenWidth) / static_cast<float>(mScreenHeight), 0.1f, 3000.0f);
 }
 
@@ -170,7 +169,6 @@ void Graphics::InitSceneObjects(std::vector<SceneGeometry*>& sceneObjects)
 
 	XMVECTOR cameraOffset = XMVectorSet(-1.0f, +1.0f, -1.0f, 0.0f);
 	mTPCamera->SetPosition(sceneObjects[1]->GetTransform()->GetPositionVector() + cameraOffset);
-	mTPCamera->SetLookAtPosition(sceneObjects[1]->GetTransform()->GetPositionVector());
 
 	for (auto sceneObject : sceneObjects)
 	{

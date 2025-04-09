@@ -31,7 +31,7 @@ void SceneGeometry::Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceCont
 
 void SceneGeometry::Update(const ScaldTimer& st)
 {
-    mTransformComponent->AdjustRotation(0.0f, 0.1f * st.DeltaTime(), 0.0f);
+    //mTransformComponent->AdjustRotation(0.0f, 0.1f * st.DeltaTime(), 0.0f);
     mTransformComponent->Update(st);
     mCollisionComponent->Update(st);
     mMovementComponent->Update(st);
@@ -67,20 +67,20 @@ void SceneGeometry::UpdateObjectCBs(const ScaldTimer& st)
 
 XMVECTOR SceneGeometry::GetForwardVector() const
 {
-    return GetTransform()->GetForwardVector();
+    return mTransformComponent->GetForwardVector();
 }
 
 XMVECTOR SceneGeometry::GetRightVector() const
 {
-    return GetTransform()->GetRightVector();
+    return mTransformComponent->GetRightVector();
 }
 
 XMVECTOR SceneGeometry::GetBackVector() const
 {
-    return GetTransform()->GetBackVector();
+    return mTransformComponent->GetBackVector();
 }
 
 XMVECTOR SceneGeometry::GetLeftVector() const
 {
-    return GetTransform()->GetLeftVector();
+    return mTransformComponent->GetLeftVector();
 }

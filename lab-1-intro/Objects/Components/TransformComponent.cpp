@@ -9,7 +9,6 @@ TransformComponent::TransformComponent()
 	mScaleVector = XMLoadFloat3(&mScale);
 	mRotVector = XMLoadFloat3(&mRot);
 	mPosVector = XMLoadFloat3(&mPos);
-	mOrbitRot = 0.0f;
 }
 
 void TransformComponent::Update(const ScaldTimer& st)
@@ -212,8 +211,8 @@ void TransformComponent::UpdateLocalMatrix()
 	mLocalMatrix =
 		XMMatrixScalingFromVector(mScaleVector) *
 		XMMatrixRotationRollPitchYawFromVector(mRotVector) *
-		XMMatrixTranslationFromVector(mPosVector) *
-		XMMatrixRotationY(mOrbitRot);
+		XMMatrixTranslationFromVector(mPosVector);
+		//*XMMatrixRotationY(mOrbitRot);
 }
 
 void TransformComponent::UpdateWorldMatrix()

@@ -62,14 +62,11 @@ private:
 	XMVECTOR mPosVector;
 	// Need to init
 	// local object's orientation vectors
-	XMVECTOR mForwardVector;
-	XMVECTOR mLeftVector;
-	XMVECTOR mRightVector;
-	XMVECTOR mBackVector;
+	XMVECTOR mForwardVector = ScaldMath::ForwardVector;
+	XMVECTOR mLeftVector = ScaldMath::LeftVector;
+	XMVECTOR mRightVector = ScaldMath::RightVector;
+	XMVECTOR mBackVector = ScaldMath::BackVector;
 public:
 	XMMATRIX mLocalMatrix;
 	XMMATRIX mWorldMatrix;
-
-	// Solar System specific
-	float mOrbitRot;
 };
