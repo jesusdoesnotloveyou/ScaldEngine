@@ -64,5 +64,11 @@ struct ConstBufferVS
 
 struct ConstBufferPS
 {
-	float alpha = 1.0f;
+	XMFLOAT3 ambientLightColor = { 0.0f, 0.0f, 0.0f };
+	float ambientLightStrength = 0.0f;
 };
+
+//struct ConstBufferPS
+//{
+//	float alpha = 1.0f;
+//};
