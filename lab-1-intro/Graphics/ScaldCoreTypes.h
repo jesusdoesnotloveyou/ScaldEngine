@@ -46,14 +46,17 @@ struct VertexTex
 	VertexTex() {}
 
 	VertexTex(float x, float y, float z, float w,
-		float u, float v)
+		float u, float v,
+		float nx, float ny, float nz)
 		:
 		position(x, y, z, w),
-		texCoord(u, v)
+		texCoord(u, v),
+		normal(nx, ny, nz)
 	{}
 
 	XMFLOAT4 position = { 0.0f, 0.0f, 0.0f, 1.0f };
 	XMFLOAT2 texCoord = { 0.0f, 0.0f };
+	XMFLOAT3 normal   = { 0.0f, 0.0f, 0.0f };
 };
 
 // Constant buffer types
