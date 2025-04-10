@@ -161,25 +161,24 @@ void Camera::ClearAttachment()
 
 void Camera::UpdateViewMatrix()
 {
-	const auto rot = GetRotation();
-	const auto pos = GetPosition();
+	const XMVECTOR rot = GetRotation();
+	const XMVECTOR pos = GetPosition();
 	//Calculate camera rotation matrix
 	XMMATRIX cameraRotationMatrix = XMMatrixRotationRollPitchYawFromVector(rot);
 	//Calculate unit vector of cam target based off camera forward value transformed by cam rotation matrix
 	XMVECTOR camTarget = XMVector3TransformCoord(ScaldMath::ForwardVector, cameraRotationMatrix);
 	//Adjust cam target to be offset by the camera's current position
 	camTarget += pos;
+
+	//Calculate forward direction based on current rotation
+	const XMVECTOR forward = XMVector3TransformCoord(ScaldMath::ForwardVector, cameraRotationMatrix);
+	//Calculate right direction based on current rotation
+	const XMVECTOR right = XMVector3TransformCoord(ScaldMath::RightVector, cameraRotationMatrix);
 	//Calculate up direction based on current rotation
-	XMVECTOR upDir = XMVector3TransformCoord(ScaldMath::UpVector, cameraRotationMatrix);
+	const XMVECTOR up = XMVector3TransformCoord(ScaldMath::UpVector, cameraRotationMatrix);
+	
 	//Rebuild view matrix
-	mViewMatrix = XMMatrixLookAtLH(pos, camTarget, upDir);
-
-	const auto posY = XMVectorGetY(pos);
-	XMMATRIX vecRotationMatrix = XMMatrixRotationRollPitchYaw(0.0f, posY, 0.0f);
-
-	const auto forward = XMVector3TransformCoord(ScaldMath::ForwardVector, vecRotationMatrix);
-	const auto right = XMVector3TransformCoord(ScaldMath::RightVector, vecRotationMatrix);
-	const auto up = XMVector3TransformCoord(ScaldMath::UpVector, vecRotationMatrix);
+	mViewMatrix = XMMatrixLookAtLH(pos, camTarget, up);
 
 	SetForwardVector(forward);
 	SetRightVector(right);
