@@ -5,8 +5,10 @@ bool Model::Init(ID3D11Device* device, ID3D11DeviceContext* deviceContext, const
 {
     pDevice = device;
     pDeviceContext = deviceContext;
-    //mTexture = texture;
-    ThrowIfFailed(mCB.Init(pDevice, pDeviceContext));
+
+    ThrowIfFailed(mCB_VS.Init(pDevice, pDeviceContext));
+    ThrowIfFailed(mCB_PS.Init(pDevice, pDeviceContext));
+    
     ThrowIfFailed(CreateWICTextureFromFile(pDevice, textureFilePath.data(), nullptr, mTexture.GetAddressOf()));
     if (!LoadModel(modelFilePath)) return false;
 
@@ -22,7 +24,8 @@ void Model::Draw()
 {
                                                  // &mTexture will delete texture, since & clears memory
     pDeviceContext->PSSetShaderResources(0u, 1u, mTexture.GetAddressOf());
-    pDeviceContext->VSSetConstantBuffers(0u, 1u, mCB.GetAddressOf());
+    pDeviceContext->VSSetConstantBuffers(0u, 1u, mCB_VS.GetAddressOf());
+    pDeviceContext->PSSetConstantBuffers(0u, 1u, mCB_PS.GetAddressOf());
 
     for (auto& mesh : mMeshes)
     {
@@ -88,7 +91,12 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
     return Mesh(pDevice, pDeviceContext, vertices, indices);
 }
 
-ConstantBuffer<ConstBufferVS>& Model::GetConstantBuffer()
+ConstantBuffer<ConstBufferVS>& Model::GetConstantBufferVS()
 {
-    return mCB;
+    return mCB_VS;
+}
+
+ConstantBuffer<ConstBufferPS>& Model::GetConstantBufferPS()
+{
+    return mCB_PS;
 }
