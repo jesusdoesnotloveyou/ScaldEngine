@@ -40,13 +40,23 @@ void SceneGeometry::Update(const ScaldTimer& st)
 
 void SceneGeometry::Draw(const XMMATRIX& viewProjectionMatrix)
 {
-    model.GetConstantBuffer().SetData(XMMatrixTranspose(GetTransform()->mWorldMatrix * viewProjectionMatrix));
+    ConstBufferVS bufferVS = {};
+    bufferVS.gWorldViewProj = XMMatrixTranspose(GetTransform()->mWorldMatrix * viewProjectionMatrix);
+
+    ConstBufferPS bufferPS = {};
+    bufferPS.ambientLightColor = { 1.0f, 1.0f, 1.0f };
+    bufferPS.ambientLightStrength = 0.8f;
+
+    model.GetConstantBufferVS().SetData(bufferVS);
+    model.GetConstantBufferPS().SetData(bufferPS);
+    
     model.Draw();
 }
 
 void SceneGeometry::UpdateObjectCBs(const ScaldTimer& st)
 {
-    model.GetConstantBuffer().ApplyChanges();
+    model.GetConstantBufferVS().ApplyChanges();
+    model.GetConstantBufferPS().ApplyChanges();
 }
 
 XMVECTOR SceneGeometry::GetForwardVector() const
