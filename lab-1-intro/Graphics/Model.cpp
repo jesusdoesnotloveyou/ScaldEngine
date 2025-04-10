@@ -71,6 +71,10 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
         vertex.position.y = mesh->mVertices[i].y;
         vertex.position.z = mesh->mVertices[i].z;
 
+        vertex.normal.x = mesh->mVertices[i].x;
+        vertex.normal.y = mesh->mVertices[i].y;
+        vertex.normal.z = mesh->mVertices[i].z;
+
         if (mesh->HasTextureCoords(0))
         {
             vertex.texCoord.x = (float)mesh->mTextureCoords[0][i].x;
