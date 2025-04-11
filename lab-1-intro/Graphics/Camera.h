@@ -1,59 +1,43 @@
 #pragma once
 
 #include "ScaldCoreTypes.h"
+#include "../Objects/Components/SceneComponent.h"
 
-class TransformComponent;
-
-class Camera
+class Camera : public SceneComponent
 {
 public:
 	Camera();
+	virtual ~Camera() override = default;
+	virtual void Update(const ScaldTimer& st) override;
 
+	virtual void SetPosition(const XMVECTOR& pos) override;
+	virtual void SetPosition(float x, float y, float z) override;
+	virtual void AdjustPosition(const XMVECTOR& pos) override;
+	virtual void AdjustPosition(float x, float y, float z) override;
+
+	virtual void SetRotation(const XMVECTOR& rot) override;
+	virtual void SetRotation(float x, float y, float z) override;
+	virtual void AdjustRotation(const XMVECTOR& rot) override;
+	virtual void AdjustRotation(float x, float y, float z) override;
+
+	//~ Begin of Camera specific
 	void SetProjectionValues(float fovDegrees, float aspectRatio, float nearZ, float farZ);
 
 	const XMMATRIX& GetViewMatrix() const;
 	const XMMATRIX& GetProjectionMatrix() const;
-
-	XMVECTOR GetPosition() const;
-	XMVECTOR GetRotation() const;
-
-	void SetPosition(const XMVECTOR& pos);
-	void SetPosition(float x, float y, float z);
-	void AdjustPosition(const XMVECTOR& pos);
-	void AdjustPosition(float x, float y, float z);
-
-	void SetRotation(const XMVECTOR& rot);
-	void SetRotation(float x, float y, float z);
-	void AdjustRotation(const XMVECTOR& rot);
-	void AdjustRotation(float x, float y, float z);
-
-	//~ Camera specific
+	
 	void SetLookAtPosition(XMFLOAT3 lookAtPosition);
 	void SetLookAtPosition(XMVECTOR lookAtPosition);
-	//~ Camera specific
-
-	XMVECTOR GetForwardVector()const;
-	XMVECTOR GetRightVector()const;
-	XMVECTOR GetUpVector()const;
-
-	void SetForwardVector(const XMVECTOR& relativeForwardVector);
-	void SetRightVector(const XMVECTOR& relativeRightVector);
-	void SetUpVector(const XMVECTOR& relativeUpVector);
-
 	// camera orbital rotation specific
 	void SetupAttachment(TransformComponent* transformToAttach);
 	void ClearAttachment();
 	FORCEINLINE bool IsAttached() const { return bIsAttached; }
-
-	FORCEINLINE TransformComponent* GetTransform()const { return mTransformComponent; }
 protected:
 	void UpdateViewMatrix();
 	XMMATRIX mViewMatrix;
 	XMMATRIX mProjectionMatrix;
 
-	TransformComponent* mTransformComponent = nullptr;
-
-	//~ Camera specific
 	float mSpeed = 0.0f;
 	bool bIsAttached = false;
+	//~ End of Camera specific
 };

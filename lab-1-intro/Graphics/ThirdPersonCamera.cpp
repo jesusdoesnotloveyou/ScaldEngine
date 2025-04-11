@@ -11,7 +11,7 @@ void ThirdPersonCamera::SetPlayerCharacter(SceneGeometry* PlayerCharacter)
 	if (mPlayerCharacter == PlayerCharacter || !PlayerCharacter) return;
 	mPlayerCharacter = PlayerCharacter;
 
-	mTransformComponent->SetParentTransform(PlayerCharacter->GetTransform());
+	SetupAttachment(PlayerCharacter->GetTransform());
 
 	//UpdateViewMatrix();
 }
