@@ -1,8 +1,8 @@
 #pragma once
 
-#include "IScaldComponent.h"
+#include "ScaldComponent.h"
 
-class MovementComponent : IScaldComponent
+class MovementComponent : ScaldComponent
 {
 public:
 	MovementComponent();
