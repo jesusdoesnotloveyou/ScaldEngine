@@ -1,8 +1,8 @@
 #pragma once
 
-#include "IScaldComponent.h"
+#include "ScaldComponent.h"
 
-class InputComponent : public IScaldComponent
+class InputComponent : public ScaldComponent
 {
 public:
 	InputComponent() = default;

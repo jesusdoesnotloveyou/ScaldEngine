@@ -1,8 +1,8 @@
 #pragma once
 
-#include "IScaldComponent.h"
+#include "ScaldComponent.h"
 
-class TransformComponent : public IScaldComponent
+class TransformComponent : public ScaldComponent
 {
 public:
 	TransformComponent();
@@ -17,22 +17,27 @@ public:
 	XMFLOAT3 GetPositionFloat3() const;
 	XMVECTOR GetRotationVector() const;
 	XMFLOAT3 GetRotationFloat3() const;
+	XMVECTOR GetScaleVector() const;
+	XMFLOAT3 GetScaleFloat3() const;
 
-	void SetScale(const XMVECTOR& scale);
+	void SetScale(const XMVECTOR& scaleVector);
 	void SetScale(const XMFLOAT3& scale);
 	void SetScale(float x, float y, float z);
+	void AdjustScale(const XMVECTOR& scaleVector);
+	void AdjustScale(const XMFLOAT3& scale);
+	void AdjustScale(float x, float y, float z);
 
-	void SetRotation(const XMVECTOR& rot);
+	void SetRotation(const XMVECTOR& rotVector);
 	void SetRotation(const XMFLOAT3& rot);
 	void SetRotation(float x, float y, float z);
-	void AdjustRotation(const XMVECTOR& rot);
+	void AdjustRotation(const XMVECTOR& rotVector);
 	void AdjustRotation(const XMFLOAT3& rot);
 	void AdjustRotation(float x, float y, float z);
 
-	void SetPosition(const XMVECTOR& pos);
+	void SetPosition(const XMVECTOR& posVector);
 	void SetPosition(const XMFLOAT3& pos);
 	void SetPosition(float x, float y, float z);
-	void AdjustPosition(const XMVECTOR& pos);
+	void AdjustPosition(const XMVECTOR& posVector);
 	void AdjustPosition(const XMFLOAT3& pos);
 	void AdjustPosition(float x, float y, float z);
 
@@ -46,21 +51,21 @@ public:
 
 	void SetParentTransform(TransformComponent* parentTransform);
 private:
+	// Object local frame
 	void UpdateLocalMatrix();
 	void UpdateWorldMatrix();
-	// Object local frame
 private:
 	TransformComponent* mParentTransform = nullptr;
 
+	// Need to init
 	XMFLOAT3 mScale = { 1.0f, 1.0f, 1.0f };
 	XMFLOAT3 mRot	= { 0.0f, 0.0f, 0.0f };
 	XMFLOAT3 mPos	= { 0.0f, 0.0f, 0.0f };
 	XMVECTOR mScaleVector;
 	XMVECTOR mRotVector;
 	XMVECTOR mPosVector;
-	// Need to init
-	// local object's orientation vectors
 
+	// local object's orientation vectors
 	XMVECTOR mForwardVector = ScaldMath::ForwardVector;
 	XMVECTOR mRightVector = ScaldMath::RightVector;
 	XMVECTOR mUpVector = ScaldMath::UpVector;

@@ -3,8 +3,12 @@
 
 Camera::Camera()
 {
-	mTransformComponent = new TransformComponent();
 	UpdateViewMatrix();
+}
+
+void Camera::Update(const ScaldTimer& st)
+{
+	SceneComponent::Update(st);
 }
 
 void Camera::SetProjectionValues(float fovDegrees, float aspectRatio, float nearZ, float farZ)
@@ -23,74 +27,65 @@ const XMMATRIX& Camera::GetProjectionMatrix() const
 	return mProjectionMatrix;
 }
 
-XMVECTOR Camera::GetPosition() const
-{
-	return mTransformComponent->GetPositionVector();
-}
-
-XMVECTOR Camera::GetRotation() const
-{
-	return mTransformComponent->GetRotationVector();
-}
-
 void Camera::SetPosition(const XMVECTOR& pos)
 {
-	mTransformComponent->SetPosition(pos);
+	SceneComponent::SetPosition(pos);
 	UpdateViewMatrix();
 }
 
 void Camera::SetPosition(float x, float y, float z)
 {
-	mTransformComponent->SetPosition(x, y, z);
+	SceneComponent::SetPosition(x, y, z);
 	UpdateViewMatrix();
 }
 
 void Camera::AdjustPosition(const XMVECTOR& pos)
 {
-	mTransformComponent->AdjustPosition(pos);
+	SceneComponent::AdjustPosition(pos);
 	UpdateViewMatrix();
 }
 
 void Camera::AdjustPosition(float x, float y, float z)
 {
-	mTransformComponent->AdjustPosition(x, y, z);
+	SceneComponent::AdjustPosition(x, y, z);
 	UpdateViewMatrix();
 }
 
 void Camera::SetRotation(const XMVECTOR& rot)
 {
-	mTransformComponent->SetRotation(rot);
+	SceneComponent::SetRotation(rot);
 	UpdateViewMatrix();
 }
 
 void Camera::SetRotation(float x, float y, float z)
 {
-	mTransformComponent->SetRotation(x, y, z);
+	SceneComponent::SetRotation(x, y, z);
 	UpdateViewMatrix();
 }
 
 void Camera::AdjustRotation(const XMVECTOR& rot)
 {
-	mTransformComponent->AdjustRotation(rot);
+	SceneComponent::AdjustRotation(rot);
 	UpdateViewMatrix();
 }
 
 void Camera::AdjustRotation(float x, float y, float z)
 {
-	mTransformComponent->AdjustRotation(x, y, z);
+	SceneComponent::AdjustRotation(x, y, z);
 	UpdateViewMatrix();
 }
 
 void Camera::SetLookAtPosition(XMFLOAT3 lookAtPosition)
 {
-	if (lookAtPosition.x == mTransformComponent->GetPositionFloat3().x
-		&& lookAtPosition.y == mTransformComponent->GetPositionFloat3().y
-		&& lookAtPosition.z == mTransformComponent->GetPositionFloat3().z)
+	// May be is would be enough to use GetPosition() from SceneComponent
+	if (lookAtPosition.x == GetTransform()->GetPositionFloat3().x
+		&& lookAtPosition.y == GetTransform()->GetPositionFloat3().y
+		&& lookAtPosition.z == GetTransform()->GetPositionFloat3().z)
 		return;
 
-	lookAtPosition.x = mTransformComponent->GetPositionFloat3().x - lookAtPosition.x;
-	lookAtPosition.y = mTransformComponent->GetPositionFloat3().y - lookAtPosition.y;
-	lookAtPosition.z = mTransformComponent->GetPositionFloat3().z - lookAtPosition.z;
+	lookAtPosition.x = GetTransform()->GetPositionFloat3().x - lookAtPosition.x;
+	lookAtPosition.y = GetTransform()->GetPositionFloat3().y - lookAtPosition.y;
+	lookAtPosition.z = GetTransform()->GetPositionFloat3().z - lookAtPosition.z;
 
 	float pitch = 0.0f;
 	if (lookAtPosition.y != 0.0f)
@@ -107,7 +102,7 @@ void Camera::SetLookAtPosition(XMFLOAT3 lookAtPosition)
 	if (lookAtPosition.z > 0)
 		yaw += XM_PI;
 
-	mTransformComponent->SetRotation(pitch, yaw, 0.0f);
+	GetTransform()->SetRotation(pitch, yaw, 0.0f);
 }
 
 void Camera::SetLookAtPosition(XMVECTOR lookAtPosition)
@@ -117,45 +112,15 @@ void Camera::SetLookAtPosition(XMVECTOR lookAtPosition)
 	SetLookAtPosition(tmp);
 }
 
-XMVECTOR Camera::GetForwardVector()const
-{
-	return mTransformComponent->GetForwardVector();
-}
-
-XMVECTOR Camera::GetRightVector()const
-{
-	return mTransformComponent->GetRightVector();
-}
-
-XMVECTOR Camera::GetUpVector()const
-{
-	return mTransformComponent->GetUpVector();
-}
-
-void Camera::SetForwardVector(const XMVECTOR& relativeForwardVector)
-{
-	mTransformComponent->SetForwardVector(relativeForwardVector);
-}
-
-void Camera::SetRightVector(const XMVECTOR& relativeRightVector)
-{
-	mTransformComponent->SetRightVector(relativeRightVector);
-}
-
-void Camera::SetUpVector(const XMVECTOR& relativeUpVector)
-{
-	mTransformComponent->SetUpVector(relativeUpVector);
-}
-
 void Camera::SetupAttachment(TransformComponent* transformToAttach)
 {
-	mTransformComponent->SetParentTransform(transformToAttach);
+	GetTransform()->SetParentTransform(transformToAttach);
 	bIsAttached = true;
 }
 
 void Camera::ClearAttachment()
 {
-	mTransformComponent->SetParentTransform(nullptr);
+	GetTransform()->SetParentTransform(nullptr);
 	bIsAttached = false;
 }
 

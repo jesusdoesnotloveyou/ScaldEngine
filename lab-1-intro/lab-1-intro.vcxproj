@@ -29,6 +29,7 @@
     <ClCompile Include="Graphics\IndexBuffer.h" />
     <ClCompile Include="Objects\Components\InputComponent.cpp" />
     <ClCompile Include="Objects\Components\MovementComponent.cpp" />
+    <ClCompile Include="Objects\Components\SceneComponent.cpp" />
     <ClCompile Include="Objects\Components\TransformComponent.cpp" />
     <ClCompile Include="Objects\Geometry\3D\Cube.cpp" />
     <ClCompile Include="Objects\Geometry\3D\Shapes.cpp" />
@@ -58,14 +59,16 @@
     <ClInclude Include="Graphics\ConstantBuffer.h" />
     <ClInclude Include="Objects\Components\InputComponent.h" />
     <ClInclude Include="Objects\Components\MovementComponent.h" />
+    <ClInclude Include="Objects\Components\SceneComponent.h" />
     <ClInclude Include="Objects\Components\TransformComponent.h" />
     <ClInclude Include="Objects\Geometry\3D\Cube.h" />
     <ClInclude Include="Objects\Geometry\3D\Shapes.h" />
     <ClInclude Include="Objects\Geometry\3D\Sphere.h" />
     <ClInclude Include="Objects\Geometry\Actor.h" />
+    <ClInclude Include="Objects\ScaldObject.h" />
     <ClInclude Include="ScaldCore\Engine\Engine.h" />
     <ClInclude Include="Graphics\Graphics.h" />
-    <ClInclude Include="Objects\Components\IScaldComponent.h" />
+    <ClInclude Include="Objects\Components\ScaldComponent.h" />
     <ClInclude Include="Objects\Geometry\SceneGeometry.h" />
     <ClInclude Include="Objects\Components\RenderComponent.h" />
     <ClInclude Include="ScaldCore\Engine\RenderWindow.h" />
