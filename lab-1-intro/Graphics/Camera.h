@@ -33,7 +33,7 @@ public:
 	void ClearAttachment();
 	FORCEINLINE bool IsAttached() const { return bIsAttached; }
 protected:
-	void UpdateViewMatrix();
+	virtual void UpdateViewMatrix();
 	XMMATRIX mViewMatrix;
 	XMMATRIX mProjectionMatrix;
 
