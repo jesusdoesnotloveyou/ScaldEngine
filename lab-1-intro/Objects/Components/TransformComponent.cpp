@@ -2,6 +2,9 @@
 
 TransformComponent::TransformComponent()
 {
+	mScaleMatrix = XMMatrixIdentity();
+	mRotationMatrix = XMMatrixIdentity();
+	mTranslationMatrix = XMMatrixIdentity();
 	mLocalMatrix = mWorldMatrix = XMMatrixIdentity();
 	mScale = XMFLOAT3(1.0f, 1.0f, 1.0f);
 	mRot = XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -237,11 +240,12 @@ void TransformComponent::UpdateLocalMatrix()
 {
 	// SRT - default order of matrix multiplication
 	// (S)TR - orbit effect for Solar system could be used
-	mLocalMatrix =
-		XMMatrixScalingFromVector(mScaleVector) *
-		XMMatrixRotationRollPitchYawFromVector(mRotVector) *
-		XMMatrixTranslationFromVector(mPosVector);
-		//*XMMatrixRotationY(mOrbitRot);
+	mScaleMatrix = XMMatrixScalingFromVector(mScaleVector);
+	mRotationMatrix = XMMatrixRotationRollPitchYawFromVector(mRotVector);
+	mTranslationMatrix = XMMatrixTranslationFromVector(mPosVector);
+	
+	mLocalMatrix = mScaleMatrix * mRotationMatrix * mTranslationMatrix;
+	//*XMMatrixRotationY(mOrbitRot);
 }
 
 void TransformComponent::UpdateWorldMatrix()
@@ -250,11 +254,7 @@ void TransformComponent::UpdateWorldMatrix()
 
 	if (mParentTransform)
 	{
-		XMVECTOR outScale;
-		XMVECTOR outRot;
-		XMVECTOR outTrans;
-		XMMatrixDecompose(&outScale, &outRot, &outTrans, mParentTransform->mWorldMatrix);
-		mWorldMatrix = mLocalMatrix * XMMatrixTranslationFromVector(outTrans);
+		mWorldMatrix = mLocalMatrix * mParentTransform->mTranslationMatrix;
 	}
 	else
 	{
