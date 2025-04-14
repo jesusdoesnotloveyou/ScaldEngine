@@ -102,7 +102,7 @@ void Camera::SetLookAtPosition(XMFLOAT3 lookAtPosition)
 	if (lookAtPosition.z > 0)
 		yaw += XM_PI;
 
-	GetTransform()->SetRotation(pitch, yaw, 0.0f);
+	SetRotation(pitch, yaw, 0.0f);
 }
 
 void Camera::SetLookAtPosition(XMVECTOR lookAtPosition)
