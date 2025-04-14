@@ -29,7 +29,6 @@ void SceneGeometry::Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceCont
 
 void SceneGeometry::Update(const ScaldTimer& st)
 {
-    GetTransform()->AdjustRotation(0.0f, 0.1f * st.DeltaTime(), 0.0f);
     SceneComponent::Update(st);
     mCollisionComponent->Update(st);
     mMovementComponent->Update(st);
