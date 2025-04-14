@@ -9,8 +9,21 @@ class ThirdPersonCamera : public Camera
 public:
 	ThirdPersonCamera();
 
-	void SetPlayerCharacter(SceneGeometry* PlayerCharacter);
+public:
+	virtual void Update(const ScaldTimer& st) override;
+
+	virtual void AdjustRotation(float x, float y, float z) override;
+
+	void SetTarget(SceneGeometry* PlayerCharacter);
+	SceneGeometry* GetTarget() const;
+
+protected:
+	virtual void UpdateViewMatrix() override;
 
 private:
-	SceneGeometry* mPlayerCharacter = nullptr;
+	float mYaw;
+	float mPitch;
+	float mArmLength = 3.0f;
+
+	SceneGeometry* mTarget = nullptr;
 };

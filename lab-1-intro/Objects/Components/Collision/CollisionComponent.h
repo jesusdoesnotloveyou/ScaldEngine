@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../IScaldComponent.h"
+#include "../ScaldComponent.h"
 #include "DirectXCollision.h"
 
-class CollisionComponent : public IScaldComponent
+class CollisionComponent : public ScaldComponent
 {
 public:
 	CollisionComponent() = default;

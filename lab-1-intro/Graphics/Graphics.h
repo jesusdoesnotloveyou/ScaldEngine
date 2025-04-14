@@ -33,12 +33,14 @@ public:
 	void DrawScene(std::vector<SceneGeometry*>& sceneObjects);
 	void EndFrame();
 
-	Camera* mCamera = nullptr;
-	ThirdPersonCamera* mTPCamera = nullptr;
+	FORCEINLINE ThirdPersonCamera* GetCamera() const { return mTPCamera; }
 private:
 	void SetupShaders();
 
 private:
+	Camera* mCamera = nullptr;
+	ThirdPersonCamera* mTPCamera = nullptr;
+
 	int mScreenWidth;
 	int mScreenHeight;
 	HWND hWnd;

@@ -126,6 +126,9 @@
     <ClCompile Include="Graphics\ThirdPersonCamera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Objects\Components\SceneComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ScaldException.h">
@@ -155,7 +158,7 @@
     <ClInclude Include="Objects\Components\Collision\CollisionComponent.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
-    <ClInclude Include="Objects\Components\IScaldComponent.h">
+    <ClInclude Include="Objects\Components\ScaldComponent.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
     <ClInclude Include="Objects\Components\RenderComponent.h">
@@ -216,6 +219,12 @@
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Graphics\ThirdPersonCamera.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\ScaldObject.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\Components\SceneComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>

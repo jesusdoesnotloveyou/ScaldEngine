@@ -173,11 +173,7 @@ void Graphics::InitSceneObjects(std::vector<SceneGeometry*>& sceneObjects)
 {
 	SetupShaders();
 	
-	//mTPCamera->SetPlayerCharacter(sceneObjects[0]);
-	mTPCamera->SetPosition(0.0f, 0.0f, -80.0f);
-
-//	XMVECTOR cameraOffset = XMVectorSet(-1.0f, +1.0f, -1.0f, 0.0f);
-//	mTPCamera->SetPosition(sceneObjects[1]->GetTransform()->GetPositionVector() + cameraOffset);
+	mTPCamera->SetTarget(sceneObjects[0]);
 
 	for (auto sceneObject : sceneObjects)
 	{

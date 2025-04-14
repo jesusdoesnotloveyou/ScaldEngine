@@ -4,10 +4,9 @@
 // could be used to set materials and models
 SceneGeometry::SceneGeometry()
 {
-    mTransformComponent = new TransformComponent();
-    mRenderComponent = new RenderComponent{};
     mCollisionComponent = new CollisionComponent{};
     mMovementComponent = new MovementComponent{};
+    //mRenderComponent = new RenderComponent{};
 }
 
 SceneGeometry::SceneGeometry(const tuple<vector<VertexTex>, vector<DWORD>>& vi)
@@ -15,10 +14,9 @@ SceneGeometry::SceneGeometry(const tuple<vector<VertexTex>, vector<DWORD>>& vi)
 
 SceneGeometry::~SceneGeometry()
 {
-    if (mTransformComponent) delete mTransformComponent;
-    if (mRenderComponent) delete mRenderComponent;
     if (mCollisionComponent) delete mCollisionComponent;
     if (mMovementComponent) delete mMovementComponent;
+    //if (mRenderComponent) delete mRenderComponent;
 }
 
 void SceneGeometry::Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, const std::string& filePath, const std::wstring& texturePath)
@@ -31,8 +29,7 @@ void SceneGeometry::Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceCont
 
 void SceneGeometry::Update(const ScaldTimer& st)
 {
-    mTransformComponent->AdjustRotation(0.0f, 0.1f * st.DeltaTime(), 0.0f);
-    mTransformComponent->Update(st);
+    SceneComponent::Update(st);
     mCollisionComponent->Update(st);
     mMovementComponent->Update(st);
     UpdateObjectCBs(st);
