@@ -70,6 +70,9 @@ private:
 	XMVECTOR mRightVector = ScaldMath::RightVector;
 	XMVECTOR mUpVector = ScaldMath::UpVector;
 public:
+	XMMATRIX mScaleMatrix;
+	XMMATRIX mRotationMatrix;
+	XMMATRIX mTranslationMatrix;
 	XMMATRIX mLocalMatrix;
 	XMMATRIX mWorldMatrix;
 };
