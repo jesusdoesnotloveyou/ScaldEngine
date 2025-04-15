@@ -64,12 +64,18 @@ struct VertexTex
 struct ConstBufferVS
 {
 	XMMATRIX gWorldViewProj = XMMatrixIdentity();
+	XMMATRIX gWorld = XMMatrixIdentity();
 };
 
 struct ConstBufferPS
 {
 	XMFLOAT3 ambientLightColor = { 0.0f, 0.0f, 0.0f };
 	float ambientLightStrength = 0.0f;
+
+	/*XMFLOAT3 dir;
+	float pad1;
+
+	XMVECTOR diffuse;*/
 };
 
 //struct ConstBufferPS
