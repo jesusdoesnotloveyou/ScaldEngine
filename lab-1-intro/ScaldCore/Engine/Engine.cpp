@@ -48,11 +48,11 @@ void Engine::SetupScene()
 
 	Light* light = new Light("./Data/Models/Light/light.obj");
 	light->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
-	light->GetTransform()->SetPosition(0.0f, 0.0f, 3.0f);
+	light->GetTransform()->SetPosition(0.0f, 1.0f, 2.0f);
+	light->GetTransform()->SetRotation(-XM_PIDIV2, 0.0f, 0.0f);
 
 	SceneGeometry* alien = new Actor(alienFemaleModel);
 	alien->GetTransform()->SetScale(0.025f, 0.025f, 0.025f);
-	alien->GetMovement()->SetRotAngle(60.0f);
 
 	SceneGeometry* box = new Actor(boxModel);
 	box->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
@@ -61,10 +61,8 @@ void Engine::SetupScene()
 	SceneGeometry* chair = new Actor(chairModel);
 	chair->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
 	chair->GetTransform()->SetRotation(0.0f, XM_PIDIV2, 0.0f);
-	chair->GetTransform()->SetPosition(20.0f, 0.0f, 0.0f);
+	chair->GetTransform()->SetPosition(6.0f, 0.0f, 0.0f);
 	chair->GetTransform()->SetParentTransform(alien->GetTransform());
-	chair->GetMovement()->SetRotAngle(60.0f);
-	chair->GetMovement()->SetOrbitAngle(80.0f);
 
 	mSceneObjects.push_back(box);
 	mSceneObjects.push_back(alien);
@@ -114,7 +112,11 @@ void Engine::PollInput()
 	}
 	if (mRenderWindow.kbd.IsKeyPressed('C'))
 	{
-		mSceneObjects.back()->GetTransform()->SetPosition(mRenderWindow.GetGfx().GetCamera()->GetPosition());
+		XMVECTOR lightPosition = mRenderWindow.GetGfx().GetCamera()->GetPosition();
+		lightPosition += mRenderWindow.GetGfx().GetCamera()->GetForwardVector() * 2;
+		mSceneObjects.back()->GetTransform()->SetPosition(lightPosition);
+		mSceneObjects.back()->GetTransform()->SetRotation(mRenderWindow.GetGfx().GetCamera()->GetRotation());
+		
 	}
 #pragma endregion CameraMovement
 #pragma endregion FPSCamera
