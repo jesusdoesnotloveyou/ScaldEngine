@@ -29,9 +29,8 @@ protected:
 
 public:
 	FORCEINLINE MovementComponent*	GetMovement()const				{ return mMovementComponent; }
-	FORCEINLINE CollisionComponent* GetCollisionComponent()const	{ return mCollisionComponent; }
 	//FORCEINLINE RenderComponent*	GetRenderComponent()const		{ return mRenderComponent; }
-	//FORCEINLINE InputComponent*		GetInputComponent()const		{ return mInputComponent; }
+	//FORCEINLINE InputComponent*	GetInputComponent()const		{ return mInputComponent; }
 
 protected:
 	Model model;
@@ -39,7 +38,6 @@ protected:
 	std::vector<VertexTex> vertices;
 	std::vector<DWORD> indices;
 
-	CollisionComponent* mCollisionComponent = nullptr;
 	MovementComponent*	mMovementComponent	= nullptr;
 	//RenderComponent*	mRenderComponent	= nullptr;
 	//InputComponent*	mInputComponent		= nullptr;
