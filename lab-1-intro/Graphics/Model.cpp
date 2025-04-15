@@ -9,7 +9,10 @@ bool Model::Init(ID3D11Device* device, ID3D11DeviceContext* deviceContext, const
     ThrowIfFailed(mCB_VS.Init(pDevice, pDeviceContext));
     ThrowIfFailed(mCB_PS.Init(pDevice, pDeviceContext));
     
-    ThrowIfFailed(CreateWICTextureFromFile(pDevice, textureFilePath.data(), nullptr, mTexture.GetAddressOf()));
+    if (!textureFilePath.empty())
+    {
+        ThrowIfFailed(CreateWICTextureFromFile(pDevice, textureFilePath.data(), nullptr, mTexture.GetAddressOf()));
+    }
     if (!LoadModel(modelFilePath)) return false;
 
     return true;
