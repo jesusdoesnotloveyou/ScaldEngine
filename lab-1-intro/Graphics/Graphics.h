@@ -14,6 +14,7 @@
 #pragma comment(lib, "dxgi.lib")
 
 class SceneGeometry;
+class Light;
 class Camera;
 class ThirdPersonCamera;
 
@@ -40,6 +41,7 @@ private:
 private:
 	Camera* mCamera = nullptr;
 	ThirdPersonCamera* mTPCamera = nullptr;
+	std::vector<Light*> mLights;
 
 	int mScreenWidth;
 	int mScreenHeight;
