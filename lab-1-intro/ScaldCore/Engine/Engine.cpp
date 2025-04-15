@@ -46,16 +46,17 @@ void Engine::SetupScene()
 	ModelData* marvel = new ModelData("./Data/Models/Marvel/Model.obj", L"./Data/Textures/planks.png");
 
 	SceneGeometry* alien = new Actor(alienFemaleModel);
-	alien->GetTransform()->SetScale(0.25f, 0.25f, 0.25f);
+	alien->GetTransform()->SetScale(0.025f, 0.025f, 0.025f);
 	alien->GetMovement()->SetRotAngle(60.0f);
 
 	SceneGeometry* box = new Actor(boxModel);
 	box->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
-	box->GetTransform()->SetPosition(30.0f, 0.0f, 0.0f);
+	box->GetTransform()->SetPosition(10.0f, 0.0f, 0.0f);
 
 	SceneGeometry* chair = new Actor(chairModel);
 	chair->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
-	chair->GetTransform()->SetPosition(50.0f, 0.0f, 0.0f);;
+	chair->GetTransform()->SetRotation(0.0f, XM_PIDIV2, 0.0f);
+	chair->GetTransform()->SetPosition(20.0f, 0.0f, 0.0f);
 	chair->GetTransform()->SetParentTransform(alien->GetTransform());
 	chair->GetMovement()->SetRotAngle(60.0f);
 	chair->GetMovement()->SetOrbitAngle(80.0f);
@@ -87,8 +88,8 @@ void Engine::PollInput()
 
 #pragma region CameraMovement
 	const float cameraSpeed = 15.f;
-	const auto forward = XMVectorSetY(mRenderWindow.GetGfx().GetCamera()->GetForwardVector(), 0.0f);
-	const auto right = XMVectorSetY(mRenderWindow.GetGfx().GetCamera()->GetRightVector(), 0.0f);
+	const auto forward = (XMVectorSetY(mRenderWindow.GetGfx().GetCamera()->GetForwardVector(), 0.0f));
+	const auto right = (XMVectorSetY(mRenderWindow.GetGfx().GetCamera()->GetRightVector(), 0.0f));
 	if (mRenderWindow.kbd.IsKeyPressed('W'))
 	{
 		mSceneObjects[0]->GetTransform()->AdjustPosition(forward * cameraSpeed * mTimer.DeltaTime());
@@ -116,6 +117,7 @@ void Engine::UpdateScene(const ScaldTimer& st)
 		sceneObject->Update(st);
 	}
 	mRenderWindow.GetGfx().GetCamera()->Update(st);
+	mSceneObjects[2]->AdjustRotation(0.0f, 1.0f * st.DeltaTime(), 0.0f);
 
 #pragma region CameraPosDebug
 	std::ostringstream oss;
