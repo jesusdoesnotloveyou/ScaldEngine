@@ -1,13 +1,13 @@
 cbuffer cbPerObject : register(b0)
 {
     matrix gWorldViewProj;
+    matrix gWorld;
 };
 
 cbuffer CBufChangeOnResize : register(b1)
 {
     matrix mProjection;
 }
-
 
 struct VS_IN
 {
@@ -30,7 +30,7 @@ VS_OUT main(VS_IN input)
 	
     output.outPosition = mul(float4(input.inPosition.xyz, 1.0f), gWorldViewProj);
     output.outTexCoord = input.inTexCoord;
-    output.outNormal = input.inNormal;
+    output.outNormal = normalize(mul(float4(input.inNormal, 0.0f), gWorld));
 	
 	return output;
 }
