@@ -72,10 +72,11 @@ struct ConstBufferPS
 	XMFLOAT3 ambientLightColor = { 0.0f, 0.0f, 0.0f };
 	float ambientLightStrength = 0.0f;
 
-	/*XMFLOAT3 dir;
-	float pad1;
+	XMFLOAT3 dynamicLightColor = { 0.0f, 0.0f, 0.0f };
+	float dynamicLightStrength = 0.0f;
+	XMFLOAT3 dynamicLightPosition = { 0.0f, 0.0f, 0.0f };
 
-	XMVECTOR diffuse;*/
+	/*XMVECTOR diffuse; */
 };
 
 //struct ConstBufferPS
