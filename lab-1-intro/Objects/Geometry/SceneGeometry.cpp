@@ -42,6 +42,12 @@ void SceneGeometry::Draw(const XMMATRIX& viewProjectionMatrix)
     bufferPS.ambientLightColor = { 1.0f, 1.0f, 1.0f };
     bufferPS.ambientLightStrength = 0.8f;
 
+    // HARDCODE: see light transform in Engine.cpp
+    bufferPS.dynamicLightColor = { 1.0f, 1.0f, 1.0f };
+    bufferPS.dynamicLightStrength = 1.0f;
+    bufferPS.dynamicLightPosition = { 0.0f, 1.0f, 2.0f };
+    //
+
     model.GetConstantBufferVS().SetData(bufferVS);
     model.GetConstantBufferPS().SetData(bufferPS);
     
