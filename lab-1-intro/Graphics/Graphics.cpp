@@ -2,9 +2,10 @@
 #include "Graphics.h"
 #include <chrono>
 
-#include "../Objects/Geometry/Actor.h"
 #include "Camera.h"
 #include "ThirdPersonCamera.h"
+#include "../Objects/Geometry/Actor.h"
+#include "../Objects/Light/Light.h"
 
 #include <d3d.h>
 #include <d3d11.h>
@@ -177,8 +178,11 @@ void Graphics::InitSceneObjects(std::vector<SceneGeometry*>& sceneObjects)
 
 	for (auto sceneObject : sceneObjects)
 	{
-		auto actor = static_cast<Actor*>(sceneObject);
-		actor->Init(mDevice.Get(), mDeviceContext.Get());
+		if (auto light = dynamic_cast<Light*>(sceneObject))
+		{
+			mLights.push_back(light);
+		}
+		sceneObject->Init(mDevice.Get(), mDeviceContext.Get());
 	}
 }
 
