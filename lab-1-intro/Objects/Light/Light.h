@@ -12,7 +12,7 @@ public:
 	virtual void Draw(const XMMATRIX& viewMatrixProjectionMatrix);
 	
 	XMFLOAT3 lightColor = XMFLOAT3{ 1.0f, 1.0f, 1.0f };
-	float lightStrength = 1.0f;
+	float lightStrength = 10.0f;
 
 private:
 	std::string modelPath;

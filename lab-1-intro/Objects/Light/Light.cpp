@@ -7,7 +7,7 @@ Light::Light(const std::string& filePath)
 
 void Light::Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, const std::string& filePath, const std::wstring& texturePath)
 {
-	SceneGeometry::Init(pDevice, pDeviceContext, modelPath, L"");
+	SceneGeometry::Init(pDevice, pDeviceContext, modelPath, L"./Data/Textures/test_texture.png");
 }
 
 void Light::Update(const ScaldTimer& st)
