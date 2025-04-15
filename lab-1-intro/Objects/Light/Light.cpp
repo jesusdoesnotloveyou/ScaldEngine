@@ -1,8 +1,13 @@
 #include "Light.h"
 
+Light::Light(const std::string& filePath)
+{
+	modelPath = filePath;
+}
+
 void Light::Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, const std::string& filePath, const std::wstring& texturePath)
 {
-
+	SceneGeometry::Init(pDevice, pDeviceContext, modelPath, L"");
 }
 
 void Light::Update(const ScaldTimer& st)
@@ -12,4 +17,5 @@ void Light::Update(const ScaldTimer& st)
 
 void Light::Draw(const XMMATRIX& viewMatrixProjectionMatrix)
 {
+	SceneGeometry::Draw(viewMatrixProjectionMatrix);
 }
