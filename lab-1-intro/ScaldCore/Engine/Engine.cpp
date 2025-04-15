@@ -1,10 +1,11 @@
 #include "Engine.h"
 #include <sstream>
 
-#include "../../Objects/Geometry/Actor.h"
-#include "../../Data/ModelData.h"
 #include "../../Graphics/Camera.h"
 #include "../../Graphics/ThirdPersonCamera.h"
+#include "../../Objects/Geometry/Actor.h"
+#include "../../Data/ModelData.h"
+#include "../../Objects/Light/Light.h"
 
 #include <random>
 #include <ctime>
@@ -45,6 +46,10 @@ void Engine::SetupScene()
 	ModelData* rock = new ModelData("./Data/Models/Rock/rock.obj", L"./Data/Textures/planks.png");
 	ModelData* marvel = new ModelData("./Data/Models/Marvel/Model.obj", L"./Data/Textures/planks.png");
 
+	Light* light = new Light("./Data/Models/Light/light.obj");
+	light->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
+	light->GetTransform()->SetPosition(0.0f, 0.0f, 3.0f);
+
 	SceneGeometry* alien = new Actor(alienFemaleModel);
 	alien->GetTransform()->SetScale(0.025f, 0.025f, 0.025f);
 	alien->GetMovement()->SetRotAngle(60.0f);
@@ -64,6 +69,7 @@ void Engine::SetupScene()
 	mSceneObjects.push_back(box);
 	mSceneObjects.push_back(alien);
 	mSceneObjects.push_back(chair);
+	mSceneObjects.push_back(light);
 	
 	mRenderWindow.GetGfx().InitSceneObjects(mSceneObjects);
 }
@@ -105,6 +111,10 @@ void Engine::PollInput()
 	if (mRenderWindow.kbd.IsKeyPressed('A'))
 	{
 		mSceneObjects[0]->GetTransform()->AdjustPosition(-right * cameraSpeed * mTimer.DeltaTime());
+	}
+	if (mRenderWindow.kbd.IsKeyPressed('C'))
+	{
+		mSceneObjects.back()->GetTransform()->SetPosition(mRenderWindow.GetGfx().GetCamera()->GetPosition());
 	}
 #pragma endregion CameraMovement
 #pragma endregion FPSCamera
