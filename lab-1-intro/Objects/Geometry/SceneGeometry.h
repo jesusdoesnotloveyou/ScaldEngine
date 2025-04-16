@@ -2,7 +2,7 @@
 
 #include "../../Graphics/Model.h"
 #include "../Components/SceneComponent.h"
-#include "../Components/MovementComponent.h"
+#include "../Components/Movement/MovementComponent.h"
 #include "../Components/Collision/CollisionComponent.h"
 
 #include <cmath>
@@ -29,15 +29,18 @@ protected:
 
 public:
 	FORCEINLINE MovementComponent*	GetMovement()const				{ return mMovementComponent; }
+	FORCEINLINE CollisionComponent* GetCollisionComponent()const { return mCollisionComponent; }
 	//FORCEINLINE RenderComponent*	GetRenderComponent()const		{ return mRenderComponent; }
 	//FORCEINLINE InputComponent*	GetInputComponent()const		{ return mInputComponent; }
-
+public:
+	std::string ObjectName = "";
 protected:
 	Model model;
 
 	std::vector<VertexTex> vertices;
 	std::vector<DWORD> indices;
 
+	CollisionComponent* mCollisionComponent = nullptr;
 	MovementComponent*	mMovementComponent	= nullptr;
 	//RenderComponent*	mRenderComponent	= nullptr;
 	//InputComponent*	mInputComponent		= nullptr;

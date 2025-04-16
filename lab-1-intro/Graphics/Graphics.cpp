@@ -170,8 +170,7 @@ void Graphics::InitSceneObjects(std::vector<SceneGeometry*>& sceneObjects)
 
 	for (auto sceneObject : sceneObjects)
 	{
-		auto actor = static_cast<Actor*>(sceneObject);
-		actor->Init(mDevice.Get(), mDeviceContext.Get());
+		sceneObject->Init(mDevice.Get(), mDeviceContext.Get());
 	}
 }
 

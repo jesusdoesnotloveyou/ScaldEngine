@@ -4,6 +4,8 @@
 #include "TransformComponent.h"
 #include "../../Graphics/ScaldCoreTypes.h"
 
+#include <vector>
+
 class SceneComponent : public ScaldComponent
 {
 public:
@@ -61,8 +63,24 @@ public:
 	void SetRightVector(const XMVECTOR& relativeRightVector);
 	void SetUpVector(const XMVECTOR& relativeUpVector);
 
+
+	void AttachToParent(SceneComponent* Parent);
+	FORCEINLINE SceneComponent* GetParent() { return mParent; }
+
+	FORCEINLINE SceneComponent* GetRootObject()
+	{
+		if (mParent)
+		{
+			return mParent->GetRootObject();
+		}
+		return this;
+	}
+	
+
 	FORCEINLINE TransformComponent* GetTransform()const { return mTransformComponent; }
 
 private:
+	SceneComponent* mParent = nullptr;
 	TransformComponent* mTransformComponent = nullptr;
+	std::vector<SceneComponent*> mChildren{};
 };

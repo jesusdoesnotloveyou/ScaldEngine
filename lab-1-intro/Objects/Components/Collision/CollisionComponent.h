@@ -2,20 +2,49 @@
 
 #include "../ScaldComponent.h"
 #include "DirectXCollision.h"
+#include "../../../Delegates/Delegates.h"
+
+class SceneGeometry;
+class TransformComponent;
 
 class CollisionComponent : public ScaldComponent
 {
 public:
-	CollisionComponent() = default;
-	virtual ~CollisionComponent() override {}
-	virtual void Update(const ScaldTimer& st) override {}
+	MulticastDelegate<CollisionComponent*> OnCollisionOverlapSignature;
 
-	DirectX::XMFLOAT3 GetCenter() const;
-	DirectX::XMFLOAT3 GetExtends() const;
+	CollisionComponent(SceneGeometry* Owner);
+	virtual ~CollisionComponent() noexcept override {}
+	virtual void Update(const ScaldTimer& st) override;
 
-	void SetExtends(const DirectX::XMFLOAT3& extends);
-	void SetCenter(const DirectX::XMFLOAT3& center);
+	void SetCenter(const XMFLOAT3& center);
+	void SetCenter(const XMVECTOR& center);
+	FORCEINLINE XMFLOAT3 GetCenter() const
+	{
+		return mBoundingVolume.Center;
+	}
 
-public:
-	DirectX::BoundingBox BoundingBox;
+	void SetRadius(const float radius);
+	FORCEINLINE float GetRadius() const
+	{
+		return mBoundingVolume.Radius;
+	}
+
+	FORCEINLINE BoundingSphere& GetBoundingVolume()
+	{
+		return mBoundingVolume;
+	}
+
+	bool Intersects(CollisionComponent* otherComponent);
+	SceneGeometry* GetOwner() const;
+
+	FORCEINLINE bool IsEnabled() const { return bIsEnabled; }
+	FORCEINLINE void DisableCollision() { bIsEnabled = false; }
+
+private: 
+	bool bIsEnabled = true;
+	void OnCollisionOverlap(CollisionComponent* otherComponent);
+
+	BoundingSphere mBoundingVolume;
+	SceneGeometry* mOwnerObject = nullptr;
+	TransformComponent* mCollisionTransform = nullptr;
 };
