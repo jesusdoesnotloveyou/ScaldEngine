@@ -50,9 +50,6 @@ public:
 	void SetUpVector(const XMVECTOR& UpVector);
 
 	void SetParentTransform(TransformComponent* parentTransform);
-private:
-	// Object local frame
-	void UpdateLocalMatrix();
 	void UpdateWorldMatrix();
 private:
 	TransformComponent* mParentTransform = nullptr;
@@ -73,6 +70,5 @@ public:
 	XMMATRIX mScaleMatrix;
 	XMMATRIX mRotationMatrix;
 	XMMATRIX mTranslationMatrix;
-	XMMATRIX mLocalMatrix;
 	XMMATRIX mWorldMatrix;
 };

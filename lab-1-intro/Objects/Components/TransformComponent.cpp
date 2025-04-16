@@ -5,13 +5,10 @@ TransformComponent::TransformComponent()
 	mScaleMatrix = XMMatrixIdentity();
 	mRotationMatrix = XMMatrixIdentity();
 	mTranslationMatrix = XMMatrixIdentity();
-	mLocalMatrix = mWorldMatrix = XMMatrixIdentity();
+	mWorldMatrix = XMMatrixIdentity();
 	mScale = XMFLOAT3(1.0f, 1.0f, 1.0f);
 	mRot = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	mPos = XMFLOAT3(0.0f, 0.0f, 0.0f);
-	/*mScaleVector = XMLoadFloat3(&mScale);
-	mRotVector = XMLoadFloat3(&mRot);
-	mPosVector = XMLoadFloat3(&mPos);*/
 	mScaleVector = XMVectorSet(mScale.x, mScale.y, mScale.z, 0.0f);
 	mRotVector = XMVectorSet(mRot.x, mRot.y, mRot.z, 0.0f);
 	mPosVector = XMVectorSet(mPos.x, mPos.y, mPos.z, 0.0f);
@@ -30,7 +27,7 @@ void TransformComponent::SetWorldMatrix(const XMMATRIX& worldMat)
 
 void TransformComponent::Reset()
 {
-	mLocalMatrix = mWorldMatrix = XMMatrixIdentity();
+	mWorldMatrix = XMMatrixIdentity();
 }
 
 XMVECTOR TransformComponent::GetPositionVector() const
@@ -234,30 +231,22 @@ void TransformComponent::SetUpVector(const XMVECTOR& UpVector)
 void TransformComponent::SetParentTransform(TransformComponent* parentTransform)
 {
 	mParentTransform = parentTransform;
+	SetPosition(GetPositionVector() - mParentTransform->GetPositionVector());
+	UpdateWorldMatrix();
 }
 
-void TransformComponent::UpdateLocalMatrix()
+void TransformComponent::UpdateWorldMatrix()
 {
 	// SRT - default order of matrix multiplication
 	// (S)TR - orbit effect for Solar system could be used
 	mScaleMatrix = XMMatrixScalingFromVector(mScaleVector);
 	mRotationMatrix = XMMatrixRotationRollPitchYawFromVector(mRotVector);
 	mTranslationMatrix = XMMatrixTranslationFromVector(mPosVector);
-	
-	mLocalMatrix = mScaleMatrix * mRotationMatrix * mTranslationMatrix;
-	//*XMMatrixRotationY(mOrbitRot);
-}
 
-void TransformComponent::UpdateWorldMatrix()
-{
-	UpdateLocalMatrix();
+	mWorldMatrix = mScaleMatrix * mRotationMatrix * mTranslationMatrix;
 
 	if (mParentTransform)
 	{
-		mWorldMatrix = mLocalMatrix * mParentTransform->mTranslationMatrix;
-	}
-	else
-	{
-		mWorldMatrix = mLocalMatrix;
+		mWorldMatrix *= mParentTransform->mTranslationMatrix;
 	}
 }
