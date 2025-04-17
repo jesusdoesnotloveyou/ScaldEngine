@@ -4,6 +4,8 @@
 #include "TransformComponent.h"
 #include "../../Graphics/ScaldCoreTypes.h"
 
+#include <vector>
+
 class SceneComponent : public ScaldComponent
 {
 public:
@@ -22,6 +24,11 @@ public:
 		return mTransformComponent->GetRotationVector();
 	}
 
+	FORCEINLINE XMVECTOR GetOrientation() const
+	{
+		return mTransformComponent->GetOrientation();
+	}
+
 	FORCEINLINE XMVECTOR GetScale() const
 	{
 		return mTransformComponent->GetScaleVector();
@@ -31,6 +38,8 @@ public:
 	virtual void SetPosition(float x, float y, float z);
 	virtual void AdjustPosition(const XMVECTOR& pos);
 	virtual void AdjustPosition(float x, float y, float z);
+
+	virtual void SetOrientation(const XMVECTOR& newRotation);
 
 	virtual void SetRotation(const XMVECTOR& rot);
 	virtual void SetRotation(float x, float y, float z);
@@ -61,8 +70,24 @@ public:
 	void SetRightVector(const XMVECTOR& relativeRightVector);
 	void SetUpVector(const XMVECTOR& relativeUpVector);
 
+
+	void AttachToParent(SceneComponent* Parent);
+	FORCEINLINE SceneComponent* GetParent() { return mParent; }
+
+	FORCEINLINE SceneComponent* GetRootObject()
+	{
+		if (mParent)
+		{
+			return mParent->GetRootObject();
+		}
+		return this;
+	}
+	
+
 	FORCEINLINE TransformComponent* GetTransform()const { return mTransformComponent; }
 
 private:
+	SceneComponent* mParent = nullptr;
 	TransformComponent* mTransformComponent = nullptr;
+	std::vector<SceneComponent*> mChildren{};
 };

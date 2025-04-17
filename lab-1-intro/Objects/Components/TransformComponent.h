@@ -15,6 +15,7 @@ public:
 public:
 	XMVECTOR GetPositionVector() const;
 	XMFLOAT3 GetPositionFloat3() const;
+	XMVECTOR GetOrientation() const;
 	XMVECTOR GetRotationVector() const;
 	XMFLOAT3 GetRotationFloat3() const;
 	XMVECTOR GetScaleVector() const;
@@ -26,6 +27,8 @@ public:
 	void AdjustScale(const XMVECTOR& scaleVector);
 	void AdjustScale(const XMFLOAT3& scale);
 	void AdjustScale(float x, float y, float z);
+
+	void SetOrientation(const XMVECTOR& orient);
 
 	void SetRotation(const XMVECTOR& rotVector);
 	void SetRotation(const XMFLOAT3& rot);
@@ -50,9 +53,6 @@ public:
 	void SetUpVector(const XMVECTOR& UpVector);
 
 	void SetParentTransform(TransformComponent* parentTransform);
-private:
-	// Object local frame
-	void UpdateLocalMatrix();
 	void UpdateWorldMatrix();
 private:
 	TransformComponent* mParentTransform = nullptr;
@@ -65,6 +65,9 @@ private:
 	XMVECTOR mRotVector;
 	XMVECTOR mPosVector;
 
+	// local orientation quaternion
+	XMVECTOR mOrientationQuat; 
+
 	// local object's orientation vectors
 	XMVECTOR mForwardVector = ScaldMath::ForwardVector;
 	XMVECTOR mRightVector = ScaldMath::RightVector;
@@ -73,6 +76,5 @@ public:
 	XMMATRIX mScaleMatrix;
 	XMMATRIX mRotationMatrix;
 	XMMATRIX mTranslationMatrix;
-	XMMATRIX mLocalMatrix;
 	XMMATRIX mWorldMatrix;
 };

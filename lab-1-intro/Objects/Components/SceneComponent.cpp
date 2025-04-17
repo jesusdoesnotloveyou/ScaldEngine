@@ -30,11 +30,26 @@ void SceneComponent::SetPosition(float x, float y, float z)
 void SceneComponent::AdjustPosition(const XMVECTOR& pos)
 {
 	mTransformComponent->AdjustPosition(pos);
+	if (mChildren.empty()) return;
+	for (auto child : mChildren)
+	{
+		child->GetTransform()->UpdateWorldMatrix();
+	}
 }
 
 void SceneComponent::AdjustPosition(float x, float y, float z)
 {
 	mTransformComponent->AdjustPosition(x, y, z);
+}
+
+void SceneComponent::SetOrientation(const XMVECTOR& newRotation)
+{
+	mTransformComponent->SetOrientation(newRotation);
+	if (mChildren.empty()) return;
+	for (auto child : mChildren)
+	{
+		child->GetTransform()->UpdateWorldMatrix();
+	}
 }
 
 void SceneComponent::SetRotation(const XMVECTOR& rot)
@@ -90,4 +105,12 @@ void SceneComponent::SetRightVector(const XMVECTOR& relativeRightVector)
 void SceneComponent::SetUpVector(const XMVECTOR& relativeUpVector)
 {
 	mTransformComponent->SetUpVector(relativeUpVector);
+}
+
+void SceneComponent::AttachToParent(SceneComponent* Parent)
+{
+	Parent->mChildren.push_back(this);
+	
+	mParent = Parent;
+	mTransformComponent->SetParentTransform(Parent->GetTransform());
 }

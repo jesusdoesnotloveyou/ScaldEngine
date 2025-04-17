@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ScaldComponent.h"
+#include "../ScaldComponent.h"
 
 class MovementComponent : ScaldComponent
 {

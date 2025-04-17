@@ -23,7 +23,7 @@ protected:
 private:
 	float mYaw;
 	float mPitch;
-	float mArmLength = 3.0f;
+	float mArmLength = 15.0f;
 
 	SceneGeometry* mTarget = nullptr;
 };

@@ -4,6 +4,7 @@
 // could be used to set materials and models
 SceneGeometry::SceneGeometry()
 {
+    mCollisionComponent = new CollisionComponent(this);
     mMovementComponent = new MovementComponent{};
     //mRenderComponent = new RenderComponent{};
 }
@@ -13,6 +14,7 @@ SceneGeometry::SceneGeometry(const tuple<vector<VertexTex>, vector<DWORD>>& vi)
 
 SceneGeometry::~SceneGeometry()
 {
+    if (mCollisionComponent) delete mCollisionComponent;
     if (mMovementComponent) delete mMovementComponent;
     //if (mRenderComponent) delete mRenderComponent;
 }
@@ -28,6 +30,7 @@ void SceneGeometry::Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceCont
 void SceneGeometry::Update(const ScaldTimer& st)
 {
     SceneComponent::Update(st);
+    mCollisionComponent->Update(st);
     mMovementComponent->Update(st);
     UpdateObjectCBs(st);
 }

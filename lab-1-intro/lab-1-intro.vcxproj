@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Delegates\Delegates.cpp" />
+    <ClCompile Include="Games\Katamari\KatamariPlayer.cpp" />
     <ClCompile Include="Graphics\Camera.cpp" />
     <ClCompile Include="Graphics\Model.cpp" />
     <ClCompile Include="Graphics\Mesh.cpp" />
@@ -28,7 +29,7 @@
     <ClCompile Include="Objects\Components\Collision\CollisionComponent.cpp" />
     <ClCompile Include="Graphics\IndexBuffer.h" />
     <ClCompile Include="Objects\Components\InputComponent.cpp" />
-    <ClCompile Include="Objects\Components\MovementComponent.cpp" />
+    <ClCompile Include="Objects\Components\Movement\MovementComponent.cpp" />
     <ClCompile Include="Objects\Components\SceneComponent.cpp" />
     <ClCompile Include="Objects\Components\TransformComponent.cpp" />
     <ClCompile Include="Objects\Geometry\3D\Cube.cpp" />
@@ -50,6 +51,7 @@
     <ClInclude Include="Data\ModelData.h" />
     <ClInclude Include="Delegates\catch.hpp" />
     <ClInclude Include="Delegates\Delegates.h" />
+    <ClInclude Include="Games\Katamari\KatamariPlayer.h" />
     <ClInclude Include="Graphics\Camera.h" />
     <ClInclude Include="Graphics\Model.h" />
     <ClInclude Include="Graphics\Mesh.h" />
@@ -59,7 +61,7 @@
     <ClInclude Include="Objects\Components\Collision\CollisionComponent.h" />
     <ClInclude Include="Graphics\ConstantBuffer.h" />
     <ClInclude Include="Objects\Components\InputComponent.h" />
-    <ClInclude Include="Objects\Components\MovementComponent.h" />
+    <ClInclude Include="Objects\Components\Movement\MovementComponent.h" />
     <ClInclude Include="Objects\Components\SceneComponent.h" />
     <ClInclude Include="Objects\Components\TransformComponent.h" />
     <ClInclude Include="Objects\Geometry\3D\Cube.h" />

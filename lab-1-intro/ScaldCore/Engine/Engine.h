@@ -7,8 +7,12 @@ class Engine
 {
 public:
 	Engine();
+	~Engine();
 	int Launch();
-  
+	
+	// Katamari specific
+	SceneGeometry* Player = nullptr;
+
 private:
 	void SetupScene();
 	void PollInput();

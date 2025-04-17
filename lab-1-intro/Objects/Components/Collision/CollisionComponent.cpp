@@ -1,21 +1,65 @@
 #include "CollisionComponent.h"
+#include "../../Geometry/Actor.h"
+#include "../TransformComponent.h"
 
-DirectX::XMFLOAT3 CollisionComponent::GetCenter() const
+CollisionComponent::CollisionComponent(SceneGeometry* Owner)
+	: 
+	mOwnerObject(Owner),
+	mCollisionTransform(Owner->GetTransform())
 {
-	return BoundingBox.Center;
+	//SetRadius(XMVectorGetX(Owner->GetScale()));
+	OnCollisionOverlapSignature.AddRaw(this, &CollisionComponent::OnCollisionOverlap);
 }
 
-DirectX::XMFLOAT3 CollisionComponent::GetExtends() const
+void CollisionComponent::Update(const ScaldTimer& st)
 {
-	return BoundingBox.Extents;
+	if (!bIsEnabled) return;
+	SetCenter(mOwnerObject->GetPosition());
+	//SetRadius(XMVectorGetX(mOwnerObject->GetScale()) + GetRadius());
 }
 
-void CollisionComponent::SetExtends(const DirectX::XMFLOAT3& extends)
+void CollisionComponent::SetRadius(float radius)
 {
-	BoundingBox.Extents = extends;
+	mBoundingVolume.Radius = radius;
 }
 
-void CollisionComponent::SetCenter(const DirectX::XMFLOAT3& center)
+void CollisionComponent::SetCenter(const XMFLOAT3& center)
 {
-	BoundingBox.Center = center;
+	mBoundingVolume.Center = center;
+}
+
+void CollisionComponent::SetCenter(const XMVECTOR& center)
+{
+	XMStoreFloat3(&mBoundingVolume.Center, center);
+}
+
+bool CollisionComponent::Intersects(CollisionComponent* otherComponent)
+{
+	if (otherComponent)
+	{
+		return mBoundingVolume.Intersects(otherComponent->GetBoundingVolume());
+	}
+	return false;
+}
+
+SceneGeometry* CollisionComponent::GetOwner() const
+{
+	return mOwnerObject ? mOwnerObject : nullptr;
+}
+
+void CollisionComponent::OnCollisionOverlap(CollisionComponent* otherComponent)
+{
+	if (!otherComponent || !otherComponent->IsEnabled()) return;
+
+	const auto player = GetOwner();
+	// doesn't work properly
+	//if (player->GetCollisionComponent()->GetRadius() < otherComponent->GetRadius()) return;
+
+	if (auto actor = static_cast<Actor*>(otherComponent->GetOwner()))
+	{
+		otherComponent->DisableCollision();
+		actor->AttachToParent(player);
+		
+		player->AdjustScale(0.001f, 0.001f, 0.001f);
+	}
 }
