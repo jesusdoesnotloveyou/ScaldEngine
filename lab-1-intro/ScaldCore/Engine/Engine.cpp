@@ -100,7 +100,7 @@ void Engine::SetupScene()
 
 	SceneGeometry* cardboardBox = new Actor(cardboardModel);
 	cardboardBox->GetTransform()->SetScale(50.0f, 0.001f, 50.0f);
-	cardboardBox->GetTransform()->SetPosition(0.0f, 0.0f, 0.0f);
+	cardboardBox->GetTransform()->SetPosition(0.0f, -1.0f, 0.0f);
 	cardboardBox->ObjectName = std::string("floor");
 	cardboardBox->GetCollisionComponent()->DisableCollision();
 
@@ -133,24 +133,44 @@ void Engine::PollInput()
 #pragma endregion CameraRotation
 
 #pragma region CameraMovement
-	const float cameraSpeed = 15.f;
-	const auto forward = XMVectorSetY(mRenderWindow.GetGfx().GetCamera()->GetForwardVector(), 0.0f);
-	const auto right = XMVectorSetY(mRenderWindow.GetGfx().GetCamera()->GetRightVector(), 0.0f);
+	const float cameraSpeed = 10.f;
+	
+	auto forward = XMVectorSetY(mRenderWindow.GetGfx().GetCamera()->GetForwardVector(), 0.0f);
+	forward = XMVector3Normalize(forward);
+	constexpr float anglePitch = XMConvertToRadians(2.0f);
+
+
+	auto right = XMVectorSetY(mRenderWindow.GetGfx().GetCamera()->GetRightVector(), 0.0f);
+	right = XMVector3Normalize(right);
+	constexpr float angleRoll = XMConvertToRadians(2.0f);
+	
 	if (mRenderWindow.kbd.IsKeyPressed('W'))
 	{
-		mSceneObjects[0]->AdjustPosition(forward * cameraSpeed * mTimer.DeltaTime());
+		Player->AdjustPosition(forward * cameraSpeed * mTimer.DeltaTime());
+
+		XMVECTOR newRotation = XMQuaternionRotationAxis(right, anglePitch);
+		Player->SetOrientation(newRotation);
 	}
 	if (mRenderWindow.kbd.IsKeyPressed('S'))
 	{
-		mSceneObjects[0]->AdjustPosition(-forward * cameraSpeed * mTimer.DeltaTime());
+		Player->AdjustPosition(-forward * cameraSpeed * mTimer.DeltaTime());
+		
+		XMVECTOR newRotation = XMQuaternionRotationAxis(right, -anglePitch);
+		Player->SetOrientation(newRotation);
 	}
 	if (mRenderWindow.kbd.IsKeyPressed('D'))
 	{
-		mSceneObjects[0]->AdjustPosition(right * cameraSpeed * mTimer.DeltaTime());
+		Player->AdjustPosition(right * cameraSpeed * mTimer.DeltaTime());
+
+		XMVECTOR newRotation = XMQuaternionRotationAxis(forward, -angleRoll);
+		Player->SetOrientation(newRotation);
 	}
 	if (mRenderWindow.kbd.IsKeyPressed('A'))
 	{
-		mSceneObjects[0]->AdjustPosition(-right * cameraSpeed * mTimer.DeltaTime());
+		Player->AdjustPosition(-right * cameraSpeed * mTimer.DeltaTime());
+
+		XMVECTOR newRotation = XMQuaternionRotationAxis(forward, angleRoll);
+		Player->SetOrientation(newRotation);
 	}
 #pragma endregion CameraMovement
 }
