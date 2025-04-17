@@ -24,6 +24,11 @@ public:
 		return mTransformComponent->GetRotationVector();
 	}
 
+	FORCEINLINE XMVECTOR GetOrientation() const
+	{
+		return mTransformComponent->GetOrientation();
+	}
+
 	FORCEINLINE XMVECTOR GetScale() const
 	{
 		return mTransformComponent->GetScaleVector();
@@ -33,6 +38,8 @@ public:
 	virtual void SetPosition(float x, float y, float z);
 	virtual void AdjustPosition(const XMVECTOR& pos);
 	virtual void AdjustPosition(float x, float y, float z);
+
+	virtual void SetOrientation(const XMVECTOR& newRotation);
 
 	virtual void SetRotation(const XMVECTOR& rot);
 	virtual void SetRotation(float x, float y, float z);

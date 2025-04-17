@@ -15,6 +15,7 @@ public:
 public:
 	XMVECTOR GetPositionVector() const;
 	XMFLOAT3 GetPositionFloat3() const;
+	XMVECTOR GetOrientation() const;
 	XMVECTOR GetRotationVector() const;
 	XMFLOAT3 GetRotationFloat3() const;
 	XMVECTOR GetScaleVector() const;
@@ -26,6 +27,8 @@ public:
 	void AdjustScale(const XMVECTOR& scaleVector);
 	void AdjustScale(const XMFLOAT3& scale);
 	void AdjustScale(float x, float y, float z);
+
+	void SetOrientation(const XMVECTOR& orient);
 
 	void SetRotation(const XMVECTOR& rotVector);
 	void SetRotation(const XMFLOAT3& rot);

@@ -46,6 +46,11 @@ XMVECTOR TransformComponent::GetRotationVector() const
 	return mRotVector;
 }
 
+XMVECTOR TransformComponent::GetOrientation() const 
+{
+	return mOrientationQuat;
+}
+
 XMFLOAT3 TransformComponent::GetRotationFloat3() const
 {
 	return mRot;
@@ -153,6 +158,12 @@ void TransformComponent::AdjustPosition(float x, float y, float z)
 	UpdateWorldMatrix();
 }
 
+void TransformComponent::SetOrientation(const XMVECTOR& newRotation)
+{
+	mOrientationQuat = XMQuaternionMultiply(newRotation, mOrientationQuat);
+	UpdateWorldMatrix();
+}
+
 void TransformComponent::SetRotation(const XMVECTOR& rotVector)
 {
 	mRotVector = rotVector;
@@ -241,7 +252,7 @@ void TransformComponent::UpdateWorldMatrix()
 	// SRT - default order of matrix multiplication
 	// (S)TR - orbit effect for Solar system could be used
 	mScaleMatrix = XMMatrixScalingFromVector(mScaleVector);
-	mRotationMatrix = XMMatrixRotationQuaternion(mRotVector);
+	mRotationMatrix = XMMatrixRotationQuaternion(mOrientationQuat);
 	//mRotationMatrix = XMMatrixRotationRollPitchYawFromVector(mRotVector);
 	mTranslationMatrix = XMMatrixTranslationFromVector(mPosVector);
 
@@ -249,6 +260,6 @@ void TransformComponent::UpdateWorldMatrix()
 
 	if (mParentTransform)
 	{
-		mWorldMatrix *= mParentTransform->mTranslationMatrix;
+		mWorldMatrix *= mParentTransform->mRotationMatrix * mParentTransform->mTranslationMatrix;
 	}
 }
