@@ -62,6 +62,9 @@ private:
 	XMVECTOR mRotVector;
 	XMVECTOR mPosVector;
 
+	// local orientation quaternion
+	XMVECTOR mOrientationQuat; 
+
 	// local object's orientation vectors
 	XMVECTOR mForwardVector = ScaldMath::ForwardVector;
 	XMVECTOR mRightVector = ScaldMath::RightVector;

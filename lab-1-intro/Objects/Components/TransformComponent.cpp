@@ -4,6 +4,7 @@ TransformComponent::TransformComponent()
 {
 	mScaleMatrix = XMMatrixIdentity();
 	mRotationMatrix = XMMatrixIdentity();
+	mOrientationQuat = XMQuaternionIdentity();
 	mTranslationMatrix = XMMatrixIdentity();
 	mWorldMatrix = XMMatrixIdentity();
 	mScale = XMFLOAT3(1.0f, 1.0f, 1.0f);
@@ -240,7 +241,8 @@ void TransformComponent::UpdateWorldMatrix()
 	// SRT - default order of matrix multiplication
 	// (S)TR - orbit effect for Solar system could be used
 	mScaleMatrix = XMMatrixScalingFromVector(mScaleVector);
-	mRotationMatrix = XMMatrixRotationRollPitchYawFromVector(mRotVector);
+	mRotationMatrix = XMMatrixRotationQuaternion(mRotVector);
+	//mRotationMatrix = XMMatrixRotationRollPitchYawFromVector(mRotVector);
 	mTranslationMatrix = XMMatrixTranslationFromVector(mPosVector);
 
 	mWorldMatrix = mScaleMatrix * mRotationMatrix * mTranslationMatrix;
