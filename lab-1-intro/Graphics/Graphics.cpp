@@ -198,7 +198,7 @@ void Graphics::DrawScene(std::vector<SceneGeometry*>& sceneObjects)
 // Before rendering every frame we should clear render target view and depth stencil view
 void Graphics::ClearBuffer(float r)
 {
-	float color[] = { r, 0.1f, 0.1f, 1.0f };
+	float color[] = { r, 0.0f, 0.0f, 1.0f };
 	mDeviceContext->ClearRenderTargetView(mRtv.Get(), color);
 	mDeviceContext->ClearDepthStencilView(mDsv.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL /*Clearing Both Depth and Stencil*/, 1.0f, 0u);
 	//mDeviceContext->ClearState();
