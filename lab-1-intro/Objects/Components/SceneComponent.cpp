@@ -42,6 +42,16 @@ void SceneComponent::AdjustPosition(float x, float y, float z)
 	mTransformComponent->AdjustPosition(x, y, z);
 }
 
+void SceneComponent::SetOrientation(const XMVECTOR& newRotation)
+{
+	mTransformComponent->SetOrientation(newRotation);
+	if (mChildren.empty()) return;
+	for (auto child : mChildren)
+	{
+		child->GetTransform()->UpdateWorldMatrix();
+	}
+}
+
 void SceneComponent::SetRotation(const XMVECTOR& rot)
 {
 	mTransformComponent->SetRotation(rot);

@@ -52,7 +52,7 @@ void CollisionComponent::OnCollisionOverlap(CollisionComponent* otherComponent)
 	if (!otherComponent || !otherComponent->IsEnabled()) return;
 
 	const auto player = GetOwner();
-	// didn't work properly
+	// doesn't work properly
 	//if (player->GetCollisionComponent()->GetRadius() < otherComponent->GetRadius()) return;
 
 	if (auto actor = static_cast<Actor*>(otherComponent->GetOwner()))
