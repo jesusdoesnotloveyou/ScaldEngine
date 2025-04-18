@@ -14,6 +14,12 @@ public:
 	XMFLOAT3 lightColor = XMFLOAT3{ 1.0f, 1.0f, 1.0f };
 	float lightStrength = 10.0f;
 
+	// To avoid division by zero
+	float attenuationConstantFactor = 1.0f;
+	// The effect decreases linearly with distance from the light source
+	float attenuationLinearFactor = 0.1f;
+	// Soft effect
+	float attenuationExponentialFactor = 0.1f;
 private:
 	std::string modelPath;
 };
