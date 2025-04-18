@@ -199,6 +199,7 @@ void Engine::UpdateScene(const ScaldTimer& st)
 	{
 		sceneObject->Update(st);
 		
+#pragma region Collision
 		if (sceneObject == Player) continue;
 		// checks for collision should be here...
 		if (const auto playerPawnCollision = Player->GetCollisionComponent())
@@ -212,6 +213,7 @@ void Engine::UpdateScene(const ScaldTimer& st)
 				}
 			}
 		}
+#pragma endregion Collision
 	}
 	mRenderWindow.GetGfx().GetCamera()->Update(st);
 
