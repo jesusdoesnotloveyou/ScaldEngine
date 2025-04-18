@@ -89,11 +89,11 @@ void Engine::SetupScene()
 	chair->ObjectName = std::string("chair");
 	chair->GetCollisionComponent()->SetRadius(4.0f);
 
-	Player = new KatamariPlayer(tonyModel);
+	Player = new KatamariPlayer(angryBirdModel);
 	Player->GetTransform()->SetScale(0.02f, 0.02f, 0.02f);
-	Player->GetTransform()->SetPosition(40.0f, 0.0f, 0.0f);
+	Player->GetTransform()->SetPosition(40.0f, 1.9f, 0.0f);
 	Player->ObjectName = std::string("Player");
-	Player->GetCollisionComponent()->SetRadius(1.0f);
+	Player->GetCollisionComponent()->SetRadius(4.0f);
 
 	SceneGeometry* pig = new Actor(minionPigModel);
 	pig->GetTransform()->SetScale(0.02f, 0.02f, 0.02f);
@@ -101,11 +101,11 @@ void Engine::SetupScene()
 	pig->ObjectName = std::string("pig");
 	pig->GetCollisionComponent()->SetRadius(3.0f);
 
-	SceneGeometry* angryBird = new Actor(angryBirdModel);
+	SceneGeometry* angryBird = new Actor(tonyModel);
 	angryBird->GetTransform()->SetScale(0.02f, 0.02f, 0.02f);
-	angryBird->GetTransform()->SetPosition(10.0f, 1.9f, 0.0f);
+	angryBird->GetTransform()->SetPosition(10.0f, 0.0f, 0.0f);
 	angryBird->ObjectName = std::string("angryBird");
-	angryBird->GetCollisionComponent()->SetRadius(4.0f);
+	angryBird->GetCollisionComponent()->SetRadius(2.0f);
 
 	SceneGeometry* cardboardBox = new Actor(cardboardModel);
 	cardboardBox->GetTransform()->SetScale(50.0f, 0.001f, 50.0f);
