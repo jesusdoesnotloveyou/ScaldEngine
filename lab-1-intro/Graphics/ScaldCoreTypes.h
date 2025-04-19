@@ -84,6 +84,12 @@ struct ConstBufferPS
 	// 56 bytes
 };
 
+// Light should be here 7.12.2 Luna
+struct ConstBufferPerFrame
+{
+	XMVECTOR gEyePos = XMVectorZero();
+};
+
 //struct ConstBufferPS
 //{
 //	float alpha = 1.0f;
