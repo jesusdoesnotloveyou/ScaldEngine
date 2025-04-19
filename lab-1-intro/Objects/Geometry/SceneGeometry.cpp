@@ -45,10 +45,11 @@ void SceneGeometry::Draw(const XMMATRIX& viewProjectionMatrix)
     bufferPS.ambientLightColor = { 1.0f, 1.0f, 1.0f };
     bufferPS.ambientLightStrength = 0.9f;
 
+    // SEngine->GetLight() should be
     // HARDCODE: see light transform in Engine.cpp
     bufferPS.dynamicLightColor = { 1.0f, 1.0f, 1.0f };
-    bufferPS.dynamicLightStrength = 10.0f;
-    bufferPS.dynamicLightPosition = { 0.0f, 1.0f, 2.0f };
+    bufferPS.dynamicLightStrength = 5.0f;
+    bufferPS.dynamicLightPosition = { 0.0f, 4.0f, 2.0f };
     //
     // for attenuation default values are used
 

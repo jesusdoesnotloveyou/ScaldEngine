@@ -65,7 +65,7 @@ void Engine::SetupScene()
 
 	Light* light = new Light("./Data/Models/Light/light.obj");
 	light->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
-	light->GetTransform()->SetPosition(0.0f, 1.0f, 2.0f);
+	light->GetTransform()->SetPosition(0.0f, 4.0f, 2.0f);
 	light->GetTransform()->SetRotation(-XM_PIDIV2, 0.0f, 0.0f);
 	light->GetCollisionComponent()->DisableCollision();
 
@@ -84,8 +84,6 @@ void Engine::SetupScene()
 	SceneGeometry* chair = new Actor(chairModel);
 	chair->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
 	chair->GetTransform()->SetPosition(50.0f, 2.3f, 0.0f);
-	chair->GetMovement()->SetRotAngle(60.0f);
-	chair->GetMovement()->SetOrbitAngle(80.0f);
 	chair->ObjectName = std::string("chair");
 	chair->GetCollisionComponent()->SetRadius(4.0f);
 
