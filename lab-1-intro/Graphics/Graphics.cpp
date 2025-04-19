@@ -168,6 +168,8 @@ void Graphics::Setup()
 
 	// Camera setup
 	mTPCamera->SetProjectionValues(90.0f, static_cast<float>(mScreenWidth) / static_cast<float>(mScreenHeight), 0.1f, 3000.0f);
+
+	mCB.Init(mDevice.Get(), mDeviceContext.Get());
 }
 
 void Graphics::InitSceneObjects(std::vector<SceneGeometry*>& sceneObjects)
@@ -198,6 +200,13 @@ void Graphics::DrawScene(std::vector<SceneGeometry*>& sceneObjects)
 	mDeviceContext->OMSetDepthStencilState(mDepthStencilState.Get(), 0);
 	mDeviceContext->PSSetSamplers(0u, 1u, mSamplerState.GetAddressOf());
 
+#pragma region EyePositionToPS
+	ConstBufferPerFrame cbPerFrame{ mTPCamera->GetPosition() };
+	mCB.SetData(cbPerFrame);
+	mCB.ApplyChanges();
+#pragma endregion EyePositionToPS
+
+	mDeviceContext->PSSetConstantBuffers(1u, 1u, mCB.GetAddressOf());
 	// Step 09: Set Vertex and Pixel Shaders
 	mDeviceContext->VSSetShader(mVertexShader.Get(), nullptr, 0);
 	mDeviceContext->PSSetShader(mPixelShader.Get(), nullptr, 0);
