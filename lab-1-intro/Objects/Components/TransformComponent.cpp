@@ -160,7 +160,7 @@ void TransformComponent::AdjustPosition(float x, float y, float z)
 
 void TransformComponent::SetOrientation(const XMVECTOR& newRotation)
 {
-	mOrientationQuat = XMQuaternionMultiply(newRotation, mOrientationQuat);
+	mOrientationQuat = XMQuaternionMultiply(mOrientationQuat, newRotation);
 	UpdateWorldMatrix();
 }
 
@@ -258,8 +258,5 @@ void TransformComponent::UpdateWorldMatrix()
 
 	mWorldMatrix = mScaleMatrix * mRotationMatrix * mTranslationMatrix;
 
-	if (mParentTransform)
-	{
-		mWorldMatrix *= mParentTransform->mRotationMatrix * mParentTransform->mTranslationMatrix;
-	}
+	if (mParentTransform) mWorldMatrix *= mParentTransform->mRotationMatrix * mParentTransform->mTranslationMatrix;
 }
