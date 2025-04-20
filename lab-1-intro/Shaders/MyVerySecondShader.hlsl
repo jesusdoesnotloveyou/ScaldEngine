@@ -39,7 +39,7 @@ SamplerState objSamplerState : SAMPLER : register(s0);
 float4 main(PS_IN input) : SV_Target
 {
     float3 lightVector = normalize(dynamicLightPosition - input.inWorldPos);
-    float3 reflectLight = normalize(reflect(lightVector, input.inNormal));
+    float3 reflectLight = normalize(reflect(-lightVector, input.inNormal));
     float4 sampleColor = objTexture.Sample(objSamplerState, input.inTexCoord);
     float3 viewDir = normalize(gEyePos.xyz - input.inWorldPos);
     
@@ -50,7 +50,7 @@ float4 main(PS_IN input) : SV_Target
     float3 diffuseLightIntensity = saturate(max(dot(lightVector, input.inNormal), 0.0f));
     float3 diffuseLight = diffuseLightIntensity * dynamicLightStrength * dynamicLightColor;
     
-    float3 specularIntensity = 10.0f * pow(max(dot(reflectLight, viewDir), 0.0f), 90.0f);
+    float3 specularIntensity = 10.f * pow(max(dot(reflectLight, viewDir), 0.0f), 20.0f);
     float3 specularLight = saturate(specularIntensity);
     
     float distanceToLight = distance(dynamicLightPosition, input.inWorldPos);
