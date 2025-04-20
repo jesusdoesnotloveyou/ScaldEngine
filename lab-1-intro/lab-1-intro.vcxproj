@@ -96,6 +96,9 @@
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">main</EntryPointName>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">main</EntryPointName>
     </FxCompile>
+    <FxCompile Include="Shaders\MyVeryThirdShader%28Shadows%29.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="Delegates\Delegates.natvis" />

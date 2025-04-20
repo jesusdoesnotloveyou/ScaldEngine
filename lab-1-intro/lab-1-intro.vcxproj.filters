@@ -93,9 +93,6 @@
     <ClCompile Include="Objects\Components\InputComponent.cpp">
       <Filter>Source Files\Components</Filter>
     </ClCompile>
-    <ClCompile Include="Objects\Components\MovementComponent.cpp">
-      <Filter>Source Files\Components</Filter>
-    </ClCompile>
     <ClCompile Include="Objects\Components\TransformComponent.cpp">
       <Filter>Source Files\Components</Filter>
     </ClCompile>
@@ -127,6 +124,15 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Objects\Components\SceneComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Games\Katamari\KatamariPlayer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\Components\Movement\MovementComponent.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Objects\Light\Light.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -191,9 +197,6 @@
     <ClInclude Include="Objects\Components\TransformComponent.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
-    <ClInclude Include="Objects\Components\MovementComponent.h">
-      <Filter>Header Files\Components</Filter>
-    </ClInclude>
     <ClInclude Include="Objects\Geometry\3D\Shapes.h">
       <Filter>Header Files\Geometry</Filter>
     </ClInclude>
@@ -227,12 +230,24 @@
     <ClInclude Include="Objects\Components\SceneComponent.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Games\Katamari\KatamariPlayer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\Components\Movement\MovementComponent.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Objects\Light\Light.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\MyVeryFirstShader.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\MyVerySecondShader.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\MyVeryThirdShader%28Shadows%29.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>
