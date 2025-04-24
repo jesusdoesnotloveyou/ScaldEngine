@@ -25,6 +25,7 @@
     <ClCompile Include="Graphics\Model.cpp" />
     <ClCompile Include="Graphics\Mesh.cpp" />
     <ClCompile Include="Graphics\Shaders.cpp" />
+    <ClCompile Include="Graphics\Shadows\ShadowMap.cpp" />
     <ClCompile Include="Graphics\ThirdPersonCamera.cpp" />
     <ClCompile Include="Objects\Components\Collision\CollisionComponent.cpp" />
     <ClCompile Include="Graphics\IndexBuffer.h" />
@@ -57,6 +58,7 @@
     <ClInclude Include="Graphics\Mesh.h" />
     <ClInclude Include="Graphics\ScaldCoreTypes.h" />
     <ClInclude Include="Graphics\Shaders.h" />
+    <ClInclude Include="Graphics\Shadows\ShadowMap.h" />
     <ClInclude Include="Graphics\ThirdPersonCamera.h" />
     <ClInclude Include="Objects\Components\Collision\CollisionComponent.h" />
     <ClInclude Include="Graphics\ConstantBuffer.h" />
