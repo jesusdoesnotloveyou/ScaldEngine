@@ -5,9 +5,14 @@ bool Model::Init(ID3D11Device* device, ID3D11DeviceContext* deviceContext, const
 {
     pDevice = device;
     pDeviceContext = deviceContext;
-    //mTexture = texture;
-    ThrowIfFailed(mCB.Init(pDevice, pDeviceContext));
-    ThrowIfFailed(CreateWICTextureFromFile(pDevice, textureFilePath.data(), nullptr, mTexture.GetAddressOf()));
+
+    ThrowIfFailed(mCB_VS.Init(pDevice, pDeviceContext));
+    ThrowIfFailed(mCB_PS.Init(pDevice, pDeviceContext));
+    
+    if (!textureFilePath.empty())
+    {
+        ThrowIfFailed(CreateWICTextureFromFile(pDevice, textureFilePath.data(), nullptr, mTexture.GetAddressOf()));
+    }
     if (!LoadModel(modelFilePath)) return false;
 
     return true;
@@ -22,7 +27,8 @@ void Model::Draw()
 {
                                                  // &mTexture will delete texture, since & clears memory
     pDeviceContext->PSSetShaderResources(0u, 1u, mTexture.GetAddressOf());
-    pDeviceContext->VSSetConstantBuffers(0u, 1u, mCB.GetAddressOf());
+    pDeviceContext->VSSetConstantBuffers(0u, 1u, mCB_VS.GetAddressOf());
+    pDeviceContext->PSSetConstantBuffers(0u, 1u, mCB_PS.GetAddressOf());
 
     for (auto& mesh : mMeshes)
     {
@@ -68,6 +74,10 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
         vertex.position.y = mesh->mVertices[i].y;
         vertex.position.z = mesh->mVertices[i].z;
 
+        vertex.normal.x = mesh->mVertices[i].x;
+        vertex.normal.y = mesh->mVertices[i].y;
+        vertex.normal.z = mesh->mVertices[i].z;
+
         if (mesh->HasTextureCoords(0))
         {
             vertex.texCoord.x = (float)mesh->mTextureCoords[0][i].x;
@@ -88,7 +98,12 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
     return Mesh(pDevice, pDeviceContext, vertices, indices);
 }
 
-ConstantBuffer<ConstBufferVS>& Model::GetConstantBuffer()
+ConstantBuffer<ConstBufferVS>& Model::GetConstantBufferVS()
 {
-    return mCB;
+    return mCB_VS;
+}
+
+ConstantBuffer<ConstBufferPS>& Model::GetConstantBufferPS()
+{
+    return mCB_PS;
 }

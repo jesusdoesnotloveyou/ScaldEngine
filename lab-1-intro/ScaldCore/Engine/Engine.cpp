@@ -5,6 +5,9 @@
 #include "../../Data/ModelData.h"
 #include "../../Graphics/Camera.h"
 #include "../../Graphics/ThirdPersonCamera.h"
+#include "../../Objects/Geometry/Actor.h"
+#include "../../Data/ModelData.h"
+#include "../../Objects/Light/Light.h"
 
 #include <random>
 #include <ctime>
@@ -60,6 +63,12 @@ void Engine::SetupScene()
 	ModelData* boxModel			= new ModelData("./Data/Models/Box/box2.obj",						L"./Data/Textures/planks.png");
 	ModelData* cardboardModel	= new ModelData("./Data/Models/Box/cardboardBox.obj",				L"./Data/Models/Box/cardboardBox.png");
 
+	Light* light = new Light("./Data/Models/Light/light.obj");
+	light->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
+	light->GetTransform()->SetPosition(0.0f, 4.0f, 2.0f);
+	light->GetTransform()->SetRotation(-XM_PIDIV2, 0.0f, 0.0f);
+	light->GetCollisionComponent()->DisableCollision();
+
 	SceneGeometry* alien = new Actor(alienFemaleModel);
 	alien->GetTransform()->SetScale(0.03f, 0.03f, 0.03f);
 	alien->GetTransform()->SetPosition(-10.0f, 0.0f, 10.0f);
@@ -75,16 +84,14 @@ void Engine::SetupScene()
 	SceneGeometry* chair = new Actor(chairModel);
 	chair->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
 	chair->GetTransform()->SetPosition(50.0f, 2.3f, 0.0f);
-	chair->GetMovement()->SetRotAngle(60.0f);
-	chair->GetMovement()->SetOrbitAngle(80.0f);
 	chair->ObjectName = std::string("chair");
 	chair->GetCollisionComponent()->SetRadius(4.0f);
 
-	Player = new KatamariPlayer(tonyModel);
+	Player = new KatamariPlayer(angryBirdModel);
 	Player->GetTransform()->SetScale(0.02f, 0.02f, 0.02f);
-	Player->GetTransform()->SetPosition(40.0f, 0.0f, 0.0f);
+	Player->GetTransform()->SetPosition(40.0f, 1.9f, 0.0f);
 	Player->ObjectName = std::string("Player");
-	Player->GetCollisionComponent()->SetRadius(1.0f);
+	Player->GetCollisionComponent()->SetRadius(4.0f);
 
 	SceneGeometry* pig = new Actor(minionPigModel);
 	pig->GetTransform()->SetScale(0.02f, 0.02f, 0.02f);
@@ -92,11 +99,11 @@ void Engine::SetupScene()
 	pig->ObjectName = std::string("pig");
 	pig->GetCollisionComponent()->SetRadius(3.0f);
 
-	SceneGeometry* angryBird = new Actor(angryBirdModel);
+	SceneGeometry* angryBird = new Actor(tonyModel);
 	angryBird->GetTransform()->SetScale(0.02f, 0.02f, 0.02f);
-	angryBird->GetTransform()->SetPosition(10.0f, 1.9f, 0.0f);
+	angryBird->GetTransform()->SetPosition(10.0f, 0.0f, 0.0f);
 	angryBird->ObjectName = std::string("angryBird");
-	angryBird->GetCollisionComponent()->SetRadius(4.0f);
+	angryBird->GetCollisionComponent()->SetRadius(2.0f);
 
 	SceneGeometry* cardboardBox = new Actor(cardboardModel);
 	cardboardBox->GetTransform()->SetScale(50.0f, 0.001f, 50.0f);
@@ -111,6 +118,7 @@ void Engine::SetupScene()
 	mSceneObjects.push_back(chair);
 	mSceneObjects.push_back(pig);
 	mSceneObjects.push_back(cardboardBox);
+	mSceneObjects.push_back(light);
 	
 	mRenderWindow.GetGfx().InitSceneObjects(mSceneObjects);
 }
@@ -172,6 +180,14 @@ void Engine::PollInput()
 		XMVECTOR newRotation = XMQuaternionRotationAxis(forward, angleRoll);
 		Player->SetOrientation(newRotation);
 	}
+	if (mRenderWindow.kbd.IsKeyPressed('C'))
+	{
+		XMVECTOR lightPosition = mRenderWindow.GetGfx().GetCamera()->GetPosition();
+		lightPosition += mRenderWindow.GetGfx().GetCamera()->GetForwardVector() * 2;
+		mSceneObjects.back()->GetTransform()->SetPosition(lightPosition);
+		mSceneObjects.back()->GetTransform()->SetRotation(mRenderWindow.GetGfx().GetCamera()->GetRotation());
+		
+	}
 #pragma endregion CameraMovement
 }
 
@@ -181,6 +197,7 @@ void Engine::UpdateScene(const ScaldTimer& st)
 	{
 		sceneObject->Update(st);
 		
+#pragma region Collision
 		if (sceneObject == Player) continue;
 		// checks for collision should be here...
 		if (const auto playerPawnCollision = Player->GetCollisionComponent())
@@ -194,6 +211,7 @@ void Engine::UpdateScene(const ScaldTimer& st)
 				}
 			}
 		}
+#pragma endregion Collision
 	}
 	mRenderWindow.GetGfx().GetCamera()->Update(st);
 

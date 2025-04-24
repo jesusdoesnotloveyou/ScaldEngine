@@ -253,7 +253,6 @@ void TransformComponent::UpdateWorldMatrix()
 	// (S)TR - orbit effect for Solar system could be used
 	mScaleMatrix = XMMatrixScalingFromVector(mScaleVector);
 	mRotationMatrix = XMMatrixRotationQuaternion(mOrientationQuat);
-	//mRotationMatrix = XMMatrixRotationRollPitchYawFromVector(mRotVector);
 	mTranslationMatrix = XMMatrixTranslationFromVector(mPosVector);
 
 	mWorldMatrix = mScaleMatrix * mRotationMatrix * mTranslationMatrix;

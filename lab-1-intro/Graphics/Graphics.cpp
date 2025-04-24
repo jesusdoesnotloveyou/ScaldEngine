@@ -2,9 +2,10 @@
 #include "Graphics.h"
 #include <chrono>
 
-#include "../Objects/Geometry/Actor.h"
 #include "Camera.h"
 #include "ThirdPersonCamera.h"
+#include "../Objects/Geometry/Actor.h"
+#include "../Objects/Light/Light.h"
 
 #include <d3d.h>
 #include <d3d11.h>
@@ -113,6 +114,14 @@ void Graphics::SetupShaders()
 			0u,
 			D3D11_APPEND_ALIGNED_ELEMENT,
 			D3D11_INPUT_PER_VERTEX_DATA,
+			0u},
+		D3D11_INPUT_ELEMENT_DESC {
+			"NORMAL",
+			0u,
+			DXGI_FORMAT_R32G32B32_FLOAT,
+			0u,
+			D3D11_APPEND_ALIGNED_ELEMENT,
+			D3D11_INPUT_PER_VERTEX_DATA,
 			0u}
 	};
 
@@ -159,6 +168,8 @@ void Graphics::Setup()
 
 	// Camera setup
 	mTPCamera->SetProjectionValues(90.0f, static_cast<float>(mScreenWidth) / static_cast<float>(mScreenHeight), 0.1f, 3000.0f);
+
+	mCB.Init(mDevice.Get(), mDeviceContext.Get());
 }
 
 void Graphics::InitSceneObjects(std::vector<SceneGeometry*>& sceneObjects)
@@ -169,6 +180,10 @@ void Graphics::InitSceneObjects(std::vector<SceneGeometry*>& sceneObjects)
 
 	for (auto sceneObject : sceneObjects)
 	{
+		if (auto light = dynamic_cast<Light*>(sceneObject))
+		{
+			mLights.push_back(light);
+		}
 		sceneObject->Init(mDevice.Get(), mDeviceContext.Get());
 	}
 }
@@ -185,6 +200,13 @@ void Graphics::DrawScene(std::vector<SceneGeometry*>& sceneObjects)
 	mDeviceContext->OMSetDepthStencilState(mDepthStencilState.Get(), 0);
 	mDeviceContext->PSSetSamplers(0u, 1u, mSamplerState.GetAddressOf());
 
+#pragma region EyePositionToPS
+	ConstBufferPerFrame cbPerFrame{ mTPCamera->GetPosition() };
+	mCB.SetData(cbPerFrame);
+	mCB.ApplyChanges();
+#pragma endregion EyePositionToPS
+
+	mDeviceContext->PSSetConstantBuffers(1u, 1u, mCB.GetAddressOf());
 	// Step 09: Set Vertex and Pixel Shaders
 	mDeviceContext->VSSetShader(mVertexShader.Get(), nullptr, 0);
 	mDeviceContext->PSSetShader(mPixelShader.Get(), nullptr, 0);

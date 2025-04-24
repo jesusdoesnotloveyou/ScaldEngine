@@ -8,12 +8,15 @@
 #include <vector>
 
 #include "Shaders.h"
+#include "ConstantBuffer.h"
+#include "ScaldCoreTypes.h"
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "dxgi.lib")
 
 class SceneGeometry;
+class Light;
 class Camera;
 class ThirdPersonCamera;
 
@@ -40,6 +43,7 @@ private:
 private:
 	Camera* mCamera = nullptr;
 	ThirdPersonCamera* mTPCamera = nullptr;
+	std::vector<Light*> mLights;
 
 	int mScreenWidth;
 	int mScreenHeight;
@@ -47,6 +51,8 @@ private:
 
 	VertexShader mVertexShader;
 	PixelShader mPixelShader;
+
+	ConstantBuffer<ConstBufferPerFrame> mCB;
 
 	Microsoft::WRL::ComPtr<ID3D11Device> mDevice;
 	Microsoft::WRL::ComPtr<IDXGISwapChain> mSwapChain;
