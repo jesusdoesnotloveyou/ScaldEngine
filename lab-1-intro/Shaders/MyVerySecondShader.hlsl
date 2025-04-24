@@ -59,5 +59,5 @@ float4 main(PS_IN input) : SV_Target
     float3 appliedLight = ambientLight + (diffuseLight + specularLight) * attenuationFactor;
     float3 finalColor = sampleColor.xyz * appliedLight;
     
-    return float4(finalColor.xyz, 1.0f);
+    return float4(finalColor, 1.0f);
 }
