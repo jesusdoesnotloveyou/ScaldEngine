@@ -168,6 +168,7 @@ void Graphics::Setup()
 
 	// Camera setup
 	mTPCamera->SetProjectionValues(90.0f, static_cast<float>(mScreenWidth) / static_cast<float>(mScreenHeight), 0.1f, 3000.0f);
+	mTPCamera->SetOrthographicProjectionValues(static_cast<float>(mScreenWidth), static_cast<float>(mScreenHeight), 0.1f, 3000.0f);
 
 	mCB.Init(mDevice.Get(), mDeviceContext.Get());
 }

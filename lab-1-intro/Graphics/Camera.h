@@ -22,9 +22,11 @@ public:
 
 	//~ Begin of Camera specific
 	void SetProjectionValues(float fovDegrees, float aspectRatio, float nearZ, float farZ);
+	void SetOrthographicProjectionValues(float width, float height, float nearZ, float farZ);
 
 	const XMMATRIX& GetViewMatrix() const;
 	const XMMATRIX& GetProjectionMatrix() const;
+	const XMMATRIX& GetOrthographicProjectionMatrix() const;
 	
 	void SetLookAtPosition(XMFLOAT3 lookAtPosition);
 	void SetLookAtPosition(XMVECTOR lookAtPosition);
@@ -36,6 +38,7 @@ protected:
 	virtual void UpdateViewMatrix();
 	XMMATRIX mViewMatrix;
 	XMMATRIX mProjectionMatrix;
+	XMMATRIX mOrthographicMatrix;
 
 	float mSpeed = 0.0f;
 	bool bIsAttached = false;

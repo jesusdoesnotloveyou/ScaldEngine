@@ -17,6 +17,11 @@ void Camera::SetProjectionValues(float fovDegrees, float aspectRatio, float near
 	mProjectionMatrix = XMMatrixPerspectiveFovLH(fovRadians, aspectRatio, nearZ, farZ);
 }
 
+void Camera::SetOrthographicProjectionValues(float width, float height, float nearZ, float farZ)
+{
+	mOrthographicMatrix = XMMatrixOrthographicLH(width, height, nearZ, farZ);
+}
+
 const XMMATRIX& Camera::GetViewMatrix() const
 {
 	return mViewMatrix;
@@ -25,6 +30,11 @@ const XMMATRIX& Camera::GetViewMatrix() const
 const XMMATRIX& Camera::GetProjectionMatrix() const
 {
 	return mProjectionMatrix;
+}
+
+const XMMATRIX& Camera::GetOrthographicProjectionMatrix() const
+{
+	return mOrthographicMatrix;
 }
 
 void Camera::SetPosition(const XMVECTOR& pos)
