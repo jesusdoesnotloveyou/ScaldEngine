@@ -47,23 +47,50 @@ struct VertexTex
 	VertexTex() {}
 
 	VertexTex(float x, float y, float z, float w,
-		float u, float v)
+		float u, float v,
+		float nx, float ny, float nz)
 		:
 		position(x, y, z, w),
-		texCoord(u, v)
+		texCoord(u, v),
+		normal(nx, ny, nz)
 	{}
 
 	XMFLOAT4 position = { 0.0f, 0.0f, 0.0f, 1.0f };
 	XMFLOAT2 texCoord = { 0.0f, 0.0f };
+	XMFLOAT3 normal   = { 0.0f, 0.0f, 0.0f };
 };
 
 // Constant buffer types
 struct ConstBufferVS
 {
 	XMMATRIX gWorldViewProj = XMMatrixIdentity();
+	XMMATRIX gWorld = XMMatrixIdentity();
 };
 
 struct ConstBufferPS
 {
-	float alpha = 1.0f;
+	XMFLOAT3 ambientLightColor = { 0.0f, 0.0f, 0.0f };
+	float ambientLightStrength = 0.0f;
+	// 16 bytes
+	XMFLOAT3 dynamicLightColor = { 0.0f, 0.0f, 0.0f };
+	float dynamicLightStrength = 0.0f;
+	// 32 bytes
+	XMFLOAT3 dynamicLightPosition = { 0.0f, 0.0f, 0.0f };
+	
+	float attenuationConstantFactor = 1.0f;
+	// 48 bytes
+	float attenuationLinearFactor = 0.1f;
+	float attenuationExponentialFactor = 0.05f;
+	// 56 bytes
 };
+
+// Light should be here 7.12.2 Luna
+struct ConstBufferPerFrame
+{
+	XMVECTOR gEyePos = XMVectorZero();
+};
+
+//struct ConstBufferPS
+//{
+//	float alpha = 1.0f;
+//};

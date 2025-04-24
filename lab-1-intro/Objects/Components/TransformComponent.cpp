@@ -243,8 +243,11 @@ void TransformComponent::SetUpVector(const XMVECTOR& UpVector)
 void TransformComponent::SetParentTransform(TransformComponent* parentTransform)
 {
 	mParentTransform = parentTransform;
-	SetPosition(GetPositionVector() - mParentTransform->GetPositionVector());
-	UpdateWorldMatrix();
+
+	XMVECTOR det /* = XMMatrixDeterminant(parentTransform->mWorldMatrix)*/;
+	mLocalMatrix = mWorldMatrix * XMMatrixInverse(&det, parentTransform->mRotationMatrix * parentTransform->mTranslationMatrix);
+	
+	//UpdateWorldMatrix();
 }
 
 void TransformComponent::UpdateWorldMatrix()
@@ -253,10 +256,9 @@ void TransformComponent::UpdateWorldMatrix()
 	// (S)TR - orbit effect for Solar system could be used
 	mScaleMatrix = XMMatrixScalingFromVector(mScaleVector);
 	mRotationMatrix = XMMatrixRotationQuaternion(mOrientationQuat);
-	//mRotationMatrix = XMMatrixRotationRollPitchYawFromVector(mRotVector);
 	mTranslationMatrix = XMMatrixTranslationFromVector(mPosVector);
 
 	mWorldMatrix = mScaleMatrix * mRotationMatrix * mTranslationMatrix;
 
-	if (mParentTransform) mWorldMatrix *= mParentTransform->mRotationMatrix * mParentTransform->mTranslationMatrix;
+	if (mParentTransform) mWorldMatrix = mLocalMatrix * mParentTransform->mRotationMatrix * mParentTransform->mTranslationMatrix;
 }

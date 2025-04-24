@@ -11,7 +11,7 @@ class ConstantBuffer
 {
 public:
 	ConstantBuffer() {}
-	ConstantBuffer(const ConstantBuffer& rhs) = delete;
+	ConstantBuffer(const ConstantBuffer& lhs) = delete;
 public:
 	ID3D11Buffer* Get() const { return mBuffer.Get(); }
 	ID3D11Buffer* const* GetAddressOf() const { return mBuffer.GetAddressOf(); }
@@ -49,9 +49,9 @@ public:
 		return &curr_data;
 	}
 
-	void SetData(const XMMATRIX& data)
+	void SetData(const T& data)
 	{
-		curr_data.gWorldViewProj = data;
+		curr_data = data;
 	}
 
 private:
