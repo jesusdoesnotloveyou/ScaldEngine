@@ -59,9 +59,8 @@ void Engine::SetupScene()
 	ModelData* marvelModel		= new ModelData("./Data/Models/Marvel/Model.obj",					L"./Data/Textures/planks.png");
 	ModelData* chairModel		= new ModelData("./Data/Models/Chair/monoblock_CHAIR.obj",			L"./Data/Textures/valakas.png");
 	ModelData* tonyModel		= new ModelData("./Data/Models/Tony/Tony.obj",						L"./Data/Models/Tony/AngryBirdCeleste.png");
+	ModelData* boxModel			= new ModelData("./Data/Models/Box/box2.obj",						L"./Data/Textures/valakas.png");
 	ModelData* rockModel		= new ModelData("./Data/Models/Rock/rock.obj",						L"./Data/Textures/planks.png");
-	ModelData* boxModel			= new ModelData("./Data/Models/Box/box2.obj",						L"./Data/Textures/planks.png");
-	ModelData* cardboardModel	= new ModelData("./Data/Models/Box/cardboardBox.obj",				L"./Data/Models/Box/cardboardBox.png");
 
 	Light* light = new Light("./Data/Models/Light/light.obj");
 	light->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
@@ -71,13 +70,13 @@ void Engine::SetupScene()
 
 	SceneGeometry* alien = new Actor(alienFemaleModel);
 	alien->GetTransform()->SetScale(0.03f, 0.03f, 0.03f);
-	alien->GetTransform()->SetPosition(-10.0f, 0.0f, 10.0f);
+	alien->GetTransform()->SetPosition(-15.0f, 0.0f, 10.0f);
 	alien->ObjectName = std::string("alien");
 	alien->GetCollisionComponent()->SetRadius(2.0f);
 
 	SceneGeometry* box = new Actor(boxModel);
 	box->GetTransform()->SetScale(3.0f, 3.0f, 3.0f);
-	box->GetTransform()->SetPosition(0.0f, 0.0f, 10.0f);
+	box->GetTransform()->SetPosition(0.0f, 0.0f, 15.0f);
 	box->ObjectName = std::string("box");
 	box->GetCollisionComponent()->SetRadius(3.0f);
 
@@ -89,7 +88,7 @@ void Engine::SetupScene()
 
 	Player = new KatamariPlayer(angryBirdModel);
 	Player->GetTransform()->SetScale(0.02f, 0.02f, 0.02f);
-	Player->GetTransform()->SetPosition(40.0f, 1.9f, 0.0f);
+	Player->GetTransform()->SetPosition(0.0f, 1.9f, 0.0f);
 	Player->ObjectName = std::string("Player");
 	Player->GetCollisionComponent()->SetRadius(4.0f);
 
@@ -105,11 +104,11 @@ void Engine::SetupScene()
 	angryBird->ObjectName = std::string("angryBird");
 	angryBird->GetCollisionComponent()->SetRadius(2.0f);
 
-	SceneGeometry* cardboardBox = new Actor(cardboardModel);
-	cardboardBox->GetTransform()->SetScale(50.0f, 0.001f, 50.0f);
-	cardboardBox->GetTransform()->SetPosition(0.0f, -1.0f, 0.0f);
-	cardboardBox->ObjectName = std::string("floor");
-	cardboardBox->GetCollisionComponent()->DisableCollision();
+	SceneGeometry* rockFloor = new Actor(rockModel);
+	rockFloor->GetTransform()->SetScale(5.0f, 0.1f, 5.0f);
+	rockFloor->GetTransform()->SetPosition(0.0f, -2.0f, 0.0f);
+	rockFloor->ObjectName = std::string("floor");
+	rockFloor->GetCollisionComponent()->DisableCollision();
 
 	mSceneObjects.push_back(Player);
 	mSceneObjects.push_back(angryBird);
@@ -117,7 +116,7 @@ void Engine::SetupScene()
 	mSceneObjects.push_back(alien);
 	mSceneObjects.push_back(chair);
 	mSceneObjects.push_back(pig);
-	mSceneObjects.push_back(cardboardBox);
+	mSceneObjects.push_back(rockFloor);
 	mSceneObjects.push_back(light);
 	
 	mRenderWindow.GetGfx().InitSceneObjects(mSceneObjects);
