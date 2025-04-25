@@ -20,6 +20,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="Delegates\Delegates.cpp" />
+    <ClCompile Include="Games\Katamari\KatamariMovementComponent.cpp" />
     <ClCompile Include="Games\Katamari\KatamariPlayer.cpp" />
     <ClCompile Include="Graphics\Camera.cpp" />
     <ClCompile Include="Graphics\Model.cpp" />
@@ -51,6 +52,7 @@
     <ClInclude Include="Data\ModelData.h" />
     <ClInclude Include="Delegates\catch.hpp" />
     <ClInclude Include="Delegates\Delegates.h" />
+    <ClInclude Include="Games\Katamari\KatamariMovementComponent.h" />
     <ClInclude Include="Games\Katamari\KatamariPlayer.h" />
     <ClInclude Include="Graphics\Camera.h" />
     <ClInclude Include="Graphics\Model.h" />

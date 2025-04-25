@@ -20,11 +20,21 @@ void SceneComponent::Update(const ScaldTimer& st)
 void SceneComponent::SetPosition(const XMVECTOR& pos)
 {
 	mTransformComponent->SetPosition(pos);
+	if (mChildren.empty()) return;
+	for (auto child : mChildren)
+	{
+		child->GetTransform()->UpdateWorldMatrix();
+	}
 }
 
 void SceneComponent::SetPosition(float x, float y, float z)
 {
 	mTransformComponent->SetPosition(x, y, z);
+	if (mChildren.empty()) return;
+	for (auto child : mChildren)
+	{
+		child->GetTransform()->UpdateWorldMatrix();
+	}
 }
 
 void SceneComponent::AdjustPosition(const XMVECTOR& pos)
@@ -40,6 +50,11 @@ void SceneComponent::AdjustPosition(const XMVECTOR& pos)
 void SceneComponent::AdjustPosition(float x, float y, float z)
 {
 	mTransformComponent->AdjustPosition(x, y, z);
+	if (mChildren.empty()) return;
+	for (auto child : mChildren)
+	{
+		child->GetTransform()->UpdateWorldMatrix();
+	}
 }
 
 void SceneComponent::SetOrientation(const XMVECTOR& newRotation)

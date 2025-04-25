@@ -28,8 +28,7 @@ protected:
 	void UpdateObjectCBs(const ScaldTimer& st);
 
 public:
-	FORCEINLINE MovementComponent*	GetMovement()const				{ return mMovementComponent; }
-	FORCEINLINE CollisionComponent* GetCollisionComponent()const { return mCollisionComponent; }
+	FORCEINLINE CollisionComponent* GetCollisionComponent()const	{ return mCollisionComponent; }
 	//FORCEINLINE RenderComponent*	GetRenderComponent()const		{ return mRenderComponent; }
 	//FORCEINLINE InputComponent*	GetInputComponent()const		{ return mInputComponent; }
 public:
@@ -41,7 +40,6 @@ protected:
 	std::vector<DWORD> indices;
 
 	CollisionComponent* mCollisionComponent = nullptr;
-	MovementComponent*	mMovementComponent	= nullptr;
 	//RenderComponent*	mRenderComponent	= nullptr;
 	//InputComponent*	mInputComponent		= nullptr;
 };

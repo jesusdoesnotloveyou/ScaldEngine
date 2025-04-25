@@ -15,7 +15,7 @@ namespace ScaldMath
 	const XMVECTOR ForwardVector = XMVectorSet(0.0f, 0.0f, 1.0f, 0.0f);
 	const XMVECTOR RightVector	 = XMVectorSet(1.0f, 0.0f, 0.0f, 0.0f);
 	const XMVECTOR UpVector		 = XMVectorSet(0.0f, 1.0f, 0.0f, 0.0f);
-	const XMVECTOR ZeroVector	 = XMVectorSet(0.0f, 0.0f, 0.0f, 0.0f);
+	const XMVECTOR ZeroVector	 = XMVectorZero();
 }
 
 // just position and color

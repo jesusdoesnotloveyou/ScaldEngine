@@ -6,7 +6,7 @@ TransformComponent::TransformComponent()
 	mRotationMatrix = XMMatrixIdentity();
 	mOrientationQuat = XMQuaternionIdentity();
 	mTranslationMatrix = XMMatrixIdentity();
-	mWorldMatrix = XMMatrixIdentity();
+	mLocalMatrix = mWorldMatrix = XMMatrixIdentity();
 	mScale = XMFLOAT3(1.0f, 1.0f, 1.0f);
 	mRot = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	mPos = XMFLOAT3(0.0f, 0.0f, 0.0f);
