@@ -106,7 +106,7 @@ void Engine::SetupScene()
 
 	SceneGeometry* rockFloor = new Actor(rockModel);
 	rockFloor->GetTransform()->SetScale(5.0f, 0.1f, 5.0f);
-	rockFloor->GetTransform()->SetPosition(0.0f, -2.0f, 0.0f);
+	rockFloor->GetTransform()->SetPosition(0.0f, -1.5f, 0.0f);
 	rockFloor->ObjectName = std::string("floor");
 	rockFloor->GetCollisionComponent()->DisableCollision();
 
@@ -120,6 +120,11 @@ void Engine::SetupScene()
 	mSceneObjects.push_back(light);
 	
 	mRenderWindow.GetGfx().InitSceneObjects(mSceneObjects);
+
+#pragma region PlayerInputDelegates
+	mRenderWindow.kbd.OnKeyPressedEvent.AddRaw(Player->GetMovement(), &KatamariMovementComponent::OnKeyPressed);
+	mRenderWindow.kbd.OnKeyReleasedEvent.AddRaw(Player->GetMovement(), &KatamariMovementComponent::OnKeyReleased);
+#pragma endregion PlayerInputDelegates
 }
 
 void Engine::PollInput()
@@ -139,46 +144,17 @@ void Engine::PollInput()
 	}
 #pragma endregion CameraRotation
 
-#pragma region CameraMovement
-	const float cameraSpeed = 10.f;
-	
+#pragma region PlayerMovement
+	// Camera forward without Y (XoZ)
 	auto forward = XMVectorSetY(mRenderWindow.GetGfx().GetCamera()->GetForwardVector(), 0.0f);
 	forward = XMVector3Normalize(forward);
-	constexpr float anglePitch = XMConvertToRadians(2.0f);
+	Player->SetForwardVector(forward);
 
-
+	// Camera right without Y (XoZ)
 	auto right = XMVectorSetY(mRenderWindow.GetGfx().GetCamera()->GetRightVector(), 0.0f);
 	right = XMVector3Normalize(right);
-	constexpr float angleRoll = XMConvertToRadians(2.0f);
+	Player->SetRightVector(right);
 	
-	if (mRenderWindow.kbd.IsKeyPressed('W'))
-	{
-		Player->AdjustPosition(forward * cameraSpeed * mTimer.DeltaTime());
-
-		XMVECTOR newRotation = XMQuaternionRotationAxis(right, anglePitch);
-		Player->SetOrientation(newRotation);
-	}
-	if (mRenderWindow.kbd.IsKeyPressed('S'))
-	{
-		Player->AdjustPosition(-forward * cameraSpeed * mTimer.DeltaTime());
-		
-		XMVECTOR newRotation = XMQuaternionRotationAxis(right, -anglePitch);
-		Player->SetOrientation(newRotation);
-	}
-	if (mRenderWindow.kbd.IsKeyPressed('D'))
-	{
-		Player->AdjustPosition(right * cameraSpeed * mTimer.DeltaTime());
-
-		XMVECTOR newRotation = XMQuaternionRotationAxis(forward, -angleRoll);
-		Player->SetOrientation(newRotation);
-	}
-	if (mRenderWindow.kbd.IsKeyPressed('A'))
-	{
-		Player->AdjustPosition(-right * cameraSpeed * mTimer.DeltaTime());
-
-		XMVECTOR newRotation = XMQuaternionRotationAxis(forward, angleRoll);
-		Player->SetOrientation(newRotation);
-	}
 	if (mRenderWindow.kbd.IsKeyPressed('C'))
 	{
 		XMVECTOR lightPosition = mRenderWindow.GetGfx().GetCamera()->GetPosition();
@@ -187,7 +163,11 @@ void Engine::PollInput()
 		mSceneObjects.back()->GetTransform()->SetRotation(mRenderWindow.GetGfx().GetCamera()->GetRotation());
 		
 	}
-#pragma endregion CameraMovement
+	/*if (mRenderWindow.kbd.IsKeyPressed(VK_SPACE) && !Player->IsFalling())
+	{
+		Player->Jump();
+	}*/
+#pragma endregion PlayerMovement
 }
 
 void Engine::UpdateScene(const ScaldTimer& st)
@@ -195,17 +175,14 @@ void Engine::UpdateScene(const ScaldTimer& st)
 	for (auto sceneObject : mSceneObjects)
 	{
 		sceneObject->Update(st);
-		
+// Very inefficient code I suppose
 #pragma region Collision
 		if (sceneObject == Player) continue;
 		// checks for collision should be here...
-		if (const auto playerPawnCollision = Player->GetCollisionComponent())
-		{
-			if (const auto otherCollision = sceneObject->GetCollisionComponent())
-			{
+		if (const auto playerPawnCollision = Player->GetCollisionComponent()) {
+			if (const auto otherCollision = sceneObject->GetCollisionComponent()) {
 				if (!otherCollision->IsEnabled()) continue;
-				if (playerPawnCollision->Intersects(otherCollision))
-				{
+				if (playerPawnCollision->Intersects(otherCollision)) {
 					playerPawnCollision->OnCollisionOverlapSignature.Broadcast(otherCollision);
 				}
 			}

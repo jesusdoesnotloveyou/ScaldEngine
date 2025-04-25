@@ -3,6 +3,8 @@
 #include "RenderWindow.h"
 #include "ScaldTimer.h"
 
+class KatamariPlayer;
+
 class Engine
 {
 public:
@@ -11,7 +13,7 @@ public:
 	int Launch();
 	
 	// Katamari specific
-	SceneGeometry* Player = nullptr;
+	KatamariPlayer* Player = nullptr;
 
 private:
 	void SetupScene();

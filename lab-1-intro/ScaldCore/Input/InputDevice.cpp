@@ -80,7 +80,7 @@ void Keyboard::OnKeyPressed(unsigned char keyCode) noexcept
     keyStates[keyCode] = true;
     keyBuffer.push(Keyboard::Event{ Keyboard::Event::Type::Press, keyCode });
     // Too early for delegates
-    //OnKeyPressedEvent.Broadcast(keyCode);
+    OnKeyPressedEvent.Broadcast(keyCode);
     TrimBuffer(keyBuffer);
 }
 
@@ -89,7 +89,7 @@ void Keyboard::OnKeyReleased(unsigned char keyCode) noexcept
     keyStates[keyCode] = false;
     keyBuffer.push(Keyboard::Event{ Keyboard::Event::Type::Release, keyCode });
     // Too early for delegates
-    //OnKeyReleasedEvent.Broadcast(keyCode);
+    OnKeyReleasedEvent.Broadcast(keyCode);
     TrimBuffer(keyBuffer);
 }
 
@@ -97,7 +97,7 @@ void Keyboard::OnChar(char character) noexcept
 {
     charBuffer.push(character);
     // Too early for delegates
-    //OnCharEvent.Broadcast(character);
+    OnCharEvent.Broadcast(character);
     TrimBuffer(charBuffer);
 }
 
