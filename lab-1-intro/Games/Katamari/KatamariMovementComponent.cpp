@@ -6,6 +6,7 @@ KatamariMovementComponent::KatamariMovementComponent(SceneGeometry* OwnerPlayer)
 {
 	mSpeed = 10.0f;
 	mAngle = 2.0f;
+	mJumpZVelocity = 20.0f;
 }
 
 void KatamariMovementComponent::Update(const ScaldTimer& st)

@@ -163,10 +163,10 @@ void Engine::PollInput()
 		mSceneObjects.back()->GetTransform()->SetRotation(mRenderWindow.GetGfx().GetCamera()->GetRotation());
 		
 	}
-	/*if (mRenderWindow.kbd.IsKeyPressed(VK_SPACE) && !Player->IsFalling())
+	if (mRenderWindow.kbd.IsKeyPressed(VK_SPACE) && !Player->IsFalling())
 	{
 		Player->Jump();
-	}*/
+	}
 #pragma endregion PlayerMovement
 }
 
