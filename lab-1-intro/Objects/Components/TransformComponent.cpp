@@ -6,7 +6,7 @@ TransformComponent::TransformComponent()
 	mRotationMatrix = XMMatrixIdentity();
 	mOrientationQuat = XMQuaternionIdentity();
 	mTranslationMatrix = XMMatrixIdentity();
-	mWorldMatrix = XMMatrixIdentity();
+	mLocalMatrix = mWorldMatrix = XMMatrixIdentity();
 	mScale = XMFLOAT3(1.0f, 1.0f, 1.0f);
 	mRot = XMFLOAT3(0.0f, 0.0f, 0.0f);
 	mPos = XMFLOAT3(0.0f, 0.0f, 0.0f);
@@ -243,8 +243,11 @@ void TransformComponent::SetUpVector(const XMVECTOR& UpVector)
 void TransformComponent::SetParentTransform(TransformComponent* parentTransform)
 {
 	mParentTransform = parentTransform;
-	SetPosition(GetPositionVector() - mParentTransform->GetPositionVector());
-	UpdateWorldMatrix();
+
+	XMVECTOR det /* = XMMatrixDeterminant(parentTransform->mWorldMatrix)*/;
+	mLocalMatrix = mWorldMatrix * XMMatrixInverse(&det, parentTransform->mRotationMatrix * parentTransform->mTranslationMatrix);
+	
+	//UpdateWorldMatrix();
 }
 
 void TransformComponent::UpdateWorldMatrix()
@@ -257,5 +260,5 @@ void TransformComponent::UpdateWorldMatrix()
 
 	mWorldMatrix = mScaleMatrix * mRotationMatrix * mTranslationMatrix;
 
-	if (mParentTransform) mWorldMatrix *= mParentTransform->mRotationMatrix * mParentTransform->mTranslationMatrix;
+	if (mParentTransform) mWorldMatrix = mLocalMatrix * mParentTransform->mRotationMatrix * mParentTransform->mTranslationMatrix;
 }

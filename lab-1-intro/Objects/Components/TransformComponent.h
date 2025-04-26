@@ -77,4 +77,6 @@ public:
 	XMMATRIX mRotationMatrix;
 	XMMATRIX mTranslationMatrix;
 	XMMATRIX mWorldMatrix;
+	// Katamari specific (probably) when attaching to another object
+	XMMATRIX mLocalMatrix;
 };
