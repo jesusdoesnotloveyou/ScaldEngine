@@ -4,6 +4,7 @@
 MovementComponent::MovementComponent(SceneGeometry* CompOwner)
 	:
 	mSpeed(0.0f),
+	mJumpZVelocity(0.0f),
 	mAngle(0.0f),
 	mMovementDirection(ScaldMath::ZeroVector),
 	mOrbitAngle(0.0f),
@@ -22,4 +23,9 @@ void MovementComponent::SetOrbitAngle(float orbitAngle)
 {
 	if (mOrbitAngle == orbitAngle) return;
 	mOrbitAngle = orbitAngle;
+}
+
+void MovementComponent::SetJumpZ(float JumpZ)
+{
+	mJumpZVelocity = JumpZ;
 }
