@@ -3,6 +3,7 @@
 KatamariPlayer::KatamariPlayer(ModelData* modelData) : Actor(modelData)
 {
 	mMovementComponent = new KatamariMovementComponent(this);
+	mJumpZ = mMovementComponent->GetJumpZ();
 }
 
 KatamariPlayer::~KatamariPlayer() noexcept
@@ -18,7 +19,11 @@ void KatamariPlayer::Update(const ScaldTimer& st)
 	if (bIsFalling)
 	{
 		DoJump(st);
-		StopJumping();
+
+		if (XMVectorGetY(GetPosition()) <= 1.9f)
+		{
+			StopJumping();
+		}
 	}
 }
 
@@ -35,10 +40,11 @@ void KatamariPlayer::Jump()
 void KatamariPlayer::StopJumping()
 {
 	bIsFalling = false;
+	mJumpZ = mMovementComponent->GetJumpZ();
 }
 
 void KatamariPlayer::DoJump(const ScaldTimer& st)
-{
-	float gravity = 0.5f;
-
+{	
+	AdjustPosition(XMVector3Cross(GetForwardVector(), GetRightVector()) * mJumpZ * st.DeltaTime());
+	mJumpZ -= 0.9f;
 }

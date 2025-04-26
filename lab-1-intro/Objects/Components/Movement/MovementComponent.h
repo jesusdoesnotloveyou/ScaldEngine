@@ -14,12 +14,16 @@ public:
 
 	void SetRotAngle(float rotAngle);
 	void SetOrbitAngle(float orbitAngle);
+	void SetJumpZ(float JumpZ);
 
-	FORCEINLINE float GetRotAngle() const { return mRotAngle; }
-	FORCEINLINE float GetOrbitAngle() const { return mOrbitAngle; }
+	FORCEINLINE float GetRotAngle()const { return mRotAngle; }
+	FORCEINLINE float GetOrbitAngle()const { return mOrbitAngle; }
+	FORCEINLINE float GetSpeed()const { return mSpeed; }
+	FORCEINLINE float GetJumpZ()const { return mJumpZVelocity; }
 
 protected:
 	float mSpeed = 0.0f;
+	float mJumpZVelocity = 0.0f;
 	float mAngle = 0.0f;
 	XMVECTOR mMovementDirection;
 
