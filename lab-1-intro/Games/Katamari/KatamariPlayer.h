@@ -28,4 +28,5 @@ protected:
 
 private:
 	bool bIsFalling = false;
+	float mJumpZ = 0.0f;
 };
