@@ -189,6 +189,11 @@ void Graphics::InitSceneObjects(std::vector<SceneGeometry*>& sceneObjects)
 	}
 }
 
+void Graphics::AddLightSource(Light* lightObject)
+{
+	mLights.push_back(lightObject);
+}
+
 void Graphics::DrawScene(std::vector<SceneGeometry*>& sceneObjects)
 {
 	// Step 11: Set BackBuffer for Output merger

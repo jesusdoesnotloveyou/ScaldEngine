@@ -62,11 +62,15 @@ void Engine::SetupScene()
 	ModelData* boxModel			= new ModelData("./Data/Models/Box/box2.obj",						L"./Data/Textures/valakas.png");
 	ModelData* rockModel		= new ModelData("./Data/Models/Rock/rock.obj",						L"./Data/Textures/planks.png");
 
-	Light* light = new Light("./Data/Models/Light/light.obj");
-	light->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
-	light->GetTransform()->SetPosition(0.0f, 4.0f, 2.0f);
-	light->GetTransform()->SetRotation(-XM_PIDIV2, 0.0f, 0.0f);
-	light->GetCollisionComponent()->DisableCollision();
+#pragma region Light
+	Light* light1 = new Light("./Data/Models/Light/light.obj");
+	light1->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
+	light1->GetTransform()->SetPosition(0.0f, 4.0f, 2.0f);
+	light1->GetTransform()->SetRotation(-XM_PIDIV2, 0.0f, 0.0f);
+	light1->GetCollisionComponent()->DisableCollision();
+
+	mRenderWindow.GetGfx().AddLightSource(light1);
+#pragma endregion Light
 
 	SceneGeometry* alien = new Actor(alienFemaleModel);
 	alien->GetTransform()->SetScale(0.03f, 0.03f, 0.03f);
@@ -117,7 +121,7 @@ void Engine::SetupScene()
 	mSceneObjects.push_back(chair);
 	mSceneObjects.push_back(pig);
 	mSceneObjects.push_back(rockFloor);
-	mSceneObjects.push_back(light);
+	mSceneObjects.push_back(light1);
 	
 	mRenderWindow.GetGfx().InitSceneObjects(mSceneObjects);
 

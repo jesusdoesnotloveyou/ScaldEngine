@@ -31,6 +31,7 @@ public:
 	
 	void Setup();
 	void InitSceneObjects(std::vector<SceneGeometry*>& sceneObjects);
+	void AddLightSource(Light* lightObject);
 
 	void ClearBuffer(float r);
 	void DrawScene(std::vector<SceneGeometry*>& sceneObjects);
