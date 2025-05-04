@@ -7,7 +7,7 @@
 #include "../../Graphics/ThirdPersonCamera.h"
 #include "../../Objects/Geometry/Actor.h"
 #include "../../Data/ModelData.h"
-#include "../../Objects/Light/Light.h"
+#include "../../Graphics/Light/Light.h"
 
 #include <random>
 #include <ctime>
@@ -67,9 +67,10 @@ void Engine::SetupScene()
 	light1->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
 	light1->GetTransform()->SetPosition(0.0f, 4.0f, 2.0f);
 	light1->GetTransform()->SetRotation(-XM_PIDIV2, 0.0f, 0.0f);
-	light1->GetCollisionComponent()->DisableCollision();
+	//light1->GetCollisionComponent()->DisableCollision();
+	light1->SetPointLightParams(XMFLOAT4(1.0f, 1.0f, 1.0f, 0.9f), XMFLOAT4(1.0f, 1.0f, 1.0f, 5.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(1.0f, 0.1f, 0.1f));
 
-	mRenderWindow.GetGfx().AddLightSource(light1);
+	mRenderWindow.GetGfx().AddLightSourceParams(light1->GetPointLightParams());
 #pragma endregion Light
 
 	SceneGeometry* alien = new Actor(alienFemaleModel);
@@ -92,7 +93,7 @@ void Engine::SetupScene()
 
 	Player = new KatamariPlayer(angryBirdModel);
 	Player->GetTransform()->SetScale(0.02f, 0.02f, 0.02f);
-	Player->GetTransform()->SetPosition(0.0f, 1.9f, 0.0f);
+	Player->GetTransform()->SetPosition(0.0f, 1.9f, 20.0f);
 	Player->ObjectName = std::string("Player");
 	Player->GetCollisionComponent()->SetRadius(4.0f);
 
@@ -161,11 +162,9 @@ void Engine::PollInput()
 	
 	if (mRenderWindow.kbd.IsKeyPressed('C'))
 	{
-		XMVECTOR lightPosition = mRenderWindow.GetGfx().GetCamera()->GetPosition();
-		lightPosition += mRenderWindow.GetGfx().GetCamera()->GetForwardVector() * 2;
-		mSceneObjects.back()->GetTransform()->SetPosition(lightPosition);
-		mSceneObjects.back()->GetTransform()->SetRotation(mRenderWindow.GetGfx().GetCamera()->GetRotation());
-		
+		XMVECTOR newLightObjectPosition = mRenderWindow.GetGfx().GetCamera()->GetPosition();
+		newLightObjectPosition += mRenderWindow.GetGfx().GetCamera()->GetForwardVector() * 2;
+		mSceneObjects.back()->SetPosition(newLightObjectPosition);
 	}
 	if (mRenderWindow.kbd.IsKeyPressed(VK_SPACE) && !Player->IsFalling())
 	{
@@ -195,6 +194,8 @@ void Engine::UpdateScene(const ScaldTimer& st)
 	}
 	mRenderWindow.GetGfx().GetCamera()->Update(st);
 
+	// LightManager->Update()
+	mRenderWindow.GetGfx().UpdateLightParams(mSceneObjects.back());
 #if 0
 #pragma region CameraPosDebug
 	std::ostringstream oss;
@@ -209,6 +210,19 @@ void Engine::UpdateScene(const ScaldTimer& st)
 	OutputDebugString(oss.str().c_str());
 #pragma endregion CameraPosDebug
 #endif
+
+#pragma region LightPosDebug
+	std::ostringstream oss;
+	const auto LightPos = mSceneObjects[1]->GetPosition();
+	oss << "Object's position: " << XMVectorGetX(LightPos) << ", " << XMVectorGetY(LightPos) << ", " << XMVectorGetZ(LightPos) << "\n";
+	OutputDebugString(oss.str().c_str());
+#pragma endregion LightPosDebug
+
+#pragma region PlayerPosDebug
+	const auto PlayerPos = Player->GetPosition();
+	oss << "Player's position: " << XMVectorGetX(PlayerPos) << ", " << XMVectorGetY(PlayerPos) << ", " << XMVectorGetZ(PlayerPos) << "\n";
+	OutputDebugString(oss.str().c_str());
+#pragma endregion PlayerPosDebug
 }
 
 void Engine::RenderFrame(const ScaldTimer& st)
