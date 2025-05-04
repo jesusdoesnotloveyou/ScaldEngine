@@ -22,6 +22,7 @@ StructuredBuffer<PointLight> Lights : register(t1);
 cbuffer cbPerFrame : register(b1)
 {
     float4 gEyePos;
+    float numLights;
     //float Ks = 0.1f;
     //float shininess = 200;
 };
@@ -34,36 +35,51 @@ struct PS_IN
     float3 inWorldPos: WORLD_POSITION;
 };
 
-float4 main(PS_IN input) : SV_Target
+float3 CalculateLight(PointLight light, uniform float3 posW, uniform float3 normal, uniform float3 toEye)
 {
-    // from structured buffer
-    float3 lightPos = Lights[0].position;
-    float3 attenuation = Lights[0].attenuation;
-    float4 ambient = Lights[0].ambient;
-    float4 diffuse = Lights[0].diffuse;
+    // return vec init
+    float3 appliedLight = float3(0.0f, 0.0f, 0.0f);
+    
+     // from structured buffer
+    float3 lightPos = light.position;
+    float3 attenuation = light.attenuation;
+    float4 ambient = light.ambient;
+    float4 diffuse = light.diffuse;
     //
     
-    float3 lightVector = normalize(lightPos - input.inWorldPos);
-    float3 reflectLight = normalize(reflect(-lightVector, input.inNormal));
-    float4 sampleColor = objTexture.Sample(objSamplerState, input.inTexCoord);
-    float3 viewDir = normalize(gEyePos.xyz - input.inWorldPos);
+    float3 viewDir = normalize(toEye - posW);
+    float3 lightVector = normalize(lightPos - posW);
+    float3 reflectLight = normalize(reflect(-lightVector, normal));
     
-    //float3 sampleColor = input.inNormal;
-    float3 ambientLight = ambient.xyz * ambient.w;
-    
-    //float3 diffuseLightIntensity = (dot(lightVector, input.inNormal)); // for testing: more explicit view of light propagation
-    float3 diffuseLightIntensity = saturate(max(dot(lightVector, input.inNormal), 0.0f));
+    // dividing by numLights to avoid overexposure due to cumulative effect of ambient light
+    float3 ambientLight = ambient.xyz * (ambient.w / numLights);
+    //float3 diffuseLightIntensity = (dot(lightVector, normal)); // for testing: more explicit view of light propagation
+    float3 diffuseLightIntensity = saturate(max(dot(lightVector, normal), 0.0f));
     float3 diffuseLight = diffuseLightIntensity * diffuse.xyz * diffuse.w;
     
     float3 specularIntensity = 10.f * pow(max(dot(reflectLight, viewDir), 0.0f), 20.0f); // * specular.xyz
     float3 specularLight = saturate(specularIntensity);
     
-    float distanceToLight = distance(lightPos, input.inWorldPos);
+    float distanceToLight = distance(lightPos, posW);
     float attenuationFactor = pow(attenuation.x + attenuation.y * distanceToLight + attenuation.z * pow(distanceToLight, 2), -1);
     
-    float3 appliedLight = ambientLight + (diffuseLight + specularLight) * attenuationFactor;
-    //float3 appliedLight = ambientLight + (diffuseLight + specularLight);
-    float3 finalColor = sampleColor.xyz * appliedLight;
+    appliedLight = ambientLight + (diffuseLight + specularLight) * attenuationFactor;
+    return appliedLight;
+}
+
+float4 main(PS_IN input) : SV_Target
+{
+    // necessary vectors
+    float4 sampleColor = objTexture.Sample(objSamplerState, input.inTexCoord);
+    //float3 sampleColor = input.inNormal;
+  
+    float3 appliedLight = float3(0.0f, 0.0f, 0.0f);
     
+    for (uint i = 0; i < numLights; i++)
+    {
+        appliedLight += CalculateLight(Lights[i], input.inWorldPos, input.inNormal, gEyePos.xyz);
+    }    
+    
+    float3 finalColor = sampleColor.xyz * appliedLight;
     return float4(finalColor, 1.0f);
 }
