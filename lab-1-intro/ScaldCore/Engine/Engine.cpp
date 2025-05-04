@@ -291,8 +291,6 @@ void Engine::UpdateScene(const ScaldTimer& st)
 	// LightManager->Update()
 	mRenderWindow.GetGfx().UpdateLightParams(mLights);
 
-	// LightManager->Update()
-	mRenderWindow.GetGfx().UpdateLightParams(mSceneObjects.back());
 #if 0
 #pragma region CameraPosDebug
 	std::ostringstream oss;
