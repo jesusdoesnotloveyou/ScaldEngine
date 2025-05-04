@@ -19,7 +19,6 @@ public:
 	void Draw();
 
 	ConstantBuffer<ConstBufferVS>& GetConstantBufferVS();
-	ConstantBuffer<ConstBufferPS>& GetConstantBufferPS();
 
 private:
 	bool LoadModel(const std::string& filePath);
@@ -27,7 +26,6 @@ private:
 	Mesh ProcessMesh(aiMesh* mesh, const aiScene* scene);
 
 	ConstantBuffer<ConstBufferVS> mCB_VS;
-	ConstantBuffer<ConstBufferPS> mCB_PS;
 	
 	std::vector<Mesh> mMeshes;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mTexture;
