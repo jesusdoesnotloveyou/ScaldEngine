@@ -70,6 +70,92 @@ void Engine::SetupScene()
 	//light1->GetCollisionComponent()->DisableCollision();
 	light1->SetPointLightParams(XMFLOAT4(1.0f, 1.0f, 1.0f, 0.9f), XMFLOAT4(1.0f, 1.0f, 1.0f, 5.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(1.0f, 0.1f, 0.1f));
 
+	Light* light2 = new Light("./Data/Models/Light/light.obj");
+	light2->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
+	light2->GetTransform()->SetPosition(0.0f, 4.0f, 6.0f);
+	light2->GetTransform()->SetRotation(-XM_PIDIV2, 0.0f, 0.0f);
+	//light2->GetCollisionComponent()->DisableCollision();
+	light2->SetPointLightParams(XMFLOAT4(1.0f, 1.0f, 1.0f, 0.9f), XMFLOAT4(1.0f, 1.0f, 1.0f, 5.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(1.0f, 0.1f, 0.1f));
+
+	Light* light3 = new Light("./Data/Models/Light/light.obj");
+	light3->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
+	light3->GetTransform()->SetPosition(0.0f, 4.0f, 10.0f);
+	light3->GetTransform()->SetRotation(-XM_PIDIV2, 0.0f, 0.0f);
+	//light3->GetCollisionComponent()->DisableCollision();
+	light3->SetPointLightParams(XMFLOAT4(1.0f, 1.0f, 1.0f, 0.9f), XMFLOAT4(1.0f, 1.0f, 1.0f, 5.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(1.0f, 0.1f, 0.1f));
+
+	Light* light4 = new Light("./Data/Models/Light/light.obj");
+	light4->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
+	light4->GetTransform()->SetPosition(0.0f, 4.0f, 14.0f);
+	light4->GetTransform()->SetRotation(-XM_PIDIV2, 0.0f, 0.0f);
+	//light4->GetCollisionComponent()->DisableCollision();
+	light4->SetPointLightParams(XMFLOAT4(1.0f, 1.0f, 1.0f, 0.9f), XMFLOAT4(0.0f, 1.0f, 1.0f, 5.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(1.0f, 0.1f, 0.1f));
+
+	Light* light5 = new Light("./Data/Models/Light/light.obj");
+	light5->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
+	light5->GetTransform()->SetPosition(0.0f, 4.0f, 18.0f);
+	light5->GetTransform()->SetRotation(-XM_PIDIV2, 0.0f, 0.0f);
+	//light5->GetCollisionComponent()->DisableCollision();
+	light5->SetPointLightParams(XMFLOAT4(1.0f, 1.0f, 1.0f, 0.9f), XMFLOAT4(1.0f, 0.0f, 1.0f, 5.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(1.0f, 0.1f, 0.1f));
+
+	Light* light6 = new Light("./Data/Models/Light/light.obj");
+	light6->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
+	light6->GetTransform()->SetPosition(0.0f, 4.0f, 22.0f);
+	light6->GetTransform()->SetRotation(-XM_PIDIV2, 0.0f, 0.0f);
+	//light6->GetCollisionComponent()->DisableCollision();
+	light6->SetPointLightParams(XMFLOAT4(1.0f, 1.0f, 1.0f, 0.9f), XMFLOAT4(1.0f, 1.0f, 0.0f, 5.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(1.0f, 0.1f, 0.1f));
+
+	Light* light7 = new Light("./Data/Models/Light/light.obj");
+	light7->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
+	light7->GetTransform()->SetPosition(0.0f, 4.0f, 26.0f);
+	light7->GetTransform()->SetRotation(-XM_PIDIV2, 0.0f, 0.0f);
+	//light7->GetCollisionComponent()->DisableCollision();
+	light7->SetPointLightParams(XMFLOAT4(1.0f, 1.0f, 1.0f, 0.9f), XMFLOAT4(1.0f, 1.0f, 1.0f, 5.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(1.0f, 0.1f, 0.1f));
+
+	Light* light8 = new Light("./Data/Models/Light/light.obj");
+	light8->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
+	light8->GetTransform()->SetPosition(0.0f, 4.0f, 30.0f);
+	light8->GetTransform()->SetRotation(-XM_PIDIV2, 0.0f, 0.0f);
+	//light8->GetCollisionComponent()->DisableCollision();
+	light8->SetPointLightParams(XMFLOAT4(1.0f, 1.0f, 1.0f, 0.9f), XMFLOAT4(0.0f, 0.0f, 1.0f, 5.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(1.0f, 0.1f, 0.1f));
+
+	Light* light9 = new Light("./Data/Models/Light/light.obj");
+	light9->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
+	light9->GetTransform()->SetPosition(0.0f, 4.0f, 34.0f);
+	light9->GetTransform()->SetRotation(-XM_PIDIV2, 0.0f, 0.0f);
+	//light9->GetCollisionComponent()->DisableCollision();
+	light9->SetPointLightParams(XMFLOAT4(1.0f, 1.0f, 1.0f, 0.9f), XMFLOAT4(0.0f, 1.0f, 0.0f, 5.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(1.0f, 0.1f, 0.1f));
+
+	Light* light10 = new Light("./Data/Models/Light/light.obj");
+	light10->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
+	light10->GetTransform()->SetPosition(0.0f, 4.0f, 38.0f);
+	light10->GetTransform()->SetRotation(-XM_PIDIV2, 0.0f, 0.0f);
+	//light10->GetCollisionComponent()->DisableCollision();
+	light10->SetPointLightParams(XMFLOAT4(1.0f, 1.0f, 1.0f, 0.9f), XMFLOAT4(1.0f, 0.0f, 0.0f, 5.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(1.0f, 0.1f, 0.1f));
+
+	mLights.push_back(light1);
+	mLights.push_back(light2);
+	mLights.push_back(light3);
+	mLights.push_back(light4);
+	mLights.push_back(light5);
+	mLights.push_back(light6);
+	mLights.push_back(light7);
+	mLights.push_back(light8);
+	mLights.push_back(light9);
+	mLights.push_back(light10);
+	// could be moved to setup i suppose
+	mRenderWindow.GetGfx().AddLightSourceParams(light1->GetPointLightParams());
+	mRenderWindow.GetGfx().AddLightSourceParams(light2->GetPointLightParams());
+	mRenderWindow.GetGfx().AddLightSourceParams(light3->GetPointLightParams());
+	mRenderWindow.GetGfx().AddLightSourceParams(light4->GetPointLightParams());
+	mRenderWindow.GetGfx().AddLightSourceParams(light5->GetPointLightParams());
+	mRenderWindow.GetGfx().AddLightSourceParams(light6->GetPointLightParams());
+	mRenderWindow.GetGfx().AddLightSourceParams(light7->GetPointLightParams());
+	mRenderWindow.GetGfx().AddLightSourceParams(light8->GetPointLightParams());
+	mRenderWindow.GetGfx().AddLightSourceParams(light9->GetPointLightParams());
+	mRenderWindow.GetGfx().AddLightSourceParams(light10->GetPointLightParams());
+#pragma endregion Light
+
 	mRenderWindow.GetGfx().AddLightSourceParams(light1->GetPointLightParams());
 #pragma endregion Light
 
@@ -93,7 +179,7 @@ void Engine::SetupScene()
 
 	Player = new KatamariPlayer(angryBirdModel);
 	Player->GetTransform()->SetScale(0.02f, 0.02f, 0.02f);
-	Player->GetTransform()->SetPosition(0.0f, 1.9f, 20.0f);
+	Player->GetTransform()->SetPosition(10.0f, 1.9f, 20.0f);
 	Player->ObjectName = std::string("Player");
 	Player->GetCollisionComponent()->SetRadius(4.0f);
 
@@ -123,6 +209,15 @@ void Engine::SetupScene()
 	mSceneObjects.push_back(pig);
 	mSceneObjects.push_back(rockFloor);
 	mSceneObjects.push_back(light1);
+	mSceneObjects.push_back(light2);
+	mSceneObjects.push_back(light3);
+	mSceneObjects.push_back(light4);
+	mSceneObjects.push_back(light5);
+	mSceneObjects.push_back(light6);
+	mSceneObjects.push_back(light7);
+	mSceneObjects.push_back(light8);
+	mSceneObjects.push_back(light9);
+	mSceneObjects.push_back(light10);
 	
 	mRenderWindow.GetGfx().InitSceneObjects(mSceneObjects);
 
@@ -193,6 +288,8 @@ void Engine::UpdateScene(const ScaldTimer& st)
 #pragma endregion Collision
 	}
 	mRenderWindow.GetGfx().GetCamera()->Update(st);
+	// LightManager->Update()
+	mRenderWindow.GetGfx().UpdateLightParams(mLights);
 
 	// LightManager->Update()
 	mRenderWindow.GetGfx().UpdateLightParams(mSceneObjects.back());
@@ -209,6 +306,19 @@ void Engine::UpdateScene(const ScaldTimer& st)
 		<< XMVectorGetZ(mSceneObjects[0]->GetForwardVector()) << "\n";
 	OutputDebugString(oss.str().c_str());
 #pragma endregion CameraPosDebug
+
+#pragma region LightPosDebug
+	std::ostringstream oss;
+	const auto LightPos = mSceneObjects[1]->GetPosition();
+	oss << "Object's position: " << XMVectorGetX(LightPos) << ", " << XMVectorGetY(LightPos) << ", " << XMVectorGetZ(LightPos) << "\n";
+	OutputDebugString(oss.str().c_str());
+#pragma endregion LightPosDebug
+
+#pragma region PlayerPosDebug
+	const auto PlayerPos = Player->GetPosition();
+	oss << "Player's position: " << XMVectorGetX(PlayerPos) << ", " << XMVectorGetY(PlayerPos) << ", " << XMVectorGetZ(PlayerPos) << "\n";
+	OutputDebugString(oss.str().c_str());
+#pragma endregion PlayerPosDebug
 #endif
 
 #pragma region LightPosDebug

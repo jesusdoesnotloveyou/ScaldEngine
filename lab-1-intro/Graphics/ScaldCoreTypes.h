@@ -67,27 +67,13 @@ struct ConstBufferVS
 	XMMATRIX gWorld = XMMatrixIdentity();
 };
 
-struct ConstBufferPS
-{
-	XMFLOAT3 ambientLightColor = { 0.0f, 0.0f, 0.0f };
-	float ambientLightStrength = 0.0f;
-	// 16 bytes
-	XMFLOAT3 dynamicLightColor = { 0.0f, 0.0f, 0.0f };
-	float dynamicLightStrength = 0.0f;
-	// 32 bytes
-	XMFLOAT3 dynamicLightPosition = { 0.0f, 0.0f, 0.0f };
-	
-	float attenuationConstantFactor = 1.0f;
-	// 48 bytes
-	float attenuationLinearFactor = 0.1f;
-	float attenuationExponentialFactor = 0.05f;
-	// 56 bytes
-};
-
 // Light should be here 7.12.2 Luna
+// But I am using structured buffer in Graphics.cpp for lighting
+// It is even much better approach
 struct ConstBufferPerFrame
 {
 	XMVECTOR gEyePos = XMVectorZero();
+	float numLights = 0;
 };
 
 //struct ConstBufferPS
