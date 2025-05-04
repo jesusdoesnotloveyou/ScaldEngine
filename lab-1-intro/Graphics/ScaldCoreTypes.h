@@ -73,6 +73,7 @@ struct ConstBufferVS
 struct ConstBufferPerFrame
 {
 	XMVECTOR gEyePos = XMVectorZero();
+	float numLights = 0;
 };
 
 //struct ConstBufferPS
