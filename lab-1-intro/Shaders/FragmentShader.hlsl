@@ -19,21 +19,6 @@ struct PointLight
 
 StructuredBuffer<PointLight> Lights : register(t1);
 
-// Point light
-cbuffer lightBuffer : register(b0)
-{
-    float3 ambientLightColor;
-    float ambientLightStrength;
-    
-    float3 dynamicLightColor;
-    float dynamicLightStrength;
-    float3 dynamicLightPosition;
-    
-    float attenuationConstantFactor;
-    float attenuationLinearFactor;
-    float attenuationExponentialFactor;
-};
-
 cbuffer cbPerFrame : register(b1)
 {
     float4 gEyePos;
@@ -51,7 +36,12 @@ struct PS_IN
 
 float4 main(PS_IN input) : SV_Target
 {
+    // from structured buffer
     float3 lightPos = Lights[0].position;
+    float3 attenuation = Lights[0].attenuation;
+    float4 ambient = Lights[0].ambient;
+    float4 diffuse = Lights[0].diffuse;
+    //
     
     float3 lightVector = normalize(lightPos - input.inWorldPos);
     float3 reflectLight = normalize(reflect(-lightVector, input.inNormal));
@@ -59,18 +49,17 @@ float4 main(PS_IN input) : SV_Target
     float3 viewDir = normalize(gEyePos.xyz - input.inWorldPos);
     
     //float3 sampleColor = input.inNormal;
-    float3 ambientLight = Lights[0].ambient.xyz * Lights[0].ambient.w;
-    //float3 ambientLight = ambientLightColor * ambientLightStrength;
+    float3 ambientLight = ambient.xyz * ambient.w;
     
     //float3 diffuseLightIntensity = (dot(lightVector, input.inNormal)); // for testing: more explicit view of light propagation
     float3 diffuseLightIntensity = saturate(max(dot(lightVector, input.inNormal), 0.0f));
-    float3 diffuseLight = diffuseLightIntensity * dynamicLightStrength * dynamicLightColor;
+    float3 diffuseLight = diffuseLightIntensity * diffuse.xyz * diffuse.w;
     
     float3 specularIntensity = 10.f * pow(max(dot(reflectLight, viewDir), 0.0f), 20.0f); // * specular.xyz
     float3 specularLight = saturate(specularIntensity);
     
     float distanceToLight = distance(lightPos, input.inWorldPos);
-    float attenuationFactor = pow(attenuationConstantFactor + attenuationLinearFactor * distanceToLight + attenuationExponentialFactor * pow(distanceToLight, 2), -1);
+    float attenuationFactor = pow(attenuation.x + attenuation.y * distanceToLight + attenuation.z * pow(distanceToLight, 2), -1);
     
     float3 appliedLight = ambientLight + (diffuseLight + specularLight) * attenuationFactor;
     //float3 appliedLight = ambientLight + (diffuseLight + specularLight);
