@@ -260,5 +260,9 @@ void TransformComponent::UpdateWorldMatrix()
 
 	mWorldMatrix = mScaleMatrix * mRotationMatrix * mTranslationMatrix;
 
-	if (mParentTransform) mWorldMatrix = mLocalMatrix * mParentTransform->mRotationMatrix * mParentTransform->mTranslationMatrix;
+	if (mParentTransform)
+	{
+		mWorldMatrix = mLocalMatrix * mParentTransform->mRotationMatrix * mParentTransform->mTranslationMatrix;
+		XMMatrixDecompose(&mScaleVector, &mOrientationQuat, &mPosVector, mWorldMatrix);
+	}
 }

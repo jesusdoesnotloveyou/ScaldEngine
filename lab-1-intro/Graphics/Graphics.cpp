@@ -5,7 +5,8 @@
 #include "Camera.h"
 #include "ThirdPersonCamera.h"
 #include "../Objects/Geometry/Actor.h"
-#include "../Objects/Light/Light.h"
+#include "Light/LightHelper.h"
+#include "Light/Light.h"
 
 #include <d3d.h>
 #include <d3d11.h>
@@ -129,6 +130,19 @@ void Graphics::SetupShaders()
 	ThrowIfFailed(mPixelShader.Init(mDevice.Get()));
 }
 
+void Graphics::SetupLight()
+{
+	ThrowIfFailed(CreateStructuredBuffer(mDevice.Get(), mLightBuffer.GetAddressOf(), mLightsParameters));
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+	srvDesc.Format = DXGI_FORMAT_UNKNOWN;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
+	srvDesc.Buffer.FirstElement = 0u;
+	srvDesc.Buffer.NumElements = (UINT)mLightsParameters.size();
+
+	ThrowIfFailed(mDevice->CreateShaderResourceView(mLightBuffer.Get(), &srvDesc, &mLightShaderResourceView));
+}
+
 void Graphics::Setup()
 {
 	//Create depth stencil state
@@ -169,23 +183,39 @@ void Graphics::Setup()
 
 	// Camera setup
 	mTPCamera->SetProjectionValues(90.0f, static_cast<float>(mScreenWidth) / static_cast<float>(mScreenHeight), 0.1f, 3000.0f);
+	mTPCamera->SetOrthographicProjectionValues(static_cast<float>(mScreenWidth), static_cast<float>(mScreenHeight), 0.1f, 3000.0f);
 
-	mCB.Init(mDevice.Get(), mDeviceContext.Get());
+	ThrowIfFailed(mCB.Init(mDevice.Get(), mDeviceContext.Get()));
 }
 
 void Graphics::InitSceneObjects(std::vector<SceneGeometry*>& sceneObjects)
 {
 	SetupShaders();
+	SetupLight();
 	
 	mTPCamera->SetTarget(sceneObjects[0]);
 
 	for (auto sceneObject : sceneObjects)
 	{
-		if (auto light = dynamic_cast<Light*>(sceneObject))
-		{
-			mLights.push_back(light);
-		}
 		sceneObject->Init(mDevice.Get(), mDeviceContext.Get());
+	}
+}
+
+void Graphics::AddLightSourceParams(PointLight* lightParams)
+{
+	mLightsParameters.push_back(*lightParams);
+}
+
+void Graphics::UpdateLightParams(SceneGeometry* sceneObject)
+{
+	if (!sceneObject) return;
+
+	auto light = static_cast<Light*>(sceneObject);
+	
+	for (auto& lightParam : mLightsParameters)
+	{
+		lightParam = *light->GetPointLightParams();
+		return;
 	}
 }
 
@@ -205,9 +235,15 @@ void Graphics::DrawScene(std::vector<SceneGeometry*>& sceneObjects)
 	ConstBufferPerFrame cbPerFrame{ mTPCamera->GetPosition() };
 	mCB.SetData(cbPerFrame);
 	mCB.ApplyChanges();
-#pragma endregion EyePositionToPS
 
 	mDeviceContext->PSSetConstantBuffers(1u, 1u, mCB.GetAddressOf());
+#pragma endregion EyePositionToPS
+
+#pragma region SetLight
+	ApplyChanges(mDeviceContext.Get(), mLightBuffer.Get(), mLightsParameters);
+	mDeviceContext->PSSetShaderResources(1u, 1u, mLightShaderResourceView.GetAddressOf());
+#pragma endregion SetLight
+	
 	// Step 09: Set Vertex and Pixel Shaders
 	mDeviceContext->VSSetShader(mVertexShader.Get(), nullptr, 0);
 	mDeviceContext->PSSetShader(mPixelShader.Get(), nullptr, 0);
