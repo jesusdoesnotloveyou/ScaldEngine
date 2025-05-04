@@ -206,16 +206,14 @@ void Graphics::AddLightSourceParams(PointLight* lightParams)
 	mLightsParameters.push_back(*lightParams);
 }
 
-void Graphics::UpdateLightParams(SceneGeometry* sceneObject)
+void Graphics::UpdateLightParams(std::vector<SceneGeometry*>& lightObjects)
 {
-	if (!sceneObject) return;
-
-	auto light = static_cast<Light*>(sceneObject);
-	
-	for (auto& lightParam : mLightsParameters)
+	for (int i = 0; i < lightObjects.size(); i++)
 	{
-		lightParam = *light->GetPointLightParams();
-		return;
+		auto light = static_cast<Light*>(lightObjects[i]);
+		if (!light) continue;
+
+		mLightsParameters[i] = *light->GetPointLightParams();
 	}
 }
 
@@ -231,18 +229,21 @@ void Graphics::DrawScene(std::vector<SceneGeometry*>& sceneObjects)
 	mDeviceContext->OMSetDepthStencilState(mDepthStencilState.Get(), 0);
 	mDeviceContext->PSSetSamplers(0u, 1u, mSamplerState.GetAddressOf());
 
-#pragma region EyePositionToPS
-	ConstBufferPerFrame cbPerFrame{ mTPCamera->GetPosition() };
+#pragma region ConstBufferPS
+	ConstBufferPerFrame cbPerFrame;
+	cbPerFrame.gEyePos = mTPCamera->GetPosition();
+	cbPerFrame.numLights = (float)mLightsParameters.size();
+
 	mCB.SetData(cbPerFrame);
 	mCB.ApplyChanges();
 
 	mDeviceContext->PSSetConstantBuffers(1u, 1u, mCB.GetAddressOf());
-#pragma endregion EyePositionToPS
+#pragma endregion ConstBufferPS
 
-#pragma region SetLight
+#pragma region Lighting
 	ApplyChanges(mDeviceContext.Get(), mLightBuffer.Get(), mLightsParameters);
 	mDeviceContext->PSSetShaderResources(1u, 1u, mLightShaderResourceView.GetAddressOf());
-#pragma endregion SetLight
+#pragma endregion Lighting
 	
 	// Step 09: Set Vertex and Pixel Shaders
 	mDeviceContext->VSSetShader(mVertexShader.Get(), nullptr, 0);
