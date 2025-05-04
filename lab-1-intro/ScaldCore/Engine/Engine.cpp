@@ -315,6 +315,19 @@ void Engine::UpdateScene(const ScaldTimer& st)
 	OutputDebugString(oss.str().c_str());
 #pragma endregion PlayerPosDebug
 #endif
+
+#pragma region LightPosDebug
+	std::ostringstream oss;
+	const auto LightPos = mSceneObjects[1]->GetPosition();
+	oss << "Object's position: " << XMVectorGetX(LightPos) << ", " << XMVectorGetY(LightPos) << ", " << XMVectorGetZ(LightPos) << "\n";
+	OutputDebugString(oss.str().c_str());
+#pragma endregion LightPosDebug
+
+#pragma region PlayerPosDebug
+	const auto PlayerPos = Player->GetPosition();
+	oss << "Player's position: " << XMVectorGetX(PlayerPos) << ", " << XMVectorGetY(PlayerPos) << ", " << XMVectorGetZ(PlayerPos) << "\n";
+	OutputDebugString(oss.str().c_str());
+#pragma endregion PlayerPosDebug
 }
 
 void Engine::RenderFrame(const ScaldTimer& st)

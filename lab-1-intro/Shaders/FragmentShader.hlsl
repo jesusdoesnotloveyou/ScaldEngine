@@ -75,11 +75,12 @@ float4 main(PS_IN input) : SV_Target
   
     float3 appliedLight = float3(0.0f, 0.0f, 0.0f);
     
-    for (uint i = 0; i < numLights; i++)
+    for (float i = 0; i < numLights; i++)
     {
         appliedLight += CalculateLight(Lights[i], input.inWorldPos, input.inNormal, gEyePos.xyz);
     }    
     
     float3 finalColor = sampleColor.xyz * appliedLight;
+    
     return float4(finalColor, 1.0f);
 }
