@@ -100,8 +100,3 @@ ConstantBuffer<ConstBufferVS>& Model::GetConstantBufferVS()
 {
     return mCB_VS;
 }
-
-//ConstantBuffer<ConstBufferPS>& Model::GetConstantBufferPS()
-//{
-//    return mCB_PS;
-//}
