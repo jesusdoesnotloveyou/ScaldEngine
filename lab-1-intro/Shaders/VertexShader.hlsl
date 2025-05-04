@@ -29,9 +29,11 @@ VS_OUT main(VS_IN input)
 {
     VS_OUT output = (VS_OUT) 0;
 	
+    // inPosition is float4 itself, seems like there is no need to extend it explicitly here
     output.outPosition = mul(float4(input.inPosition.xyz, 1.0f), gWorldViewProj);
     output.outTexCoord = input.inTexCoord;
     output.outNormal = normalize(mul(float4(input.inNormal, 0.0f), gWorld));
+    // and here
     output.inWorldPos = mul(float4(input.inPosition.xyz, 1.0f), gWorld);
 	
 	return output;

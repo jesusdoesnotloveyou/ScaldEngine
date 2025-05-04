@@ -9,7 +9,7 @@ HRESULT VertexShader::Init(ID3D11Device* mDevice, D3D11_INPUT_ELEMENT_DESC* layo
     // Step 04: Compile the Shaders
     Microsoft::WRL::ComPtr<ID3DBlob> mErrorVertexCode = nullptr;
 
-    HRESULT hr = D3DCompileFromFile(L"./Shaders/MyVeryFirstShader.hlsl",
+    HRESULT hr = D3DCompileFromFile(L"./Shaders/VertexShader.hlsl",
         nullptr /*macros*/,
         nullptr /*include*/,
         "main",
@@ -46,7 +46,7 @@ ID3D11InputLayout* VertexShader::GetInputLayout()
 HRESULT PixelShader::Init(ID3D11Device* mDevice)
 {
     Microsoft::WRL::ComPtr<ID3DBlob> mErrorPixelCode = nullptr;
-    HRESULT hr = D3DCompileFromFile(L"./Shaders/MyVerySecondShader.hlsl",
+    HRESULT hr = D3DCompileFromFile(L"./Shaders/FragmentShader.hlsl",
         nullptr /*macros*/,
         nullptr /*include*/,
         "main",
