@@ -156,9 +156,6 @@ void Engine::SetupScene()
 	mRenderWindow.GetGfx().AddLightSourceParams(light10->GetPointLightParams());
 #pragma endregion Light
 
-	mRenderWindow.GetGfx().AddLightSourceParams(light1->GetPointLightParams());
-#pragma endregion Light
-
 	SceneGeometry* alien = new Actor(alienFemaleModel);
 	alien->GetTransform()->SetScale(0.03f, 0.03f, 0.03f);
 	alien->GetTransform()->SetPosition(-15.0f, 0.0f, 10.0f);

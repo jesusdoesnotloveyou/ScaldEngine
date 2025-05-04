@@ -19,21 +19,6 @@ struct PointLight
 
 StructuredBuffer<PointLight> Lights : register(t1);
 
-// Point light
-cbuffer lightBuffer : register(b0)
-{
-    float3 ambientLightColor;
-    float ambientLightStrength;
-    
-    float3 dynamicLightColor;
-    float dynamicLightStrength;
-    float3 dynamicLightPosition;
-    
-    float attenuationConstantFactor;
-    float attenuationLinearFactor;
-    float attenuationExponentialFactor;
-};
-
 cbuffer cbPerFrame : register(b1)
 {
     float4 gEyePos;

@@ -35,6 +35,6 @@ VS_OUT main(VS_IN input)
     output.outNormal = normalize(mul(float4(input.inNormal, 0.0f), gWorld)).xyz;
     // and here
     output.inWorldPos = mul(float4(input.inPosition.xyz, 1.0f), gWorld).xyz;
-	
-	return output;
+	  
+    return output;
 }
