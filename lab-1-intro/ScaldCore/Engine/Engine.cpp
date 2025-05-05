@@ -133,7 +133,7 @@ void Engine::SetupScene()
 	//light10->GetCollisionComponent()->DisableCollision();
 	light10->SetPointLightParams(XMFLOAT4(1.0f, 1.0f, 1.0f, 0.9f), XMFLOAT4(1.0f, 0.0f, 0.0f, 5.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(1.0f, 0.1f, 0.1f));
 
-	mLights.push_back(light1);
+	/*mLights.push_back(light1);
 	mLights.push_back(light2);
 	mLights.push_back(light3);
 	mLights.push_back(light4);
@@ -142,7 +142,8 @@ void Engine::SetupScene()
 	mLights.push_back(light7);
 	mLights.push_back(light8);
 	mLights.push_back(light9);
-	mLights.push_back(light10);
+	mLights.push_back(light10);*/
+
 	// could be moved to setup i suppose
 	mRenderWindow.GetGfx().AddLightSourceParams(light1->GetPointLightParams());
 	mRenderWindow.GetGfx().AddLightSourceParams(light2->GetPointLightParams());
@@ -205,7 +206,8 @@ void Engine::SetupScene()
 	mSceneObjects.push_back(chair);
 	mSceneObjects.push_back(pig);
 	mSceneObjects.push_back(rockFloor);
-	mSceneObjects.push_back(light1);
+#pragma region PointLights
+	/*mSceneObjects.push_back(light1);
 	mSceneObjects.push_back(light2);
 	mSceneObjects.push_back(light3);
 	mSceneObjects.push_back(light4);
@@ -214,7 +216,8 @@ void Engine::SetupScene()
 	mSceneObjects.push_back(light7);
 	mSceneObjects.push_back(light8);
 	mSceneObjects.push_back(light9);
-	mSceneObjects.push_back(light10);
+	mSceneObjects.push_back(light10);*/
+#pragma endregion PointLights
 	
 	mRenderWindow.GetGfx().InitSceneObjects(mSceneObjects);
 
@@ -315,19 +318,6 @@ void Engine::UpdateScene(const ScaldTimer& st)
 	OutputDebugString(oss.str().c_str());
 #pragma endregion PlayerPosDebug
 #endif
-
-#pragma region LightPosDebug
-	std::ostringstream oss;
-	const auto LightPos = mSceneObjects[1]->GetPosition();
-	oss << "Object's position: " << XMVectorGetX(LightPos) << ", " << XMVectorGetY(LightPos) << ", " << XMVectorGetZ(LightPos) << "\n";
-	OutputDebugString(oss.str().c_str());
-#pragma endregion LightPosDebug
-
-#pragma region PlayerPosDebug
-	const auto PlayerPos = Player->GetPosition();
-	oss << "Player's position: " << XMVectorGetX(PlayerPos) << ", " << XMVectorGetY(PlayerPos) << ", " << XMVectorGetZ(PlayerPos) << "\n";
-	OutputDebugString(oss.str().c_str());
-#pragma endregion PlayerPosDebug
 }
 
 void Engine::RenderFrame(const ScaldTimer& st)
