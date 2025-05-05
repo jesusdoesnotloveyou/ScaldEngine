@@ -6,6 +6,7 @@
 
 #include <DirectXMath.h>
 #include <DirectXColors.h>
+#include "Light/LightHelper.h"
 
 using namespace DirectX;
 
@@ -70,9 +71,12 @@ struct ConstBufferVS
 // Light should be here 7.12.2 Luna
 // But I am using structured buffer in Graphics.cpp for lighting
 // It is even much better approach
-struct ConstBufferPerFrame
+struct ConstBufferPSPerFrame
 {
+	DirectionalLight dirLight;
 	XMVECTOR gEyePos = XMVectorZero();
+
+	// for point or spot lights
 	float numLights = 0;
 };
 
