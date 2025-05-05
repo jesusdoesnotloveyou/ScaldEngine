@@ -10,13 +10,14 @@
 #include "Shaders.h"
 #include "ConstantBuffer.h"
 #include "ScaldCoreTypes.h"
+#include "Shadows/ShadowMap.h"
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "dxgi.lib")
 
 class SceneGeometry;
-class Light;
+class PointLight;
 class Camera;
 class ThirdPersonCamera;
 
@@ -31,8 +32,8 @@ public:
 	
 	void Setup();
 	void InitSceneObjects(std::vector<SceneGeometry*>& sceneObjects);
-	void AddLightSourceParams(PointLight* lightParams);
-	void UpdateLightParams(std::vector<SceneGeometry*>& lightObjects);
+	void AddLightSourceParams(PointLightParams* lightParams);
+	void UpdateLightParams(std::vector<PointLight*>& lightObjects);
 
 	void ClearBuffer(float r);
 	void DrawScene(std::vector<SceneGeometry*>& sceneObjects);
@@ -40,8 +41,13 @@ public:
 
 	FORCEINLINE ThirdPersonCamera* GetCamera() const { return mTPCamera; }
 private:
+	void CreateDepthStencilState();
+	void CreateRasterizerState();
+	void CreateSamplerState();
+
 	void SetupShaders();
-	void SetupLight();
+	void InitPointLight();
+	void ShadowRenderPass();
 
 	template<typename T>
 	bool ApplyChanges(ID3D11DeviceContext* deviceContext, ID3D11Buffer* buffer, const std::vector<T>& bufferData)
@@ -88,32 +94,37 @@ private:
 	Camera* mCamera = nullptr;
 	ThirdPersonCamera* mTPCamera = nullptr;
 	
+	VertexShader mShadowVertexShader;
 	VertexShader mVertexShader;
 	PixelShader mPixelShader;
+	GeometryShader mCSMGeometryShader;
 
 #pragma region Light
 	ConstantBuffer<ConstBufferPSPerFrame> mCBPerFrame;
 
 	// need to update members of vector
-	std::vector<PointLight> mLightsParameters;
-	Microsoft::WRL::ComPtr<ID3D11Buffer> mLightBuffer;
+	std::vector<PointLightParams> mPointLightsParameters;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> mPointLightBuffer;
 	// structured buffer for point lights
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mLightShaderResourceView;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mPointLightShaderResourceView;
 #pragma endregion Light
 
 	Microsoft::WRL::ComPtr<ID3D11Device> mDevice;
 	Microsoft::WRL::ComPtr<IDXGISwapChain> mSwapChain;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> mDeviceContext;
-	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> mRtv;
-
+	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> mRTV;
 	// Depth Stencil
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> mDepthStencilBuffer;
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> mDsv;
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> mDSV;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> mDepthStencilState;
-
 	// Rast
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> mRasterizerState;
-
 	// Sampler
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> mSamplerState;
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> mShadowSamplerState;
+
+	D3D11_VIEWPORT currentViewport = {};
+
+	// Shadows
+	ShadowMap* mShadowMapObject;
 };
