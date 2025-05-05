@@ -9,7 +9,7 @@
 
 #include "Shaders.h"
 #include "ConstantBuffer.h"
-#include "Light/LightHelper.h"
+#include "ScaldCoreTypes.h"
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dcompiler.lib")
@@ -77,23 +77,27 @@ private:
 	}
 
 private:
-	Camera* mCamera = nullptr;
-	ThirdPersonCamera* mTPCamera = nullptr;
-
 	int mScreenWidth;
 	int mScreenHeight;
 	HWND hWnd;
 
+	bool bIsPointLightEnabled = false;
+	bool bIsDirectionalLightEnabled = true;
+	bool bIsSpotLightEnabled = false;
+
+	Camera* mCamera = nullptr;
+	ThirdPersonCamera* mTPCamera = nullptr;
+	
 	VertexShader mVertexShader;
 	PixelShader mPixelShader;
 
 #pragma region Light
-	ConstantBuffer<ConstBufferPerFrame> mCB;
+	ConstantBuffer<ConstBufferPSPerFrame> mCBPerFrame;
 
 	// need to update members of vector
 	std::vector<PointLight> mLightsParameters;
-
 	Microsoft::WRL::ComPtr<ID3D11Buffer> mLightBuffer;
+	// structured buffer for point lights
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mLightShaderResourceView;
 #pragma endregion Light
 

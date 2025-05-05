@@ -60,6 +60,6 @@ void CollisionComponent::OnCollisionOverlap(CollisionComponent* otherComponent)
 		otherComponent->DisableCollision();
 		actor->AttachToParent(player);
 		
-		player->AdjustScale(0.001f, 0.001f, 0.001f);
+		//player->AdjustScale(0.001f, 0.001f, 0.001f);
 	}
 }

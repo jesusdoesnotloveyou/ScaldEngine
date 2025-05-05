@@ -185,13 +185,16 @@ void Graphics::Setup()
 	mTPCamera->SetProjectionValues(90.0f, static_cast<float>(mScreenWidth) / static_cast<float>(mScreenHeight), 0.1f, 3000.0f);
 	mTPCamera->SetOrthographicProjectionValues(static_cast<float>(mScreenWidth), static_cast<float>(mScreenHeight), 0.1f, 3000.0f);
 
-	ThrowIfFailed(mCB.Init(mDevice.Get(), mDeviceContext.Get()));
+	ThrowIfFailed(mCBPerFrame.Init(mDevice.Get(), mDeviceContext.Get()));
 }
 
 void Graphics::InitSceneObjects(std::vector<SceneGeometry*>& sceneObjects)
 {
 	SetupShaders();
-	SetupLight();
+	if (bIsPointLightEnabled)
+	{
+		SetupLight();
+	}
 	
 	mTPCamera->SetTarget(sceneObjects[0]);
 
@@ -228,23 +231,28 @@ void Graphics::DrawScene(std::vector<SceneGeometry*>& sceneObjects)
 	mDeviceContext->RSSetState(mRasterizerState.Get());
 	mDeviceContext->OMSetDepthStencilState(mDepthStencilState.Get(), 0);
 	mDeviceContext->PSSetSamplers(0u, 1u, mSamplerState.GetAddressOf());
+	// for shadows
+	//mDeviceContext->PSSetSamplers(0u, 1u, mSamplerState.GetAddressOf());
 
-#pragma region ConstBufferPS
-	ConstBufferPerFrame cbPerFrame;
+#pragma region ConstBufferPSPerFrame
+	ConstBufferPSPerFrame cbPerFrame;
+
+	// default DirectionalLight params
+	cbPerFrame.dirLight.ambient = { 1.0f, 1.0f, 1.0f, 0.9f };
 	cbPerFrame.gEyePos = mTPCamera->GetPosition();
 	cbPerFrame.numLights = (float)mLightsParameters.size();
 
-	mCB.SetData(cbPerFrame);
-	mCB.ApplyChanges();
+	mCBPerFrame.SetData(cbPerFrame);
+	mCBPerFrame.ApplyChanges();
 
-	mDeviceContext->PSSetConstantBuffers(1u, 1u, mCB.GetAddressOf());
-#pragma endregion ConstBufferPS
+	mDeviceContext->PSSetConstantBuffers(1u, 1u, mCBPerFrame.GetAddressOf());
+#pragma endregion ConstBufferPSPerFrame
 
-#pragma region Lighting
-	ApplyChanges(mDeviceContext.Get(), mLightBuffer.Get(), mLightsParameters);
-	mDeviceContext->PSSetShaderResources(1u, 1u, mLightShaderResourceView.GetAddressOf());
-#pragma endregion Lighting
-	
+	if (bIsPointLightEnabled)
+	{
+		ApplyChanges(mDeviceContext.Get(), mLightBuffer.Get(), mLightsParameters);
+		mDeviceContext->PSSetShaderResources(1u, 1u, mLightShaderResourceView.GetAddressOf());
+	}
 	// Step 09: Set Vertex and Pixel Shaders
 	mDeviceContext->VSSetShader(mVertexShader.Get(), nullptr, 0);
 	mDeviceContext->PSSetShader(mPixelShader.Get(), nullptr, 0);
