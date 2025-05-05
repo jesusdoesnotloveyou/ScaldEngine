@@ -5,9 +5,9 @@
 
 using namespace DirectX;
 
-struct DirectionalLight
+struct DirectionalLightParams
 {
-	DirectionalLight() { ZeroMemory(this, sizeof(this)); }
+	DirectionalLightParams() { ZeroMemory(this, sizeof(this)); }
 
 	XMFLOAT4 ambient	= { 1.0f, 1.0f, 1.0f, 0.9f };	// 16 bytes
 	XMFLOAT4 diffuse	= { 1.0f, 1.0f, 1.0f, 1.0f };	// 16 bytes
@@ -18,9 +18,9 @@ struct DirectionalLight
 														// 64 bytes
 };
 
-struct PointLight
+struct PointLightParams
 {
-	PointLight() { ZeroMemory(this, sizeof(this)); }
+	PointLightParams() { ZeroMemory(this, sizeof(this)); }
 
 	XMFLOAT4 ambient	= { 0.0f, 0.0f, 0.0f, 0.0f };	// 16 bytes
 	XMFLOAT4 diffuse	= { 0.0f, 0.0f, 0.0f, 0.0f };	// 16 bytes
@@ -35,9 +35,9 @@ struct PointLight
 														// 80 bytes
 };
 
-struct SpotLight
+struct SpotLightParams
 {
-	SpotLight() { ZeroMemory(this, sizeof(this)); }
+	SpotLightParams() { ZeroMemory(this, sizeof(this)); }
 
 	XMFLOAT4 ambient	= { 0.0f, 0.0f, 0.0f, 0.0f };
 	XMFLOAT4 diffuse	= { 0.0f, 0.0f, 0.0f, 0.0f };

@@ -6,6 +6,10 @@
 Texture2D objTexture : TEXTURE : register(t0);
 SamplerState objSamplerState : SAMPLER : register(s0);
 
+//The depthMapTexture is the shadow map. This texture contains the scene depth buffer rendered from the light's perspective.
+Texture2D depthMapTexture : register(t1);
+SamplerState shadowSamplerState : SAMPLER : register(s1);
+
 struct PointLight
 {
     float4 ambient;
@@ -59,6 +63,7 @@ float3 CalculatePointLight(PointLight light, uniform float3 posW, uniform float3
     float4 diffuse = light.diffuse;
     //
     
+    // necessary vectors
     float3 viewDir = normalize(toEye - posW);
     float3 lightVector = normalize(lightPos - posW);
     float3 reflectLight = normalize(reflect(-lightVector, normal));
@@ -91,6 +96,7 @@ float3 CalculateDirectionalLight(DirectionalLight dirLight, uniform float3 posW,
     float4 specular = dirLight.specular;
     //
     
+    // necessary vectors
     float3 viewDir = normalize(toEye - posW);
     float3 lightVector = normalize(lightDir);
     float3 reflectLight = normalize(reflect(-lightVector, normal));
@@ -108,18 +114,16 @@ float3 CalculateDirectionalLight(DirectionalLight dirLight, uniform float3 posW,
 }
 
 float4 main(PS_IN input) : SV_Target
-{
-    // necessary vectors
+{   
     float4 sampleColor = objTexture.Sample(objSamplerState, input.inTexCoord);
-    //float3 sampleColor = input.inNormal;
-  
+    //float3 sampleColor = input.inNormal; 
     float3 appliedLight = float3(0.0f, 0.0f, 0.0f);
     
     // Point Lights
-    //for (float i = 0; i < numLights; i++)
-    //{
-    //    appliedLight += CalculatePointLight(PointLights[i], input.inWorldPos, input.inNormal, gEyePos.xyz);
-    //}
+    for (float i = 0; i < numLights; i++)
+    {
+        appliedLight += CalculatePointLight(PointLights[i], input.inWorldPos, input.inNormal, gEyePos.xyz);
+    }
    
     // Directional Light
     appliedLight += CalculateDirectionalLight(gDirLight, input.inWorldPos, input.inNormal, gEyePos.xyz);
