@@ -17,10 +17,22 @@ struct PointLight
     float pad;
 };
 
-StructuredBuffer<PointLight> Lights : register(t1);
+struct DirectionalLight
+{
+    float4 ambient;
+    float4 diffuse;
+    float4 specular;
+    float3 direction;
+    float pad;
+};
+
+StructuredBuffer<PointLight> PointLights : register(t1);
+//StructuredBuffer<PointLight> SpotLights : register(t2);
+//StructuredBuffer<PointLight> DirectionalLights : register(t3);
 
 cbuffer cbPerFrame : register(b1)
 {
+    DirectionalLight gDirLight;
     float4 gEyePos;
     float numLights;
     //float Ks = 0.1f;
@@ -35,7 +47,7 @@ struct PS_IN
     float3 inWorldPos: WORLD_POSITION;
 };
 
-float3 CalculateLight(PointLight light, uniform float3 posW, uniform float3 normal, uniform float3 toEye)
+float3 CalculatePointLight(PointLight light, uniform float3 posW, uniform float3 normal, uniform float3 toEye)
 {
     // return vec init
     float3 appliedLight = float3(0.0f, 0.0f, 0.0f);
@@ -67,6 +79,34 @@ float3 CalculateLight(PointLight light, uniform float3 posW, uniform float3 norm
     return appliedLight;
 }
 
+float3 CalculateDirectionalLight(DirectionalLight dirLight, uniform float3 posW, uniform float3 normal, uniform float3 toEye)
+{
+    // return vec init
+    float3 appliedLight = float3(0.0f, 0.0f, 0.0f);
+    
+     // from structured buffer
+    float3 lightDir = -dirLight.direction;
+    float4 ambient = dirLight.ambient;
+    float4 diffuse = dirLight.diffuse;
+    float4 specular = dirLight.specular;
+    //
+    
+    float3 viewDir = normalize(toEye - posW);
+    float3 lightVector = normalize(lightDir);
+    float3 reflectLight = normalize(reflect(-lightVector, normal));
+    
+    // overexposure if there are some directional light sources
+    float3 ambientLight = ambient.xyz * ambient.w;
+    float3 diffuseLightIntensity = saturate(max(dot(lightVector, normal), 0.0f));
+    float3 diffuseLight = diffuseLightIntensity * diffuse.xyz * diffuse.w;
+    
+    float3 specularIntensity = 10.f * pow(max(dot(reflectLight, viewDir), 0.0f), 20.0f); // * specular.xyz
+    float3 specularLight = saturate(specularIntensity);
+    
+    appliedLight = ambientLight + diffuseLight + specularLight;
+    return appliedLight;
+}
+
 float4 main(PS_IN input) : SV_Target
 {
     // necessary vectors
@@ -75,12 +115,15 @@ float4 main(PS_IN input) : SV_Target
   
     float3 appliedLight = float3(0.0f, 0.0f, 0.0f);
     
-    for (float i = 0; i < numLights; i++)
-    {
-        appliedLight += CalculateLight(Lights[i], input.inWorldPos, input.inNormal, gEyePos.xyz);
-    }    
+    // Point Lights
+    //for (float i = 0; i < numLights; i++)
+    //{
+    //    appliedLight += CalculatePointLight(PointLights[i], input.inWorldPos, input.inNormal, gEyePos.xyz);
+    //}
+   
+    // Directional Light
+    appliedLight += CalculateDirectionalLight(gDirLight, input.inWorldPos, input.inNormal, gEyePos.xyz);
     
     float3 finalColor = sampleColor.xyz * appliedLight;
-    
     return float4(finalColor, 1.0f);
 }
