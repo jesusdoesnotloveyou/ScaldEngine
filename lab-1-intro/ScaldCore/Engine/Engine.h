@@ -4,6 +4,9 @@
 #include "ScaldTimer.h"
 
 class KatamariPlayer;
+class SceneGeometry;
+class PointLight;
+class DirectionalLight;
 
 class Engine
 {
@@ -27,7 +30,8 @@ private:
 protected:
 	std::vector<SceneGeometry*> mSceneObjects;
 	// temporary, need a LightManager that would control light pool
-	std::vector<SceneGeometry*> mLights;
+	std::vector<PointLight*> mPointLights;
+	std::vector<DirectionalLight*> mDirectionalLights;
 
 	RenderWindow mRenderWindow;
 	ScaldTimer mTimer;
