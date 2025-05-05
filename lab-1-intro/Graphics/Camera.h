@@ -21,11 +21,11 @@ public:
 	virtual void AdjustRotation(float x, float y, float z) override;
 
 	//~ Begin of Camera specific
-	void SetProjectionValues(float fovDegrees, float aspectRatio, float nearZ, float farZ);
+	void SetPerspectiveProjectionValues(float fovDegrees, float aspectRatio, float nearZ, float farZ);
 	void SetOrthographicProjectionValues(float width, float height, float nearZ, float farZ);
 
 	const XMMATRIX& GetViewMatrix() const;
-	const XMMATRIX& GetProjectionMatrix() const;
+	const XMMATRIX& GetPerspectiveProjectionMatrix() const;
 	const XMMATRIX& GetOrthographicProjectionMatrix() const;
 	
 	void SetLookAtPosition(XMFLOAT3 lookAtPosition);
@@ -37,8 +37,8 @@ public:
 protected:
 	virtual void UpdateViewMatrix();
 	XMMATRIX mViewMatrix;
-	XMMATRIX mProjectionMatrix;
-	XMMATRIX mOrthographicMatrix;
+	XMMATRIX mPerspectiveProjectionMatrix;
+	XMMATRIX mOrthographicProjectionMatrix;
 
 	float mSpeed = 0.0f;
 	bool bIsAttached = false;
