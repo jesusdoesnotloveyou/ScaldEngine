@@ -1,5 +1,5 @@
 #include "Camera.h"
-#include "../Objects/Components/TransformComponent.h"
+#include "../../Objects/Components/TransformComponent.h"
 
 Camera::Camera()
 {

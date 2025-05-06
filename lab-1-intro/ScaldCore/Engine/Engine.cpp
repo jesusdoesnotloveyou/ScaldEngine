@@ -1,11 +1,11 @@
 #include "Engine.h"
-#include <sstream>
-
-#include "../../Graphics/ThirdPersonCamera.h"
-#include "../../Games/Katamari/KatamariPlayer.h"
 #include "../../Data/ModelData.h"
+#include "../../Games/Katamari/KatamariPlayer.h"
+#include "../../Graphics/Camera/ThirdPersonCamera.h"
 #include "../../Graphics/Light/PointLight.h"
 #include "../../Graphics/Light/DirectionalLight.h"
+
+#include <sstream>
 
 Engine::Engine()
     :

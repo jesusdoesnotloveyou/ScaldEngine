@@ -1,7 +1,7 @@
 #pragma once
 
-#include "ScaldCoreTypes.h"
-#include "../Objects/Components/SceneComponent.h"
+#include "../ScaldCoreTypes.h"
+#include "../../Objects/Components/SceneComponent.h"
 
 class Camera : public SceneComponent
 {

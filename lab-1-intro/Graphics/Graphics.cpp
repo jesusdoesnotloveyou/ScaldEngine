@@ -2,8 +2,7 @@
 #include "Graphics.h"
 #include <chrono>
 
-#include "Camera.h"
-#include "ThirdPersonCamera.h"
+#include "Camera/ThirdPersonCamera.h"
 #include "../Objects/Geometry/Actor.h"
 #include "Light/PointLight.h"
 #include "Light/DirectionalLight.h"

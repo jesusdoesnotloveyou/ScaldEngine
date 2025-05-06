@@ -1,6 +1,5 @@
 #include "ThirdPersonCamera.h"
-#include "../Objects/Components/TransformComponent.h"
-#include "../Objects/Geometry/SceneGeometry.h"
+#include "../../Objects/Geometry/SceneGeometry.h"
 
 ThirdPersonCamera::ThirdPersonCamera()
 {
