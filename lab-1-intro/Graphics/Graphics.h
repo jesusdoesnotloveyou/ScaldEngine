@@ -7,6 +7,7 @@
 #include <wrl.h>
 #include <vector>
 
+#include "../ScaldCore/Engine/ScaldTimer.h"
 #include "Shaders.h"
 #include "ConstantBuffer.h"
 #include "ScaldCoreTypes.h"
@@ -32,18 +33,20 @@ public:
 	Graphics& operator=(const Graphics&) = delete;
 	
 	void Setup();
-	void InitSceneObjects(std::vector<SceneGeometry*>& sceneObjects);
+	void AddToRenderPool(SceneGeometry* sceneObject);
+	void InitSceneObjects();
 
 	void AddPointLightSourceParams(PointLightParams* lightParams);
-	void UpdatePointLightParams(std::vector<PointLight*>& lightObjects);
+	void UpdatePointLightParams();
 
 	void AddDirectionalLightSourceParams(DirectionalLightParams* lightParams);
-	void UpdateDirectionalLightParams(std::vector<DirectionalLight*>& lightObjects);
+	void UpdateDirectionalLightParams();
 
 	void ClearBuffer(float r);
-	void DrawScene(std::vector<SceneGeometry*>& sceneObjects);
+	void DrawScene();
 	void EndFrame();
 
+	void Update(const ScaldTimer& st);
 	FORCEINLINE ThirdPersonCamera* GetCamera() const { return mTPCamera; }
 private:
 	void CreateDepthStencilState();
@@ -53,7 +56,7 @@ private:
 	void SetupShaders();
 	void InitPointLight();
 	void InitDirectionalLight();
-	void ShadowRenderPass(std::vector<SceneGeometry*>& sceneObjects);
+	void ShadowRenderPass();
 
 	template<typename T>
 	bool ApplyChanges(ID3D11DeviceContext* deviceContext, ID3D11Buffer* buffer, const std::vector<T>& bufferData)
@@ -93,6 +96,13 @@ private:
 	int mScreenHeight;
 	HWND hWnd;
 
+public:
+	std::vector<SceneGeometry*> mRenderObjects;
+	// temporary, need a LightManager that would control light pool
+	std::vector<PointLight*> mPointLights;
+	std::vector<DirectionalLight*> mDirectionalLights;
+
+private:
 	bool bIsPointLightEnabled = true;
 	bool bIsDirectionalLightEnabled = true;
 	bool bIsSpotLightEnabled = false;
