@@ -28,11 +28,6 @@ private:
 	float AspectRatio() const;
 
 protected:
-	std::vector<SceneGeometry*> mSceneObjects;
-	// temporary, need a LightManager that would control light pool
-	std::vector<PointLight*> mPointLights;
-	std::vector<DirectionalLight*> mDirectionalLights;
-
 	RenderWindow mRenderWindow;
 	ScaldTimer mTimer;
 

@@ -1,16 +1,11 @@
 #include "Engine.h"
 #include <sstream>
 
-#include "../../Games/Katamari/KatamariPlayer.h"
-#include "../../Data/ModelData.h"
 #include "../../Graphics/ThirdPersonCamera.h"
-#include "../../Objects/Geometry/Actor.h"
+#include "../../Games/Katamari/KatamariPlayer.h"
 #include "../../Data/ModelData.h"
 #include "../../Graphics/Light/PointLight.h"
 #include "../../Graphics/Light/DirectionalLight.h"
-
-#include <random>
-#include <ctime>
 
 Engine::Engine()
     :
@@ -19,12 +14,6 @@ Engine::Engine()
 
 Engine::~Engine()
 {
-	// I am very sorry for this code...
-	for (auto object : mSceneObjects)
-	{
-		if (object && object != Player) delete object;
-	}
-
 	if (Player) delete Player;
 }
 
@@ -77,13 +66,6 @@ void Engine::SetupScene()
 	light2->SetAmbientColor(1.0f, 1.0f, 1.0f, 0.0f);
 	light2->SetDiffuseColor(0.0f, 0.0f, 1.0f, 5.0f);
 	light2->SetAttenuation(1.0f, 0.1f, 0.1f);
-
-	mPointLights.push_back(light1);
-	mPointLights.push_back(light2);
-
-	// could be moved to setup i suppose
-	mRenderWindow.GetGfx().AddPointLightSourceParams(light1->GetParams());
-	mRenderWindow.GetGfx().AddPointLightSourceParams(light2->GetParams());
 #pragma endregion PointLight
 
 #pragma region DirectionalLight
@@ -95,10 +77,6 @@ void Engine::SetupScene()
 	directionalLight->GetPosition();
 	// opposite to dir light pos vector
 	directionalLight->SetDirection(-50.0f, -50.0f, 0.0f);
-
-	mDirectionalLights.push_back(directionalLight);
-
-	mRenderWindow.GetGfx().AddDirectionalLightSourceParams(directionalLight->GetParams());
 #pragma endregion DirectionalLight
 
 #pragma endregion Light
@@ -145,24 +123,23 @@ void Engine::SetupScene()
 	rockFloor->ObjectName = std::string("floor");
 	rockFloor->GetCollisionComponent()->DisableCollision();
 
-	mSceneObjects.push_back(Player);
-	mSceneObjects.push_back(angryBird);
-	mSceneObjects.push_back(box);
-	mSceneObjects.push_back(alien);
-	mSceneObjects.push_back(chair);
-	mSceneObjects.push_back(pig);
-	mSceneObjects.push_back(rockFloor);
+	mRenderWindow.GetGfx().AddToRenderPool(Player);
+	mRenderWindow.GetGfx().AddToRenderPool(angryBird);
+	mRenderWindow.GetGfx().AddToRenderPool(box);
+	mRenderWindow.GetGfx().AddToRenderPool(alien);
+	mRenderWindow.GetGfx().AddToRenderPool(chair);
+	mRenderWindow.GetGfx().AddToRenderPool(pig);
+	mRenderWindow.GetGfx().AddToRenderPool(rockFloor);
 
 #pragma region DirectionalLight
-	mSceneObjects.push_back(directionalLight);
+	mRenderWindow.GetGfx().AddToRenderPool(directionalLight);
 #pragma endregion DirectionalLight
-
 #pragma region PointLights
-	mSceneObjects.push_back(light1);
-	mSceneObjects.push_back(light2);
+	mRenderWindow.GetGfx().AddToRenderPool(light1);
+	mRenderWindow.GetGfx().AddToRenderPool(light2);
 #pragma endregion PointLights
 	
-	mRenderWindow.GetGfx().InitSceneObjects(mSceneObjects);
+	mRenderWindow.GetGfx().InitSceneObjects();
 
 #pragma region PlayerInputDelegates
 	mRenderWindow.kbd.OnKeyPressedEvent.AddRaw(Player->GetMovement(), &KatamariMovementComponent::OnKeyPressed);
@@ -202,7 +179,7 @@ void Engine::PollInput()
 	{
 		XMVECTOR newLightObjectPosition = mRenderWindow.GetGfx().GetCamera()->GetPosition();
 		newLightObjectPosition += mRenderWindow.GetGfx().GetCamera()->GetForwardVector() * 2;
-		mSceneObjects.back()->SetPosition(newLightObjectPosition);
+		mRenderObjects.back()->SetPosition(newLightObjectPosition);
 	}*/
 
 	if (mRenderWindow.kbd.IsKeyPressed(VK_SPACE) && !Player->IsFalling())
@@ -214,7 +191,7 @@ void Engine::PollInput()
 
 void Engine::UpdateScene(const ScaldTimer& st)
 {
-	for (auto sceneObject : mSceneObjects)
+	for (auto sceneObject : mRenderWindow.GetGfx().mRenderObjects)
 	{
 		sceneObject->Update(st);
 // Very inefficient code I suppose
@@ -231,45 +208,14 @@ void Engine::UpdateScene(const ScaldTimer& st)
 		}
 #pragma endregion Collision
 	}
-	mRenderWindow.GetGfx().GetCamera()->Update(st);
-	// LightManager->Update()
-	mRenderWindow.GetGfx().UpdatePointLightParams(mPointLights);
-	mRenderWindow.GetGfx().UpdateDirectionalLightParams(mDirectionalLights);
-
-#if 0
-#pragma region CameraPosDebug
-	std::ostringstream oss;
-	const auto CameraPos = mRenderWindow.GetGfx().GetCamera()->GetPosition();
-	oss << "Camera's position: " << XMVectorGetX(CameraPos) << ", " << XMVectorGetY(CameraPos) << ", " << XMVectorGetZ(CameraPos) << "\n"
-		<< "Camera forward vector: " << XMVectorGetX(mRenderWindow.GetGfx().GetCamera()->GetForwardVector()) << ", "
-		<< XMVectorGetY(mRenderWindow.GetGfx().GetCamera()->GetForwardVector()) << ", "
-		<< XMVectorGetZ(mRenderWindow.GetGfx().GetCamera()->GetForwardVector()) << "\n"
-		<< "Character forward vector: " << XMVectorGetX(mSceneObjects[0]->GetForwardVector()) << ", "
-		<< XMVectorGetY(mSceneObjects[0]->GetForwardVector()) << ", "
-		<< XMVectorGetZ(mSceneObjects[0]->GetForwardVector()) << "\n";
-	OutputDebugString(oss.str().c_str());
-#pragma endregion CameraPosDebug
-
-#pragma region LightPosDebug
-	std::ostringstream oss;
-	const auto LightPos = mSceneObjects[1]->GetPosition();
-	oss << "Object's position: " << XMVectorGetX(LightPos) << ", " << XMVectorGetY(LightPos) << ", " << XMVectorGetZ(LightPos) << "\n";
-	OutputDebugString(oss.str().c_str());
-#pragma endregion LightPosDebug
-
-#pragma region PlayerPosDebug
-	const auto PlayerPos = Player->GetPosition();
-	oss << "Player's position: " << XMVectorGetX(PlayerPos) << ", " << XMVectorGetY(PlayerPos) << ", " << XMVectorGetZ(PlayerPos) << "\n";
-	OutputDebugString(oss.str().c_str());
-#pragma endregion PlayerPosDebug
-#endif
+	mRenderWindow.GetGfx().Update(st);
 }
 
 void Engine::RenderFrame(const ScaldTimer& st)
 {
 	//const float color = static_cast<float>(sin(mTimer.DeltaTime()) + 1.0f);
 	mRenderWindow.GetGfx().ClearBuffer(0.0f);
-	mRenderWindow.GetGfx().DrawScene(mSceneObjects);
+	mRenderWindow.GetGfx().DrawScene();
 	mRenderWindow.GetGfx().EndFrame();
 }
 
