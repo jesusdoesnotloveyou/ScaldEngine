@@ -74,9 +74,9 @@ ShadowMap::~ShadowMap() noexcept
 	mDepthMapSRV->Release();
 }
 
-ID3D11ShaderResourceView* ShadowMap::GetDepthMapSRV()
+ID3D11ShaderResourceView** ShadowMap::GetDepthMapSRV()
 {
-	return mDepthMapSRV;
+	return &mDepthMapSRV;
 }
 
 void ShadowMap::BindDsvAndSetNullRenderTarget(ID3D11DeviceContext* dc)

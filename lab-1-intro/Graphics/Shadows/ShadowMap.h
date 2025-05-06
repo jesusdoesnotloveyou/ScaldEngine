@@ -7,7 +7,7 @@ class ShadowMap
 public:
 	ShadowMap(ID3D11Device* device, UINT width, UINT height);
 	~ShadowMap() noexcept;
-	ID3D11ShaderResourceView* GetDepthMapSRV();
+	ID3D11ShaderResourceView** GetDepthMapSRV();
 	void BindDsvAndSetNullRenderTarget(ID3D11DeviceContext* dc);
 private:
 	ShadowMap(const ShadowMap& lhs);
@@ -21,9 +21,4 @@ private:
 	ID3D11ShaderResourceView* mDepthMapSRV;
 	ID3D11DepthStencilView* mDepthMapDSV;
 	D3D11_VIEWPORT mViewport;
-	
-	/*ID3D11SamplerState* mSamplerState;
-
-	ID3D11RasterizerState* mRasterizerState;
-	ID3D11RasterizerState* mShadowRastState;*/
 };
