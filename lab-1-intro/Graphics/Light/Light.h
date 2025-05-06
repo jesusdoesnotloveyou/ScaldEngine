@@ -38,6 +38,8 @@ public:
     const XMMATRIX& GetPerspectiveProjectionMatrix() const;
     const XMMATRIX& GetOrthographicProjectionMatrix() const;
 
+    FORCEINLINE ELightType GetLightType() const { return LightType; }
+
 private:
     XMFLOAT3 mLookAt;
     XMMATRIX mViewMatrix;
