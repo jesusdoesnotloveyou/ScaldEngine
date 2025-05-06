@@ -1,6 +1,6 @@
 cbuffer cbPerObject : register(b0)
 {
-    matrix WVP;
+    matrix gWorldViewProj;
 }
 
 struct VS_IN
@@ -16,6 +16,6 @@ struct VS_OUT
 VS_OUT main(VS_IN input)
 {
     VS_OUT output = (VS_OUT) 0;
-    output.outPosition = mul(float4(input.inPosition), WVP);
+    output.outPosition = mul(float4(input.inPosition), gWorldViewProj);
     return output;
 }

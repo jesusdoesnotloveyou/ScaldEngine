@@ -5,17 +5,25 @@
 
 using namespace DirectX;
 
+enum class ELightType : uint8_t
+{
+	None = 0,
+	Point,
+	Spot,
+	Directional,
+	MAX = 4
+};
+
 struct DirectionalLightParams
 {
 	DirectionalLightParams() { ZeroMemory(this, sizeof(this)); }
 
-	XMFLOAT4 ambient	= { 1.0f, 1.0f, 1.0f, 0.9f };	// 16 bytes
-	XMFLOAT4 diffuse	= { 1.0f, 1.0f, 1.0f, 1.0f };	// 16 bytes
-	XMFLOAT4 specular	= { 1.0f, 1.0f, 1.0f, 1.0f };	// 16 bytes
-	XMFLOAT3 direction	= { 0.57735f, -0.57735f, 0.57735f };			// 12 bytes
-	// Pad the last float so we can set an array of lights if we wanted.
-	float pad = 0.0f;									// 4 bytes
-														// 64 bytes
+	XMFLOAT4 ambient	= { 0.0f, 0.0f, 0.0f, 0.0f };			// 16 bytes
+	XMFLOAT4 diffuse	= { 0.0f, 0.0f, 0.0f, 0.0f };			// 16 bytes
+	XMFLOAT4 specular	= { 0.0f, 0.0f, 0.0f, 0.0f };			// 16 bytes
+	XMFLOAT3 direction	= { 0.57735f, -0.57735f, 0.57735f };	// 12 bytes
+	float pad = 0.0f;											// 4 bytes
+																// 64 bytes
 };
 
 struct PointLightParams
@@ -30,7 +38,6 @@ struct PointLightParams
 	float range = 0.0f;
 	// Packed into 4D vector: (A0, A1, A2, pad)
 	XMFLOAT3 attenuation = { 0.0f, 0.0f, 0.0f };
-	// Pad the last float so we can set an array of lights if we wanted.
 	float pad = 0.0f;
 														// 80 bytes
 };
@@ -53,7 +60,6 @@ struct SpotLightParams
 	
 	// Packed into 4D vector: (att, pad)
 	XMFLOAT3 attenuation = { 0.0f, 0.0f, 0.0f };
-	// Pad the last float so we can set an array of lights if we wanted.
 	float pad = 0.0f;
 														// 96 bytes
 };

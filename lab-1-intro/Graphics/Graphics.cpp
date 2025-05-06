@@ -6,6 +6,7 @@
 #include "ThirdPersonCamera.h"
 #include "../Objects/Geometry/Actor.h"
 #include "Light/PointLight.h"
+#include "Light/DirectionalLight.h"
 
 #include <d3d.h>
 #include <d3d11.h>
@@ -152,6 +153,19 @@ void Graphics::InitPointLight()
 	ThrowIfFailed(mDevice->CreateShaderResourceView(mPointLightBuffer.Get(), &srvDesc, &mPointLightShaderResourceView));
 }
 
+void Graphics::InitDirectionalLight()
+{
+	ThrowIfFailed(CreateStructuredBuffer(mDevice.Get(), mDirectionalLightBuffer.GetAddressOf(), mDirectionalLightParameters));
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+	srvDesc.Format = DXGI_FORMAT_UNKNOWN;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
+	srvDesc.Buffer.FirstElement = 0u;
+	srvDesc.Buffer.NumElements = (UINT)mDirectionalLightParameters.size();
+
+	ThrowIfFailed(mDevice->CreateShaderResourceView(mDirectionalLightBuffer.Get(), &srvDesc, &mDirectionalLightShaderResourceView));
+}
+
 void Graphics::Setup()
 {
 	CreateDepthStencilState();
@@ -232,6 +246,11 @@ void Graphics::InitSceneObjects(std::vector<SceneGeometry*>& sceneObjects)
 	{
 		InitPointLight();
 	}
+
+	if (bIsDirectionalLightEnabled)
+	{
+		InitDirectionalLight();
+	}
 	
 	mTPCamera->SetTarget(sceneObjects[0]);
 
@@ -241,20 +260,33 @@ void Graphics::InitSceneObjects(std::vector<SceneGeometry*>& sceneObjects)
 	}
 }
 
-void Graphics::AddLightSourceParams(PointLightParams* lightParams)
+void Graphics::AddPointLightSourceParams(PointLightParams* lightParams)
 {
 	mPointLightsParameters.push_back(*lightParams);
 }
 
-void Graphics::UpdateLightParams(std::vector<PointLight*>& lightObjects)
+void Graphics::UpdatePointLightParams(std::vector<PointLight*>& lightObjects)
 {
 	for (int i = 0; i < lightObjects.size(); i++)
 	{
-		mPointLightsParameters[i] = *lightObjects[i]->GetLightParams();
+		mPointLightsParameters[i] = *lightObjects[i]->GetParams();
 	}
 }
 
-void Graphics::ShadowRenderPass()
+void Graphics::AddDirectionalLightSourceParams(DirectionalLightParams* lightParams)
+{
+	mDirectionalLightParameters.push_back(*lightParams);
+}
+
+void Graphics::UpdateDirectionalLightParams(std::vector<DirectionalLight*>& lightObjects)
+{
+	for (int i = 0; i < lightObjects.size(); i++)
+	{
+		mDirectionalLightParameters[i] = *lightObjects[i]->GetParams();
+	}
+}
+
+void Graphics::ShadowRenderPass(std::vector<SceneGeometry*>& sceneObjects)
 {
 	// depth stencil for shadow map is applied here
 	mDeviceContext->IASetInputLayout(mShadowVertexShader.GetInputLayout());
@@ -263,11 +295,15 @@ void Graphics::ShadowRenderPass()
 	// for CSM
 	//mDeviceContext->GSSetShader(mCSMGeometryShader.Get(), nullptr, 0u);
 
+	for (auto actor : sceneObjects)
+	{
+		//actor->Draw(DirLight->GetViewMatrix()* DirLight->GetPerspectiveProjectionMatrix());
+	}
 }
 
 void Graphics::DrawScene(std::vector<SceneGeometry*>& sceneObjects)
 {
-	ShadowRenderPass();
+	ShadowRenderPass(sceneObjects);
 
 	mDeviceContext->RSSetViewports(1u, &currentViewport);
 	// Step 11: Set BackBuffer for Output merger
@@ -280,26 +316,31 @@ void Graphics::DrawScene(std::vector<SceneGeometry*>& sceneObjects)
 	mDeviceContext->OMSetDepthStencilState(mDepthStencilState.Get(), 0u);
 	mDeviceContext->PSSetSamplers(0u, 1u, mSamplerState.GetAddressOf());
 	mDeviceContext->PSSetSamplers(1u, 1u, mShadowSamplerState.GetAddressOf());
+	mDeviceContext->PSSetShaderResources(1u, 1u, mShadowMapObject->GetDepthMapSRV());
 
 #pragma region ConstBufferPSPerFrame
 	ConstBufferPSPerFrame cbPerFrame;
-
-	// default DirectionalLight params
-	cbPerFrame.dirLight.ambient = { 1.0f, 1.0f, 1.0f, 0.9f };
 	cbPerFrame.gEyePos = mTPCamera->GetPosition();
-	cbPerFrame.numLights = (float)mPointLightsParameters.size();
+	// should be placed in other const buffer (cause there is no need to update these members every frame
+	cbPerFrame.numPointLights = (float)mPointLightsParameters.size();
+	cbPerFrame.numDirectionalLights = (float)mDirectionalLightParameters.size();
 
 	mCBPerFrame.SetData(cbPerFrame);
 	mCBPerFrame.ApplyChanges();
-
 	mDeviceContext->PSSetConstantBuffers(1u, 1u, mCBPerFrame.GetAddressOf());
 #pragma endregion ConstBufferPSPerFrame
 
 	if (bIsPointLightEnabled)
 	{
 		ApplyChanges(mDeviceContext.Get(), mPointLightBuffer.Get(), mPointLightsParameters);
-		mDeviceContext->PSSetShaderResources(1u, 1u, mPointLightShaderResourceView.GetAddressOf());
+		mDeviceContext->PSSetShaderResources(2u, 1u, mPointLightShaderResourceView.GetAddressOf());
 	}
+	if (bIsDirectionalLightEnabled)
+	{
+		ApplyChanges(mDeviceContext.Get(), mDirectionalLightBuffer.Get(), mDirectionalLightParameters);
+		mDeviceContext->PSSetShaderResources(3u, 1u, mDirectionalLightShaderResourceView.GetAddressOf());
+	}
+
 	// Step 09: Set Vertex and Pixel Shaders
 	mDeviceContext->VSSetShader(mVertexShader.Get(), nullptr, 0u);
 	mDeviceContext->PSSetShader(mPixelShader.Get(), nullptr, 0u);
