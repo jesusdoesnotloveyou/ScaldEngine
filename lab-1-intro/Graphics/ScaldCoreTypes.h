@@ -73,11 +73,10 @@ struct ConstBufferVS
 // It is even much better approach
 struct ConstBufferPSPerFrame
 {
-	DirectionalLightParams dirLight;
 	XMVECTOR gEyePos = XMVectorZero();
-
 	// for point or spot lights
-	float numLights = 0;
+	float numPointLights = 0;
+	float numDirectionalLights = 0;
 };
 
 //struct ConstBufferPS

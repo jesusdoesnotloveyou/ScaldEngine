@@ -18,6 +18,7 @@
 
 class SceneGeometry;
 class PointLight;
+class DirectionalLight;
 class Camera;
 class ThirdPersonCamera;
 
@@ -32,8 +33,12 @@ public:
 	
 	void Setup();
 	void InitSceneObjects(std::vector<SceneGeometry*>& sceneObjects);
-	void AddLightSourceParams(PointLightParams* lightParams);
-	void UpdateLightParams(std::vector<PointLight*>& lightObjects);
+
+	void AddPointLightSourceParams(PointLightParams* lightParams);
+	void UpdatePointLightParams(std::vector<PointLight*>& lightObjects);
+
+	void AddDirectionalLightSourceParams(DirectionalLightParams* lightParams);
+	void UpdateDirectionalLightParams(std::vector<DirectionalLight*>& lightObjects);
 
 	void ClearBuffer(float r);
 	void DrawScene(std::vector<SceneGeometry*>& sceneObjects);
@@ -47,7 +52,8 @@ private:
 
 	void SetupShaders();
 	void InitPointLight();
-	void ShadowRenderPass();
+	void InitDirectionalLight();
+	void ShadowRenderPass(std::vector<SceneGeometry*>& sceneObjects);
 
 	template<typename T>
 	bool ApplyChanges(ID3D11DeviceContext* deviceContext, ID3D11Buffer* buffer, const std::vector<T>& bufferData)
@@ -87,7 +93,7 @@ private:
 	int mScreenHeight;
 	HWND hWnd;
 
-	bool bIsPointLightEnabled = false;
+	bool bIsPointLightEnabled = true;
 	bool bIsDirectionalLightEnabled = true;
 	bool bIsSpotLightEnabled = false;
 
@@ -105,8 +111,12 @@ private:
 	// need to update members of vector
 	std::vector<PointLightParams> mPointLightsParameters;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> mPointLightBuffer;
-	// structured buffer for point lights
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mPointLightShaderResourceView;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mPointLightShaderResourceView; // structured buffer
+
+	std::vector<DirectionalLightParams> mDirectionalLightParameters;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> mDirectionalLightBuffer;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mDirectionalLightShaderResourceView; // structured buffer
+
 #pragma endregion Light
 
 	Microsoft::WRL::ComPtr<ID3D11Device> mDevice;
@@ -126,5 +136,5 @@ private:
 	D3D11_VIEWPORT currentViewport = {};
 
 	// Shadows
-	ShadowMap* mShadowMapObject;
+	ShadowMap* mShadowMapObject = nullptr;
 };
