@@ -62,99 +62,46 @@ void Engine::SetupScene()
 	ModelData* boxModel			= new ModelData("./Data/Models/Box/box2.obj",						L"./Data/Textures/valakas.png");
 	ModelData* rockModel		= new ModelData("./Data/Models/Rock/rock.obj",						L"./Data/Textures/planks.png");
 
-//#pragma region Light
-//	PointLight* light1 = new PointLight("./Data/Models/Light/light.obj");
-//	light1->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
-//	light1->GetTransform()->SetPosition(0.0f, 4.0f, 2.0f);
-//	light1->GetTransform()->SetRotation(-XM_PIDIV2, 0.0f, 0.0f);
-//	//light1->GetCollisionComponent()->DisableCollision();
-//	light1->SetLightParams(XMFLOAT4(1.0f, 1.0f, 1.0f, 0.9f), XMFLOAT4(1.0f, 1.0f, 1.0f, 5.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(1.0f, 0.1f, 0.1f));
-//
-//	PointLight* light2 = new PointLight("./Data/Models/Light/light.obj");
-//	light2->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
-//	light2->GetTransform()->SetPosition(0.0f, 4.0f, 6.0f);
-//	light2->GetTransform()->SetRotation(-XM_PIDIV2, 0.0f, 0.0f);
-//	//light2->GetCollisionComponent()->DisableCollision();
-//	light2->SetLightParams(XMFLOAT4(1.0f, 1.0f, 1.0f, 0.9f), XMFLOAT4(1.0f, 1.0f, 1.0f, 5.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(1.0f, 0.1f, 0.1f));
-//
-//	PointLight* light3 = new PointLight("./Data/Models/Light/light.obj");
-//	light3->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
-//	light3->GetTransform()->SetPosition(0.0f, 4.0f, 10.0f);
-//	light3->GetTransform()->SetRotation(-XM_PIDIV2, 0.0f, 0.0f);
-//	//light3->GetCollisionComponent()->DisableCollision();
-//	light3->SetLightParams(XMFLOAT4(1.0f, 1.0f, 1.0f, 0.9f), XMFLOAT4(1.0f, 1.0f, 1.0f, 5.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(1.0f, 0.1f, 0.1f));
-//
-//	PointLight* light4 = new PointLight("./Data/Models/Light/light.obj");
-//	light4->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
-//	light4->GetTransform()->SetPosition(0.0f, 4.0f, 14.0f);
-//	light4->GetTransform()->SetRotation(-XM_PIDIV2, 0.0f, 0.0f);
-//	//light4->GetCollisionComponent()->DisableCollision();
-//	light4->SetLightParams(XMFLOAT4(1.0f, 1.0f, 1.0f, 0.9f), XMFLOAT4(0.0f, 1.0f, 1.0f, 5.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(1.0f, 0.1f, 0.1f));
-//
-//	PointLight* light5 = new PointLight("./Data/Models/Light/light.obj");
-//	light5->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
-//	light5->GetTransform()->SetPosition(0.0f, 4.0f, 18.0f);
-//	light5->GetTransform()->SetRotation(-XM_PIDIV2, 0.0f, 0.0f);
-//	//light5->GetCollisionComponent()->DisableCollision();
-//	light5->SetLightParams(XMFLOAT4(1.0f, 1.0f, 1.0f, 0.9f), XMFLOAT4(1.0f, 0.0f, 1.0f, 5.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(1.0f, 0.1f, 0.1f));
-//
-//	PointLight* light6 = new PointLight("./Data/Models/Light/light.obj");
-//	light6->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
-//	light6->GetTransform()->SetPosition(0.0f, 4.0f, 22.0f);
-//	light6->GetTransform()->SetRotation(-XM_PIDIV2, 0.0f, 0.0f);
-//	//light6->GetCollisionComponent()->DisableCollision();
-//	light6->SetLightParams(XMFLOAT4(1.0f, 1.0f, 1.0f, 0.9f), XMFLOAT4(1.0f, 1.0f, 0.0f, 5.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(1.0f, 0.1f, 0.1f));
-//
-//	PointLight* light7 = new PointLight("./Data/Models/Light/light.obj");
-//	light7->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
-//	light7->GetTransform()->SetPosition(0.0f, 4.0f, 26.0f);
-//	light7->GetTransform()->SetRotation(-XM_PIDIV2, 0.0f, 0.0f);
-//	//light7->GetCollisionComponent()->DisableCollision();
-//	light7->SetLightParams(XMFLOAT4(1.0f, 1.0f, 1.0f, 0.9f), XMFLOAT4(1.0f, 1.0f, 1.0f, 5.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(1.0f, 0.1f, 0.1f));
-//
-//	PointLight* light8 = new PointLight("./Data/Models/Light/light.obj");
-//	light8->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
-//	light8->GetTransform()->SetPosition(0.0f, 4.0f, 30.0f);
-//	light8->GetTransform()->SetRotation(-XM_PIDIV2, 0.0f, 0.0f);
-//	//light8->GetCollisionComponent()->DisableCollision();
-//	light8->SetLightParams(XMFLOAT4(1.0f, 1.0f, 1.0f, 0.9f), XMFLOAT4(0.0f, 0.0f, 1.0f, 5.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(1.0f, 0.1f, 0.1f));
-//
-//	PointLight* light9 = new PointLight("./Data/Models/Light/light.obj");
-//	light9->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
-//	light9->GetTransform()->SetPosition(0.0f, 4.0f, 34.0f);
-//	light9->GetTransform()->SetRotation(-XM_PIDIV2, 0.0f, 0.0f);
-//	//light9->GetCollisionComponent()->DisableCollision();
-//	light9->SetLightParams(XMFLOAT4(1.0f, 1.0f, 1.0f, 0.9f), XMFLOAT4(0.0f, 1.0f, 0.0f, 5.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(1.0f, 0.1f, 0.1f));
-//
-//	PointLight* light10 = new PointLight("./Data/Models/Light/light.obj");
-//	light10->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
-//	light10->GetTransform()->SetPosition(0.0f, 4.0f, 38.0f);
-//	light10->GetTransform()->SetRotation(-XM_PIDIV2, 0.0f, 0.0f);
-//	//light10->GetCollisionComponent()->DisableCollision();
-//	light10->SetLightParams(XMFLOAT4(1.0f, 1.0f, 1.0f, 0.9f), XMFLOAT4(1.0f, 0.0f, 0.0f, 5.0f), XMFLOAT4(1.0f, 1.0f, 1.0f, 1.0f), XMFLOAT3(1.0f, 0.1f, 0.1f));
-//
-//	mPointLights.push_back(light1);
-//	mPointLights.push_back(light2);
-//	mPointLights.push_back(light3);
-//	mPointLights.push_back(light4);
-//	mPointLights.push_back(light5);
-//	mPointLights.push_back(light6);
-//	mPointLights.push_back(light7);
-//	mPointLights.push_back(light8);
-//	mPointLights.push_back(light9);
-//	mPointLights.push_back(light10);
-//	// could be moved to setup i suppose
-//	mRenderWindow.GetGfx().AddLightSourceParams(light1->GetLightParams());
-//	mRenderWindow.GetGfx().AddLightSourceParams(light2->GetLightParams());
-//	mRenderWindow.GetGfx().AddLightSourceParams(light3->GetLightParams());
-//	mRenderWindow.GetGfx().AddLightSourceParams(light4->GetLightParams());
-//	mRenderWindow.GetGfx().AddLightSourceParams(light5->GetLightParams());
-//	mRenderWindow.GetGfx().AddLightSourceParams(light6->GetLightParams());
-//	mRenderWindow.GetGfx().AddLightSourceParams(light7->GetLightParams());
-//	mRenderWindow.GetGfx().AddLightSourceParams(light8->GetLightParams());
-//	mRenderWindow.GetGfx().AddLightSourceParams(light9->GetLightParams());
-//	mRenderWindow.GetGfx().AddLightSourceParams(light10->GetLightParams());
-//#pragma endregion Light
+#pragma region Light
+#pragma region PointLight
+	PointLight* light1 = new PointLight("./Data/Models/Light/light.obj");
+	light1->GetTransform()->SetPosition(0.0f, 4.0f, 2.0f);
+	light1->GetTransform()->SetRotation(-XM_PIDIV2, 0.0f, 0.0f);
+	light1->SetAmbientColor(1.0f, 1.0f, 1.0f, 0.0f);
+	light1->SetDiffuseColor(1.0f, 0.0f, 0.0f, 5.0f);
+	light1->SetAttenuation(1.0f, 0.1f, 0.1f);
+
+	PointLight* light2 = new PointLight("./Data/Models/Light/light.obj");
+	light2->GetTransform()->SetPosition(0.0f, 4.0f, 6.0f);
+	light2->GetTransform()->SetRotation(-XM_PIDIV2, 0.0f, 0.0f);
+	light2->SetAmbientColor(1.0f, 1.0f, 1.0f, 0.0f);
+	light2->SetDiffuseColor(0.0f, 0.0f, 1.0f, 5.0f);
+	light2->SetAttenuation(1.0f, 0.1f, 0.1f);
+
+	mPointLights.push_back(light1);
+	mPointLights.push_back(light2);
+
+	// could be moved to setup i suppose
+	mRenderWindow.GetGfx().AddPointLightSourceParams(light1->GetParams());
+	mRenderWindow.GetGfx().AddPointLightSourceParams(light2->GetParams());
+#pragma endregion PointLight
+
+#pragma region DirectionalLight
+	DirectionalLight* directionalLight = new DirectionalLight("./Data/Models/Light/light.obj");
+	directionalLight->GetTransform()->SetPosition(50.0f, 50.0f, 0.0f);
+	directionalLight->GetCollisionComponent()->DisableCollision();
+	directionalLight->SetAmbientColor(1.0f, 1.0f, 1.0f, 0.9f);
+	directionalLight->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
+	directionalLight->GetPosition();
+	// opposite to dir light pos vector
+	directionalLight->SetDirection(-50.0f, -50.0f, 0.0f);
+
+	mDirectionalLights.push_back(directionalLight);
+
+	mRenderWindow.GetGfx().AddDirectionalLightSourceParams(directionalLight->GetParams());
+#pragma endregion DirectionalLight
+
+#pragma endregion Light
 
 	SceneGeometry* alien = new Actor(alienFemaleModel);
 	alien->GetTransform()->SetScale(0.03f, 0.03f, 0.03f);
@@ -205,17 +152,14 @@ void Engine::SetupScene()
 	mSceneObjects.push_back(chair);
 	mSceneObjects.push_back(pig);
 	mSceneObjects.push_back(rockFloor);
+
+#pragma region DirectionalLight
+	mSceneObjects.push_back(directionalLight);
+#pragma endregion DirectionalLight
+
 #pragma region PointLights
-	/*mSceneObjects.push_back(light1);
+	mSceneObjects.push_back(light1);
 	mSceneObjects.push_back(light2);
-	mSceneObjects.push_back(light3);
-	mSceneObjects.push_back(light4);
-	mSceneObjects.push_back(light5);
-	mSceneObjects.push_back(light6);
-	mSceneObjects.push_back(light7);
-	mSceneObjects.push_back(light8);
-	mSceneObjects.push_back(light9);
-	mSceneObjects.push_back(light10);*/
 #pragma endregion PointLights
 	
 	mRenderWindow.GetGfx().InitSceneObjects(mSceneObjects);
@@ -254,12 +198,13 @@ void Engine::PollInput()
 	right = XMVector3Normalize(right);
 	Player->SetRightVector(right);
 	
-	if (mRenderWindow.kbd.IsKeyPressed('C'))
+	/*if (mRenderWindow.kbd.IsKeyPressed('C'))
 	{
 		XMVECTOR newLightObjectPosition = mRenderWindow.GetGfx().GetCamera()->GetPosition();
 		newLightObjectPosition += mRenderWindow.GetGfx().GetCamera()->GetForwardVector() * 2;
 		mSceneObjects.back()->SetPosition(newLightObjectPosition);
-	}
+	}*/
+
 	if (mRenderWindow.kbd.IsKeyPressed(VK_SPACE) && !Player->IsFalling())
 	{
 		Player->Jump();
@@ -288,7 +233,8 @@ void Engine::UpdateScene(const ScaldTimer& st)
 	}
 	mRenderWindow.GetGfx().GetCamera()->Update(st);
 	// LightManager->Update()
-	mRenderWindow.GetGfx().UpdateLightParams(mPointLights);
+	mRenderWindow.GetGfx().UpdatePointLightParams(mPointLights);
+	mRenderWindow.GetGfx().UpdateDirectionalLightParams(mDirectionalLights);
 
 #if 0
 #pragma region CameraPosDebug
