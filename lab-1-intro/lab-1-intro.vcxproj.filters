@@ -96,7 +96,7 @@
     <ClCompile Include="Objects\Components\TransformComponent.cpp">
       <Filter>Source Files\Components</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\Camera.cpp">
+    <ClCompile Include="Graphics\Camera\Camera.cpp">
       <Filter>Source Files\Graphics</Filter>
     </ClCompile>
     <ClCompile Include="Objects\Geometry\3D\Cube.cpp">
@@ -120,7 +120,7 @@
     <ClCompile Include="Objects\Geometry\Actor.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\ThirdPersonCamera.cpp">
+    <ClCompile Include="Graphics\Camera\ThirdPersonCamera.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="Objects\Components\SceneComponent.cpp">
@@ -200,7 +200,7 @@
     <ClInclude Include="Delegates\Delegates.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\Camera.h">
+    <ClInclude Include="Graphics\Camera\Camera.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
     <ClInclude Include="Objects\Components\InputComponent.h">
@@ -233,7 +233,7 @@
     <ClInclude Include="Data\ModelData.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\ThirdPersonCamera.h">
+    <ClInclude Include="Graphics\Camera\ThirdPersonCamera.h">
       <Filter>Header Files</Filter>
     </ClInclude>
     <ClInclude Include="Objects\ScaldObject.h">

@@ -18,8 +18,8 @@ void DirectionalLight::Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceC
 
 void DirectionalLight::Update(const ScaldTimer& st)
 {
-	SetLookAt(LightParams->direction.x, LightParams->direction.y, LightParams->direction.z);
 	Light::Update(st);
+	SetLookAt(LightParams->direction.x, LightParams->direction.y, LightParams->direction.z);
 }
 
 void DirectionalLight::Draw(const XMMATRIX& viewProjectionMatrix)

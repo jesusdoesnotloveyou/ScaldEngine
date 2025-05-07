@@ -56,7 +56,7 @@ private:
 	void SetupShaders();
 	void InitPointLight();
 	void InitDirectionalLight();
-	void ShadowRenderPass();
+	void RenderDepthOnlyPass();
 
 	template<typename T>
 	bool ApplyChanges(ID3D11DeviceContext* deviceContext, ID3D11Buffer* buffer, const std::vector<T>& bufferData)
@@ -98,11 +98,11 @@ private:
 
 public:
 	std::vector<SceneGeometry*> mRenderObjects;
+private:
 	// temporary, need a LightManager that would control light pool
 	std::vector<PointLight*> mPointLights;
 	std::vector<DirectionalLight*> mDirectionalLights;
 
-private:
 	bool bIsPointLightEnabled = true;
 	bool bIsDirectionalLightEnabled = true;
 	bool bIsSpotLightEnabled = false;
@@ -126,7 +126,6 @@ private:
 	std::vector<DirectionalLightParams> mDirectionalLightParameters;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> mDirectionalLightBuffer;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mDirectionalLightShaderResourceView; // structured buffer
-
 #pragma endregion Light
 
 	Microsoft::WRL::ComPtr<ID3D11Device> mDevice;
