@@ -6,6 +6,7 @@
 #include "../Objects/Geometry/Actor.h"
 #include "Light/PointLight.h"
 #include "Light/DirectionalLight.h"
+#include "Light/SpotLight.h"
 
 #include <d3d.h>
 #include <d3d11.h>
@@ -110,20 +111,25 @@ void Graphics::AddToRenderPool(SceneGeometry* sceneObject)
 	mRenderObjects.push_back(sceneObject);
 
 	const auto lightObject = dynamic_cast<Light*>(sceneObject);
-	if (lightObject)
+	if (!lightObject) return;
+
+	if (lightObject->GetLightType() == ELightType::Point)
 	{
-		if (lightObject->GetLightType() == ELightType::Point)
-		{
-			const auto pointLight = static_cast<PointLight*>(lightObject);
-			mPointLights.push_back(pointLight);
-			AddPointLightSourceParams(pointLight->GetParams());
-		}
-		if (lightObject->GetLightType() == ELightType::Directional)
-		{
-			const auto dirLight = static_cast<DirectionalLight*>(lightObject);
-			mDirectionalLights.push_back(dirLight);
-			AddDirectionalLightSourceParams(dirLight->GetParams());
-		}
+		const auto pointLight = static_cast<PointLight*>(lightObject);
+		mPointLights.push_back(pointLight);
+		AddPointLightSourceParams(pointLight->GetParams());
+	}
+	if (lightObject->GetLightType() == ELightType::Directional)
+	{
+		const auto dirLight = static_cast<DirectionalLight*>(lightObject);
+		mDirectionalLights.push_back(dirLight);
+		AddDirectionalLightSourceParams(dirLight->GetParams());
+	}
+	if (lightObject->GetLightType() == ELightType::Spot)
+	{
+		const auto spotLight = static_cast<SpotLight*>(lightObject);
+		mSpotLights.push_back(spotLight);
+		AddSpotLightSourceParams(spotLight->GetParams());
 	}
 }
 
@@ -176,6 +182,16 @@ void Graphics::UpdateDirectionalLightParams()
 	{
 		mDirectionalLightParameters[i] = *mDirectionalLights[i]->GetParams();
 	}
+}
+
+void Graphics::AddSpotLightSourceParams(SpotLightParams* lightParams)
+{
+
+}
+
+void Graphics::UpdateSpotLightParams()
+{
+
 }
 
 // Before rendering every frame we should clear render target view and depth stencil view

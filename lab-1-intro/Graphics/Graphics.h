@@ -20,6 +20,7 @@
 class SceneGeometry;
 class PointLight;
 class DirectionalLight;
+class SpotLight;
 class Camera;
 class ThirdPersonCamera;
 
@@ -36,11 +37,16 @@ public:
 	void AddToRenderPool(SceneGeometry* sceneObject);
 	void InitSceneObjects();
 
+#pragma region LightManagment
 	void AddPointLightSourceParams(PointLightParams* lightParams);
 	void UpdatePointLightParams();
 
 	void AddDirectionalLightSourceParams(DirectionalLightParams* lightParams);
 	void UpdateDirectionalLightParams();
+
+	void AddSpotLightSourceParams(SpotLightParams* lightParams);
+	void UpdateSpotLightParams();
+#pragma endregion LightManagment
 
 	void ClearBuffer(float r);
 	void DrawScene();
@@ -102,6 +108,7 @@ private:
 	// temporary, need a LightManager that would control light pool
 	std::vector<PointLight*> mPointLights;
 	std::vector<DirectionalLight*> mDirectionalLights;
+	std::vector<SpotLight*> mSpotLights;
 
 	bool bIsPointLightEnabled = true;
 	bool bIsDirectionalLightEnabled = true;
