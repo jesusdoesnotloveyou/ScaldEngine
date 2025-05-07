@@ -41,7 +41,7 @@ class GeometryShader
 public:
 	GeometryShader() = default;
 
-	HRESULT Init(ID3D11Device* mDevice);
+	HRESULT Init(ID3D11Device* mDevice, LPCWSTR pFileName);
 
 	ID3D11GeometryShader* Get();
 	ID3DBlob* GetBuffer();

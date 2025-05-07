@@ -48,23 +48,6 @@ ShadowMap::ShadowMap(ID3D11Device* device, UINT width, UINT height)
 	shaderResourceViewDesc.Texture2D.MostDetailedMip = 0u;
 	ThrowIfFailed(device->CreateShaderResourceView(depthMap, &shaderResourceViewDesc, &mDepthMapSRV));
 
-	// probably should be created in Graphics, not in ShadowMap
-	D3D11_SAMPLER_DESC comparisonSamplerDesc;
-	ZeroMemory(&comparisonSamplerDesc, sizeof(D3D11_SAMPLER_DESC));
-	comparisonSamplerDesc.AddressU = D3D11_TEXTURE_ADDRESS_BORDER;
-	comparisonSamplerDesc.AddressV = D3D11_TEXTURE_ADDRESS_BORDER;
-	comparisonSamplerDesc.AddressW = D3D11_TEXTURE_ADDRESS_BORDER;
-	comparisonSamplerDesc.BorderColor[0] = 1.0f;
-	comparisonSamplerDesc.BorderColor[1] = 1.0f;
-	comparisonSamplerDesc.BorderColor[2] = 1.0f;
-	comparisonSamplerDesc.BorderColor[3] = 1.0f;
-	comparisonSamplerDesc.MinLOD = 0.f;
-	comparisonSamplerDesc.MaxLOD = D3D11_FLOAT32_MAX;
-	comparisonSamplerDesc.MipLODBias = 0.f;
-	comparisonSamplerDesc.MaxAnisotropy = 0u;
-	comparisonSamplerDesc.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
-	comparisonSamplerDesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_MIP_POINT;
-
 	depthMap->Release();
 }
 
@@ -74,7 +57,12 @@ ShadowMap::~ShadowMap() noexcept
 	mDepthMapSRV->Release();
 }
 
-ID3D11ShaderResourceView** ShadowMap::GetDepthMapSRV()
+ID3D11ShaderResourceView* ShadowMap::Get() const
+{
+	return mDepthMapSRV;
+}
+
+ID3D11ShaderResourceView* const* ShadowMap::GetAddressOf() const
 {
 	return &mDepthMapSRV;
 }

@@ -82,7 +82,7 @@ Graphics::Graphics(HWND hWnd, int width, int height)
 	ThrowIfFailed(mDevice->CreateTexture2D(&depthStencilTextureDesc, nullptr, mDepthStencilBuffer.GetAddressOf()));
 	ThrowIfFailed(mDevice->CreateDepthStencilView(mDepthStencilBuffer.Get(), nullptr, mDSV.GetAddressOf()));
 
-	mShadowMapObject = new ShadowMap(mDevice.Get(), 1024u, 1024u);
+	mShadowMapObject = new ShadowMap(mDevice.Get(), 2048u, 2048u);
 	mTPCamera = new ThirdPersonCamera();
 }
 
@@ -178,22 +178,31 @@ void Graphics::UpdateDirectionalLightParams()
 	}
 }
 
+// Before rendering every frame we should clear render target view and depth stencil view
+void Graphics::ClearBuffer(float r)
+{
+	float color[] = { r, 0.0f, 0.0f, 1.0f };
+	mDeviceContext->ClearRenderTargetView(mRTV.Get(), color);
+	mDeviceContext->ClearDepthStencilView(mDSV.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL /*Clearing Both Depth and Stencil*/, 1.0f, 0u);
+	//mDeviceContext->ClearState();
+}
+
 void Graphics::DrawScene()
 {
-	ShadowRenderPass();
+	mDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	RenderDepthOnlyPass();
 
 	mDeviceContext->RSSetViewports(1u, &currentViewport);
 	// Step 11: Set BackBuffer for Output merger
 	mDeviceContext->OMSetRenderTargets(1u, mRTV.GetAddressOf(), mDSV.Get());
 
 	mDeviceContext->IASetInputLayout(mVertexShader.GetInputLayout());
-	mDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	mDeviceContext->RSSetState(mRasterizerState.Get());
 	mDeviceContext->OMSetDepthStencilState(mDepthStencilState.Get(), 0u);
 	mDeviceContext->PSSetSamplers(0u, 1u, mSamplerState.GetAddressOf());
 	mDeviceContext->PSSetSamplers(1u, 1u, mShadowSamplerState.GetAddressOf());
-	mDeviceContext->PSSetShaderResources(1u, 1u, mShadowMapObject->GetDepthMapSRV());
 
 #pragma region ConstBufferPSPerFrame
 	ConstBufferPSPerFrame cbPerFrame;
@@ -204,8 +213,11 @@ void Graphics::DrawScene()
 
 	mCBPerFrame.SetData(cbPerFrame);
 	mCBPerFrame.ApplyChanges();
-	mDeviceContext->PSSetConstantBuffers(1u, 1u, mCBPerFrame.GetAddressOf());
+	mDeviceContext->PSSetConstantBuffers(0u, 1u, mCBPerFrame.GetAddressOf());
 #pragma endregion ConstBufferPSPerFrame
+	
+	// Bind shadow map to pixel shader
+	mDeviceContext->PSSetShaderResources(1u, 1u, mShadowMapObject->GetAddressOf());
 
 	if (bIsPointLightEnabled)
 	{
@@ -222,21 +234,10 @@ void Graphics::DrawScene()
 	mDeviceContext->VSSetShader(mVertexShader.Get(), nullptr, 0u);
 	mDeviceContext->PSSetShader(mPixelShader.Get(), nullptr, 0u);
 
-	for (auto actor : mRenderObjects)
+	/*for (auto actor : mRenderObjects)
 	{
 		actor->Draw(mTPCamera->GetViewMatrix() * mTPCamera->GetPerspectiveProjectionMatrix());
-	}
-}
-
-// Before rendering every frame we should clear render target view and depth stencil view
-void Graphics::ClearBuffer(float r)
-{
-	float color[] = { r, 0.0f, 0.0f, 1.0f };
-	mDeviceContext->ClearRenderTargetView(mRTV.Get(), color);
-	mDeviceContext->ClearDepthStencilView(mDSV.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL /*Clearing Both Depth and Stencil*/, 1.0f, 0u);
-
-	mShadowMapObject->BindDsvAndSetNullRenderTarget(mDeviceContext.Get());
-	//mDeviceContext->ClearState();
+	}*/
 }
 
 void Graphics::EndFrame()
@@ -301,14 +302,15 @@ void Graphics::CreateSamplerState()
 	shadowSampDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
 	shadowSampDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
 	shadowSampDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+	shadowSampDesc.MipLODBias = 0.0f;
+	shadowSampDesc.MaxAnisotropy = 1u;
 	shadowSampDesc.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
-	shadowSampDesc.MinLOD = 0;
-	shadowSampDesc.MaxLOD = D3D11_FLOAT32_MAX;
-	shadowSampDesc.MipLODBias = 0;
 	shadowSampDesc.BorderColor[0] = 1.0f;
 	shadowSampDesc.BorderColor[1] = 1.0f;
 	shadowSampDesc.BorderColor[2] = 1.0f;
 	shadowSampDesc.BorderColor[3] = 1.0f;
+	shadowSampDesc.MinLOD = 0.0f;
+	shadowSampDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	ThrowIfFailed(mDevice->CreateSamplerState(&shadowSampDesc, mShadowSamplerState.GetAddressOf()));
 }
 
@@ -357,6 +359,7 @@ void Graphics::SetupShaders()
 
 	ThrowIfFailed(mVertexShader.Init(mDevice.Get(), inputLayoutDefaultDesc, (UINT)std::size(inputLayoutDefaultDesc), L"./Shaders/VertexShader.hlsl"));
 	ThrowIfFailed(mPixelShader.Init(mDevice.Get(), L"./Shaders/FragmentShader.hlsl"));
+	ThrowIfFailed(mCSMGeometryShader.Init(mDevice.Get(), L"./Shaders/CSMGeometryShader.hlsl"));
 }
 
 void Graphics::InitPointLight()
@@ -385,17 +388,20 @@ void Graphics::InitDirectionalLight()
 	ThrowIfFailed(mDevice->CreateShaderResourceView(mDirectionalLightBuffer.Get(), &srvDesc, &mDirectionalLightShaderResourceView));
 }
 
-void Graphics::ShadowRenderPass()
+void Graphics::RenderDepthOnlyPass()
 {
-	// depth stencil for shadow map is applied here
+	mShadowMapObject->BindDsvAndSetNullRenderTarget(mDeviceContext.Get());
 	mDeviceContext->IASetInputLayout(mShadowVertexShader.GetInputLayout());
 	mDeviceContext->VSSetShader(mShadowVertexShader.Get(), nullptr, 0);
 	mDeviceContext->PSSetShader(nullptr, nullptr, 0u);
 	// for CSM
 	//mDeviceContext->GSSetShader(mCSMGeometryShader.Get(), nullptr, 0u);
 
-	for (auto actor : mRenderObjects)
+	for (const auto directionalLight : mDirectionalLights)
 	{
-		//actor->Draw(DirLight->GetViewMatrix()* DirLight->GetPerspectiveProjectionMatrix());
+		for (auto actor : mRenderObjects)
+		{
+			actor->Draw(directionalLight->GetViewMatrix() * directionalLight->GetOrthographicProjectionMatrix());
+		}
 	}
 }

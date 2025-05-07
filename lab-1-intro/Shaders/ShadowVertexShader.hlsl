@@ -1,6 +1,7 @@
 cbuffer cbPerObject : register(b0)
 {
     matrix gWorldViewProj;
+    matrix gWorld;
 }
 
 struct VS_IN

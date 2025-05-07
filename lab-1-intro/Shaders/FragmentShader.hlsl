@@ -4,10 +4,10 @@
 //};
 
 Texture2D objTexture : TEXTURE : register(t0);
-SamplerState objSamplerState : SAMPLER : register(s0);
-
 //The depthMapTexture is the shadow map. This texture contains the scene depth buffer rendered from the light's perspective.
-Texture2D depthMapTexture : register(t1);
+Texture2D depthMapTexture : TEXTURE : register(t1);
+
+SamplerState objSamplerState : SAMPLER : register(s0);
 SamplerState shadowSamplerState : SAMPLER : register(s1);
 
 struct PointLight
@@ -34,13 +34,13 @@ StructuredBuffer<PointLight> PointLights : register(t2);
 StructuredBuffer<DirectionalLight> DirectionalLights : register(t3);
 //StructuredBuffer<PointLight> SpotLights : register(t4);
 
-cbuffer cbPerFrame : register(b1)
+cbuffer cbPerFrame : register(b0)
 {
     float4 gEyePos;
     float numPointLights;
     float numDirectionalLights;
     //float Ks = 0.1f;
-    //float shininess = 200;
+    //float shininess = 200.0f;
 };
 
 struct PS_IN
@@ -74,7 +74,7 @@ float3 CalculatePointLight(PointLight light, uniform float3 posW, uniform float3
     float3 diffuseLightIntensity = saturate(max(dot(lightVector, normal), 0.0f));
     float3 diffuseLight = diffuseLightIntensity * diffuse.xyz * diffuse.w;
     
-    float3 specularIntensity = 10.f * pow(max(dot(reflectLight, viewDir), 0.0f), 20.0f); // * specular.xyz
+    float3 specularIntensity = 1.2f * pow(max(dot(reflectLight, viewDir), 0.0f), 100.0f); // * specular.xyz
     float3 specularLight = saturate(specularIntensity);
     
     float distanceToLight = distance(lightPos, posW);
@@ -106,7 +106,7 @@ float3 CalculateDirectionalLight(DirectionalLight light, uniform float3 posW, un
     float3 diffuseLightIntensity = saturate(max(dot(lightVector, normal), 0.0f));
     float3 diffuseLight = diffuseLightIntensity * diffuse.xyz * diffuse.w;
     
-    float3 specularIntensity = 10.f * pow(max(dot(reflectLight, viewDir), 0.0f), 20.0f); // * specular.xyz
+    float3 specularIntensity = 10.0f * pow(max(dot(reflectLight, viewDir), 0.0f), 50.0f); // * specular.xyz
     float3 specularLight = saturate(specularIntensity);
     
     appliedLight = ambientLight + diffuseLight + specularLight;
@@ -115,6 +115,7 @@ float3 CalculateDirectionalLight(DirectionalLight light, uniform float3 posW, un
 
 float4 main(PS_IN input) : SV_Target
 {   
+    float depthValue = depthMapTexture.Sample(shadowSamplerState, input.inTexCoord).r;
     float4 sampleColor = objTexture.Sample(objSamplerState, input.inTexCoord);
     //float3 sampleColor = input.inNormal; 
     float3 appliedLight = float3(0.0f, 0.0f, 0.0f);

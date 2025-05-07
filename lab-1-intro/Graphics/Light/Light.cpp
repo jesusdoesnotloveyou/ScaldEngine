@@ -1,6 +1,11 @@
 #include "Light.h"
 
 Light::Light(const std::string& filePath)
+    :
+    mLookAt(0.0f, 0.0f, 0.0f),
+    mViewMatrix(XMMatrixIdentity()),
+    mPerspectiveProjectionMatrix(XMMatrixIdentity()),
+    mOrthographicProjectionMatrix(XMMatrixIdentity())
 {
 	modelPath = filePath;
 }
@@ -14,7 +19,7 @@ void Light::Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, con
 	SceneGeometry::Init(pDevice, pDeviceContext, modelPath, texturePath);
 
     GenerateViewMatrix();
-    GenerateOrthographicProjectionMatrix(100.0f, 100.0f, 0.1f, 1000.0f);
+    GenerateOrthographicProjectionMatrix(100.0f * (1600.0f / 900.0f), 100.0f, 0.1f, 1000.0f);
 }
 
 void Light::Update(const ScaldTimer& st)
@@ -37,16 +42,16 @@ void Light::SetLookAt(float x, float y, float z)
 
 void Light::GenerateViewMatrix()
 {
-    // Setup the vector that points upwards.
     XMFLOAT3 up = { 0.0f, 1.0f, 0.0f };
     XMVECTOR lookAtVector, upVector;
+    XMVECTOR pos = GetPosition();;
     
     // Load the XMFLOAT3 into XMVECTOR.
     lookAtVector = XMLoadFloat3(&mLookAt);
     upVector = XMLoadFloat3(&up);
 
     // Create the view matrix from the three vectors.
-    mViewMatrix = XMMatrixLookAtLH(GetPosition(), lookAtVector, upVector);
+    mViewMatrix = XMMatrixLookAtLH(pos, lookAtVector, upVector);
 }
 
 void Light::GeneratePerspectiveProjectionMatrix(float, float)
