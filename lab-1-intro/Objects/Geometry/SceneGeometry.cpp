@@ -39,6 +39,7 @@ void SceneGeometry::Draw(const XMMATRIX& viewProjectionMatrix)
     bufferVS.gWorld = XMMatrixTranspose(GetTransform()->mWorldMatrix);
 
     model.GetConstantBufferVS().SetData(bufferVS);
+    model.GetConstantBufferVS().ApplyChanges();
     model.Draw();
 }
 
