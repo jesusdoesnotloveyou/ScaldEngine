@@ -234,10 +234,10 @@ void Graphics::DrawScene()
 	mDeviceContext->VSSetShader(mVertexShader.Get(), nullptr, 0u);
 	mDeviceContext->PSSetShader(mPixelShader.Get(), nullptr, 0u);
 
-	/*for (auto actor : mRenderObjects)
+	for (auto actor : mRenderObjects)
 	{
 		actor->Draw(mTPCamera->GetViewMatrix() * mTPCamera->GetPerspectiveProjectionMatrix());
-	}*/
+	}
 }
 
 void Graphics::EndFrame()
