@@ -123,7 +123,8 @@ private:
 	GeometryShader mCSMGeometryShader;
 
 #pragma region Light
-	ConstantBuffer<ConstBufferPSPerFrame> mCBPerFrame;
+	ConstantBuffer<ConstBufferVSPerFrame> mCBVSPerFrame;
+	ConstantBuffer<ConstBufferPSPerFrame> mCBPSPerFrame;
 
 	// need to update members of vector
 	std::vector<PointLightParams> mPointLightsParameters;

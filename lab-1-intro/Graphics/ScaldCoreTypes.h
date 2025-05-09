@@ -77,6 +77,12 @@ struct ConstBufferPSPerFrame
 	// for point or spot lights
 	float numPointLights = 0;
 	float numDirectionalLights = 0;
+	//float numSpotLights = 0;
+};
+
+struct ConstBufferVSPerFrame
+{
+	XMMATRIX gLightViewProjection = XMMatrixIdentity();
 };
 
 //struct ConstBufferPS
