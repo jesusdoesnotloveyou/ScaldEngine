@@ -83,14 +83,14 @@ Graphics::Graphics(HWND hWnd, int width, int height)
 	ThrowIfFailed(mDevice->CreateTexture2D(&depthStencilTextureDesc, nullptr, mDepthStencilBuffer.GetAddressOf()));
 	ThrowIfFailed(mDevice->CreateDepthStencilView(mDepthStencilBuffer.Get(), nullptr, mDSV.GetAddressOf()));
 
-	mShadowMapObject = new ShadowMap(mDevice.Get(), 2048u, 2048u);
+	mShadowMap = new ShadowMap(mDevice.Get(), 2048u, 2048u);
 	mTPCamera = new ThirdPersonCamera();
 }
 
 Graphics::~Graphics()
 {
 	if (mTPCamera) delete mTPCamera;
-	if (mShadowMapObject) delete mShadowMapObject;
+	if (mShadowMap) delete mShadowMap;
 }
 
 void Graphics::Setup()
@@ -211,6 +211,11 @@ void Graphics::DrawScene()
 	RenderDepthOnlyPass();
 
 	mDeviceContext->IASetInputLayout(mVertexShader.GetInputLayout());
+
+	// Step 11: Set BackBuffer for Output merger
+	mDeviceContext->OMSetRenderTargets(1u, mRTV.GetAddressOf(), mDSV.Get());
+	mDeviceContext->OMSetDepthStencilState(mDepthStencilState.Get(), 0u);
+
 	// Step 09: Set Vertex Shaders
 	mDeviceContext->VSSetShader(mVertexShader.Get(), nullptr, 0u);
 
@@ -245,7 +250,7 @@ void Graphics::DrawScene()
 #pragma endregion ConstBufferPSPerFrame
 	
 	// Bind shadow map to pixel shader
-	mDeviceContext->PSSetShaderResources(1u, 1u, mShadowMapObject->GetAddressOf());
+	mDeviceContext->PSSetShaderResources(1u, 1u, mShadowMap->GetAddressOf());
 
 	if (bIsPointLightEnabled)
 	{
@@ -257,10 +262,6 @@ void Graphics::DrawScene()
 		ApplyChanges(mDeviceContext.Get(), mDirectionalLightBuffer.Get(), mDirectionalLightParameters);
 		mDeviceContext->PSSetShaderResources(3u, 1u, mDirectionalLightShaderResourceView.GetAddressOf());
 	}
-
-	// Step 11: Set BackBuffer for Output merger
-	mDeviceContext->OMSetRenderTargets(1u, mRTV.GetAddressOf(), mDSV.Get());
-	mDeviceContext->OMSetDepthStencilState(mDepthStencilState.Get(), 0u);
 
 	for (auto actor : mRenderObjects)
 	{
@@ -423,7 +424,7 @@ void Graphics::InitDirectionalLight()
 
 void Graphics::RenderDepthOnlyPass()
 {
-	mShadowMapObject->BindDsvAndSetNullRenderTarget(mDeviceContext.Get());
+	mShadowMap->BindDsvAndSetNullRenderTarget(mDeviceContext.Get());
 	mDeviceContext->IASetInputLayout(mShadowVertexShader.GetInputLayout());
 	mDeviceContext->VSSetShader(mShadowVertexShader.Get(), nullptr, 0);
 	mDeviceContext->PSSetShader(nullptr, nullptr, 0u);

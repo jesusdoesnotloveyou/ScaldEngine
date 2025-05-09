@@ -110,7 +110,7 @@ private:
 	std::vector<DirectionalLight*> mDirectionalLights;
 	std::vector<SpotLight*> mSpotLights;
 
-	bool bIsPointLightEnabled = true;
+	bool bIsPointLightEnabled = false;
 	bool bIsDirectionalLightEnabled = true;
 	bool bIsSpotLightEnabled = false;
 
@@ -153,5 +153,5 @@ private:
 	D3D11_VIEWPORT currentViewport = {};
 
 	// Shadows
-	ShadowMap* mShadowMapObject = nullptr;
+	ShadowMap* mShadowMap = nullptr;
 };

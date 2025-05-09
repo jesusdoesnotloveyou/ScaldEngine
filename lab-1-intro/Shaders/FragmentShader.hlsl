@@ -46,9 +46,10 @@ cbuffer cbPerFrame : register(b0)
 struct PS_IN
 {
     float4 inPosition : SV_POSITION;
-    float2 inTexCoord : TEXCOORD;
+    float2 inTexCoord : TEXCOORD0;
     float3 inNormal : NORMAL;
     float3 inWorldPos: WORLD_POSITION;
+    float4 inLightSpacePos : TEXCOORD1;
 };
 
 float3 CalculatePointLight(PointLight light, uniform float3 posW, uniform float3 normal, uniform float3 toEye)
@@ -115,23 +116,56 @@ float3 CalculateDirectionalLight(DirectionalLight light, uniform float3 posW, un
 
 float4 main(PS_IN input) : SV_Target
 {   
-    float depthValue = depthMapTexture.Sample(shadowSamplerState, input.inTexCoord).r;
     float4 sampleColor = objTexture.Sample(objSamplerState, input.inTexCoord);
     //float3 sampleColor = input.inNormal; 
     float3 appliedLight = float3(0.0f, 0.0f, 0.0f);
     
-    // Point Lights
-    for (float i = 0; i < numPointLights; i++)
+    // Calculate the projected texture coordinates.
+    float2 shadowTexCoords;
+    shadowTexCoords.x = 0.5f + (input.inLightSpacePos.x / input.inLightSpacePos.w * 0.5f);
+    shadowTexCoords.y = 0.5f - (input.inLightSpacePos.y / input.inLightSpacePos.w * 0.5f);
+    
+    // Check if the pixel texture coordinate is in the view frustum of the light before doing any shadow work
+    if ((saturate(shadowTexCoords.x) == shadowTexCoords.x) && (saturate(shadowTexCoords.y) == shadowTexCoords.y))
     {
-        appliedLight += CalculatePointLight(PointLights[i], input.inWorldPos, input.inNormal, gEyePos.xyz);
+        // Sample the shadow map depth value from the depth texture using the sampler at the projected texture coordinate location
+        float depthValue = depthMapTexture.Sample(shadowSamplerState, shadowTexCoords).r;
+        // Calculate the depth of the light.
+        float lightDepthValue = input.inLightSpacePos.z / input.inLightSpacePos.w;
+    
+        // Subtract the bias from the lightDepthValue.
+        lightDepthValue = lightDepthValue - 0.00002f;
+        
+        // Compare the depth of the shadow map value and the depth of the light to determine whether to shadow or to light this pixel.
+        // If the light is in front of the object then light the pixel, if not then shadow this pixel since an object (occluder) is casting a shadow on it.
+        
+        if (lightDepthValue < depthValue)
+        {
+            // Directional Lights
+            for (float i = 0; i < numDirectionalLights; i++)
+            {
+                appliedLight += CalculateDirectionalLight(DirectionalLights[i], input.inWorldPos, input.inNormal, gEyePos.xyz);
+            }
+            
+            //// Point Lights
+            //for (i = 0; i < numPointLights; i++)
+            //{
+            //    appliedLight += CalculatePointLight(PointLights[i], input.inWorldPos, input.inNormal, gEyePos.xyz);
+            //}
+        }
+    }
+    // Can comment out this else clause to see exactly where your shadow map range begins and ends
+    else
+    {
+        //// If this is outside the area of shadow map range then draw things normally with regular lighting.
+        //lightIntensity = saturate(dot(input.normal, lightDir));
+        //if (lightIntensity > 0.0f)
+        //{
+        //    color += (diffuseColor * lightIntensity);
+        //    color = saturate(color);
+        //}
     }
    
-    // Directional Lights
-    for (i = 0; i < numDirectionalLights; i++)
-    {
-        appliedLight += CalculateDirectionalLight(DirectionalLights[i], input.inWorldPos, input.inNormal, gEyePos.xyz);
-    }
-    
     float3 finalColor = sampleColor.xyz * appliedLight;
     return float4(finalColor, 1.0f);
 }
