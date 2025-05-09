@@ -24,10 +24,10 @@ struct VS_IN
 struct VS_OUT
 {
     float4 outPosition : SV_POSITION;
-    float2 outTexCoord : TEXCOORD;
+    float2 outTexCoord : TEXCOORD0;
     float3 outNormal : NORMAL;
     float3 outWorldPos : WORLD_POSITION;
-    float4 outLightSpacePos : POSITION;
+    float4 outLightSpacePos : TEXCOORD1;
 };
 
 
