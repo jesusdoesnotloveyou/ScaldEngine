@@ -25,6 +25,7 @@
     <ClCompile Include="Graphics\Camera\Camera.cpp" />
     <ClCompile Include="Graphics\Light\DirectionalLight.cpp" />
     <ClCompile Include="Graphics\Light\PointLight.cpp" />
+    <ClCompile Include="Graphics\Light\SpotLight.cpp" />
     <ClCompile Include="Graphics\Model.cpp" />
     <ClCompile Include="Graphics\Mesh.cpp" />
     <ClCompile Include="Graphics\Shaders.cpp" />
@@ -61,6 +62,7 @@
     <ClInclude Include="Graphics\Light\DirectionalLight.h" />
     <ClInclude Include="Graphics\Light\LightHelper.h" />
     <ClInclude Include="Graphics\Light\PointLight.h" />
+    <ClInclude Include="Graphics\Light\SpotLight.h" />
     <ClInclude Include="Graphics\Model.h" />
     <ClInclude Include="Graphics\Mesh.h" />
     <ClInclude Include="Graphics\ScaldCoreTypes.h" />
