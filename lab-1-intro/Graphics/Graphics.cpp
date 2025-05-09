@@ -103,7 +103,8 @@ void Graphics::Setup()
 	mTPCamera->SetPerspectiveProjectionValues(90.0f, static_cast<float>(mScreenWidth) / static_cast<float>(mScreenHeight), 0.1f, 3000.0f);
 	mTPCamera->SetOrthographicProjectionValues(static_cast<float>(mScreenWidth), static_cast<float>(mScreenHeight), 0.1f, 3000.0f);
 
-	ThrowIfFailed(mCBPerFrame.Init(mDevice.Get(), mDeviceContext.Get()));
+	ThrowIfFailed(mCBVSPerFrame.Init(mDevice.Get(), mDeviceContext.Get()));
+	ThrowIfFailed(mCBPSPerFrame.Init(mDevice.Get(), mDeviceContext.Get()));
 }
 
 void Graphics::AddToRenderPool(SceneGeometry* sceneObject)
@@ -209,27 +210,38 @@ void Graphics::DrawScene()
 
 	RenderDepthOnlyPass();
 
-	mDeviceContext->RSSetViewports(1u, &currentViewport);
-	// Step 11: Set BackBuffer for Output merger
-	mDeviceContext->OMSetRenderTargets(1u, mRTV.GetAddressOf(), mDSV.Get());
-
 	mDeviceContext->IASetInputLayout(mVertexShader.GetInputLayout());
+	// Step 09: Set Vertex Shaders
+	mDeviceContext->VSSetShader(mVertexShader.Get(), nullptr, 0u);
 
+	// @todo: temporary solution, need a redesign
+#pragma region ConstBufferVSPerFrame
+	ConstBufferVSPerFrame cbVSPerFrame;
+	cbVSPerFrame.gLightViewProjection = XMMatrixTranspose(mDirectionalLights[0]->GetViewMatrix() * mDirectionalLights[0]->GetOrthographicProjectionMatrix());
+	mCBVSPerFrame.SetData(cbVSPerFrame);
+	mCBVSPerFrame.ApplyChanges();
+
+	mDeviceContext->VSSetConstantBuffers(1u, 1u, mCBVSPerFrame.GetAddressOf());
+#pragma endregion ConstBufferVSPerFrame
+
+	mDeviceContext->RSSetViewports(1u, &currentViewport);
 	mDeviceContext->RSSetState(mRasterizerState.Get());
-	mDeviceContext->OMSetDepthStencilState(mDepthStencilState.Get(), 0u);
+
+	// Step 09: Set Pixel Shaders
+	mDeviceContext->PSSetShader(mPixelShader.Get(), nullptr, 0u);
 	mDeviceContext->PSSetSamplers(0u, 1u, mSamplerState.GetAddressOf());
 	mDeviceContext->PSSetSamplers(1u, 1u, mShadowSamplerState.GetAddressOf());
 
 #pragma region ConstBufferPSPerFrame
-	ConstBufferPSPerFrame cbPerFrame;
-	cbPerFrame.gEyePos = mTPCamera->GetPosition();
+	ConstBufferPSPerFrame cbPSPerFrame;
+	cbPSPerFrame.gEyePos = mTPCamera->GetPosition();
 	// should be placed in other const buffer (cause there is no need to update these members every frame
-	cbPerFrame.numPointLights = (float)mPointLightsParameters.size();
-	cbPerFrame.numDirectionalLights = (float)mDirectionalLightParameters.size();
+	cbPSPerFrame.numPointLights = (float)mPointLightsParameters.size();
+	cbPSPerFrame.numDirectionalLights = (float)mDirectionalLightParameters.size();
 
-	mCBPerFrame.SetData(cbPerFrame);
-	mCBPerFrame.ApplyChanges();
-	mDeviceContext->PSSetConstantBuffers(0u, 1u, mCBPerFrame.GetAddressOf());
+	mCBPSPerFrame.SetData(cbPSPerFrame);
+	mCBPSPerFrame.ApplyChanges();
+	mDeviceContext->PSSetConstantBuffers(0u, 1u, mCBPSPerFrame.GetAddressOf());
 #pragma endregion ConstBufferPSPerFrame
 	
 	// Bind shadow map to pixel shader
@@ -246,9 +258,9 @@ void Graphics::DrawScene()
 		mDeviceContext->PSSetShaderResources(3u, 1u, mDirectionalLightShaderResourceView.GetAddressOf());
 	}
 
-	// Step 09: Set Vertex and Pixel Shaders
-	mDeviceContext->VSSetShader(mVertexShader.Get(), nullptr, 0u);
-	mDeviceContext->PSSetShader(mPixelShader.Get(), nullptr, 0u);
+	// Step 11: Set BackBuffer for Output merger
+	mDeviceContext->OMSetRenderTargets(1u, mRTV.GetAddressOf(), mDSV.Get());
+	mDeviceContext->OMSetDepthStencilState(mDepthStencilState.Get(), 0u);
 
 	for (auto actor : mRenderObjects)
 	{
@@ -268,6 +280,7 @@ void Graphics::Update(const ScaldTimer& st)
 	mTPCamera->Update(st);
 	UpdatePointLightParams();
 	UpdateDirectionalLightParams();
+	//UpdateSpotLightParams();
 }
 
 void Graphics::CreateDepthStencilState()
@@ -283,6 +296,8 @@ void Graphics::CreateDepthStencilState()
 
 void Graphics::CreateRasterizerState()
 {
+	//Bias = (float)DepthBias * r + SlopeScaledDepthBias * MaxDepthSlope;
+
 	// Step 10: Setup Rasterizer Stage and Viewport
 	currentViewport.TopLeftX = 0.0f;
 	currentViewport.TopLeftY = 0.0f;
@@ -292,10 +307,12 @@ void Graphics::CreateRasterizerState()
 	currentViewport.MaxDepth = 1.0f;
 
 	CD3D11_RASTERIZER_DESC rastDesc = {};
-	rastDesc.CullMode = D3D11_CULL_BACK;
-	rastDesc.FillMode = D3D11_FILL_WIREFRAME;
 	rastDesc.FillMode = D3D11_FILL_SOLID;
+	rastDesc.CullMode = D3D11_CULL_BACK;
 	rastDesc.FrontCounterClockwise = false;
+	rastDesc.DepthBias;
+	rastDesc.DepthBiasClamp;
+	rastDesc.SlopeScaledDepthBias;
 	ThrowIfFailed(mDevice->CreateRasterizerState(&rastDesc, mRasterizerState.GetAddressOf()));
 }
 
