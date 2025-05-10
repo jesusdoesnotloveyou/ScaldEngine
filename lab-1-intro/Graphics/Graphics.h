@@ -63,6 +63,8 @@ private:
 	void InitPointLight();
 	void InitDirectionalLight();
 	void RenderDepthOnlyPass();
+	// get all 8 vertices of frustrum
+	std::vector<XMVECTOR> GetFrustumCornersWorldSpace(const XMMATRIX& view, const XMMATRIX& projection);
 
 	template<typename T>
 	bool ApplyChanges(ID3D11DeviceContext* deviceContext, ID3D11Buffer* buffer, const std::vector<T>& bufferData)
