@@ -53,7 +53,7 @@ void Engine::SetupScene()
 
 #pragma region Light
 #pragma region PointLight
-	PointLight* light1 = new PointLight("./Data/Models/Light/light.obj");
+	/*PointLight* light1 = new PointLight("./Data/Models/Light/light.obj");
 	light1->GetTransform()->SetPosition(0.0f, 4.0f, 2.0f);
 	light1->GetTransform()->SetRotation(-XM_PIDIV2, 0.0f, 0.0f);
 	light1->SetAmbientColor(1.0f, 1.0f, 1.0f, 0.0f);
@@ -65,18 +65,18 @@ void Engine::SetupScene()
 	light2->GetTransform()->SetRotation(-XM_PIDIV2, 0.0f, 0.0f);
 	light2->SetAmbientColor(1.0f, 1.0f, 1.0f, 0.0f);
 	light2->SetDiffuseColor(0.0f, 0.0f, 1.0f, 5.0f);
-	light2->SetAttenuation(1.0f, 0.1f, 0.1f);
+	light2->SetAttenuation(1.0f, 0.1f, 0.1f);*/
 #pragma endregion PointLight
 
 #pragma region DirectionalLight
 	DirectionalLight* directionalLight = new DirectionalLight("./Data/Models/Light/light.obj");
 	directionalLight->GetTransform()->SetPosition(50.0f, 50.0f, 0.0f);
 	directionalLight->GetCollisionComponent()->DisableCollision();
-	directionalLight->SetAmbientColor(1.0f, 1.0f, 1.0f, 0.9f);
+	directionalLight->SetAmbientColor(1.0f, 1.0f, 1.0f, 1.0f);
 	directionalLight->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
 	directionalLight->GetPosition();
 	// opposite to dir light pos vector
-	directionalLight->SetDirection(-50.0f, -50.0f, 0.0f);
+	directionalLight->SetDirection(-30.0f, -50.0f, 0.0f);
 #pragma endregion DirectionalLight
 
 #pragma endregion Light
@@ -119,7 +119,7 @@ void Engine::SetupScene()
 
 	SceneGeometry* rockFloor = new Actor(rockModel);
 	rockFloor->GetTransform()->SetScale(5.0f, 0.1f, 5.0f);
-	rockFloor->GetTransform()->SetPosition(0.0f, -1.5f, 0.0f);
+	rockFloor->GetTransform()->SetPosition(25.0f, -1.5f, 0.0f);
 	rockFloor->ObjectName = std::string("floor");
 	rockFloor->GetCollisionComponent()->DisableCollision();
 
@@ -165,6 +165,7 @@ void Engine::PollInput()
 #pragma endregion CameraRotation
 
 #pragma region PlayerMovement
+	// @todo: refactoring
 	// Camera forward without Y (XoZ)
 	auto forward = XMVectorSetY(mRenderWindow.GetGfx().GetCamera()->GetForwardVector(), 0.0f);
 	forward = XMVector3Normalize(forward);
@@ -174,13 +175,6 @@ void Engine::PollInput()
 	auto right = XMVectorSetY(mRenderWindow.GetGfx().GetCamera()->GetRightVector(), 0.0f);
 	right = XMVector3Normalize(right);
 	Player->SetRightVector(right);
-	
-	/*if (mRenderWindow.kbd.IsKeyPressed('C'))
-	{
-		XMVECTOR newLightObjectPosition = mRenderWindow.GetGfx().GetCamera()->GetPosition();
-		newLightObjectPosition += mRenderWindow.GetGfx().GetCamera()->GetForwardVector() * 2;
-		mRenderObjects.back()->SetPosition(newLightObjectPosition);
-	}*/
 
 	if (mRenderWindow.kbd.IsKeyPressed(VK_SPACE) && !Player->IsFalling())
 	{
