@@ -122,6 +122,7 @@ float4 main(PS_IN input) : SV_Target
     
     // Calculate the projected texture coordinates.
     float2 shadowTexCoords;
+    // dividing by w isn't necessary with an orthographic projection
     shadowTexCoords.x = 0.5f + (input.inLightSpacePos.x / input.inLightSpacePos.w * 0.5f);
     shadowTexCoords.y = 0.5f - (input.inLightSpacePos.y / input.inLightSpacePos.w * 0.5f);
     
@@ -134,7 +135,7 @@ float4 main(PS_IN input) : SV_Target
         float lightDepthValue = input.inLightSpacePos.z / input.inLightSpacePos.w;
     
         // Subtract the bias from the lightDepthValue.
-        lightDepthValue = lightDepthValue - 0.00002f;
+        lightDepthValue = lightDepthValue - 0.00005f;
         
         // Compare the depth of the shadow map value and the depth of the light to determine whether to shadow or to light this pixel.
         // If the light is in front of the object then light the pixel, if not then shadow this pixel since an object (occluder) is casting a shadow on it.
@@ -147,23 +148,22 @@ float4 main(PS_IN input) : SV_Target
                 appliedLight += CalculateDirectionalLight(DirectionalLights[i], input.inWorldPos, input.inNormal, gEyePos.xyz);
             }
             
-            //// Point Lights
+            // Point Lights
             //for (i = 0; i < numPointLights; i++)
             //{
             //    appliedLight += CalculatePointLight(PointLights[i], input.inWorldPos, input.inNormal, gEyePos.xyz);
             //}
         }
+        else
+        {
+            appliedLight = DirectionalLights[0].ambient;
+        }
     }
     // Can comment out this else clause to see exactly where your shadow map range begins and ends
     else
     {
-        //// If this is outside the area of shadow map range then draw things normally with regular lighting.
-        //lightIntensity = saturate(dot(input.normal, lightDir));
-        //if (lightIntensity > 0.0f)
-        //{
-        //    color += (diffuseColor * lightIntensity);
-        //    color = saturate(color);
-        //}
+        // If this is outside the area of shadow map range then draw things normally with regular lighting.
+        // ambient + diffuse
     }
    
     float3 finalColor = sampleColor.xyz * appliedLight;
