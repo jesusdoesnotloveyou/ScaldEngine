@@ -6,6 +6,7 @@
 Texture2D objTexture : TEXTURE : register(t0);
 //The depthMapTexture is the shadow map. This texture contains the scene depth buffer rendered from the light's perspective.
 Texture2D depthMapTexture : TEXTURE : register(t1);
+//Texture2DArray depthMapTextures : TEXTURE : register(t1);
 
 SamplerState objSamplerState : SAMPLER : register(s0);
 SamplerState shadowSamplerState : SAMPLER : register(s1);
@@ -156,7 +157,7 @@ float4 main(PS_IN input) : SV_Target
         }
         else
         {
-            appliedLight = DirectionalLights[0].ambient;
+            appliedLight = DirectionalLights[0].ambient.xyz;
         }
     }
     // Can comment out this else clause to see exactly where your shadow map range begins and ends
