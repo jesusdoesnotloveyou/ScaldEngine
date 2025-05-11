@@ -106,6 +106,7 @@ void Graphics::Setup()
 
 	ThrowIfFailed(mCBVSPerFrame.Init(mDevice.Get(), mDeviceContext.Get()));
 	ThrowIfFailed(mCBPSPerFrame.Init(mDevice.Get(), mDeviceContext.Get()));
+	ThrowIfFailed(mCBGS.Init(mDevice.Get(), mDeviceContext.Get()));
 }
 
 void Graphics::AddToRenderPool(SceneGeometry* sceneObject)
@@ -392,10 +393,10 @@ void Graphics::SetupShaders()
 	};
 
 	ThrowIfFailed(mShadowVertexShader.Init(mDevice.Get(), inputLayoutShadowDesc, (UINT)std::size(inputLayoutShadowDesc), L"./Shaders/ShadowVertexShader.hlsl"));
+	ThrowIfFailed(mCSMGeometryShader.Init(mDevice.Get(), L"./Shaders/CSMGeometryShader.hlsl"));
 
 	ThrowIfFailed(mVertexShader.Init(mDevice.Get(), inputLayoutDefaultDesc, (UINT)std::size(inputLayoutDefaultDesc), L"./Shaders/VertexShader.hlsl"));
 	ThrowIfFailed(mPixelShader.Init(mDevice.Get(), L"./Shaders/FragmentShader.hlsl"));
-	ThrowIfFailed(mCSMGeometryShader.Init(mDevice.Get(), L"./Shaders/CSMGeometryShader.hlsl"));
 }
 
 void Graphics::InitPointLight()
@@ -432,6 +433,7 @@ void Graphics::RenderDepthOnlyPass()
 	mDeviceContext->PSSetShader(nullptr, nullptr, 0u);
 	// for CSM
 	//mDeviceContext->GSSetShader(mCSMGeometryShader.Get(), nullptr, 0u);
+	//mDeviceContext->GSSetConstantBuffers(0u, 1u, mCBGS.GetAddressOf());
 
 	for (const auto directionalLight : mDirectionalLights)
 	{
@@ -446,7 +448,7 @@ void Graphics::RenderDepthOnlyPass()
 			center += v;
 		}
 
-		center /= frustumCorners.size();
+		center /= (float)frustumCorners.size();
 		const XMFLOAT3 lightDir = directionalLight->GetDirection();
 		const auto lightView = XMMatrixLookAtLH(center, center + XMVectorSet(lightDir.x, lightDir.y, lightDir.z, 1.0f), ScaldMath::UpVector);
 
@@ -473,9 +475,9 @@ void Graphics::RenderDepthOnlyPass()
 		constexpr float zMult = 10.0f;
 
 		minZ = (minZ < 0) ? minZ * zMult : minZ / zMult;
-		maxZ = (maxZ < 0) ? maxZ / zMult : minZ * zMult;
+		maxZ = (maxZ < 0) ? maxZ / zMult : maxZ * zMult;
 
-		auto lightProjection = XMMatrixOrthographicOffCenterLH(minX, maxX, minY, maxY, minZ, maxZ);
+		const auto lightProjection = XMMatrixOrthographicOffCenterLH(minX, maxX, minY, maxY, minZ, maxZ);
 
 		for (auto actor : mRenderObjects)
 		{
@@ -504,7 +506,7 @@ std::vector<XMVECTOR> Graphics::GetFrustumCornersWorldSpace(const XMMATRIX& view
 				const XMVECTOR pt = XMVector4Transform(std::move(XMVectorSet(
 					2.0f * x - 1.0f,
 					2.0f * y - 1.0f,
-					z, 
+					(float)z, 
 					1.0f)), inv);
 				frustumCorners.push_back(pt / XMVectorGetW(pt));
 			}

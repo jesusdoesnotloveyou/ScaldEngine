@@ -64,6 +64,7 @@ private:
 	void InitDirectionalLight();
 	void RenderDepthOnlyPass();
 	// get all 8 vertices of frustrum
+	// probably could be placed in light class
 	std::vector<XMVECTOR> GetFrustumCornersWorldSpace(const XMMATRIX& view, const XMMATRIX& projection);
 
 	template<typename T>
@@ -127,6 +128,7 @@ private:
 #pragma region Light
 	ConstantBuffer<ConstBufferVSPerFrame> mCBVSPerFrame;
 	ConstantBuffer<ConstBufferPSPerFrame> mCBPSPerFrame;
+	ConstantBuffer<ConstBufferGS> mCBGS;
 
 	// need to update members of vector
 	std::vector<PointLightParams> mPointLightsParameters;
