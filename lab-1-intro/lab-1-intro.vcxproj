@@ -22,12 +22,16 @@
     <ClCompile Include="Delegates\Delegates.cpp" />
     <ClCompile Include="Games\Katamari\KatamariMovementComponent.cpp" />
     <ClCompile Include="Games\Katamari\KatamariPlayer.cpp" />
-    <ClCompile Include="Graphics\Camera.cpp" />
+    <ClCompile Include="Graphics\Camera\Camera.cpp" />
+    <ClCompile Include="Graphics\Light\DirectionalLight.cpp" />
+    <ClCompile Include="Graphics\Light\PointLight.cpp" />
+    <ClCompile Include="Graphics\Light\SpotLight.cpp" />
     <ClCompile Include="Graphics\Model.cpp" />
     <ClCompile Include="Graphics\Mesh.cpp" />
     <ClCompile Include="Graphics\Shaders.cpp" />
+    <ClCompile Include="Graphics\Shadows\CascadeShadowMap.cpp" />
     <ClCompile Include="Graphics\Shadows\ShadowMap.cpp" />
-    <ClCompile Include="Graphics\ThirdPersonCamera.cpp" />
+    <ClCompile Include="Graphics\Camera\ThirdPersonCamera.cpp" />
     <ClCompile Include="Objects\Components\Collision\CollisionComponent.cpp" />
     <ClCompile Include="Graphics\IndexBuffer.h" />
     <ClCompile Include="Objects\Components\InputComponent.cpp" />
@@ -55,14 +59,18 @@
     <ClInclude Include="Delegates\Delegates.h" />
     <ClInclude Include="Games\Katamari\KatamariMovementComponent.h" />
     <ClInclude Include="Games\Katamari\KatamariPlayer.h" />
-    <ClInclude Include="Graphics\Camera.h" />
+    <ClInclude Include="Graphics\Camera\Camera.h" />
+    <ClInclude Include="Graphics\Light\DirectionalLight.h" />
     <ClInclude Include="Graphics\Light\LightHelper.h" />
+    <ClInclude Include="Graphics\Light\PointLight.h" />
+    <ClInclude Include="Graphics\Light\SpotLight.h" />
     <ClInclude Include="Graphics\Model.h" />
     <ClInclude Include="Graphics\Mesh.h" />
     <ClInclude Include="Graphics\ScaldCoreTypes.h" />
     <ClInclude Include="Graphics\Shaders.h" />
+    <ClInclude Include="Graphics\Shadows\CascadeShadowMap.h" />
     <ClInclude Include="Graphics\Shadows\ShadowMap.h" />
-    <ClInclude Include="Graphics\ThirdPersonCamera.h" />
+    <ClInclude Include="Graphics\Camera\ThirdPersonCamera.h" />
     <ClInclude Include="Objects\Components\Collision\CollisionComponent.h" />
     <ClInclude Include="Graphics\ConstantBuffer.h" />
     <ClInclude Include="Objects\Components\InputComponent.h" />
@@ -89,6 +97,9 @@
     <ClInclude Include="Graphics\VertexBuffer.h" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="Shaders\CSMGeometryShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Geometry</ShaderType>
+    </FxCompile>
     <FxCompile Include="Shaders\VertexShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Vertex</ShaderType>
@@ -101,7 +112,7 @@
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">main</EntryPointName>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Release|x64'">main</EntryPointName>
     </FxCompile>
-    <FxCompile Include="Shaders\MyVeryThirdShader.hlsl">
+    <FxCompile Include="Shaders\ShadowVertexShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
     </FxCompile>
   </ItemGroup>
@@ -110,6 +121,7 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="packages.config" />
+    <None Include="Shaders\GeometryCSMShader.hlsli" />
     <None Include="Shaders\ShaderTypes.hlsli" />
   </ItemGroup>
   <ItemGroup>

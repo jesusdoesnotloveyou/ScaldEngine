@@ -7,16 +7,20 @@
 #include <wrl.h>
 #include <vector>
 
+#include "../ScaldCore/Engine/ScaldTimer.h"
 #include "Shaders.h"
 #include "ConstantBuffer.h"
-#include "Light/LightHelper.h"
+#include "ScaldCoreTypes.h"
+#include "Shadows/ShadowMap.h"
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dcompiler.lib")
 #pragma comment(lib, "dxgi.lib")
 
 class SceneGeometry;
-class Light;
+class PointLight;
+class DirectionalLight;
+class SpotLight;
 class Camera;
 class ThirdPersonCamera;
 
@@ -30,18 +34,38 @@ public:
 	Graphics& operator=(const Graphics&) = delete;
 	
 	void Setup();
-	void InitSceneObjects(std::vector<SceneGeometry*>& sceneObjects);
-	void AddLightSourceParams(PointLight* lightParams);
-	void UpdateLightParams(SceneGeometry* light);
+	void AddToRenderPool(SceneGeometry* sceneObject);
+	void InitSceneObjects();
+
+#pragma region LightManagment
+	void AddPointLightSourceParams(PointLightParams* lightParams);
+	void UpdatePointLightParams();
+
+	void AddDirectionalLightSourceParams(DirectionalLightParams* lightParams);
+	void UpdateDirectionalLightParams();
+
+	void AddSpotLightSourceParams(SpotLightParams* lightParams);
+	void UpdateSpotLightParams();
+#pragma endregion LightManagment
 
 	void ClearBuffer(float r);
-	void DrawScene(std::vector<SceneGeometry*>& sceneObjects);
+	void DrawScene();
 	void EndFrame();
 
+	void Update(const ScaldTimer& st);
 	FORCEINLINE ThirdPersonCamera* GetCamera() const { return mTPCamera; }
 private:
+	void CreateDepthStencilState();
+	void CreateRasterizerState();
+	void CreateSamplerState();
+
 	void SetupShaders();
-	void SetupLight();
+	void InitPointLight();
+	void InitDirectionalLight();
+	void RenderDepthOnlyPass();
+	// get all 8 vertices of frustrum
+	// probably could be placed in light class
+	std::vector<XMVECTOR> GetFrustumCornersWorldSpace(const XMMATRIX& view, const XMMATRIX& projection);
 
 	template<typename T>
 	bool ApplyChanges(ID3D11DeviceContext* deviceContext, ID3D11Buffer* buffer, const std::vector<T>& bufferData)
@@ -77,39 +101,61 @@ private:
 	}
 
 private:
-	Camera* mCamera = nullptr;
-	ThirdPersonCamera* mTPCamera = nullptr;
-
 	int mScreenWidth;
 	int mScreenHeight;
 	HWND hWnd;
 
+public:
+	std::vector<SceneGeometry*> mRenderObjects;
+private:
+	// temporary, need a LightManager that would control light pool
+	std::vector<PointLight*> mPointLights;
+	std::vector<DirectionalLight*> mDirectionalLights;
+	std::vector<SpotLight*> mSpotLights;
+
+	bool bIsPointLightEnabled = false;
+	bool bIsDirectionalLightEnabled = true;
+	bool bIsSpotLightEnabled = false;
+
+	Camera* mCamera = nullptr;
+	ThirdPersonCamera* mTPCamera = nullptr;
+	
+	VertexShader mShadowVertexShader;
 	VertexShader mVertexShader;
 	PixelShader mPixelShader;
+	GeometryShader mCSMGeometryShader;
 
 #pragma region Light
-	ConstantBuffer<ConstBufferPerFrame> mCB;
+	ConstantBuffer<ConstBufferVSPerFrame> mCBVSPerFrame;
+	ConstantBuffer<ConstBufferPSPerFrame> mCBPSPerFrame;
+	ConstantBuffer<ConstBufferGS> mCBGS;
 
 	// need to update members of vector
-	std::vector<PointLight> mLightsParameters;
+	std::vector<PointLightParams> mPointLightsParameters;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> mPointLightBuffer;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mPointLightShaderResourceView; // structured buffer
 
-	Microsoft::WRL::ComPtr<ID3D11Buffer> mLightBuffer;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mLightShaderResourceView;
+	std::vector<DirectionalLightParams> mDirectionalLightParameters;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> mDirectionalLightBuffer;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mDirectionalLightShaderResourceView; // structured buffer
 #pragma endregion Light
 
 	Microsoft::WRL::ComPtr<ID3D11Device> mDevice;
 	Microsoft::WRL::ComPtr<IDXGISwapChain> mSwapChain;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> mDeviceContext;
-	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> mRtv;
-
+	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> mRTV;
 	// Depth Stencil
 	Microsoft::WRL::ComPtr<ID3D11Texture2D> mDepthStencilBuffer;
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> mDsv;
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> mDSV;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> mDepthStencilState;
-
 	// Rast
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> mRasterizerState;
-
 	// Sampler
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> mSamplerState;
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> mShadowSamplerState;
+
+	D3D11_VIEWPORT currentViewport = {};
+
+	// Shadows
+	ShadowMap* mShadowMap = nullptr;
 };

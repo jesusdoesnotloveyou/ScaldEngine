@@ -1,6 +1,5 @@
 #include "ThirdPersonCamera.h"
-#include "../Objects/Components/TransformComponent.h"
-#include "../Objects/Geometry/SceneGeometry.h"
+#include "../../Objects/Geometry/SceneGeometry.h"
 
 ThirdPersonCamera::ThirdPersonCamera()
 {
@@ -24,6 +23,7 @@ SceneGeometry* ThirdPersonCamera::GetTarget() const
 void ThirdPersonCamera::Update(const ScaldTimer& st)
 {
 	// Update Position
+	// Spherical coordinates to Cartesian
 	const float NewX = XMVectorGetX(mTarget->GetPosition()) + mArmLength * cosf(mPitch) * sinf(mYaw);
 	const float NewY = XMVectorGetY(mTarget->GetPosition()) + mArmLength * sinf(mPitch);
 	const float NewZ = XMVectorGetZ(mTarget->GetPosition()) + mArmLength * cosf(mPitch) * cosf(mYaw);

@@ -1,12 +1,13 @@
 #include "../ScaldException.h"
 #include "Graphics.h"
 #include <chrono>
+#include <algorithm>
 
-#include "Camera.h"
-#include "ThirdPersonCamera.h"
+#include "Camera/ThirdPersonCamera.h"
 #include "../Objects/Geometry/Actor.h"
-#include "Light/LightHelper.h"
-#include "Light/Light.h"
+#include "Light/PointLight.h"
+#include "Light/DirectionalLight.h"
+#include "Light/SpotLight.h"
 
 #include <d3d.h>
 #include <d3d11.h>
@@ -64,7 +65,7 @@ Graphics::Graphics(HWND hWnd, int width, int height)
 	// gain access to texture subresource in swap chain (back buffer)
 	// check MSDN for more info about GetAddressOf, Get, (&) ReleaseAndGetAddressOf
 	ThrowIfFailed(mSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), &pBackTex));
-	ThrowIfFailed(mDevice->CreateRenderTargetView(pBackTex.Get(), nullptr, &mRtv));
+	ThrowIfFailed(mDevice->CreateRenderTargetView(pBackTex.Get(), nullptr, &mRTV));
 
 	// Describe our Depth/Stencil Buffer
 	D3D11_TEXTURE2D_DESC depthStencilTextureDesc;
@@ -81,25 +82,279 @@ Graphics::Graphics(HWND hWnd, int width, int height)
 	depthStencilTextureDesc.MiscFlags = 0u;
 
 	ThrowIfFailed(mDevice->CreateTexture2D(&depthStencilTextureDesc, nullptr, mDepthStencilBuffer.GetAddressOf()));
-	ThrowIfFailed(mDevice->CreateDepthStencilView(mDepthStencilBuffer.Get(), nullptr, mDsv.GetAddressOf()));
+	ThrowIfFailed(mDevice->CreateDepthStencilView(mDepthStencilBuffer.Get(), nullptr, mDSV.GetAddressOf()));
 
-	// Step 11: Set BackBuffer for Output merger
-	mDeviceContext->OMSetRenderTargets(1u, mRtv.GetAddressOf(), mDsv.Get());
-
-	//mCamera = new Camera();
+	mShadowMap = new ShadowMap(mDevice.Get(), 2048u, 2048u);
 	mTPCamera = new ThirdPersonCamera();
 }
 
 Graphics::~Graphics()
 {
-	//if (mCamera) delete mCamera;
 	if (mTPCamera) delete mTPCamera;
+	if (mShadowMap) delete mShadowMap;
+}
+
+void Graphics::Setup()
+{
+	CreateDepthStencilState();
+	CreateRasterizerState();
+	CreateSamplerState();
+
+	// Camera setup
+	mTPCamera->SetPerspectiveProjectionValues(90.0f, static_cast<float>(mScreenWidth) / static_cast<float>(mScreenHeight), 0.1f, 3000.0f);
+	mTPCamera->SetOrthographicProjectionValues(static_cast<float>(mScreenWidth), static_cast<float>(mScreenHeight), 0.1f, 3000.0f);
+
+	ThrowIfFailed(mCBVSPerFrame.Init(mDevice.Get(), mDeviceContext.Get()));
+	ThrowIfFailed(mCBPSPerFrame.Init(mDevice.Get(), mDeviceContext.Get()));
+	ThrowIfFailed(mCBGS.Init(mDevice.Get(), mDeviceContext.Get()));
+}
+
+void Graphics::AddToRenderPool(SceneGeometry* sceneObject)
+{
+	mRenderObjects.push_back(sceneObject);
+
+	const auto lightObject = dynamic_cast<Light*>(sceneObject);
+	if (!lightObject) return;
+
+	if (lightObject->GetLightType() == ELightType::Point)
+	{
+		const auto pointLight = static_cast<PointLight*>(lightObject);
+		mPointLights.push_back(pointLight);
+		AddPointLightSourceParams(pointLight->GetParams());
+	}
+	if (lightObject->GetLightType() == ELightType::Directional)
+	{
+		const auto dirLight = static_cast<DirectionalLight*>(lightObject);
+		mDirectionalLights.push_back(dirLight);
+		AddDirectionalLightSourceParams(dirLight->GetParams());
+	}
+	if (lightObject->GetLightType() == ELightType::Spot)
+	{
+		const auto spotLight = static_cast<SpotLight*>(lightObject);
+		mSpotLights.push_back(spotLight);
+		AddSpotLightSourceParams(spotLight->GetParams());
+	}
+}
+
+void Graphics::InitSceneObjects()
+{
+	if (mRenderObjects.empty()) return; // assert or smth
+
+	SetupShaders();
+	mTPCamera->SetTarget(mRenderObjects[0]);
+
+	if (bIsPointLightEnabled)
+	{
+		InitPointLight();
+	}
+
+	if (bIsDirectionalLightEnabled)
+	{
+		InitDirectionalLight();
+	}
+
+	for (auto sceneObject : mRenderObjects)
+	{
+		sceneObject->Init(mDevice.Get(), mDeviceContext.Get());
+	}
+}
+
+void Graphics::AddPointLightSourceParams(PointLightParams* lightParams)
+{
+	mPointLightsParameters.push_back(*lightParams);
+}
+
+void Graphics::UpdatePointLightParams()
+{
+	if (mPointLights.empty()) return;
+	for (int i = 0; i < mPointLights.size(); i++)
+	{
+		mPointLightsParameters[i] = *mPointLights[i]->GetParams();
+	}
+}
+
+void Graphics::AddDirectionalLightSourceParams(DirectionalLightParams* lightParams)
+{
+	mDirectionalLightParameters.push_back(*lightParams);
+}
+
+void Graphics::UpdateDirectionalLightParams()
+{
+	if (mDirectionalLights.empty()) return;
+	for (int i = 0; i < mDirectionalLights.size(); i++)
+	{
+		mDirectionalLightParameters[i] = *mDirectionalLights[i]->GetParams();
+	}
+}
+
+void Graphics::AddSpotLightSourceParams(SpotLightParams* lightParams)
+{
+
+}
+
+void Graphics::UpdateSpotLightParams()
+{
+
+}
+
+// Before rendering every frame we should clear render target view and depth stencil view
+void Graphics::ClearBuffer(float r)
+{
+	float color[] = { r, 0.0f, 0.0f, 1.0f };
+	mDeviceContext->ClearRenderTargetView(mRTV.Get(), color);
+	mDeviceContext->ClearDepthStencilView(mDSV.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL /*Clearing Both Depth and Stencil*/, 1.0f, 0u);
+	//mDeviceContext->ClearState();
+}
+
+void Graphics::DrawScene()
+{
+	mDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	RenderDepthOnlyPass();
+
+	mDeviceContext->IASetInputLayout(mVertexShader.GetInputLayout());
+
+	// Step 11: Set BackBuffer for Output merger
+	mDeviceContext->OMSetRenderTargets(1u, mRTV.GetAddressOf(), mDSV.Get());
+
+	// Step 09: Set Vertex Shaders
+	mDeviceContext->VSSetShader(mVertexShader.Get(), nullptr, 0u);
+
+	// @todo: temporary solution, need a redesign
+#pragma region ConstBufferVSPerFrame
+	ConstBufferVSPerFrame cbVSPerFrame;
+	cbVSPerFrame.gLightViewProjection = XMMatrixTranspose(mDirectionalLights[0]->GetViewMatrix() * mDirectionalLights[0]->GetOrthographicProjectionMatrix());
+	mCBVSPerFrame.SetData(cbVSPerFrame);
+	mCBVSPerFrame.ApplyChanges();
+
+	mDeviceContext->VSSetConstantBuffers(1u, 1u, mCBVSPerFrame.GetAddressOf());
+#pragma endregion ConstBufferVSPerFrame
+
+	mDeviceContext->RSSetViewports(1u, &currentViewport);
+	mDeviceContext->RSSetState(mRasterizerState.Get());
+
+	mDeviceContext->OMSetDepthStencilState(mDepthStencilState.Get(), 0u);
+
+	// Step 09: Set Pixel Shaders
+	mDeviceContext->PSSetShader(mPixelShader.Get(), nullptr, 0u);
+	mDeviceContext->PSSetSamplers(0u, 1u, mSamplerState.GetAddressOf());
+	mDeviceContext->PSSetSamplers(1u, 1u, mShadowSamplerState.GetAddressOf());
+
+#pragma region ConstBufferPSPerFrame
+	ConstBufferPSPerFrame cbPSPerFrame;
+	cbPSPerFrame.gEyePos = mTPCamera->GetPosition();
+	// should be placed in other const buffer (cause there is no need to update these members every frame
+	cbPSPerFrame.numPointLights = (float)mPointLightsParameters.size();
+	cbPSPerFrame.numDirectionalLights = (float)mDirectionalLightParameters.size();
+
+	mCBPSPerFrame.SetData(cbPSPerFrame);
+	mCBPSPerFrame.ApplyChanges();
+	mDeviceContext->PSSetConstantBuffers(0u, 1u, mCBPSPerFrame.GetAddressOf());
+#pragma endregion ConstBufferPSPerFrame
+	
+	// Bind shadow map to pixel shader
+	mDeviceContext->PSSetShaderResources(1u, 1u, mShadowMap->GetAddressOf());
+
+	if (bIsPointLightEnabled)
+	{
+		ApplyChanges(mDeviceContext.Get(), mPointLightBuffer.Get(), mPointLightsParameters);
+		mDeviceContext->PSSetShaderResources(2u, 1u, mPointLightShaderResourceView.GetAddressOf());
+	}
+	if (bIsDirectionalLightEnabled)
+	{
+		ApplyChanges(mDeviceContext.Get(), mDirectionalLightBuffer.Get(), mDirectionalLightParameters);
+		mDeviceContext->PSSetShaderResources(3u, 1u, mDirectionalLightShaderResourceView.GetAddressOf());
+	}
+
+	for (auto actor : mRenderObjects)
+	{
+		actor->Draw(mTPCamera->GetViewMatrix() * mTPCamera->GetPerspectiveProjectionMatrix());
+	}
+}
+
+void Graphics::EndFrame()
+{
+	// Step 15: At the End of While (!isExitRequested): Present the Result
+	mDeviceContext->OMSetRenderTargets(0, nullptr, nullptr);
+	ThrowIfFailed(mSwapChain->Present(1u, /*DXGI_PRESENT_DO_NOT_WAIT*/ 0u));
+}
+
+void Graphics::Update(const ScaldTimer& st)
+{
+	mTPCamera->Update(st);
+	UpdatePointLightParams();
+	UpdateDirectionalLightParams();
+	//UpdateSpotLightParams();
+}
+
+void Graphics::CreateDepthStencilState()
+{
+	//Create depth stencil state
+	CD3D11_DEPTH_STENCIL_DESC depthStencilDesc;
+	ZeroMemory(&depthStencilDesc, sizeof(CD3D11_DEPTH_STENCIL_DESC));
+	depthStencilDesc.DepthEnable = true;
+	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK::D3D11_DEPTH_WRITE_MASK_ALL;
+	depthStencilDesc.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS_EQUAL;
+	ThrowIfFailed(mDevice->CreateDepthStencilState(&depthStencilDesc, mDepthStencilState.GetAddressOf()));
+}
+
+void Graphics::CreateRasterizerState()
+{
+	//Bias = (float)DepthBias * r + SlopeScaledDepthBias * MaxDepthSlope;
+
+	// Step 10: Setup Rasterizer Stage and Viewport
+	currentViewport.TopLeftX = 0.0f;
+	currentViewport.TopLeftY = 0.0f;
+	currentViewport.Width = static_cast<float>(mScreenWidth);
+	currentViewport.Height = static_cast<float>(mScreenHeight);
+	currentViewport.MinDepth = 0.0f;
+	currentViewport.MaxDepth = 1.0f;
+
+	CD3D11_RASTERIZER_DESC rastDesc = {};
+	rastDesc.FillMode = D3D11_FILL_SOLID;
+	rastDesc.CullMode = D3D11_CULL_BACK;
+	rastDesc.FrontCounterClockwise = false;
+	rastDesc.DepthBias;
+	rastDesc.DepthBiasClamp;
+	rastDesc.SlopeScaledDepthBias;
+	ThrowIfFailed(mDevice->CreateRasterizerState(&rastDesc, mRasterizerState.GetAddressOf()));
+}
+
+void Graphics::CreateSamplerState()
+{
+	D3D11_SAMPLER_DESC sampDesc = {};
+	ZeroMemory(&sampDesc, sizeof(sampDesc));
+	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
+	sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
+	sampDesc.MinLOD = 0;
+	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+	ThrowIfFailed(mDevice->CreateSamplerState(&sampDesc, mSamplerState.GetAddressOf()));
+
+	D3D11_SAMPLER_DESC shadowSampDesc = {};
+	ZeroMemory(&shadowSampDesc, sizeof(shadowSampDesc));
+	shadowSampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
+	shadowSampDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
+	shadowSampDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
+	shadowSampDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
+	shadowSampDesc.MipLODBias = 0.0f;
+	shadowSampDesc.MaxAnisotropy = 1u;
+	shadowSampDesc.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
+	shadowSampDesc.BorderColor[0] = 1.0f;
+	shadowSampDesc.BorderColor[1] = 1.0f;
+	shadowSampDesc.BorderColor[2] = 1.0f;
+	shadowSampDesc.BorderColor[3] = 1.0f;
+	shadowSampDesc.MinLOD = 0.0f;
+	shadowSampDesc.MaxLOD = D3D11_FLOAT32_MAX;
+	ThrowIfFailed(mDevice->CreateSamplerState(&shadowSampDesc, mShadowSamplerState.GetAddressOf()));
 }
 
 void Graphics::SetupShaders()
 {
 	// Step 05: Create Input Layout for IA Stage
-	D3D11_INPUT_ELEMENT_DESC inputElements[] = {
+	D3D11_INPUT_ELEMENT_DESC inputLayoutDefaultDesc[] = {
 		D3D11_INPUT_ELEMENT_DESC {
 			"POSITION",
 			0u,
@@ -126,145 +381,136 @@ void Graphics::SetupShaders()
 			0u}
 	};
 
-	ThrowIfFailed(mVertexShader.Init(mDevice.Get(), inputElements, (UINT)std::size(inputElements)));
-	ThrowIfFailed(mPixelShader.Init(mDevice.Get()));
+	D3D11_INPUT_ELEMENT_DESC inputLayoutShadowDesc[] = {
+		D3D11_INPUT_ELEMENT_DESC {
+			"POSITION",
+			0u,
+			DXGI_FORMAT_R32G32B32A32_FLOAT,
+			0u,
+			0u,
+			D3D11_INPUT_PER_VERTEX_DATA,
+			0u}
+	};
+
+	ThrowIfFailed(mShadowVertexShader.Init(mDevice.Get(), inputLayoutShadowDesc, (UINT)std::size(inputLayoutShadowDesc), L"./Shaders/ShadowVertexShader.hlsl"));
+	ThrowIfFailed(mCSMGeometryShader.Init(mDevice.Get(), L"./Shaders/CSMGeometryShader.hlsl"));
+
+	ThrowIfFailed(mVertexShader.Init(mDevice.Get(), inputLayoutDefaultDesc, (UINT)std::size(inputLayoutDefaultDesc), L"./Shaders/VertexShader.hlsl"));
+	ThrowIfFailed(mPixelShader.Init(mDevice.Get(), L"./Shaders/FragmentShader.hlsl"));
 }
 
-void Graphics::SetupLight()
+void Graphics::InitPointLight()
 {
-	ThrowIfFailed(CreateStructuredBuffer(mDevice.Get(), mLightBuffer.GetAddressOf(), mLightsParameters));
+	ThrowIfFailed(CreateStructuredBuffer(mDevice.Get(), mPointLightBuffer.GetAddressOf(), mPointLightsParameters));
 
 	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
 	srvDesc.Format = DXGI_FORMAT_UNKNOWN;
 	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
 	srvDesc.Buffer.FirstElement = 0u;
-	srvDesc.Buffer.NumElements = (UINT)mLightsParameters.size();
+	srvDesc.Buffer.NumElements = (UINT)mPointLightsParameters.size();
 
-	ThrowIfFailed(mDevice->CreateShaderResourceView(mLightBuffer.Get(), &srvDesc, &mLightShaderResourceView));
+	ThrowIfFailed(mDevice->CreateShaderResourceView(mPointLightBuffer.Get(), &srvDesc, &mPointLightShaderResourceView));
 }
 
-void Graphics::Setup()
+void Graphics::InitDirectionalLight()
 {
-	//Create depth stencil state
-	CD3D11_DEPTH_STENCIL_DESC depthStencilDesc;
-	ZeroMemory(&depthStencilDesc, sizeof(CD3D11_DEPTH_STENCIL_DESC));
-	depthStencilDesc.DepthEnable = true;
-	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK::D3D11_DEPTH_WRITE_MASK_ALL;
-	depthStencilDesc.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS_EQUAL;
-	ThrowIfFailed(mDevice->CreateDepthStencilState(&depthStencilDesc, mDepthStencilState.GetAddressOf()));
+	ThrowIfFailed(CreateStructuredBuffer(mDevice.Get(), mDirectionalLightBuffer.GetAddressOf(), mDirectionalLightParameters));
 
-	// Step 10: Setup Rasterizer Stage and Viewport
-	D3D11_VIEWPORT currentViewport;
-	currentViewport.TopLeftX = 0.0f;
-	currentViewport.TopLeftY = 0.0f;
-	currentViewport.Width = static_cast<float>(mScreenWidth);
-	currentViewport.Height = static_cast<float>(mScreenHeight);
-	currentViewport.MinDepth = 0.0f;
-	currentViewport.MaxDepth = 1.0f;
-	mDeviceContext->RSSetViewports(1u, &currentViewport);
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+	srvDesc.Format = DXGI_FORMAT_UNKNOWN;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
+	srvDesc.Buffer.FirstElement = 0u;
+	srvDesc.Buffer.NumElements = (UINT)mDirectionalLightParameters.size();
 
-	CD3D11_RASTERIZER_DESC rastDesc = {};
-	rastDesc.CullMode = D3D11_CULL_BACK;
-	rastDesc.FillMode = D3D11_FILL_SOLID;
-	rastDesc.FrontCounterClockwise = false;
-	ThrowIfFailed(mDevice->CreateRasterizerState(&rastDesc, mRasterizerState.GetAddressOf()));
-
-	D3D11_SAMPLER_DESC sampDesc = {};
-	ZeroMemory(&sampDesc, sizeof(sampDesc));
-	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-	sampDesc.MinLOD = 0;
-	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
-	ThrowIfFailed(mDevice->CreateSamplerState(&sampDesc, mSamplerState.GetAddressOf()));
-
-	// Camera setup
-	mTPCamera->SetProjectionValues(90.0f, static_cast<float>(mScreenWidth) / static_cast<float>(mScreenHeight), 0.1f, 3000.0f);
-	mTPCamera->SetOrthographicProjectionValues(static_cast<float>(mScreenWidth), static_cast<float>(mScreenHeight), 0.1f, 3000.0f);
-
-	ThrowIfFailed(mCB.Init(mDevice.Get(), mDeviceContext.Get()));
+	ThrowIfFailed(mDevice->CreateShaderResourceView(mDirectionalLightBuffer.Get(), &srvDesc, &mDirectionalLightShaderResourceView));
 }
 
-void Graphics::InitSceneObjects(std::vector<SceneGeometry*>& sceneObjects)
+void Graphics::RenderDepthOnlyPass()
 {
-	SetupShaders();
-	SetupLight();
-	
-	mTPCamera->SetTarget(sceneObjects[0]);
+	mShadowMap->BindDsvAndSetNullRenderTarget(mDeviceContext.Get());
+	mDeviceContext->IASetInputLayout(mShadowVertexShader.GetInputLayout());
+	mDeviceContext->VSSetShader(mShadowVertexShader.Get(), nullptr, 0u);
+	mDeviceContext->PSSetShader(nullptr, nullptr, 0u);
+	// for CSM
+	//mDeviceContext->GSSetShader(mCSMGeometryShader.Get(), nullptr, 0u);
+	//mDeviceContext->GSSetConstantBuffers(0u, 1u, mCBGS.GetAddressOf());
 
-	for (auto sceneObject : sceneObjects)
+	for (const auto directionalLight : mDirectionalLights)
 	{
-		sceneObject->Init(mDevice.Get(), mDeviceContext.Get());
+		const XMMATRIX lightViewMatrix = directionalLight->GetViewMatrix();
+		const XMMATRIX lightProjectionMatrix = directionalLight->GetOrthographicProjectionMatrix();
+
+		const std::vector<XMVECTOR> frustumCorners = GetFrustumCornersWorldSpace(lightViewMatrix, lightProjectionMatrix);
+
+		XMVECTOR center = XMVectorZero();
+		for (const auto& v : frustumCorners)
+		{
+			center += v;
+		}
+
+		center /= (float)frustumCorners.size();
+		const XMFLOAT3 lightDir = directionalLight->GetDirection();
+		const auto lightView = XMMatrixLookAtLH(center, center + XMVectorSet(lightDir.x, lightDir.y, lightDir.z, 1.0f), ScaldMath::UpVector);
+
+		// Measuring cascade
+		float minX = std::numeric_limits<float>::max();
+		float minY = std::numeric_limits<float>::max();
+		float minZ = std::numeric_limits<float>::max();
+		float maxX = std::numeric_limits<float>::lowest();
+		float maxY = std::numeric_limits<float>::lowest();
+		float maxZ = std::numeric_limits<float>::lowest();
+
+		for (const auto& v : frustumCorners)
+		{
+			const auto trf = XMVector4Transform(v, lightView);
+
+			minX = std::min(minX, XMVectorGetX(trf));
+			maxX = std::max(maxX, XMVectorGetX(trf));
+			minY = std::min(minY, XMVectorGetY(trf));
+			maxY = std::max(maxY, XMVectorGetY(trf));
+			minZ = std::min(minZ, XMVectorGetZ(trf));
+			maxZ = std::max(maxZ, XMVectorGetZ(trf));
+		}
+
+		constexpr float zMult = 10.0f;
+
+		minZ = (minZ < 0) ? minZ * zMult : minZ / zMult;
+		maxZ = (maxZ < 0) ? maxZ / zMult : maxZ * zMult;
+
+		const auto lightProjection = XMMatrixOrthographicOffCenterLH(minX, maxX, minY, maxY, minZ, maxZ);
+
+		for (auto actor : mRenderObjects)
+		{
+			actor->Draw(lightViewMatrix * lightProjectionMatrix);
+		}
 	}
 }
 
-void Graphics::AddLightSourceParams(PointLight* lightParams)
+std::vector<XMVECTOR> Graphics::GetFrustumCornersWorldSpace(const XMMATRIX& view, const XMMATRIX& projection)
 {
-	mLightsParameters.push_back(*lightParams);
-}
+	const auto viewProj = view * projection;
 
-void Graphics::UpdateLightParams(SceneGeometry* sceneObject)
-{
-	if (!sceneObject) return;
+	XMVECTOR det;
+	const auto inv = XMMatrixInverse(&det, viewProj);
 
-	auto light = static_cast<Light*>(sceneObject);
+	std::vector<XMVECTOR> frustumCorners;
+	frustumCorners.reserve(8);
 	
-	for (auto& lightParam : mLightsParameters)
+	for (UINT x = 0; x < 2; ++x)
 	{
-		lightParam = *light->GetPointLightParams();
-		return;
+		for (UINT y = 0; y < 2; ++y)
+		{
+			for (UINT z = 0; z < 2; ++z)
+			{
+				// translate NDC coords to world space
+				const XMVECTOR pt = XMVector4Transform(std::move(XMVectorSet(
+					2.0f * x - 1.0f,
+					2.0f * y - 1.0f,
+					(float)z, 
+					1.0f)), inv);
+				frustumCorners.push_back(pt / XMVectorGetW(pt));
+			}
+		}
 	}
-}
-
-void Graphics::DrawScene(std::vector<SceneGeometry*>& sceneObjects)
-{
-	// Step 11: Set BackBuffer for Output merger
-	mDeviceContext->OMSetRenderTargets(1u, mRtv.GetAddressOf(), mDsv.Get());
-
-	mDeviceContext->IASetInputLayout(mVertexShader.GetInputLayout());
-	mDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	mDeviceContext->RSSetState(mRasterizerState.Get());
-	mDeviceContext->OMSetDepthStencilState(mDepthStencilState.Get(), 0);
-	mDeviceContext->PSSetSamplers(0u, 1u, mSamplerState.GetAddressOf());
-
-#pragma region EyePositionToPS
-	ConstBufferPerFrame cbPerFrame{ mTPCamera->GetPosition() };
-	mCB.SetData(cbPerFrame);
-	mCB.ApplyChanges();
-
-	mDeviceContext->PSSetConstantBuffers(1u, 1u, mCB.GetAddressOf());
-#pragma endregion EyePositionToPS
-
-#pragma region SetLight
-	ApplyChanges(mDeviceContext.Get(), mLightBuffer.Get(), mLightsParameters);
-	mDeviceContext->PSSetShaderResources(1u, 1u, mLightShaderResourceView.GetAddressOf());
-#pragma endregion SetLight
-	
-	// Step 09: Set Vertex and Pixel Shaders
-	mDeviceContext->VSSetShader(mVertexShader.Get(), nullptr, 0);
-	mDeviceContext->PSSetShader(mPixelShader.Get(), nullptr, 0);
-
-	for (auto actor : sceneObjects)
-	{
-		actor->Draw(mTPCamera->GetViewMatrix() * mTPCamera->GetProjectionMatrix());
-	}
-}
-
-// Before rendering every frame we should clear render target view and depth stencil view
-void Graphics::ClearBuffer(float r)
-{
-	float color[] = { r, 0.0f, 0.0f, 1.0f };
-	mDeviceContext->ClearRenderTargetView(mRtv.Get(), color);
-	mDeviceContext->ClearDepthStencilView(mDsv.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL /*Clearing Both Depth and Stencil*/, 1.0f, 0u);
-	//mDeviceContext->ClearState();
-}
-
-void Graphics::EndFrame()
-{
-	// Step 15: At the End of While (!isExitRequested): Present the Result
-	mDeviceContext->OMSetRenderTargets(0, nullptr, nullptr);
-	ThrowIfFailed(mSwapChain->Present(1u, /*DXGI_PRESENT_DO_NOT_WAIT*/ 0u));
+	return frustumCorners;
 }

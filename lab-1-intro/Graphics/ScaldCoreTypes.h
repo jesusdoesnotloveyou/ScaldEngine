@@ -6,6 +6,7 @@
 
 #include <DirectXMath.h>
 #include <DirectXColors.h>
+#include "Light/LightHelper.h"
 
 using namespace DirectX;
 
@@ -67,27 +68,27 @@ struct ConstBufferVS
 	XMMATRIX gWorld = XMMatrixIdentity();
 };
 
-struct ConstBufferPS
-{
-	XMFLOAT3 ambientLightColor = { 0.0f, 0.0f, 0.0f };
-	float ambientLightStrength = 0.0f;
-	// 16 bytes
-	XMFLOAT3 dynamicLightColor = { 0.0f, 0.0f, 0.0f };
-	float dynamicLightStrength = 0.0f;
-	// 32 bytes
-	XMFLOAT3 dynamicLightPosition = { 0.0f, 0.0f, 0.0f };
-	
-	float attenuationConstantFactor = 1.0f;
-	// 48 bytes
-	float attenuationLinearFactor = 0.1f;
-	float attenuationExponentialFactor = 0.05f;
-	// 56 bytes
-};
-
 // Light should be here 7.12.2 Luna
-struct ConstBufferPerFrame
+// But I am using structured buffer in Graphics.cpp for lighting
+// It is even much better approach
+struct ConstBufferPSPerFrame
 {
 	XMVECTOR gEyePos = XMVectorZero();
+	// for point or spot lights
+	float numPointLights = 0;
+	float numDirectionalLights = 0;
+	//float numSpotLights = 0;
+};
+
+struct ConstBufferVSPerFrame
+{
+	XMMATRIX gLightViewProjection = XMMatrixIdentity();
+};
+
+struct ConstBufferGS
+{
+	XMMATRIX ViewProj[4];
+	XMVECTOR distances = XMVectorZero();
 };
 
 //struct ConstBufferPS

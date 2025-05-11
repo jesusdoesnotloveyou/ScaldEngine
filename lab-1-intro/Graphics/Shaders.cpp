@@ -4,12 +4,11 @@
 #pragma comment(lib, "d3dcompiler.lib")
 
 /////////////////// VERTEX SHADER ///////////////////
-HRESULT VertexShader::Init(ID3D11Device* mDevice, D3D11_INPUT_ELEMENT_DESC* layoutDesc, UINT numElements)
+HRESULT VertexShader::Init(ID3D11Device* mDevice, D3D11_INPUT_ELEMENT_DESC* layoutDesc, UINT numElements, LPCWSTR pFileName)
 {
     // Step 04: Compile the Shaders
     Microsoft::WRL::ComPtr<ID3DBlob> mErrorVertexCode = nullptr;
-
-    HRESULT hr = D3DCompileFromFile(L"./Shaders/VertexShader.hlsl",
+    HRESULT hr = D3DCompileFromFile(pFileName,
         nullptr /*macros*/,
         nullptr /*include*/,
         "main",
@@ -43,10 +42,10 @@ ID3D11InputLayout* VertexShader::GetInputLayout()
 }
 
 /////////////////// PIXEL SHADER ///////////////////
-HRESULT PixelShader::Init(ID3D11Device* mDevice)
+HRESULT PixelShader::Init(ID3D11Device* mDevice, LPCWSTR pFileName)
 {
     Microsoft::WRL::ComPtr<ID3DBlob> mErrorPixelCode = nullptr;
-    HRESULT hr = D3DCompileFromFile(L"./Shaders/FragmentShader.hlsl",
+    HRESULT hr = D3DCompileFromFile(pFileName,
         nullptr /*macros*/,
         nullptr /*include*/,
         "main",
@@ -67,6 +66,35 @@ ID3D11PixelShader* PixelShader::Get()
 }
 
 ID3DBlob* PixelShader::GetBuffer()
+{
+    return mShaderBuffer.Get();
+}
+
+/////////////////// GEOMETRY SHADER ///////////////////
+HRESULT GeometryShader::Init(ID3D11Device* mDevice, LPCWSTR pFileName)
+{
+    Microsoft::WRL::ComPtr<ID3DBlob> mErrorPixelCode = nullptr;
+    HRESULT hr = D3DCompileFromFile(L"./Shaders/CSMGeometryShader.hlsl",
+        nullptr /*macros*/,
+        nullptr /*include*/,
+        "main",
+        "gs_5_0" /*pixel shader*/,
+        D3DCOMPILE_DEBUG, //| D3DCOMPILE_SKIP_OPTIMIZATION,
+        0u,
+        mShaderBuffer.GetAddressOf(),
+        &mErrorPixelCode);
+
+    if (FAILED(hr)) return hr;
+
+    return mDevice->CreateGeometryShader(mShaderBuffer->GetBufferPointer(), mShaderBuffer->GetBufferSize(), nullptr, &mShader);
+}
+
+ID3D11GeometryShader* GeometryShader::Get()
+{
+    return mShader.Get();
+}
+
+ID3DBlob* GeometryShader::GetBuffer()
 {
     return mShaderBuffer.Get();
 }

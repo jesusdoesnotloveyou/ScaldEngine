@@ -1,5 +1,5 @@
 #include "Camera.h"
-#include "../Objects/Components/TransformComponent.h"
+#include "../../Objects/Components/TransformComponent.h"
 
 Camera::Camera()
 {
@@ -11,15 +11,15 @@ void Camera::Update(const ScaldTimer& st)
 	SceneComponent::Update(st);
 }
 
-void Camera::SetProjectionValues(float fovDegrees, float aspectRatio, float nearZ, float farZ)
+void Camera::SetPerspectiveProjectionValues(float fovDegrees, float aspectRatio, float nearZ, float farZ)
 {
 	const float fovRadians = (fovDegrees / 360.0f) * XM_2PI;
-	mProjectionMatrix = XMMatrixPerspectiveFovLH(fovRadians, aspectRatio, nearZ, farZ);
+	mPerspectiveProjectionMatrix = XMMatrixPerspectiveFovLH(fovRadians, aspectRatio, nearZ, farZ);
 }
 
 void Camera::SetOrthographicProjectionValues(float width, float height, float nearZ, float farZ)
 {
-	mOrthographicMatrix = XMMatrixOrthographicLH(width, height, nearZ, farZ);
+	mOrthographicProjectionMatrix = XMMatrixOrthographicLH(width, height, nearZ, farZ);
 }
 
 const XMMATRIX& Camera::GetViewMatrix() const
@@ -27,14 +27,14 @@ const XMMATRIX& Camera::GetViewMatrix() const
 	return mViewMatrix;
 }
 
-const XMMATRIX& Camera::GetProjectionMatrix() const
+const XMMATRIX& Camera::GetPerspectiveProjectionMatrix() const
 {
-	return mProjectionMatrix;
+	return mPerspectiveProjectionMatrix;
 }
 
 const XMMATRIX& Camera::GetOrthographicProjectionMatrix() const
 {
-	return mOrthographicMatrix;
+	return mOrthographicProjectionMatrix;
 }
 
 void Camera::SetPosition(const XMVECTOR& pos)

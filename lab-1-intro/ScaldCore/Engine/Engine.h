@@ -4,6 +4,9 @@
 #include "ScaldTimer.h"
 
 class KatamariPlayer;
+class SceneGeometry;
+class PointLight;
+class DirectionalLight;
 
 class Engine
 {
@@ -25,7 +28,6 @@ private:
 	float AspectRatio() const;
 
 protected:
-	std::vector<SceneGeometry*> mSceneObjects;
 	RenderWindow mRenderWindow;
 	ScaldTimer mTimer;
 
