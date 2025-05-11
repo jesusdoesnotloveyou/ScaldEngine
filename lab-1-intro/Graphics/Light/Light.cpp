@@ -8,12 +8,10 @@ Light::Light(const std::string& filePath)
     mOrthographicProjectionMatrix(XMMatrixIdentity())
 {
 	modelPath = filePath;
-	LightParams = new PointLight();
 }
 
 Light::~Light() noexcept
 {
-	if (LightParams) delete LightParams;
 }
 
 void Light::Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, const std::string& filePath, const std::wstring& texturePath)
