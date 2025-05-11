@@ -1,6 +1,7 @@
 #include "../ScaldException.h"
 #include "Graphics.h"
 #include <chrono>
+#include <algorithm>
 
 #include "Camera/ThirdPersonCamera.h"
 #include "../Objects/Geometry/Actor.h"
@@ -105,6 +106,7 @@ void Graphics::Setup()
 
 	ThrowIfFailed(mCBVSPerFrame.Init(mDevice.Get(), mDeviceContext.Get()));
 	ThrowIfFailed(mCBPSPerFrame.Init(mDevice.Get(), mDeviceContext.Get()));
+	ThrowIfFailed(mCBGS.Init(mDevice.Get(), mDeviceContext.Get()));
 }
 
 void Graphics::AddToRenderPool(SceneGeometry* sceneObject)
@@ -214,7 +216,6 @@ void Graphics::DrawScene()
 
 	// Step 11: Set BackBuffer for Output merger
 	mDeviceContext->OMSetRenderTargets(1u, mRTV.GetAddressOf(), mDSV.Get());
-	mDeviceContext->OMSetDepthStencilState(mDepthStencilState.Get(), 0u);
 
 	// Step 09: Set Vertex Shaders
 	mDeviceContext->VSSetShader(mVertexShader.Get(), nullptr, 0u);
@@ -231,6 +232,8 @@ void Graphics::DrawScene()
 
 	mDeviceContext->RSSetViewports(1u, &currentViewport);
 	mDeviceContext->RSSetState(mRasterizerState.Get());
+
+	mDeviceContext->OMSetDepthStencilState(mDepthStencilState.Get(), 0u);
 
 	// Step 09: Set Pixel Shaders
 	mDeviceContext->PSSetShader(mPixelShader.Get(), nullptr, 0u);
@@ -390,10 +393,10 @@ void Graphics::SetupShaders()
 	};
 
 	ThrowIfFailed(mShadowVertexShader.Init(mDevice.Get(), inputLayoutShadowDesc, (UINT)std::size(inputLayoutShadowDesc), L"./Shaders/ShadowVertexShader.hlsl"));
+	ThrowIfFailed(mCSMGeometryShader.Init(mDevice.Get(), L"./Shaders/CSMGeometryShader.hlsl"));
 
 	ThrowIfFailed(mVertexShader.Init(mDevice.Get(), inputLayoutDefaultDesc, (UINT)std::size(inputLayoutDefaultDesc), L"./Shaders/VertexShader.hlsl"));
 	ThrowIfFailed(mPixelShader.Init(mDevice.Get(), L"./Shaders/FragmentShader.hlsl"));
-	ThrowIfFailed(mCSMGeometryShader.Init(mDevice.Get(), L"./Shaders/CSMGeometryShader.hlsl"));
 }
 
 void Graphics::InitPointLight()
@@ -426,16 +429,88 @@ void Graphics::RenderDepthOnlyPass()
 {
 	mShadowMap->BindDsvAndSetNullRenderTarget(mDeviceContext.Get());
 	mDeviceContext->IASetInputLayout(mShadowVertexShader.GetInputLayout());
-	mDeviceContext->VSSetShader(mShadowVertexShader.Get(), nullptr, 0);
+	mDeviceContext->VSSetShader(mShadowVertexShader.Get(), nullptr, 0u);
 	mDeviceContext->PSSetShader(nullptr, nullptr, 0u);
 	// for CSM
 	//mDeviceContext->GSSetShader(mCSMGeometryShader.Get(), nullptr, 0u);
+	//mDeviceContext->GSSetConstantBuffers(0u, 1u, mCBGS.GetAddressOf());
 
 	for (const auto directionalLight : mDirectionalLights)
 	{
+		const XMMATRIX lightViewMatrix = directionalLight->GetViewMatrix();
+		const XMMATRIX lightProjectionMatrix = directionalLight->GetOrthographicProjectionMatrix();
+
+		const std::vector<XMVECTOR> frustumCorners = GetFrustumCornersWorldSpace(lightViewMatrix, lightProjectionMatrix);
+
+		XMVECTOR center = XMVectorZero();
+		for (const auto& v : frustumCorners)
+		{
+			center += v;
+		}
+
+		center /= (float)frustumCorners.size();
+		const XMFLOAT3 lightDir = directionalLight->GetDirection();
+		const auto lightView = XMMatrixLookAtLH(center, center + XMVectorSet(lightDir.x, lightDir.y, lightDir.z, 1.0f), ScaldMath::UpVector);
+
+		// Measuring cascade
+		float minX = std::numeric_limits<float>::max();
+		float minY = std::numeric_limits<float>::max();
+		float minZ = std::numeric_limits<float>::max();
+		float maxX = std::numeric_limits<float>::lowest();
+		float maxY = std::numeric_limits<float>::lowest();
+		float maxZ = std::numeric_limits<float>::lowest();
+
+		for (const auto& v : frustumCorners)
+		{
+			const auto trf = XMVector4Transform(v, lightView);
+
+			minX = std::min(minX, XMVectorGetX(trf));
+			maxX = std::max(maxX, XMVectorGetX(trf));
+			minY = std::min(minY, XMVectorGetY(trf));
+			maxY = std::max(maxY, XMVectorGetY(trf));
+			minZ = std::min(minZ, XMVectorGetZ(trf));
+			maxZ = std::max(maxZ, XMVectorGetZ(trf));
+		}
+
+		constexpr float zMult = 10.0f;
+
+		minZ = (minZ < 0) ? minZ * zMult : minZ / zMult;
+		maxZ = (maxZ < 0) ? maxZ / zMult : maxZ * zMult;
+
+		const auto lightProjection = XMMatrixOrthographicOffCenterLH(minX, maxX, minY, maxY, minZ, maxZ);
+
 		for (auto actor : mRenderObjects)
 		{
-			actor->Draw(directionalLight->GetViewMatrix() * directionalLight->GetOrthographicProjectionMatrix());
+			actor->Draw(lightViewMatrix * lightProjectionMatrix);
 		}
 	}
+}
+
+std::vector<XMVECTOR> Graphics::GetFrustumCornersWorldSpace(const XMMATRIX& view, const XMMATRIX& projection)
+{
+	const auto viewProj = view * projection;
+
+	XMVECTOR det;
+	const auto inv = XMMatrixInverse(&det, viewProj);
+
+	std::vector<XMVECTOR> frustumCorners;
+	frustumCorners.reserve(8);
+	
+	for (UINT x = 0; x < 2; ++x)
+	{
+		for (UINT y = 0; y < 2; ++y)
+		{
+			for (UINT z = 0; z < 2; ++z)
+			{
+				// translate NDC coords to world space
+				const XMVECTOR pt = XMVector4Transform(std::move(XMVectorSet(
+					2.0f * x - 1.0f,
+					2.0f * y - 1.0f,
+					(float)z, 
+					1.0f)), inv);
+				frustumCorners.push_back(pt / XMVectorGetW(pt));
+			}
+		}
+	}
+	return frustumCorners;
 }

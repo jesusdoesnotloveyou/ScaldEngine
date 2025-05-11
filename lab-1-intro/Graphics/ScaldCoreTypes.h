@@ -85,6 +85,12 @@ struct ConstBufferVSPerFrame
 	XMMATRIX gLightViewProjection = XMMatrixIdentity();
 };
 
+struct ConstBufferGS
+{
+	XMMATRIX ViewProj[4];
+	XMVECTOR distances = XMVectorZero();
+};
+
 //struct ConstBufferPS
 //{
 //	float alpha = 1.0f;
