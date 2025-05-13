@@ -85,10 +85,18 @@ struct ConstBufferVSPerFrame
 	XMMATRIX gLightViewProjection = XMMatrixIdentity();
 };
 
-struct ConstBufferGS
+// Geometry Shader and Cascade Shadows specific
+// must be divisible by 4
+const UINT CASCADE_NUMBER = 4;
+
+struct CascadesViewProj
 {
-	XMMATRIX ViewProj[4];
-	XMVECTOR distances = XMVectorZero();
+	XMMATRIX ViewProj[CASCADE_NUMBER];
+};
+
+struct CascadesDistances
+{
+	float distances[CASCADE_NUMBER];
 };
 
 //struct ConstBufferPS

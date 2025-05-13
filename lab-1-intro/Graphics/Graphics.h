@@ -11,7 +11,6 @@
 #include "Shaders.h"
 #include "ConstantBuffer.h"
 #include "ScaldCoreTypes.h"
-#include "Shadows/ShadowMap.h"
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "d3dcompiler.lib")
@@ -23,6 +22,7 @@ class DirectionalLight;
 class SpotLight;
 class Camera;
 class ThirdPersonCamera;
+class CascadeShadowMap;
 
 class Graphics
 {
@@ -63,9 +63,15 @@ private:
 	void InitPointLight();
 	void InitDirectionalLight();
 	void RenderDepthOnlyPass();
+	void RenderColorPass();
+
 	// get all 8 vertices of frustrum
-	// probably could be placed in light class
-	std::vector<XMVECTOR> GetFrustumCornersWorldSpace(const XMMATRIX& view, const XMMATRIX& projection);
+	std::vector<XMVECTOR> GetFrustumCornersWorldSpace(const XMMATRIX& viewProjection);
+	std::vector<XMVECTOR> GetFrustumCornersWorldSpace(const XMMATRIX& view, const XMMATRIX& Projection);
+
+	XMMATRIX GetLightSpaceMatrix(const float nearPlane, const float farPlane);
+	// Doubt that't a good idea to return vector of matrices. Should rather pass vector as a parameter probalby and fill it inside function.
+	void GetLightSpaceMatrices(std::vector<XMMATRIX>& outMatrices);
 
 	template<typename T>
 	bool ApplyChanges(ID3D11DeviceContext* deviceContext, ID3D11Buffer* buffer, const std::vector<T>& bufferData)
@@ -119,6 +125,9 @@ private:
 
 	Camera* mCamera = nullptr;
 	ThirdPersonCamera* mTPCamera = nullptr;
+	float mCameraFarZ = 500.0f;
+	float mCameraNearZ = 0.1f;
+	float mFovDegrees = 90.0f;
 	
 	VertexShader mShadowVertexShader;
 	VertexShader mVertexShader;
@@ -128,7 +137,8 @@ private:
 #pragma region Light
 	ConstantBuffer<ConstBufferVSPerFrame> mCBVSPerFrame;
 	ConstantBuffer<ConstBufferPSPerFrame> mCBPSPerFrame;
-	ConstantBuffer<ConstBufferGS> mCBGS;
+	ConstantBuffer<CascadesViewProj> mCBGS_CSM;
+	ConstantBuffer<CascadesDistances> mCBPS_CSM;
 
 	// need to update members of vector
 	std::vector<PointLightParams> mPointLightsParameters;
@@ -157,5 +167,13 @@ private:
 	D3D11_VIEWPORT currentViewport = {};
 
 	// Shadows
-	ShadowMap* mShadowMap = nullptr;
+	CascadeShadowMap* mCascadeShadowMap = nullptr;
+	const std::vector<float> shadowCascadeLevels = { mCameraFarZ * 0.04f, mCameraFarZ * 0.16f, mCameraFarZ * 0.4f };
+	/*for (int i = 0; i < SHADOW_MAP_CASCADE_COUNT; i++) {
+		float p = (i + 1) / (float)(SHADOW_MAP_CASCADE_COUNT);
+		float log = (float)(minZ * pow(ratio, p));  ratio = maxZ/minZ
+		float uniform = minZ + range * p;  range = maxZ-minZ
+		float d = cascadeSplitLambda * (log - uniform) + uniform;	cascadeSplitLambda = 0.95f
+		cascadeSplits[i] = (d - nearClip) / clipRange;*/
+
 };

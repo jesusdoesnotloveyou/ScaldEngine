@@ -1,6 +1,6 @@
 cbuffer cbPerObject : register(b0)
 {
-    matrix gWorldViewProj;
+    matrix gWorldViewProj; // for simple shadow - light, for cascades - nothing
     matrix gWorld;
 }
 
@@ -11,7 +11,7 @@ struct VS_IN
 
 struct VS_OUT
 {
-    float4 outPosition : SV_POSITION;
+    float4 outPosition : POSITION;
 };
 
 VS_OUT main(VS_IN input)

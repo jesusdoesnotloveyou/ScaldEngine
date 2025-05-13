@@ -4,9 +4,7 @@
 //};
 
 Texture2D objTexture : TEXTURE : register(t0);
-//The depthMapTexture is the shadow map. This texture contains the scene depth buffer rendered from the light's perspective.
-Texture2D depthMapTexture : TEXTURE : register(t1);
-//Texture2DArray depthMapTextures : TEXTURE : register(t1);
+Texture2DArray depthMapTextures : register(t1);
 
 SamplerState objSamplerState : SAMPLER : register(s0);
 SamplerState shadowSamplerState : SAMPLER : register(s1);
@@ -43,6 +41,11 @@ cbuffer cbPerFrame : register(b0)
     //float Ks = 0.1f;
     //float shininess = 200.0f;
 };
+
+cbuffer CascBuf : register(b1)
+{
+    float4 distances;
+}
 
 struct PS_IN
 {
@@ -122,7 +125,7 @@ float4 main(PS_IN input) : SV_Target
     float3 appliedLight = float3(0.0f, 0.0f, 0.0f);
     
     // Calculate the projected texture coordinates.
-    float2 shadowTexCoords;
+    float3 shadowTexCoords = { 0.0f, 0.0f, 0.0f };
     // dividing by w isn't necessary with an orthographic projection
     shadowTexCoords.x = 0.5f + (input.inLightSpacePos.x / input.inLightSpacePos.w * 0.5f);
     shadowTexCoords.y = 0.5f - (input.inLightSpacePos.y / input.inLightSpacePos.w * 0.5f);
@@ -131,7 +134,7 @@ float4 main(PS_IN input) : SV_Target
     if ((saturate(shadowTexCoords.x) == shadowTexCoords.x) && (saturate(shadowTexCoords.y) == shadowTexCoords.y))
     {
         // Sample the shadow map depth value from the depth texture using the sampler at the projected texture coordinate location
-        float depthValue = depthMapTexture.Sample(shadowSamplerState, shadowTexCoords).r;
+        float depthValue = depthMapTextures.Sample(shadowSamplerState, shadowTexCoords).r;
         // Calculate the depth of the light.
         float lightDepthValue = input.inLightSpacePos.z / input.inLightSpacePos.w;
     
