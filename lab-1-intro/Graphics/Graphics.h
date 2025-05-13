@@ -71,7 +71,6 @@ private:
 
 	XMMATRIX GetLightSpaceMatrix(const float nearPlane, const float farPlane);
 	// Doubt that't a good idea to return vector of matrices. Should rather pass vector as a parameter probalby and fill it inside function.
-	std::vector<XMMATRIX> GetLightSpaceMatrices();
 	void GetLightSpaceMatrices(std::vector<XMMATRIX>& outMatrices);
 
 	template<typename T>
