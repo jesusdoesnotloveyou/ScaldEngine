@@ -1,8 +1,7 @@
 #pragma once
 
-#include "ShadowMap.h"
-
-const UINT CASCADE_NUMBER = 4;
+#include "d3d11.h"
+#include "../ScaldCoreTypes.h"
 
 class CascadeShadowMap
 {
@@ -11,7 +10,7 @@ public:
 	~CascadeShadowMap() noexcept;
 	ID3D11ShaderResourceView* Get()const;
 	ID3D11ShaderResourceView* const* GetAddressOf()const;
-	void BindDsvAndSetNullRenderTarget(ID3D11DeviceContext* dc);
+	void BindDsvAndSetNullRenderTarget(ID3D11DeviceContext* deviceContext);
 private:
 	CascadeShadowMap(const CascadeShadowMap& lhs);
 	CascadeShadowMap& operator=(const CascadeShadowMap& lhs) = default;
@@ -24,6 +23,4 @@ private:
 	ID3D11ShaderResourceView* mDepthMapSRV;
 	ID3D11DepthStencilView* mDepthMapDSV;
 	D3D11_VIEWPORT mViewport;
-
-	ShadowMap* mCascades[CASCADE_NUMBER];
 };
