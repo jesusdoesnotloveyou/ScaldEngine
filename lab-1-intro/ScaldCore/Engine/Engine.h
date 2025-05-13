@@ -4,9 +4,6 @@
 #include "ScaldTimer.h"
 
 class KatamariPlayer;
-class SceneGeometry;
-class PointLight;
-class DirectionalLight;
 
 class Engine
 {
