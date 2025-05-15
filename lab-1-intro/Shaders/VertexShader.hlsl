@@ -9,9 +9,10 @@ cbuffer cbLightViewProj : register(b1)
     matrix gLightViewProj;
 }
 
+// ratio changed
 cbuffer CBufChangeOnResize : register(b2)
 {
-    matrix mProjection;
+    matrix mProj;
 }
 
 struct VS_IN
