@@ -72,6 +72,7 @@ private:
 	XMMATRIX GetLightSpaceMatrix(const float nearPlane, const float farPlane);
 	// Doubt that't a good idea to return vector of matrices. Should rather pass vector as a parameter probalby and fill it inside function.
 	void GetLightSpaceMatrices(std::vector<XMMATRIX>& outMatrices);
+	void UpdateShadowCascadeSplits();
 
 	template<typename T>
 	bool ApplyChanges(ID3D11DeviceContext* deviceContext, ID3D11Buffer* buffer, const std::vector<T>& bufferData)
@@ -168,12 +169,7 @@ private:
 
 	// Shadows
 	CascadeShadowMap* mCascadeShadowMap = nullptr;
-	const std::vector<float> shadowCascadeLevels = { mCameraFarZ * 0.04f, mCameraFarZ * 0.16f, mCameraFarZ * 0.4f };
-	/*for (int i = 0; i < SHADOW_MAP_CASCADE_COUNT; i++) {
-		float p = (i + 1) / (float)(SHADOW_MAP_CASCADE_COUNT);
-		float log = (float)(minZ * pow(ratio, p));  ratio = maxZ/minZ
-		float uniform = minZ + range * p;  range = maxZ-minZ
-		float d = cascadeSplitLambda * (log - uniform) + uniform;	cascadeSplitLambda = 0.95f
-		cascadeSplits[i] = (d - nearClip) / clipRange;*/
-
+	float cascadeSplitLambda = 0.95f; // idk
+	const std::vector<float> shadowCascadeSplits = { mCameraFarZ * 0.04f, mCameraFarZ * 0.16f, mCameraFarZ * 0.4f };
+	float* shadowCascadeLevels = new float[CASCADE_NUMBER];
 };
