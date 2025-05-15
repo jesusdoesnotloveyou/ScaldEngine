@@ -89,13 +89,9 @@ struct ConstBufferVSPerFrame
 // must be divisible by 4
 const UINT CASCADE_NUMBER = 4;
 
-struct CascadesViewProj
+struct CascadeData
 {
 	XMMATRIX ViewProj[CASCADE_NUMBER];
-};
-
-struct CascadesDistances
-{
 	float distances[CASCADE_NUMBER];
 };
 
