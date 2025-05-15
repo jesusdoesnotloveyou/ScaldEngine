@@ -71,7 +71,7 @@ private:
 
 	XMMATRIX GetLightSpaceMatrix(const float nearPlane, const float farPlane);
 	// Doubt that't a good idea to return vector of matrices. Should rather pass vector as a parameter probalby and fill it inside function.
-	void GetLightSpaceMatrices(std::vector<XMMATRIX>& outMatrices);
+	void GetLightSpaceMatrices();
 	void UpdateShadowCascadeSplits();
 
 	template<typename T>
@@ -138,8 +138,7 @@ private:
 #pragma region Light
 	ConstantBuffer<ConstBufferVSPerFrame> mCBVSPerFrame;
 	ConstantBuffer<ConstBufferPSPerFrame> mCBPSPerFrame;
-	ConstantBuffer<CascadesViewProj> mCBGS_CSM;
-	ConstantBuffer<CascadesDistances> mCBPS_CSM;
+	ConstantBuffer<CascadeData> mCB_CSM;
 
 	// need to update members of vector
 	std::vector<PointLightParams> mPointLightsParameters;
@@ -170,6 +169,6 @@ private:
 	// Shadows
 	CascadeShadowMap* mCascadeShadowMap = nullptr;
 	float cascadeSplitLambda = 0.95f; // idk
-	const std::vector<float> shadowCascadeSplits = { mCameraFarZ * 0.04f, mCameraFarZ * 0.16f, mCameraFarZ * 0.4f };
 	float* shadowCascadeLevels = new float[CASCADE_NUMBER];
+	std::vector<XMMATRIX> lightSpaceMatrices;
 };

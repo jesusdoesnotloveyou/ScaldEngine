@@ -112,8 +112,7 @@ void Graphics::Setup()
 	// constant buffers setup
 	ThrowIfFailed(mCBVSPerFrame.Init(mDevice.Get(), mDeviceContext.Get()));
 	ThrowIfFailed(mCBPSPerFrame.Init(mDevice.Get(), mDeviceContext.Get()));
-	ThrowIfFailed(mCBGS_CSM.Init(mDevice.Get(), mDeviceContext.Get()));
-	ThrowIfFailed(mCBPS_CSM.Init(mDevice.Get(), mDeviceContext.Get()));
+	ThrowIfFailed(mCB_CSM.Init(mDevice.Get(), mDeviceContext.Get()));
 }
 
 void Graphics::AddToRenderPool(SceneGeometry* sceneObject)
@@ -240,19 +239,18 @@ void Graphics::RenderDepthOnlyPass()
 	// usually we have only one dir light source, but i decided to leave it like generic case could be with multiple
 	for (auto dirLight : mDirectionalLights)
 	{
-		CascadesViewProj cbGS_CSM = {};
-
-		std::vector<XMMATRIX> lightSpaceMatrices;
-		GetLightSpaceMatrices(lightSpaceMatrices);
-
+		CascadeData cbGS_CSM = {};
+		GetLightSpaceMatrices();
+		
 		for (UINT i = 0; i < CASCADE_NUMBER; i++)
 		{
 			cbGS_CSM.ViewProj[i] = XMMatrixTranspose(lightSpaceMatrices[i]);
+			cbGS_CSM.distances[i] = 0.0f; // not used on GPU, so filled with zero
 		}
 
-		mCBGS_CSM.SetData(cbGS_CSM);
-		mCBGS_CSM.ApplyChanges();
-		mDeviceContext->GSSetConstantBuffers(0u, 1u, mCBGS_CSM.GetAddressOf());
+		mCB_CSM.SetData(cbGS_CSM);
+		mCB_CSM.ApplyChanges();
+		mDeviceContext->GSSetConstantBuffers(0u, 1u, mCB_CSM.GetAddressOf());
 
 		for (auto actor : mRenderObjects)
 		{
@@ -306,15 +304,16 @@ void Graphics::RenderColorPass()
 	mDeviceContext->PSSetConstantBuffers(0u, 1u, mCBPSPerFrame.GetAddressOf());
 #pragma endregion ConstBufferPSPerFrame
 
-	CascadesDistances cbPS_CSM;
+	CascadeData cbPS_CSM;
 	for (UINT i = 0; i < CASCADE_NUMBER; ++i)
 	{
+		cbPS_CSM.ViewProj[i] = XMMatrixTranspose(lightSpaceMatrices[i]);;
 		cbPS_CSM.distances[i] = shadowCascadeLevels[i];
 	}
-	mCBPS_CSM.SetData(cbPS_CSM);
-	mCBPS_CSM.ApplyChanges();
+	mCB_CSM.SetData(cbPS_CSM);
+	mCB_CSM.ApplyChanges();
 	// send distances for cascades
-	mDeviceContext->PSSetConstantBuffers(1u, 1u, mCBPS_CSM.GetAddressOf());
+	mDeviceContext->PSSetConstantBuffers(1u, 1u, mCB_CSM.GetAddressOf());
 	// Bind shadow map to pixel shader
 	mDeviceContext->PSSetShaderResources(1u, 1u, mCascadeShadowMap->GetAddressOf());
 
@@ -520,21 +519,21 @@ std::vector<XMVECTOR> Graphics::GetFrustumCornersWorldSpace(const XMMATRIX& view
 	return GetFrustumCornersWorldSpace(view * projection);
 }
 
-void Graphics::GetLightSpaceMatrices(std::vector<XMMATRIX>& outMatrices)
+void Graphics::GetLightSpaceMatrices()
 {
 	for (UINT i = 0; i < CASCADE_NUMBER; ++i)
 	{
 		if (i == 0)
 		{
-			outMatrices.push_back(GetLightSpaceMatrix(mCameraNearZ, shadowCascadeLevels[i] * mCameraFarZ));
+			lightSpaceMatrices.push_back(GetLightSpaceMatrix(mCameraNearZ, shadowCascadeLevels[i] * mCameraFarZ));
 		}
 		else if (i < CASCADE_NUMBER - 1)
 		{
-			outMatrices.push_back(GetLightSpaceMatrix(shadowCascadeLevels[i - 1] * mCameraFarZ, shadowCascadeLevels[i] * mCameraFarZ));
+			lightSpaceMatrices.push_back(GetLightSpaceMatrix(shadowCascadeLevels[i - 1] * mCameraFarZ, shadowCascadeLevels[i] * mCameraFarZ));
 		}
 		else
 		{
-			outMatrices.push_back(GetLightSpaceMatrix(shadowCascadeLevels[i - 1] * mCameraFarZ, shadowCascadeLevels[i] * mCameraFarZ));
+			lightSpaceMatrices.push_back(GetLightSpaceMatrix(shadowCascadeLevels[i - 1] * mCameraFarZ, shadowCascadeLevels[i] * mCameraFarZ));
 		}
 	}
 }
