@@ -52,7 +52,7 @@ CascadeShadowMap::CascadeShadowMap(ID3D11Device* device, UINT width, UINT height
 	shaderResourceViewDesc.Texture2DArray.ArraySize = CASCADE_NUMBER;
 	ThrowIfFailed(device->CreateShaderResourceView(depthMapArray, &shaderResourceViewDesc, &mDepthMapSRV));
 
-	/*depthMapArray->Release();*/
+	depthMapArray->Release();
 }
 
 CascadeShadowMap::~CascadeShadowMap() noexcept
