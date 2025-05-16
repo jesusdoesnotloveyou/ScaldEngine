@@ -166,8 +166,9 @@ float4 main(PS_IN input) : SV_Target
     // Check if the pixel texture coordinate is in the view frustum of the light before doing any shadow work
     if (saturate(shadowTexCoords.x) == shadowTexCoords.x && saturate(shadowTexCoords.y) == shadowTexCoords.y)
     {
-        float bias = max(0.005 * (1.0 - dot(input.inNormal, normalize(DirectionalLights[0].direction))), 0.001);
-        float currentDepth = shadowTexCoords.z - bias;
+        float bias = max(0.005f * (1.0f - dot(input.inNormal, -normalize(DirectionalLights[0].direction))), 0.001f);
+        //float currentDepth = shadowTexCoords.z - bias;
+        float currentDepth = shadowTexCoords.z - 0.0001f;
     
         shadow = SampleShadowMap(layer, shadowTexCoords, currentDepth);
         
