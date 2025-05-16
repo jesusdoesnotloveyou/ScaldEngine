@@ -162,13 +162,14 @@ float4 main(PS_IN input) : SV_Target
     // Calculate the projected texture coordinates.
     float3 shadowTexCoords = GetShadowCoords(layer, input.inWorld);
     
+    float shadow = 0.0f;
     // Check if the pixel texture coordinate is in the view frustum of the light before doing any shadow work
     if (saturate(shadowTexCoords.x) == shadowTexCoords.x && saturate(shadowTexCoords.y) == shadowTexCoords.y)
     {
         float bias = max(0.005 * (1.0 - dot(input.inNormal, normalize(DirectionalLights[0].direction))), 0.001);
-        float currentDepth = shadowTexCoords.z - 0.0005f;
+        float currentDepth = shadowTexCoords.z - bias;
     
-        float shadow = SampleShadowMap(layer, shadowTexCoords, currentDepth);
+        shadow = SampleShadowMap(layer, shadowTexCoords, currentDepth);
         
         for (float j = 0; j < numDirectionalLights; j++)
         {
@@ -179,12 +180,12 @@ float4 main(PS_IN input) : SV_Target
         {
             appliedLight += CalculatePointLight(PointLights[i], input.inWorldPos, input.inNormal, gEyePos.xyz);
         }*/
-        
-        float3 finalColor = sampleColor.xyz * appliedLight;
-        return float4(finalColor, 1.0f);
     }
     else
     {
-        return float4(sampleColor.xyz * DirectionalLights[0].ambient.xyz, 1.0f);
+        appliedLight = DirectionalLights[0].ambient.xyz;
     }
+    
+    float3 finalColor = sampleColor.xyz * appliedLight * shadow;
+    return float4(finalColor, 1.0f);
 }
