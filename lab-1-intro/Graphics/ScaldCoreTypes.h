@@ -64,8 +64,9 @@ struct VertexTex
 // Constant buffer types
 struct ConstBufferVS
 {
-	XMMATRIX gWorldViewProj = XMMatrixIdentity();
 	XMMATRIX gWorld = XMMatrixIdentity();
+	XMMATRIX gView = XMMatrixIdentity();
+	XMMATRIX gProjection = XMMatrixIdentity();
 };
 
 // Light should be here 7.12.2 Luna
