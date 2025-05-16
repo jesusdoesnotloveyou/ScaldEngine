@@ -541,7 +541,7 @@ void Graphics::GetLightSpaceMatrices()
 
 XMMATRIX Graphics::GetLightSpaceMatrix(const float nearPlane, const float farPlane)
 {
-	const auto cameraProjectionMatrix = XMMatrixPerspectiveFovLH(XMConvertToRadians(mFovDegrees), static_cast<float>(mScreenWidth) / static_cast<float>(mScreenHeight), nearPlane, farPlane);
+	const auto cameraProjectionMatrix = XMMatrixPerspectiveFovLH(mTPCamera->GetFovRad(), static_cast<float>(mScreenWidth) / static_cast<float>(mScreenHeight), nearPlane, farPlane);
 	const auto frustumCorners = GetFrustumCornersWorldSpace(mTPCamera->GetViewMatrix(), cameraProjectionMatrix);
 
 	XMVECTOR center = XMVectorZero();
