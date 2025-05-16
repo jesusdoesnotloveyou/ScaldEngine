@@ -181,12 +181,24 @@ float4 main(PS_IN input) : SV_Target
         {
             appliedLight += CalculatePointLight(PointLights[i], input.inWorldPos, input.inNormal, gEyePos.xyz);
         }*/
+        
+        appliedLight *= shadow;
+
     }
     else
     {
-        appliedLight = DirectionalLights[0].ambient.xyz;
+        for (float j = 0; j < numDirectionalLights; j++)
+        {
+            appliedLight += CalculateDirectionalLight(DirectionalLights[j], input.inWorld, input.inNormal, gEyePos.xyz);
+        }
+        
+        /*for (i = 0; i < numPointLights; i++)
+        {
+            appliedLight += CalculatePointLight(PointLights[i], input.inWorldPos, input.inNormal, gEyePos.xyz);
+        }*/
     }
     
-    float3 finalColor = sampleColor.xyz * appliedLight * shadow;
+    
+    float3 finalColor = sampleColor.xyz * appliedLight;
     return float4(finalColor, 1.0f);
 }
