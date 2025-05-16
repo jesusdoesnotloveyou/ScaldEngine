@@ -148,21 +148,15 @@ float4 main(PS_IN input) : SV_Target
     float4 sampleColor = objTexture.Sample(objSamplerState, input.inTexCoord);
     float3 appliedLight = float3(0.0f, 0.0f, 0.0f);
     
-    int layer = -1;
-    float viewDepth = abs(input.inWorldView.z / input.inWorldView.w * .5f + .5f);
+    int layer = 3;
+    float viewDepth = abs(input.inWorldView.z / input.inWorldView.w);
     for (int i = 0; i < 4; ++i)
     {
-        if (viewDepth < CascData.Distances[i] * 500.0f)
+        if (viewDepth < CascData.Distances[i])
         {
             layer = i;
             break;
         }
-    }
-    
-    if (layer == -1)
-    {
-        //assign last cascade
-        layer = 3;
     }
     
     // Calculate the projected texture coordinates.
@@ -186,7 +180,7 @@ float4 main(PS_IN input) : SV_Target
             appliedLight += CalculatePointLight(PointLights[i], input.inWorldPos, input.inNormal, gEyePos.xyz);
         }*/
         
-        float3 finalColor = sampleColor.xyz * lerp(DirectionalLights[0].ambient.xyz, appliedLight, shadow);
+        float3 finalColor = sampleColor.xyz * appliedLight;
         return float4(finalColor, 1.0f);
     }
     else

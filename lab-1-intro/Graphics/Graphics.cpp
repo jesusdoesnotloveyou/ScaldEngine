@@ -526,15 +526,15 @@ void Graphics::GetLightSpaceMatrices()
 	{
 		if (i == 0)
 		{
-			lightSpaceMatrices.push_back(GetLightSpaceMatrix(mCameraNearZ, shadowCascadeLevels[i] * mCameraFarZ));
+			lightSpaceMatrices.push_back(GetLightSpaceMatrix(mCameraNearZ, shadowCascadeLevels[i]));
 		}
 		else if (i < CASCADE_NUMBER - 1)
 		{
-			lightSpaceMatrices.push_back(GetLightSpaceMatrix(shadowCascadeLevels[i - 1] * mCameraFarZ, shadowCascadeLevels[i] * mCameraFarZ));
+			lightSpaceMatrices.push_back(GetLightSpaceMatrix(shadowCascadeLevels[i - 1], shadowCascadeLevels[i]));
 		}
 		else
 		{
-			lightSpaceMatrices.push_back(GetLightSpaceMatrix(shadowCascadeLevels[i - 1] * mCameraFarZ, shadowCascadeLevels[i] * mCameraFarZ));
+			lightSpaceMatrices.push_back(GetLightSpaceMatrix(shadowCascadeLevels[i - 1], shadowCascadeLevels[i]));
 		}
 	}
 }
@@ -596,6 +596,6 @@ void Graphics::UpdateShadowCascadeSplits()
 		float log = (float)(minZ * pow(ratio, p));
 		float uniform = minZ + range * p;
 		float d = cascadeSplitLambda * (log - uniform) + uniform;
-		shadowCascadeLevels[i] = (d - mCameraNearZ) / range;
+		shadowCascadeLevels[i] = ((d - mCameraNearZ) / range) * maxZ;
 	}
 }
