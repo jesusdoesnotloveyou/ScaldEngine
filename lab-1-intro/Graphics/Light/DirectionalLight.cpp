@@ -13,6 +13,7 @@ DirectionalLight::~DirectionalLight() noexcept
 
 void DirectionalLight::Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, const std::string& filePath, const std::wstring& texturePath)
 {
+	SetLookAt(LightParams->direction.x, LightParams->direction.y, LightParams->direction.z);
 	Light::Init(pDevice, pDeviceContext, filePath, L"./Data/Textures/brick.png");
 }
 
@@ -22,9 +23,9 @@ void DirectionalLight::Update(const ScaldTimer& st)
 	SetLookAt(LightParams->direction.x, LightParams->direction.y, LightParams->direction.z);
 }
 
-void DirectionalLight::Draw(const XMMATRIX& viewProjectionMatrix)
+void DirectionalLight::Draw(const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix)
 {
-	Light::Draw(viewProjectionMatrix);
+	Light::Draw(viewMatrix, projectionMatrix);
 }
 
 void DirectionalLight::SetAmbientColor(float x, float y, float z, float w)
@@ -52,7 +53,7 @@ XMFLOAT4 DirectionalLight::GetDiffuseColor()
 void DirectionalLight::SetDirection(float x, float y, float z)
 {
 	if (!LightParams) return;
-	LightParams->direction = XMFLOAT3(x, y, z);
+	XMStoreFloat3(&LightParams->direction, XMVector3Normalize(XMVectorSet(x, y, z, 0.0f)));
 }
 
 XMFLOAT3 DirectionalLight::GetDirection()

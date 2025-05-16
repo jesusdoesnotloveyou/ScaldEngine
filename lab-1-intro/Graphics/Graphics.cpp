@@ -1,12 +1,14 @@
 #include "../ScaldException.h"
 #include "Graphics.h"
 #include <chrono>
+#include <algorithm>
 
 #include "Camera/ThirdPersonCamera.h"
 #include "../Objects/Geometry/Actor.h"
 #include "Light/PointLight.h"
 #include "Light/DirectionalLight.h"
 #include "Light/SpotLight.h"
+#include "Shadows/CascadeShadowMap.h"
 
 #include <d3d.h>
 #include <d3d11.h>
@@ -83,14 +85,15 @@ Graphics::Graphics(HWND hWnd, int width, int height)
 	ThrowIfFailed(mDevice->CreateTexture2D(&depthStencilTextureDesc, nullptr, mDepthStencilBuffer.GetAddressOf()));
 	ThrowIfFailed(mDevice->CreateDepthStencilView(mDepthStencilBuffer.Get(), nullptr, mDSV.GetAddressOf()));
 
-	mShadowMap = new ShadowMap(mDevice.Get(), 2048u, 2048u);
+	mCascadeShadowMap = new CascadeShadowMap(mDevice.Get(), 2048u, 2048u);
 	mTPCamera = new ThirdPersonCamera();
 }
 
 Graphics::~Graphics()
 {
 	if (mTPCamera) delete mTPCamera;
-	if (mShadowMap) delete mShadowMap;
+	if (mCascadeShadowMap) delete mCascadeShadowMap;
+	if (shadowCascadeLevels) delete[] shadowCascadeLevels;
 }
 
 void Graphics::Setup()
@@ -100,11 +103,16 @@ void Graphics::Setup()
 	CreateSamplerState();
 
 	// Camera setup
-	mTPCamera->SetPerspectiveProjectionValues(90.0f, static_cast<float>(mScreenWidth) / static_cast<float>(mScreenHeight), 0.1f, 3000.0f);
-	mTPCamera->SetOrthographicProjectionValues(static_cast<float>(mScreenWidth), static_cast<float>(mScreenHeight), 0.1f, 3000.0f);
+	mTPCamera->SetPerspectiveProjectionValues(mFovDegrees, static_cast<float>(mScreenWidth) / static_cast<float>(mScreenHeight), mCameraNearZ, mCameraFarZ);
+	mTPCamera->SetOrthographicProjectionValues(static_cast<float>(mScreenWidth), static_cast<float>(mScreenHeight), mCameraNearZ, mCameraFarZ);
 
+	// for cascade shadows
+	UpdateShadowCascadeSplits();
+
+	// constant buffers setup
 	ThrowIfFailed(mCBVSPerFrame.Init(mDevice.Get(), mDeviceContext.Get()));
 	ThrowIfFailed(mCBPSPerFrame.Init(mDevice.Get(), mDeviceContext.Get()));
+	ThrowIfFailed(mCB_CSM.Init(mDevice.Get(), mDeviceContext.Get()));
 }
 
 void Graphics::AddToRenderPool(SceneGeometry* sceneObject)
@@ -201,20 +209,65 @@ void Graphics::ClearBuffer(float r)
 	float color[] = { r, 0.0f, 0.0f, 1.0f };
 	mDeviceContext->ClearRenderTargetView(mRTV.Get(), color);
 	mDeviceContext->ClearDepthStencilView(mDSV.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL /*Clearing Both Depth and Stencil*/, 1.0f, 0u);
-	//mDeviceContext->ClearState();
 }
 
 void Graphics::DrawScene()
 {
-	mDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
 	RenderDepthOnlyPass();
 
+	mDeviceContext->ClearState();
+
+	RenderColorPass();
+}
+
+void Graphics::RenderDepthOnlyPass()
+{
+	// imporatnt to fix d3d warning
+	ID3D11ShaderResourceView* nullSrv[2] = { nullptr, nullptr };
+	mDeviceContext->PSSetShaderResources(0u, 2u, nullSrv);
+
+	mDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+
+	mCascadeShadowMap->BindDsvAndSetNullRenderTarget(mDeviceContext.Get());
+	mDeviceContext->IASetInputLayout(mShadowVertexShader.GetInputLayout());
+	mDeviceContext->VSSetShader(mShadowVertexShader.Get(), nullptr, 0u);
+	// for CSM
+	mDeviceContext->GSSetShader(mCSMGeometryShader.Get(), nullptr, 0u);
+
+	mDeviceContext->PSSetShader(nullptr, nullptr, 0u);
+
+	// usually we have only one dir light source, but i decided to leave it like generic case could be with multiple
+	for (auto dirLight : mDirectionalLights)
+	{
+		CascadeData cbGS_CSM = {};
+		GetLightSpaceMatrices();
+		
+		for (UINT i = 0; i < CASCADE_NUMBER; i++)
+		{
+			cbGS_CSM.ViewProj[i] = XMMatrixTranspose(lightSpaceMatrices[i]);
+			cbGS_CSM.distances[i] = 0.0f; // not used on GPU, so filled with zero
+		}
+
+		mCB_CSM.SetData(cbGS_CSM);
+		mCB_CSM.ApplyChanges();
+		mDeviceContext->GSSetConstantBuffers(0u, 1u, mCB_CSM.GetAddressOf());
+
+		for (auto actor : mRenderObjects)
+		{
+			if (actor == mDirectionalLights[0]) continue;
+			actor->Draw(XMMatrixIdentity(), XMMatrixIdentity());
+		}
+	}
+}
+
+void Graphics::RenderColorPass()
+{
+	// Have to set primitive topology again, since we call ClearState between passes
+	mDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 	mDeviceContext->IASetInputLayout(mVertexShader.GetInputLayout());
 
 	// Step 11: Set BackBuffer for Output merger
 	mDeviceContext->OMSetRenderTargets(1u, mRTV.GetAddressOf(), mDSV.Get());
-	mDeviceContext->OMSetDepthStencilState(mDepthStencilState.Get(), 0u);
 
 	// Step 09: Set Vertex Shaders
 	mDeviceContext->VSSetShader(mVertexShader.Get(), nullptr, 0u);
@@ -232,6 +285,8 @@ void Graphics::DrawScene()
 	mDeviceContext->RSSetViewports(1u, &currentViewport);
 	mDeviceContext->RSSetState(mRasterizerState.Get());
 
+	mDeviceContext->OMSetDepthStencilState(mDepthStencilState.Get(), 0u);
+
 	// Step 09: Set Pixel Shaders
 	mDeviceContext->PSSetShader(mPixelShader.Get(), nullptr, 0u);
 	mDeviceContext->PSSetSamplers(0u, 1u, mSamplerState.GetAddressOf());
@@ -248,9 +303,20 @@ void Graphics::DrawScene()
 	mCBPSPerFrame.ApplyChanges();
 	mDeviceContext->PSSetConstantBuffers(0u, 1u, mCBPSPerFrame.GetAddressOf());
 #pragma endregion ConstBufferPSPerFrame
+
+	CascadeData cbPS_CSM;
+	for (UINT i = 0; i < CASCADE_NUMBER; ++i)
+	{
+		cbPS_CSM.ViewProj[i] = XMMatrixTranspose(lightSpaceMatrices[i]);;
+		cbPS_CSM.distances[i] = shadowCascadeLevels[i];
+	}
+	mCB_CSM.SetData(cbPS_CSM);
+	mCB_CSM.ApplyChanges();
+	// send cascades data to GPU
+	mDeviceContext->PSSetConstantBuffers(1u, 1u, mCB_CSM.GetAddressOf());
 	
-	// Bind shadow map to pixel shader
-	mDeviceContext->PSSetShaderResources(1u, 1u, mShadowMap->GetAddressOf());
+	// Bind shadow maps from depth pass to pixel shader
+	mDeviceContext->PSSetShaderResources(1u, 1u, mCascadeShadowMap->GetAddressOf());
 
 	if (bIsPointLightEnabled)
 	{
@@ -265,7 +331,7 @@ void Graphics::DrawScene()
 
 	for (auto actor : mRenderObjects)
 	{
-		actor->Draw(mTPCamera->GetViewMatrix() * mTPCamera->GetPerspectiveProjectionMatrix());
+		actor->Draw(mTPCamera->GetViewMatrix(), mTPCamera->GetPerspectiveProjectionMatrix());
 	}
 }
 
@@ -390,10 +456,10 @@ void Graphics::SetupShaders()
 	};
 
 	ThrowIfFailed(mShadowVertexShader.Init(mDevice.Get(), inputLayoutShadowDesc, (UINT)std::size(inputLayoutShadowDesc), L"./Shaders/ShadowVertexShader.hlsl"));
+	ThrowIfFailed(mCSMGeometryShader.Init(mDevice.Get(), L"./Shaders/CSMGeometryShader.hlsl"));
 
 	ThrowIfFailed(mVertexShader.Init(mDevice.Get(), inputLayoutDefaultDesc, (UINT)std::size(inputLayoutDefaultDesc), L"./Shaders/VertexShader.hlsl"));
 	ThrowIfFailed(mPixelShader.Init(mDevice.Get(), L"./Shaders/FragmentShader.hlsl"));
-	ThrowIfFailed(mCSMGeometryShader.Init(mDevice.Get(), L"./Shaders/CSMGeometryShader.hlsl"));
 }
 
 void Graphics::InitPointLight()
@@ -422,20 +488,114 @@ void Graphics::InitDirectionalLight()
 	ThrowIfFailed(mDevice->CreateShaderResourceView(mDirectionalLightBuffer.Get(), &srvDesc, &mDirectionalLightShaderResourceView));
 }
 
-void Graphics::RenderDepthOnlyPass()
+std::vector<XMVECTOR> Graphics::GetFrustumCornersWorldSpace(const XMMATRIX& viewProjection)
 {
-	mShadowMap->BindDsvAndSetNullRenderTarget(mDeviceContext.Get());
-	mDeviceContext->IASetInputLayout(mShadowVertexShader.GetInputLayout());
-	mDeviceContext->VSSetShader(mShadowVertexShader.Get(), nullptr, 0);
-	mDeviceContext->PSSetShader(nullptr, nullptr, 0u);
-	// for CSM
-	//mDeviceContext->GSSetShader(mCSMGeometryShader.Get(), nullptr, 0u);
+	XMVECTOR det;
+	const auto inv = XMMatrixInverse(&det, viewProjection);
 
-	for (const auto directionalLight : mDirectionalLights)
+	std::vector<XMVECTOR> frustumCorners;
+	frustumCorners.reserve(8);
+	
+	for (UINT x = 0; x < 2; ++x)
 	{
-		for (auto actor : mRenderObjects)
+		for (UINT y = 0; y < 2; ++y)
 		{
-			actor->Draw(directionalLight->GetViewMatrix() * directionalLight->GetOrthographicProjectionMatrix());
+			for (UINT z = 0; z < 2; ++z)
+			{
+				// translate NDC coords to world space
+				const XMVECTOR pt = XMVector4Transform(std::move(XMVectorSet(
+					2.0f * x - 1.0f,
+					2.0f * y - 1.0f,
+					(float)z, 
+					1.0f)), inv);
+				frustumCorners.push_back(pt / XMVectorGetW(pt));
+			}
 		}
+	}
+	return frustumCorners;
+}
+
+std::vector<XMVECTOR> Graphics::GetFrustumCornersWorldSpace(const XMMATRIX& view, const XMMATRIX& projection)
+{
+	return GetFrustumCornersWorldSpace(view * projection);
+}
+
+void Graphics::GetLightSpaceMatrices()
+{
+	for (UINT i = 0; i < CASCADE_NUMBER; ++i)
+	{
+		if (i == 0)
+		{
+			lightSpaceMatrices.push_back(GetLightSpaceMatrix(mCameraNearZ, shadowCascadeLevels[i] * mCameraFarZ));
+		}
+		else if (i < CASCADE_NUMBER - 1)
+		{
+			lightSpaceMatrices.push_back(GetLightSpaceMatrix(shadowCascadeLevels[i - 1] * mCameraFarZ, shadowCascadeLevels[i] * mCameraFarZ));
+		}
+		else
+		{
+			lightSpaceMatrices.push_back(GetLightSpaceMatrix(shadowCascadeLevels[i - 1] * mCameraFarZ, shadowCascadeLevels[i] * mCameraFarZ));
+		}
+	}
+}
+
+XMMATRIX Graphics::GetLightSpaceMatrix(const float nearPlane, const float farPlane)
+{
+	const auto cameraProjectionMatrix = XMMatrixPerspectiveFovLH(XMConvertToRadians(mFovDegrees), static_cast<float>(mScreenWidth) / static_cast<float>(mScreenHeight), nearPlane, farPlane);
+	const auto frustumCorners = GetFrustumCornersWorldSpace(mTPCamera->GetViewMatrix(), cameraProjectionMatrix);
+
+	XMVECTOR center = XMVectorZero();
+	for (const auto& v : frustumCorners)
+	{
+		center += v;
+	}
+
+	center /= (float)frustumCorners.size();
+	const XMFLOAT3 lightDir = mDirectionalLights[0]->GetDirection();
+	const auto lightView = XMMatrixLookAtLH(center, center + XMVectorSet(lightDir.x, lightDir.y, lightDir.z, 1.0f), ScaldMath::UpVector);
+
+	// Measuring cascade
+	float minX = std::numeric_limits<float>::max();
+	float minY = std::numeric_limits<float>::max();
+	float minZ = std::numeric_limits<float>::max();
+	float maxX = std::numeric_limits<float>::lowest();
+	float maxY = std::numeric_limits<float>::lowest();
+	float maxZ = std::numeric_limits<float>::lowest();
+
+	for (const auto& v : frustumCorners)
+	{
+		const auto trf = XMVector4Transform(v, lightView);
+		minX = std::min(minX, XMVectorGetX(trf));
+		maxX = std::max(maxX, XMVectorGetX(trf));
+		minY = std::min(minY, XMVectorGetY(trf));
+		maxY = std::max(maxY, XMVectorGetY(trf));
+		minZ = std::min(minZ, XMVectorGetZ(trf));
+		maxZ = std::max(maxZ, XMVectorGetZ(trf));
+	}
+
+	// Tune this parameter according to the scene
+	constexpr float zMult = 10.0f;
+	minZ = (minZ < 0) ? minZ * zMult : minZ / zMult;
+	maxZ = (maxZ < 0) ? maxZ / zMult : maxZ * zMult;
+
+	const auto lightProjection = XMMatrixOrthographicOffCenterLH(minX, maxX, minY, maxY, minZ, maxZ);
+	return lightView * lightProjection;
+}
+
+void Graphics::UpdateShadowCascadeSplits()
+{
+	const float minZ = mCameraNearZ;
+	const float maxZ = mCameraFarZ;
+
+	const float range = maxZ - minZ;
+	const float ratio = maxZ / minZ;
+
+	for (int i = 0; i < CASCADE_NUMBER; i++)
+	{
+		float p = (i + 1) / (float)(CASCADE_NUMBER);
+		float log = (float)(minZ * pow(ratio, p));
+		float uniform = minZ + range * p;
+		float d = cascadeSplitLambda * (log - uniform) + uniform;
+		shadowCascadeLevels[i] = (d - mCameraNearZ) / range;
 	}
 }

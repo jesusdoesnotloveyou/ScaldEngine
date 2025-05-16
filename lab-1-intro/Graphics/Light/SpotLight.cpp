@@ -21,9 +21,9 @@ void SpotLight::Update(const ScaldTimer& st)
 	Light::Update(st);
 }
 
-void SpotLight::Draw(const XMMATRIX& viewProjectionMatrix)
+void SpotLight::Draw(const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix)
 {
-	Light::Draw(viewProjectionMatrix);
+	Light::Draw(viewMatrix, projectionMatrix);
 }
 
 void SpotLight::SetAmbientColor(float x, float y, float z, float w)

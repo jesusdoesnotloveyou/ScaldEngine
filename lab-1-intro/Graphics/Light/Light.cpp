@@ -19,7 +19,7 @@ void Light::Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, con
 	SceneGeometry::Init(pDevice, pDeviceContext, modelPath, texturePath);
 
     GenerateViewMatrix();
-    GenerateOrthographicProjectionMatrix(100.0f * (1600.0f / 900.0f), 100.0f, 0.1f, 1000.0f);
+    GenerateOrthographicProjectionMatrix(100.0f, 100.0f, 0.1f, 500.0f);
 }
 
 void Light::Update(const ScaldTimer& st)
@@ -30,9 +30,9 @@ void Light::Update(const ScaldTimer& st)
     //GenerateOrthographicProjectionMatrix(100.0f, 100.0f, 0.1f, 100.0f);
 }
 
-void Light::Draw(const XMMATRIX& viewProjectionMatrix)
+void Light::Draw(const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix)
 {
-	SceneGeometry::Draw(viewProjectionMatrix);
+	SceneGeometry::Draw(viewMatrix, projectionMatrix);
 }
 
 void Light::SetLookAt(float x, float y, float z)

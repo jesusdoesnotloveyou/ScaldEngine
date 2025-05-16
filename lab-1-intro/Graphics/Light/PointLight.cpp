@@ -22,9 +22,9 @@ void PointLight::Update(const ScaldTimer& st)
 	UpdateParams(st);
 }
 
-void PointLight::Draw(const XMMATRIX& viewProjectionMatrix)
+void PointLight::Draw(const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix)
 {
-	SceneGeometry::Draw(viewProjectionMatrix);
+	SceneGeometry::Draw(viewMatrix, projectionMatrix);
 }
 
 void PointLight::SetAmbientColor(float x, float y, float z, float w)
