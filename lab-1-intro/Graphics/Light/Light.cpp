@@ -30,9 +30,9 @@ void Light::Update(const ScaldTimer& st)
     //GenerateOrthographicProjectionMatrix(100.0f, 100.0f, 0.1f, 100.0f);
 }
 
-void Light::Draw(const XMMATRIX& viewProjectionMatrix)
+void Light::Draw(const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix)
 {
-	SceneGeometry::Draw(viewProjectionMatrix);
+	SceneGeometry::Draw(viewMatrix, projectionMatrix);
 }
 
 void Light::SetLookAt(float x, float y, float z)
