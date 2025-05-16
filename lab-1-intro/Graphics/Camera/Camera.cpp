@@ -13,8 +13,8 @@ void Camera::Update(const ScaldTimer& st)
 
 void Camera::SetPerspectiveProjectionValues(float fovDegrees, float aspectRatio, float nearZ, float farZ)
 {
-	const float fovRadians = (fovDegrees / 360.0f) * XM_2PI;
-	mPerspectiveProjectionMatrix = XMMatrixPerspectiveFovLH(fovRadians, aspectRatio, nearZ, farZ);
+	mFovRadians = (fovDegrees / 360.0f) * XM_2PI;
+	mPerspectiveProjectionMatrix = XMMatrixPerspectiveFovLH(mFovRadians, aspectRatio, nearZ, farZ);
 }
 
 void Camera::SetOrthographicProjectionValues(float width, float height, float nearZ, float farZ)
