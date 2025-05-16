@@ -12,7 +12,7 @@ struct GS_OUT
 struct CascadeData
 {
     matrix ViewProj[4];
-    //float4 Distances;
+    float4 Distances; // not used, so not filled on the CPU side
 };
 
 cbuffer CascBuf : register(b0)

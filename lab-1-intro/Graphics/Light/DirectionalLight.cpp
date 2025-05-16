@@ -23,9 +23,9 @@ void DirectionalLight::Update(const ScaldTimer& st)
 	SetLookAt(LightParams->direction.x, LightParams->direction.y, LightParams->direction.z);
 }
 
-void DirectionalLight::Draw(const XMMATRIX& viewProjectionMatrix)
+void DirectionalLight::Draw(const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix)
 {
-	Light::Draw(viewProjectionMatrix);
+	Light::Draw(viewMatrix, projectionMatrix);
 }
 
 void DirectionalLight::SetAmbientColor(float x, float y, float z, float w)

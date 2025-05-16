@@ -22,7 +22,7 @@ public:
 
 	virtual void Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, const std::string& filePath = "", const std::wstring& texturePath = L"") = 0;
 	virtual void Update(const ScaldTimer& st) = 0;
-	virtual void Draw(const XMMATRIX& viewProjectionMatrix);
+	virtual void Draw(const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix);
 protected:
 	// @todo: From Luna's book
 	void UpdateObjectCBs(const ScaldTimer& st);

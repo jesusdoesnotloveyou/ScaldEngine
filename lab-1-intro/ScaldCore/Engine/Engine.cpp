@@ -46,9 +46,9 @@ void Engine::SetupScene()
 	ModelData* angryBirdModel	= new ModelData("./Data/Models/AngryBird/Angry_Bird.obj",			L"./Data/Models/AngryBird/Angry_Bird.png");
 	ModelData* minionPigModel	= new ModelData("./Data/Models/MinionPig/MinionPig.obj",			L"./Data/Models/MinionPig/AngryBirdsChancho.png");
 	ModelData* marvelModel		= new ModelData("./Data/Models/Marvel/Model.obj",					L"./Data/Textures/planks.png");
-	ModelData* chairModel		= new ModelData("./Data/Models/Chair/monoblock_CHAIR.obj",			L"./Data/Textures/valakas.png");
+	ModelData* chairModel		= new ModelData("./Data/Models/Chair/monoblock_CHAIR.obj",			L"./Data/Textures/planks.png");
 	ModelData* tonyModel		= new ModelData("./Data/Models/Tony/Tony.obj",						L"./Data/Models/Tony/AngryBirdCeleste.png");
-	ModelData* boxModel			= new ModelData("./Data/Models/Box/box2.obj",						L"./Data/Textures/valakas.png");
+	ModelData* boxModel			= new ModelData("./Data/Models/Box/box2.obj",						L"./Data/Textures/brick.png");
 	ModelData* rockModel		= new ModelData("./Data/Models/Rock/rock.obj",						L"./Data/Textures/planks.png");
 
 #pragma region Light
@@ -117,11 +117,11 @@ void Engine::SetupScene()
 	angryBird->ObjectName = std::string("angryBird");
 	angryBird->GetCollisionComponent()->SetRadius(2.0f);
 
-	SceneGeometry* rockFloor = new Actor(rockModel);
-	rockFloor->GetTransform()->SetScale(5.0f, 0.1f, 5.0f);
-	rockFloor->GetTransform()->SetPosition(15.0f, -1.5f, 0.0f);
-	rockFloor->ObjectName = std::string("floor");
-	rockFloor->GetCollisionComponent()->DisableCollision();
+	SceneGeometry* rock = new Actor(rockModel);
+	rock->GetTransform()->SetScale(5.0f, 0.1f, 5.0f);
+	rock->GetTransform()->SetPosition(0.0f, -1.7f, 0.0f);
+	rock->ObjectName = std::string("rock");
+	rock->GetCollisionComponent()->DisableCollision();
 
 	mRenderWindow.GetGfx().AddToRenderPool(Player);
 	mRenderWindow.GetGfx().AddToRenderPool(angryBird);
@@ -129,7 +129,7 @@ void Engine::SetupScene()
 	mRenderWindow.GetGfx().AddToRenderPool(alien);
 	mRenderWindow.GetGfx().AddToRenderPool(chair);
 	mRenderWindow.GetGfx().AddToRenderPool(pig);
-	mRenderWindow.GetGfx().AddToRenderPool(rockFloor);
+	mRenderWindow.GetGfx().AddToRenderPool(rock);
 
 #pragma region DirectionalLight
 	mRenderWindow.GetGfx().AddToRenderPool(directionalLight);
