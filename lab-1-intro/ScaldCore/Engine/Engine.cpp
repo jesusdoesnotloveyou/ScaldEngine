@@ -118,7 +118,7 @@ void Engine::SetupScene()
 	angryBird->GetCollisionComponent()->SetRadius(2.0f);
 
 	SceneGeometry* rock = new Actor(rockModel);
-	rock->GetTransform()->SetScale(5.0f, 0.1f, 5.0f);
+	rock->GetTransform()->SetScale(10.0f, 0.1f, 10.0f);
 	rock->GetTransform()->SetPosition(0.0f, -1.7f, 0.0f);
 	rock->ObjectName = std::string("rock");
 	rock->GetCollisionComponent()->DisableCollision();
