@@ -255,7 +255,7 @@ void Graphics::RenderDepthOnlyPass()
 		for (auto actor : mRenderObjects)
 		{
 			if (actor == mDirectionalLights[0]) continue;
-			actor->Draw(XMMatrixIdentity());
+			actor->Draw(XMMatrixIdentity(), XMMatrixIdentity());
 		}
 	}
 }
@@ -312,9 +312,10 @@ void Graphics::RenderColorPass()
 	}
 	mCB_CSM.SetData(cbPS_CSM);
 	mCB_CSM.ApplyChanges();
-	// send distances for cascades
+	// send cascades data to GPU
 	mDeviceContext->PSSetConstantBuffers(1u, 1u, mCB_CSM.GetAddressOf());
-	// Bind shadow map to pixel shader
+	
+	// Bind shadow maps from depth pass to pixel shader
 	mDeviceContext->PSSetShaderResources(1u, 1u, mCascadeShadowMap->GetAddressOf());
 
 	if (bIsPointLightEnabled)
@@ -330,7 +331,7 @@ void Graphics::RenderColorPass()
 
 	for (auto actor : mRenderObjects)
 	{
-		actor->Draw(mTPCamera->GetViewMatrix() * mTPCamera->GetPerspectiveProjectionMatrix());
+		actor->Draw(mTPCamera->GetViewMatrix(), mTPCamera->GetPerspectiveProjectionMatrix());
 	}
 }
 
