@@ -70,13 +70,12 @@ void Engine::SetupScene()
 
 #pragma region DirectionalLight
 	DirectionalLight* directionalLight = new DirectionalLight("./Data/Models/Light/light.obj");
-	directionalLight->GetTransform()->SetPosition(60.0f, 30.0f, 0.0f);
+	directionalLight->GetTransform()->SetPosition(10.0f, 50.0f, 100.0f);
 	directionalLight->GetCollisionComponent()->DisableCollision();
 	directionalLight->SetAmbientColor(1.0f, 1.0f, 1.0f, 1.0f);
 	directionalLight->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
-	directionalLight->GetPosition();
 	// opposite to dir light pos vector
-	directionalLight->SetDirection(-60.0f, -30.0f, 0.0f);
+	directionalLight->SetDirection(-10.0f, -50.0f, -100.0f);
 #pragma endregion DirectionalLight
 
 #pragma endregion Light
