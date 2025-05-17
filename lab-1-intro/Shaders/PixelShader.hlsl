@@ -9,13 +9,6 @@ Texture2DArray depthMapTextures : register(t1);
 SamplerState objSamplerState : SAMPLER : register(s0);
 SamplerComparisonState shadowSamplerState : SAMPLER : register(s1);
 
-struct Gbuffer
-{
-    float4 DiffuseSpec : SV_Target0;
-    float3 WorldPos : SV_Target1;
-    float3 Normal : SV_Target2;
-};
-
 struct PointLight
 {
     float4 ambient;
