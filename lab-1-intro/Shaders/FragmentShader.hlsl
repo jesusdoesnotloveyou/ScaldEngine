@@ -159,46 +159,55 @@ float4 main(PS_IN input) : SV_Target
         }
     }
     
-    // Calculate the projected texture coordinates.
-    float3 shadowTexCoords = GetShadowCoords(layer, input.inWorld);
-    
-    float shadow = 0.0f;
-    // Check if the pixel texture coordinate is in the view frustum of the light before doing any shadow work
-    if (saturate(shadowTexCoords.x) == shadowTexCoords.x && saturate(shadowTexCoords.y) == shadowTexCoords.y)
-    {
-        float bias = max(0.005f * (1.0f - dot(input.inNormal, -normalize(DirectionalLights[0].direction))), 0.001f);
-        //float currentDepth = shadowTexCoords.z - bias;
-        float currentDepth = shadowTexCoords.z - 0.0001f;
-    
-        shadow = SampleShadowMap(layer, shadowTexCoords, currentDepth);
-        
-        for (float j = 0; j < numDirectionalLights; j++)
-        {
-            appliedLight += CalculateDirectionalLight(DirectionalLights[j], input.inWorld, input.inNormal, gEyePos.xyz);
-        }
-        
-        /*for (i = 0; i < numPointLights; i++)
-        {
-            appliedLight += CalculatePointLight(PointLights[i], input.inWorldPos, input.inNormal, gEyePos.xyz);
-        }*/
-        
-        appliedLight *= shadow;
-
-    }
+    float3 cascadeColor = float3(0.0f, 0.0f, 0.0f);
+    if (layer == 0)
+        cascadeColor = float3(1.5f, 1.0f, 1.0f);
+    else if (layer == 1)
+        cascadeColor = float3(1.0f, 1.5f, 1.0f);
+    else if (layer == 2)
+        cascadeColor = float3(1.5f, 1.0f, 1.5f);
     else
-    {
-        for (float j = 0; j < numDirectionalLights; j++)
+        cascadeColor = float3(1.0f, 1.5f, 1.5f);
+    
+    // Calculate the projected texture coordinates.
+        float3 shadowTexCoords = GetShadowCoords(layer, input.inWorld);
+    
+        float shadow = 0.0f;
+    // Check if the pixel texture coordinate is in the view frustum of the light before doing any shadow work
+        if (saturate(shadowTexCoords.x) == shadowTexCoords.x && saturate(shadowTexCoords.y) == shadowTexCoords.y)
         {
-            appliedLight += CalculateDirectionalLight(DirectionalLights[j], input.inWorld, input.inNormal, gEyePos.xyz);
-        }
+            float bias = max(0.005f * (1.0f - dot(input.inNormal, -normalize(DirectionalLights[0].direction))), 0.001f);
+            //float currentDepth = shadowTexCoords.z - bias;
+            float currentDepth = shadowTexCoords.z - 0.0001f;
+    
+            shadow = SampleShadowMap(layer, shadowTexCoords, currentDepth);
+        
+            for (float j = 0; j < numDirectionalLights; j++)
+            {
+                appliedLight += CalculateDirectionalLight(DirectionalLights[j], input.inWorld, input.inNormal, gEyePos.xyz);
+            }
         
         /*for (i = 0; i < numPointLights; i++)
         {
             appliedLight += CalculatePointLight(PointLights[i], input.inWorldPos, input.inNormal, gEyePos.xyz);
         }*/
+        
+            appliedLight *= shadow;
+
+        }
+        else
+        {
+            for (float j = 0; j < numDirectionalLights; j++)
+            {
+                appliedLight += CalculateDirectionalLight(DirectionalLights[j], input.inWorld, input.inNormal, gEyePos.xyz);
+            }
+        
+        /*for (i = 0; i < numPointLights; i++)
+        {
+            appliedLight += CalculatePointLight(PointLights[i], input.inWorldPos, input.inNormal, gEyePos.xyz);
+        }*/
+        }
+    
+        float3 finalColor = sampleColor.xyz * appliedLight * cascadeColor;
+        return float4(finalColor, 1.0f);
     }
-    
-    
-    float3 finalColor = sampleColor.xyz * appliedLight;
-    return float4(finalColor, 1.0f);
-}
