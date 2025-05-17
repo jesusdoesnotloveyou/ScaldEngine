@@ -213,6 +213,8 @@ void Graphics::ClearBuffer(float r)
 
 void Graphics::DrawScene()
 {
+	// @todo: Render->Draw(); // deferred|forward|forward+
+
 	RenderDepthOnlyPass();
 
 	mDeviceContext->ClearState();
