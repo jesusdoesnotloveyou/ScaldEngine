@@ -457,7 +457,7 @@ void Graphics::SetupShaders()
 	ThrowIfFailed(mCSMGeometryShader.Init(mDevice.Get(), L"./Shaders/CSMGeometryShader.hlsl"));
 
 	ThrowIfFailed(mVertexShader.Init(mDevice.Get(), inputLayoutDefaultDesc, (UINT)std::size(inputLayoutDefaultDesc), L"./Shaders/VertexShader.hlsl"));
-	ThrowIfFailed(mPixelShader.Init(mDevice.Get(), L"./Shaders/FragmentShader.hlsl"));
+	ThrowIfFailed(mPixelShader.Init(mDevice.Get(), L"./Shaders/PixelShader.hlsl"));
 }
 
 void Graphics::InitPointLight()
