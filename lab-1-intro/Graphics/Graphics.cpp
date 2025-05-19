@@ -93,7 +93,6 @@ Graphics::~Graphics()
 {
 	if (mTPCamera) delete mTPCamera;
 	if (mCascadeShadowMap) delete mCascadeShadowMap;
-	if (shadowCascadeLevels) delete[] shadowCascadeLevels;
 }
 
 void Graphics::Setup()
@@ -239,16 +238,16 @@ void Graphics::RenderDepthOnlyPass()
 	// usually we have only one dir light source, but i decided to leave it like generic case could be with multiple
 	for (auto dirLight : mDirectionalLights)
 	{
-		CascadeData cbGS_CSM = {};
-		GetLightSpaceMatrices();
+		std::vector<XMMATRIX> lightSpaceMatrices;
+		GetLightSpaceMatrices(lightSpaceMatrices);
 		
 		for (UINT i = 0; i < CASCADE_NUMBER; i++)
 		{
-			cbGS_CSM.ViewProj[i] = XMMatrixTranspose(lightSpaceMatrices[i]);
-			cbGS_CSM.distances[i] = 0.0f; // not used on GPU, so filled with zero
+			mCSMData.ViewProj[i] = XMMatrixTranspose(lightSpaceMatrices[i]);
+			mCSMData.distances[i] = 0.0f; // not used on GPU, so filled with zero
 		}
 
-		mCB_CSM.SetData(cbGS_CSM);
+		mCB_CSM.SetData(mCSMData);
 		mCB_CSM.ApplyChanges();
 		mDeviceContext->GSSetConstantBuffers(0u, 1u, mCB_CSM.GetAddressOf());
 
@@ -304,13 +303,12 @@ void Graphics::RenderColorPass()
 	mDeviceContext->PSSetConstantBuffers(0u, 1u, mCBPSPerFrame.GetAddressOf());
 #pragma endregion ConstBufferPSPerFrame
 
-	CascadeData cbPS_CSM;
 	for (UINT i = 0; i < CASCADE_NUMBER; ++i)
 	{
-		cbPS_CSM.ViewProj[i] = XMMatrixTranspose(lightSpaceMatrices[i]);;
-		cbPS_CSM.distances[i] = shadowCascadeLevels[i];
+		mCSMData.distances[i] = shadowCascadeLevels[i];
 	}
-	mCB_CSM.SetData(cbPS_CSM);
+
+	mCB_CSM.SetData(mCSMData);
 	mCB_CSM.ApplyChanges();
 	// send cascades data to GPU
 	mDeviceContext->PSSetConstantBuffers(1u, 1u, mCB_CSM.GetAddressOf());
@@ -515,26 +513,21 @@ std::vector<XMVECTOR> Graphics::GetFrustumCornersWorldSpace(const XMMATRIX& view
 	return frustumCorners;
 }
 
-std::vector<XMVECTOR> Graphics::GetFrustumCornersWorldSpace(const XMMATRIX& view, const XMMATRIX& projection)
-{
-	return GetFrustumCornersWorldSpace(view * projection);
-}
-
-void Graphics::GetLightSpaceMatrices()
+void Graphics::GetLightSpaceMatrices(std::vector<XMMATRIX>& outMatrices)
 {
 	for (UINT i = 0; i < CASCADE_NUMBER; ++i)
 	{
 		if (i == 0)
 		{
-			lightSpaceMatrices.push_back(GetLightSpaceMatrix(mCameraNearZ, shadowCascadeLevels[i]));
+			outMatrices.push_back(GetLightSpaceMatrix(mCameraNearZ, shadowCascadeLevels[i]));
 		}
 		else if (i < CASCADE_NUMBER - 1)
 		{
-			lightSpaceMatrices.push_back(GetLightSpaceMatrix(shadowCascadeLevels[i - 1], shadowCascadeLevels[i]));
+			outMatrices.push_back(GetLightSpaceMatrix(shadowCascadeLevels[i - 1], shadowCascadeLevels[i]));
 		}
 		else
 		{
-			lightSpaceMatrices.push_back(GetLightSpaceMatrix(shadowCascadeLevels[i - 1], shadowCascadeLevels[i]));
+			outMatrices.push_back(GetLightSpaceMatrix(shadowCascadeLevels[i - 1], shadowCascadeLevels[i]));
 		}
 	}
 }
@@ -542,7 +535,7 @@ void Graphics::GetLightSpaceMatrices()
 XMMATRIX Graphics::GetLightSpaceMatrix(const float nearPlane, const float farPlane)
 {
 	const auto cameraProjectionMatrix = XMMatrixPerspectiveFovLH(mTPCamera->GetFovRad(), static_cast<float>(mScreenWidth) / static_cast<float>(mScreenHeight), nearPlane, farPlane);
-	const auto frustumCorners = GetFrustumCornersWorldSpace(mTPCamera->GetViewMatrix(), cameraProjectionMatrix);
+	const auto frustumCorners = GetFrustumCornersWorldSpace(mTPCamera->GetViewMatrix() * cameraProjectionMatrix);
 
 	XMVECTOR center = XMVectorZero();
 	for (const auto& v : frustumCorners)

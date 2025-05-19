@@ -177,8 +177,7 @@ float4 main(PS_IN input) : SV_Target
         if (saturate(shadowTexCoords.x) == shadowTexCoords.x && saturate(shadowTexCoords.y) == shadowTexCoords.y)
         {
             float bias = max(0.005f * (1.0f - dot(input.inNormal, -normalize(DirectionalLights[0].direction))), 0.001f);
-            //float currentDepth = shadowTexCoords.z - bias;
-            float currentDepth = shadowTexCoords.z - 0.0001f;
+            float currentDepth = shadowTexCoords.z - bias;
     
             shadow = SampleShadowMap(layer, shadowTexCoords, currentDepth);
         

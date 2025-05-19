@@ -92,6 +92,15 @@ const UINT CASCADE_NUMBER = 4;
 
 struct CascadeData
 {
+	CascadeData() 
+	{
+		for (UINT i = 0; i < CASCADE_NUMBER; i++)
+		{
+			ViewProj[i] = XMMatrixIdentity();
+			distances[i] = 0.0f;
+		}
+	}
+
 	XMMATRIX ViewProj[CASCADE_NUMBER];
 	float distances[CASCADE_NUMBER];
 };
