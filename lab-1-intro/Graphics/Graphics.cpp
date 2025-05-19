@@ -3,6 +3,7 @@
 #include <chrono>
 #include <algorithm>
 
+#include "Render/DeferredRenderer.h"
 #include "Camera/ThirdPersonCamera.h"
 #include "../Objects/Geometry/Actor.h"
 #include "Light/PointLight.h"
@@ -87,6 +88,8 @@ Graphics::Graphics(HWND hWnd, int width, int height)
 
 	mCascadeShadowMap = new CascadeShadowMap(mDevice.Get(), 2048u, 2048u);
 	mTPCamera = new ThirdPersonCamera();
+
+	pRenderer = std::make_unique<DeferredRenderer>(mDevice.Get(), mDeviceContext.Get(), width, height);
 }
 
 Graphics::~Graphics()
