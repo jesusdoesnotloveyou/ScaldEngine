@@ -170,8 +170,4 @@ private:
 	float cascadeSplitLambda = 0.95f; // idk
 	float shadowCascadeLevels[CASCADE_NUMBER] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	CascadeData mCSMData;
-
-	// Renderer
-	// Deferred Rendering
-	std::unique_ptr<DeferredRenderer> pRenderer;
 };
