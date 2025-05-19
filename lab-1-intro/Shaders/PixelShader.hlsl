@@ -167,7 +167,7 @@ float4 main(PS_IN input) : SV_Target
     
         float shadow = 0.0f;
     // Check if the pixel texture coordinate is in the view frustum of the light before doing any shadow work
-        if (saturate(shadowTexCoords.x) == shadowTexCoords.x && saturate(shadowTexCoords.y) == shadowTexCoords.y)
+    if (saturate(shadowTexCoords.x) == shadowTexCoords.x && saturate(shadowTexCoords.y) == shadowTexCoords.y)
         {
             float bias = max(0.005f * (1.0f - dot(input.inNormal, -normalize(DirectionalLights[0].direction))), 0.001f);
             //float currentDepth = shadowTexCoords.z - bias;
@@ -185,7 +185,7 @@ float4 main(PS_IN input) : SV_Target
             appliedLight += CalculatePointLight(PointLights[i], input.inWorldPos, input.inNormal, gEyePos.xyz);
         }*/
         
-            appliedLight *= shadow;
+        appliedLight *= shadow;
 
         }
         else
