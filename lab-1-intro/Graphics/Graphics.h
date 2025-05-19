@@ -70,11 +70,10 @@ private:
 
 	// get all 8 vertices of frustrum
 	std::vector<XMVECTOR> GetFrustumCornersWorldSpace(const XMMATRIX& viewProjection);
-	std::vector<XMVECTOR> GetFrustumCornersWorldSpace(const XMMATRIX& view, const XMMATRIX& Projection);
 
 	XMMATRIX GetLightSpaceMatrix(const float nearPlane, const float farPlane);
 	// Doubt that't a good idea to return vector of matrices. Should rather pass vector as a parameter probalby and fill it inside function.
-	void GetLightSpaceMatrices();
+	void GetLightSpaceMatrices(std::vector<XMMATRIX>& outMatrices);
 	void UpdateShadowCascadeSplits();
 
 	template<typename T>
@@ -172,9 +171,8 @@ private:
 	// Shadows
 	CascadeShadowMap* mCascadeShadowMap = nullptr;
 	float cascadeSplitLambda = 0.95f; // idk
-	float* shadowCascadeLevels = new float[CASCADE_NUMBER];
-	std::vector<XMMATRIX> lightSpaceMatrices;
-
+	float shadowCascadeLevels[CASCADE_NUMBER] = { 0.0f, 0.0f, 0.0f, 0.0f };
+	CascadeData mCSMData;
 	// Renderer
 	// Deferred Rendering
 	std::unique_ptr<DeferredRenderer> pRenderer;
