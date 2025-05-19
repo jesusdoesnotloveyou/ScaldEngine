@@ -34,12 +34,15 @@ public:
 	void SetupAttachment(TransformComponent* transformToAttach);
 	void ClearAttachment();
 	FORCEINLINE bool IsAttached() const { return bIsAttached; }
+
+	FORCEINLINE float GetFovRad() const { return mFovRadians; }
 protected:
 	virtual void UpdateViewMatrix();
 	XMMATRIX mViewMatrix;
 	XMMATRIX mPerspectiveProjectionMatrix;
 	XMMATRIX mOrthographicProjectionMatrix;
 
+	float mFovRadians = 0.0f;
 	float mSpeed = 0.0f;
 	bool bIsAttached = false;
 	//~ End of Camera specific

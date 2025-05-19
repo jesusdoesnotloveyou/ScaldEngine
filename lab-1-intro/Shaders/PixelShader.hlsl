@@ -7,7 +7,14 @@ Texture2D objTexture : TEXTURE : register(t0);
 Texture2DArray depthMapTextures : register(t1);
 
 SamplerState objSamplerState : SAMPLER : register(s0);
-SamplerState shadowSamplerState : SAMPLER : register(s1);
+SamplerComparisonState shadowSamplerState : SAMPLER : register(s1);
+
+struct Gbuffer
+{
+    float4 DiffuseSpec : SV_Target0;
+    float3 WorldPos : SV_Target1;
+    float3 Normal : SV_Target2;
+};
 
 struct PointLight
 {
@@ -42,9 +49,15 @@ cbuffer cbPerFrame : register(b0)
     //float shininess = 200.0f;
 };
 
+struct CascadeData
+{
+    matrix ViewProj[4];
+    float4 Distances; // not used, so not filled on the CPU side
+};
+
 cbuffer CascBuf : register(b1)
 {
-    float4 distances;
+    CascadeData CascData;
 }
 
 struct PS_IN
@@ -52,9 +65,23 @@ struct PS_IN
     float4 inPosition : SV_POSITION;
     float2 inTexCoord : TEXCOORD0;
     float3 inNormal : NORMAL;
-    float3 inWorldPos: WORLD_POSITION;
+    float3 inWorld : WORLD_POSITION;
+    float4 inWorldView : POSITION;
     float4 inLightSpacePos : TEXCOORD1;
 };
+
+float SampleShadowMap(int layer, float3 uvw, float depth)
+{
+    return depthMapTextures.SampleCmp(shadowSamplerState, float3(uvw.xy, layer), depth).r;
+}
+
+float3 GetShadowCoords(int layer, float3 worldPos)
+{
+    float4 coords = mul(float4(worldPos, 1.0f), CascData.ViewProj[layer]);
+    coords.xyz /= coords.w;
+    coords.xy = coords.xy * float2(0.5f, -0.5f) + float2(0.5f, 0.5f);
+    return coords.xyz;
+}
 
 float3 CalculatePointLight(PointLight light, uniform float3 posW, uniform float3 normal, uniform float3 toEye)
 {
@@ -66,7 +93,6 @@ float3 CalculatePointLight(PointLight light, uniform float3 posW, uniform float3
     float3 attenuation = light.attenuation;
     float4 ambient = light.ambient;
     float4 diffuse = light.diffuse;
-    //
     
     // necessary vectors
     float3 viewDir = normalize(toEye - posW);
@@ -74,6 +100,7 @@ float3 CalculatePointLight(PointLight light, uniform float3 posW, uniform float3
     float3 reflectLight = normalize(reflect(-lightVector, normal));
     
     // dividing by numPointLights to avoid overexposure due to cumulative effect of ambient light
+    // ambient component will be removed further (deffered shading)
     float3 ambientLight = ambient.xyz * (ambient.w / numPointLights);
     //float3 diffuseLightIntensity = (dot(lightVector, normal)); // for testing: more explicit view of light propagation
     float3 diffuseLightIntensity = saturate(max(dot(lightVector, normal), 0.0f));
@@ -91,7 +118,6 @@ float3 CalculatePointLight(PointLight light, uniform float3 posW, uniform float3
 
 float3 CalculateDirectionalLight(DirectionalLight light, uniform float3 posW, uniform float3 normal, uniform float3 toEye)
 {
-    // return vec init
     float3 appliedLight = float3(0.0f, 0.0f, 0.0f);
     
      // from structured buffer
@@ -99,14 +125,13 @@ float3 CalculateDirectionalLight(DirectionalLight light, uniform float3 posW, un
     float4 ambient = light.ambient;
     float4 diffuse = light.diffuse;
     float4 specular = light.specular;
-    //
     
     // necessary vectors
     float3 viewDir = normalize(toEye - posW);
     float3 lightVector = normalize(lightDir);
     float3 reflectLight = normalize(reflect(-lightVector, normal));
     
-    // overexposure if there are some directional light sources
+    // overexposure if there are a number of directional light sources
     float3 ambientLight = ambient.xyz * ambient.w;
     float3 diffuseLightIntensity = saturate(max(dot(lightVector, normal), 0.0f));
     float3 diffuseLight = diffuseLightIntensity * diffuse.xyz * diffuse.w;
@@ -119,57 +144,69 @@ float3 CalculateDirectionalLight(DirectionalLight light, uniform float3 posW, un
 }
 
 float4 main(PS_IN input) : SV_Target
-{   
+{
     float4 sampleColor = objTexture.Sample(objSamplerState, input.inTexCoord);
-    //float3 sampleColor = input.inNormal; 
     float3 appliedLight = float3(0.0f, 0.0f, 0.0f);
     
-    // Calculate the projected texture coordinates.
-    float3 shadowTexCoords = { 0.0f, 0.0f, 0.0f };
-    // dividing by w isn't necessary with an orthographic projection
-    shadowTexCoords.x = 0.5f + (input.inLightSpacePos.x / input.inLightSpacePos.w * 0.5f);
-    shadowTexCoords.y = 0.5f - (input.inLightSpacePos.y / input.inLightSpacePos.w * 0.5f);
-    
-    // Check if the pixel texture coordinate is in the view frustum of the light before doing any shadow work
-    if ((saturate(shadowTexCoords.x) == shadowTexCoords.x) && (saturate(shadowTexCoords.y) == shadowTexCoords.y))
+    int layer = 3;
+    float viewDepth = abs(input.inWorldView.z / input.inWorldView.w);
+    for (int i = 0; i < 4; ++i)
     {
-        // Sample the shadow map depth value from the depth texture using the sampler at the projected texture coordinate location
-        float depthValue = depthMapTextures.Sample(shadowSamplerState, shadowTexCoords).r;
-        // Calculate the depth of the light.
-        float lightDepthValue = input.inLightSpacePos.z / input.inLightSpacePos.w;
-    
-        // Subtract the bias from the lightDepthValue.
-        lightDepthValue = lightDepthValue - 0.00005f;
-        
-        // Compare the depth of the shadow map value and the depth of the light to determine whether to shadow or to light this pixel.
-        // If the light is in front of the object then light the pixel, if not then shadow this pixel since an object (occluder) is casting a shadow on it.
-        
-        if (lightDepthValue < depthValue)
+        if (viewDepth < CascData.Distances[i])
         {
-            // Directional Lights
-            for (float i = 0; i < numDirectionalLights; i++)
+            layer = i;
+            break;
+        }
+    }
+    
+    float3 cascadeColor = float3(0.0f, 0.0f, 0.0f);
+    if (layer == 0)
+        cascadeColor = float3(1.5f, 1.0f, 1.0f);
+    else if (layer == 1)
+        cascadeColor = float3(1.0f, 1.5f, 1.0f);
+    else if (layer == 2)
+        cascadeColor = float3(1.5f, 1.0f, 1.5f);
+    else
+        cascadeColor = float3(1.0f, 1.5f, 1.5f);
+    
+    // Calculate the projected texture coordinates.
+        float3 shadowTexCoords = GetShadowCoords(layer, input.inWorld);
+    
+        float shadow = 0.0f;
+    // Check if the pixel texture coordinate is in the view frustum of the light before doing any shadow work
+        if (saturate(shadowTexCoords.x) == shadowTexCoords.x && saturate(shadowTexCoords.y) == shadowTexCoords.y)
+        {
+            float bias = max(0.005f * (1.0f - dot(input.inNormal, -normalize(DirectionalLights[0].direction))), 0.001f);
+            float currentDepth = shadowTexCoords.z - bias;
+    
+            shadow = SampleShadowMap(layer, shadowTexCoords, currentDepth);
+        
+            for (float j = 0; j < numDirectionalLights; j++)
             {
-                appliedLight += CalculateDirectionalLight(DirectionalLights[i], input.inWorldPos, input.inNormal, gEyePos.xyz);
+                appliedLight += CalculateDirectionalLight(DirectionalLights[j], input.inWorld, input.inNormal, gEyePos.xyz);
             }
-            
-            // Point Lights
-            //for (i = 0; i < numPointLights; i++)
-            //{
-            //    appliedLight += CalculatePointLight(PointLights[i], input.inWorldPos, input.inNormal, gEyePos.xyz);
-            //}
+        
+        /*for (i = 0; i < numPointLights; i++)
+        {
+            appliedLight += CalculatePointLight(PointLights[i], input.inWorldPos, input.inNormal, gEyePos.xyz);
+        }*/
+        
+            appliedLight *= shadow;
+
         }
         else
         {
-            appliedLight = DirectionalLights[0].ambient.xyz;
+            for (float j = 0; j < numDirectionalLights; j++)
+            {
+                appliedLight += CalculateDirectionalLight(DirectionalLights[j], input.inWorld, input.inNormal, gEyePos.xyz);
+            }
+        
+        /*for (i = 0; i < numPointLights; i++)
+        {
+            appliedLight += CalculatePointLight(PointLights[i], input.inWorldPos, input.inNormal, gEyePos.xyz);
+        }*/
         }
+    
+        float3 finalColor = sampleColor.xyz * appliedLight * cascadeColor;
+        return float4(finalColor, 1.0f);
     }
-    // Can comment out this else clause to see exactly where your shadow map range begins and ends
-    else
-    {
-        // If this is outside the area of shadow map range then draw things normally with regular lighting.
-        // ambient + diffuse
-    }
-   
-    float3 finalColor = sampleColor.xyz * appliedLight;
-    return float4(finalColor, 1.0f);
-}
