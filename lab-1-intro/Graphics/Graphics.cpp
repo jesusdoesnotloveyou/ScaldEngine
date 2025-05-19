@@ -520,11 +520,6 @@ std::vector<XMVECTOR> Graphics::GetFrustumCornersWorldSpace(const XMMATRIX& view
 	return frustumCorners;
 }
 
-std::vector<XMVECTOR> Graphics::GetFrustumCornersWorldSpace(const XMMATRIX& view, const XMMATRIX& projection)
-{
-	return GetFrustumCornersWorldSpace(view * projection);
-}
-
 void Graphics::GetLightSpaceMatrices()
 {
 	for (UINT i = 0; i < CASCADE_NUMBER; ++i)
@@ -547,7 +542,7 @@ void Graphics::GetLightSpaceMatrices()
 XMMATRIX Graphics::GetLightSpaceMatrix(const float nearPlane, const float farPlane)
 {
 	const auto cameraProjectionMatrix = XMMatrixPerspectiveFovLH(mTPCamera->GetFovRad(), static_cast<float>(mScreenWidth) / static_cast<float>(mScreenHeight), nearPlane, farPlane);
-	const auto frustumCorners = GetFrustumCornersWorldSpace(mTPCamera->GetViewMatrix(), cameraProjectionMatrix);
+	const auto frustumCorners = GetFrustumCornersWorldSpace(mTPCamera->GetViewMatrix() * cameraProjectionMatrix);
 
 	XMVECTOR center = XMVectorZero();
 	for (const auto& v : frustumCorners)
