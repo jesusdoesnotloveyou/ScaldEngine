@@ -1,8 +1,8 @@
 #pragma once
 
-#include <d3d11.h>
+#include "Renderer.h"
 
-constexpr UINT BUFFER_COUNT = 4u;
+constexpr UINT BUFFER_COUNT = 3u;
 
 struct TextureRenderTarget
 {
@@ -11,11 +11,11 @@ struct TextureRenderTarget
 	ID3D11ShaderResourceView* srv = nullptr;
 };
 
-class DeferredRenderer
+class DeferredRenderer final : public Renderer
 {
 public:
-	DeferredRenderer(ID3D11Device* device, UINT width, UINT height);
-	~DeferredRenderer() noexcept;
+	DeferredRenderer(ID3D11Device* device, ID3D11DeviceContext* deviceContext, UINT width, UINT height);
+	virtual ~DeferredRenderer() noexcept override;
 
 public:
 	void BindGeometryPass();
@@ -25,7 +25,10 @@ public:
 	void Draw();
 
 private:
-	TextureRenderTarget mGBuffer[BUFFER_COUNT];
+	// Graphics context. Graphics object manages these resources.
+	ID3D11Device* mDevice = nullptr;
+	ID3D11DeviceContext* mDeviceContext = nullptr;
 
-	ID3D11DepthStencilView* mDepthStencilView = nullptr;
+	// Deferred Renderer specific
+	TextureRenderTarget mGBuffer[BUFFER_COUNT];
 };

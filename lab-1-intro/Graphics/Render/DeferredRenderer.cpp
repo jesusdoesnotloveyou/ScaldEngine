@@ -1,7 +1,9 @@
 #include "../../ScaldException.h"
 #include "DeferredRenderer.h"
+#include "../ScaldCoreTypes.h"
 
-DeferredRenderer::DeferredRenderer(ID3D11Device* device, UINT width, UINT height)
+DeferredRenderer::DeferredRenderer(ID3D11Device* device, ID3D11DeviceContext* deviceContext, UINT width, UINT height)
+	: Renderer(device, deviceContext, width, height)
 {
 	// See Step 03 in Graphics -> same logic, but in that case a number of rtv
 
@@ -80,12 +82,25 @@ DeferredRenderer::~DeferredRenderer() noexcept
 
 void DeferredRenderer::BindGeometryPass()
 {
+	mDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	mDeviceContext->RSSetViewports(1u, &mViewport);
+
 	ID3D11RenderTargetView* rtvs[] =
 	{
-		mGBuffer[0].rtv,
-		mGBuffer[1].rtv,
-		mGBuffer[2].rtv
+		mGBuffer[0].rtv,	// diffuse
+		mGBuffer[1].rtv,	// specular
+		mGBuffer[2].rtv,	// normals
 	};
+
+	// See Step 11
+	mDeviceContext->OMSetRenderTargets(BUFFER_COUNT, rtvs, mDepthStencilView);
+	// See ClearBuffer
+	mDeviceContext->ClearRenderTargetView(mGBuffer[0].rtv, Colors::LightSteelBlue);
+	mDeviceContext->ClearRenderTargetView(mGBuffer[1].rtv, Colors::Black);
+	mDeviceContext->ClearRenderTargetView(mGBuffer[2].rtv, Colors::Black);
+	mDeviceContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0u);
+	
+
 }
 
 void DeferredRenderer::BindLightingPass()
