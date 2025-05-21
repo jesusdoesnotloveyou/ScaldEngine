@@ -122,7 +122,6 @@ float3 CalculateDirectionalLight(DirectionalLight light, uniform float3 posW, un
     
      // from structured buffer
     float3 lightDir = -light.direction;
-    float4 ambient = light.ambient;
     float4 diffuse = light.diffuse;
     float4 specular = light.specular;
     
@@ -131,22 +130,19 @@ float3 CalculateDirectionalLight(DirectionalLight light, uniform float3 posW, un
     float3 lightVector = normalize(lightDir);
     float3 reflectLight = normalize(reflect(-lightVector, normal));
     
-    // overexposure if there are a number of directional light sources
-    float3 ambientLight = ambient.xyz * ambient.w;
     float3 diffuseLightIntensity = saturate(max(dot(lightVector, normal), 0.0f));
     float3 diffuseLight = diffuseLightIntensity * diffuse.xyz * diffuse.w;
     
     float3 specularIntensity = 10.0f * pow(max(dot(reflectLight, viewDir), 0.0f), 50.0f); // * specular.xyz
     float3 specularLight = saturate(specularIntensity);
     
-    appliedLight = ambientLight + diffuseLight + specularLight;
-    return appliedLight;
+    return diffuseLight + specularLight;
 }
 
 float4 main(PS_IN input) : SV_Target
 {
     float4 sampleColor = objTexture.Sample(objSamplerState, input.inTexCoord);
-    float3 appliedLight = float3(0.0f, 0.0f, 0.0f);
+    float3 DnS = float3(0.0f, 0.0f, 0.0f);
     
     int layer = 3;
     float viewDepth = abs(input.inWorldView.z / input.inWorldView.w);
@@ -185,7 +181,7 @@ float4 main(PS_IN input) : SV_Target
         
         for (float j = 0; j < numDirectionalLights; j++)
         {
-            appliedLight += CalculateDirectionalLight(DirectionalLights[j], input.inWorld, input.inNormal, gEyePos.xyz);
+            DnS += CalculateDirectionalLight(DirectionalLights[j], input.inWorld, input.inNormal, gEyePos.xyz);
         }
         
         /*for (i = 0; i < numPointLights; i++)
@@ -193,14 +189,14 @@ float4 main(PS_IN input) : SV_Target
             appliedLight += CalculatePointLight(PointLights[i], input.inWorldPos, input.inNormal, gEyePos.xyz);
         }*/
         
-        appliedLight *= shadow;
+        DnS *= shadow;
 
     }
     else
     {
         for (float j = 0; j < numDirectionalLights; j++)
         {
-            appliedLight += CalculateDirectionalLight(DirectionalLights[j], input.inWorld, input.inNormal, gEyePos.xyz);
+            DnS += CalculateDirectionalLight(DirectionalLights[j], input.inWorld, input.inNormal, gEyePos.xyz);
         }
         
         /*for (i = 0; i < numPointLights; i++)
@@ -209,6 +205,8 @@ float4 main(PS_IN input) : SV_Target
         }*/
     }
     
-    float3 finalColor = sampleColor.xyz * appliedLight * cascadeColor;
+    // overexposure if there are a number of directional light sources
+    float3 ambientLight = DirectionalLights[0].ambient.xyz * DirectionalLights[0].ambient.w;
+    float3 finalColor = sampleColor.xyz * (ambientLight + DnS);
     return float4(finalColor, 1.0f);
 }
