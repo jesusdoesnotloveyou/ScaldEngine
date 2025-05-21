@@ -70,19 +70,6 @@ struct PS_IN
     float4 inLightSpacePos : TEXCOORD1;
 };
 
-float SampleShadowMap(int layer, float3 uvw, float depth)
-{
-    return depthMapTextures.SampleCmp(shadowSamplerState, float3(uvw.xy, layer), depth).r;
-}
-
-float3 GetShadowCoords(int layer, float3 worldPos)
-{
-    float4 coords = mul(float4(worldPos, 1.0f), CascData.ViewProj[layer]);
-    coords.xyz /= coords.w;
-    coords.xy = coords.xy * float2(0.5f, -0.5f) + float2(0.5f, 0.5f);
-    return coords.xyz;
-}
-
 float3 CalculatePointLight(PointLight light, uniform float3 posW, uniform float3 normal, uniform float3 toEye)
 {
     // return vec init
@@ -139,6 +126,19 @@ float3 CalculateDirectionalLight(DirectionalLight light, uniform float3 posW, un
     return diffuseLight + specularLight;
 }
 
+float SampleShadowMap(int layer, float2 uv, float depth)
+{
+    return depthMapTextures.SampleCmp(shadowSamplerState, float3(uv, layer), depth).r;
+}
+
+float3 GetShadowCoords(int layer, float3 worldPos)
+{
+    float4 coords = mul(float4(worldPos, 1.0f), CascData.ViewProj[layer]);
+    coords.xyz /= coords.w;
+    coords.xy = coords.xy * float2(0.5f, -0.5f) + float2(0.5f, 0.5f);
+    return coords.xyz;
+}
+
 float4 main(PS_IN input) : SV_Target
 {
     float4 sampleColor = objTexture.Sample(objSamplerState, input.inTexCoord);
@@ -157,13 +157,24 @@ float4 main(PS_IN input) : SV_Target
     
     float3 cascadeColor = float3(0.0f, 0.0f, 0.0f);
     if (layer == 0)
-        cascadeColor = float3(1.5f, 1.0f, 1.0f);
+        cascadeColor = float3(2.0f, 1.0f, 1.0f);
     else if (layer == 1)
-        cascadeColor = float3(1.0f, 1.5f, 1.0f);
+        cascadeColor = float3(1.0f, 2.0f, 1.0f);
     else if (layer == 2)
-        cascadeColor = float3(1.5f, 1.0f, 1.5f);
+        cascadeColor = float3(2.0f, 1.0f, 2.0f);
     else
-        cascadeColor = float3(1.0f, 1.5f, 1.5f);
+        cascadeColor = float3(1.0f, 2.0f, 2.0f);
+    
+    uint width, height, elements, levels;
+    depthMapTextures.GetDimensions(0, width, height, elements, levels);
+
+    const float dx = 1.0f / width;
+    const float2 offsets[9] =
+    {
+        float2(-dx, -dx), float2(0.0f, -dx), float2(dx, -dx),
+        float2(-dx, 0.0f), float2(0.0f, 0.0f), float2(dx, 0.0f),
+        float2(-dx, +dx), float2(0.0f, +dx), float2(dx, +dx)
+    };
     
     // Calculate the projected texture coordinates.
     float3 shadowTexCoords = GetShadowCoords(layer, input.inWorld);
@@ -177,7 +188,13 @@ float4 main(PS_IN input) : SV_Target
         
         float currentDepth = shadowTexCoords.z - bias;
     
-        shadow = SampleShadowMap(layer, shadowTexCoords, currentDepth);
+        [unroll]
+        for (int i = 0; i < 9; ++i)
+        {
+            shadow += SampleShadowMap(layer, shadowTexCoords.xy + offsets[i], currentDepth);
+        }
+        shadow = shadow / 9.0f;
+        
         
         for (float j = 0; j < numDirectionalLights; j++)
         {
