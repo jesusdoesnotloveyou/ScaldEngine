@@ -63,19 +63,6 @@ struct PS_IN
     float4 inLightSpacePos : TEXCOORD1;
 };
 
-float SampleShadowMap(int layer, float3 uvw, float depth)
-{
-    return depthMapTextures.SampleCmp(shadowSamplerState, float3(uvw.xy, layer), depth).r;
-}
-
-float3 GetShadowCoords(int layer, float3 worldPos)
-{
-    float4 coords = mul(float4(worldPos, 1.0f), CascData.ViewProj[layer]);
-    coords.xyz /= coords.w;
-    coords.xy = coords.xy * float2(0.5f, -0.5f) + float2(0.5f, 0.5f);
-    return coords.xyz;
-}
-
 float3 CalculatePointLight(PointLight light, uniform float3 posW, uniform float3 normal, uniform float3 toEye)
 {
     // return vec init
@@ -115,7 +102,6 @@ float3 CalculateDirectionalLight(DirectionalLight light, uniform float3 posW, un
     
      // from structured buffer
     float3 lightDir = -light.direction;
-    float4 ambient = light.ambient;
     float4 diffuse = light.diffuse;
     float4 specular = light.specular;
     
@@ -124,22 +110,32 @@ float3 CalculateDirectionalLight(DirectionalLight light, uniform float3 posW, un
     float3 lightVector = normalize(lightDir);
     float3 reflectLight = normalize(reflect(-lightVector, normal));
     
-    // overexposure if there are a number of directional light sources
-    float3 ambientLight = ambient.xyz * ambient.w;
     float3 diffuseLightIntensity = saturate(max(dot(lightVector, normal), 0.0f));
     float3 diffuseLight = diffuseLightIntensity * diffuse.xyz * diffuse.w;
     
     float3 specularIntensity = 10.0f * pow(max(dot(reflectLight, viewDir), 0.0f), 50.0f); // * specular.xyz
     float3 specularLight = saturate(specularIntensity);
     
-    appliedLight = ambientLight + diffuseLight + specularLight;
-    return appliedLight;
+    return diffuseLight + specularLight;
+}
+
+float SampleShadowMap(int layer, float2 uv, float depth)
+{
+    return depthMapTextures.SampleCmp(shadowSamplerState, float3(uv, layer), depth).r;
+}
+
+float3 GetShadowCoords(int layer, float3 worldPos)
+{
+    float4 coords = mul(float4(worldPos, 1.0f), CascData.ViewProj[layer]);
+    coords.xyz /= coords.w;
+    coords.xy = coords.xy * float2(0.5f, -0.5f) + float2(0.5f, 0.5f);
+    return coords.xyz;
 }
 
 float4 main(PS_IN input) : SV_Target
 {
     float4 sampleColor = objTexture.Sample(objSamplerState, input.inTexCoord);
-    float3 appliedLight = float3(0.0f, 0.0f, 0.0f);
+    float3 DnS = float3(0.0f, 0.0f, 0.0f);
     
     int layer = 3;
     float viewDepth = abs(input.inWorldView.z / input.inWorldView.w);
@@ -154,13 +150,24 @@ float4 main(PS_IN input) : SV_Target
     
     float3 cascadeColor = float3(0.0f, 0.0f, 0.0f);
     if (layer == 0)
-        cascadeColor = float3(1.5f, 1.0f, 1.0f);
+        cascadeColor = float3(2.0f, 1.0f, 1.0f);
     else if (layer == 1)
-        cascadeColor = float3(1.0f, 1.5f, 1.0f);
+        cascadeColor = float3(1.0f, 2.0f, 1.0f);
     else if (layer == 2)
-        cascadeColor = float3(1.5f, 1.0f, 1.5f);
+        cascadeColor = float3(2.0f, 1.0f, 2.0f);
     else
-        cascadeColor = float3(1.0f, 1.5f, 1.5f);
+        cascadeColor = float3(1.0f, 2.0f, 2.0f);
+    
+    uint width, height, elements, levels;
+    depthMapTextures.GetDimensions(0, width, height, elements, levels);
+
+    const float dx = 1.0f / width;
+    const float2 offsets[9] =
+    {
+        float2(-dx, -dx), float2(0.0f, -dx), float2(dx, -dx),
+        float2(-dx, 0.0f), float2(0.0f, 0.0f), float2(dx, 0.0f),
+        float2(-dx, +dx), float2(0.0f, +dx), float2(dx, +dx)
+    };
     
     // Calculate the projected texture coordinates.
     float3 shadowTexCoords = GetShadowCoords(layer, input.inWorld);
@@ -174,11 +181,17 @@ float4 main(PS_IN input) : SV_Target
         
         float currentDepth = shadowTexCoords.z - bias;
     
-        shadow = SampleShadowMap(layer, shadowTexCoords, currentDepth);
+        [unroll]
+        for (int i = 0; i < 9; ++i)
+        {
+            shadow += SampleShadowMap(layer, shadowTexCoords.xy + offsets[i], currentDepth);
+        }
+        shadow = shadow / 9.0f;
+        
         
         for (float j = 0; j < numDirectionalLights; j++)
         {
-            appliedLight += CalculateDirectionalLight(DirectionalLights[j], input.inWorld, input.inNormal, gEyePos.xyz);
+            DnS += CalculateDirectionalLight(DirectionalLights[j], input.inWorld, input.inNormal, gEyePos.xyz);
         }
         
         /*for (i = 0; i < numPointLights; i++)
@@ -186,14 +199,14 @@ float4 main(PS_IN input) : SV_Target
             appliedLight += CalculatePointLight(PointLights[i], input.inWorldPos, input.inNormal, gEyePos.xyz);
         }*/
         
-        appliedLight *= shadow;
+        DnS *= shadow;
 
     }
     else
     {
         for (float j = 0; j < numDirectionalLights; j++)
         {
-            appliedLight += CalculateDirectionalLight(DirectionalLights[j], input.inWorld, input.inNormal, gEyePos.xyz);
+            DnS += CalculateDirectionalLight(DirectionalLights[j], input.inWorld, input.inNormal, gEyePos.xyz);
         }
         
         /*for (i = 0; i < numPointLights; i++)
@@ -202,6 +215,8 @@ float4 main(PS_IN input) : SV_Target
         }*/
     }
     
-    float3 finalColor = sampleColor.xyz * appliedLight * cascadeColor;
+    // overexposure if there are a number of directional light sources
+    float3 ambientLight = DirectionalLights[0].ambient.xyz * DirectionalLights[0].ambient.w;
+    float3 finalColor = sampleColor.xyz * (ambientLight + DnS);
     return float4(finalColor, 1.0f);
 }

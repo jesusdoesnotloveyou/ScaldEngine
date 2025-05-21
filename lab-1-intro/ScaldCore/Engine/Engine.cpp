@@ -82,7 +82,7 @@ void Engine::SetupScene()
 
 	SceneGeometry* alien = new Actor(alienFemaleModel);
 	alien->GetTransform()->SetScale(0.03f, 0.03f, 0.03f);
-	alien->GetTransform()->SetPosition(-15.0f, 0.0f, 10.0f);
+	alien->GetTransform()->SetPosition(40.0f, 0.0f, 30.0f);
 	alien->ObjectName = std::string("alien");
 	alien->GetCollisionComponent()->SetRadius(2.0f);
 
@@ -94,7 +94,7 @@ void Engine::SetupScene()
 
 	SceneGeometry* chair = new Actor(chairModel);
 	chair->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
-	chair->GetTransform()->SetPosition(50.0f, 2.3f, 0.0f);
+	chair->GetTransform()->SetPosition(50.0f, 2.3f, 60.0f);
 	chair->ObjectName = std::string("chair");
 	chair->GetCollisionComponent()->SetRadius(4.0f);
 
@@ -106,13 +106,13 @@ void Engine::SetupScene()
 
 	SceneGeometry* pig = new Actor(minionPigModel);
 	pig->GetTransform()->SetScale(0.02f, 0.02f, 0.02f);
-	pig->GetTransform()->SetPosition(30.0f, 0.3f, 0.0f);
+	pig->GetTransform()->SetPosition(30.0f, 0.3f, 35.0f);
 	pig->ObjectName = std::string("pig");
 	pig->GetCollisionComponent()->SetRadius(3.0f);
 
 	SceneGeometry* angryBird = new Actor(tonyModel);
 	angryBird->GetTransform()->SetScale(0.02f, 0.02f, 0.02f);
-	angryBird->GetTransform()->SetPosition(10.0f, 0.0f, 0.0f);
+	angryBird->GetTransform()->SetPosition(10.0f, 0.0f, 40.0f);
 	angryBird->ObjectName = std::string("angryBird");
 	angryBird->GetCollisionComponent()->SetRadius(2.0f);
 
