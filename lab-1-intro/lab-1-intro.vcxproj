@@ -28,6 +28,9 @@
     <ClCompile Include="Graphics\Light\SpotLight.cpp" />
     <ClCompile Include="Graphics\Model.cpp" />
     <ClCompile Include="Graphics\Mesh.cpp" />
+    <ClCompile Include="Graphics\Render\DeferredRenderer.cpp" />
+    <ClCompile Include="Graphics\Render\ForwardRenderer.cpp" />
+    <ClCompile Include="Graphics\Render\Renderer.cpp" />
     <ClCompile Include="Graphics\Shaders.cpp" />
     <ClCompile Include="Graphics\Shadows\CascadeShadowMap.cpp" />
     <ClCompile Include="Graphics\Shadows\ShadowMap.cpp" />
@@ -66,6 +69,9 @@
     <ClInclude Include="Graphics\Light\SpotLight.h" />
     <ClInclude Include="Graphics\Model.h" />
     <ClInclude Include="Graphics\Mesh.h" />
+    <ClInclude Include="Graphics\Render\DeferredRenderer.h" />
+    <ClInclude Include="Graphics\Render\ForwardRenderer.h" />
+    <ClInclude Include="Graphics\Render\Renderer.h" />
     <ClInclude Include="Graphics\ScaldCoreTypes.h" />
     <ClInclude Include="Graphics\Shaders.h" />
     <ClInclude Include="Graphics\Shadows\CascadeShadowMap.h" />
@@ -99,6 +105,9 @@
   <ItemGroup>
     <FxCompile Include="Shaders\CSMGeometryShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Geometry</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Shaders\DeferredPixelShader.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
     </FxCompile>
     <FxCompile Include="Shaders\VertexShader.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>

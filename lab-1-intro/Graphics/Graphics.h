@@ -6,6 +6,7 @@
 
 #include <wrl.h>
 #include <vector>
+#include <memory>
 
 #include "../ScaldCore/Engine/ScaldTimer.h"
 #include "Shaders.h"
@@ -23,6 +24,8 @@ class SpotLight;
 class Camera;
 class ThirdPersonCamera;
 class CascadeShadowMap;
+class DeferredRenderer;
+class ForwardRenderer;
 
 class Graphics
 {
@@ -170,4 +173,7 @@ private:
 	float cascadeSplitLambda = 0.95f; // idk
 	float shadowCascadeLevels[CASCADE_NUMBER] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	CascadeData mCSMData;
+	// Renderer
+	// Deferred Rendering
+	std::unique_ptr<DeferredRenderer> pRenderer;
 };
