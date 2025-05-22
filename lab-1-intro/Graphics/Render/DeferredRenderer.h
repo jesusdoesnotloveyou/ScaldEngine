@@ -17,6 +17,10 @@ public:
 	DeferredRenderer(ID3D11Device* device, ID3D11DeviceContext* deviceContext, UINT width, UINT height);
 	virtual ~DeferredRenderer() noexcept override;
 
+	// Begin of Renderer interface
+	virtual void SetupShaders() override;
+	// End of Renderer interface
+
 public:
 	void BindGeometryPass();
 	void BindLightingPass();
@@ -25,10 +29,10 @@ public:
 	void Draw();
 
 private:
-	// Graphics context. Graphics object manages these resources.
-	ID3D11Device* mDevice = nullptr;
-	ID3D11DeviceContext* mDeviceContext = nullptr;
-
 	// Deferred Renderer specific
+	VertexShader mOpaqueVertexShader;
+	PixelShader mOpaquePixelShader;
+
+	
 	TextureRenderTarget mGBuffer[BUFFER_COUNT];
 };
