@@ -96,12 +96,14 @@ struct CascadeData
 	{
 		for (UINT i = 0; i < CASCADE_NUMBER; i++)
 		{
-			ViewProj[i] = XMMatrixIdentity();
+			View[i] = XMMatrixIdentity();
+			Proj[i] = XMMatrixIdentity();
 			distances[i] = 0.0f;
 		}
 	}
 
-	XMMATRIX ViewProj[CASCADE_NUMBER];
+	XMMATRIX View[CASCADE_NUMBER];
+	XMMATRIX Proj[CASCADE_NUMBER];
 	float distances[CASCADE_NUMBER];
 };
 

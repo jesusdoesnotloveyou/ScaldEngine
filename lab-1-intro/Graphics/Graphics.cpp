@@ -238,12 +238,13 @@ void Graphics::RenderDepthOnlyPass()
 	// usually we have only one dir light source, but i decided to leave it like generic case could be with multiple
 	for (auto dirLight : mDirectionalLights)
 	{
-		std::vector<XMMATRIX> lightSpaceMatrices;
+		std::vector<std::pair<XMMATRIX, XMMATRIX>> lightSpaceMatrices;
 		GetLightSpaceMatrices(lightSpaceMatrices);
 		
 		for (UINT i = 0; i < CASCADE_NUMBER; i++)
 		{
-			mCSMData.ViewProj[i] = XMMatrixTranspose(lightSpaceMatrices[i]);
+			mCSMData.View[i] = (lightSpaceMatrices[i].first);
+			mCSMData.Proj[i] = (lightSpaceMatrices[i].second);
 			mCSMData.distances[i] = 0.0f; // not used on GPU, so filled with zero
 		}
 
@@ -513,7 +514,7 @@ std::vector<XMVECTOR> Graphics::GetFrustumCornersWorldSpace(const XMMATRIX& view
 	return frustumCorners;
 }
 
-void Graphics::GetLightSpaceMatrices(std::vector<XMMATRIX>& outMatrices)
+void Graphics::GetLightSpaceMatrices(std::vector<std::pair<XMMATRIX, XMMATRIX>>& outMatrices)
 {
 	for (UINT i = 0; i < CASCADE_NUMBER; ++i)
 	{
@@ -532,7 +533,7 @@ void Graphics::GetLightSpaceMatrices(std::vector<XMMATRIX>& outMatrices)
 	}
 }
 
-XMMATRIX Graphics::GetLightSpaceMatrix(const float nearPlane, const float farPlane)
+std::pair<XMMATRIX, XMMATRIX> Graphics::GetLightSpaceMatrix(const float nearPlane, const float farPlane)
 {
 	const auto cameraProjectionMatrix = XMMatrixPerspectiveFovLH(mTPCamera->GetFovRad(), static_cast<float>(mScreenWidth) / static_cast<float>(mScreenHeight), nearPlane, farPlane);
 	const auto frustumCorners = GetFrustumCornersWorldSpace(mTPCamera->GetViewMatrix() * cameraProjectionMatrix);
@@ -572,7 +573,7 @@ XMMATRIX Graphics::GetLightSpaceMatrix(const float nearPlane, const float farPla
 	maxZ = (maxZ < 0) ? maxZ / zMult : maxZ * zMult;
 
 	const auto lightProjection = XMMatrixOrthographicOffCenterLH(minX, maxX, minY, maxY, minZ, maxZ);
-	return lightView * lightProjection;
+	return std::make_pair(lightView, lightProjection);
 }
 
 void Graphics::UpdateShadowCascadeSplits()

@@ -51,7 +51,8 @@ cbuffer cbPerFrame : register(b0)
 
 struct CascadeData
 {
-    matrix ViewProj[4];
+    row_major matrix View[4];
+    row_major matrix Proj[4];
     float4 Distances; // not used, so not filled on the CPU side
 };
 
@@ -133,7 +134,7 @@ float SampleShadowMap(int layer, float2 uv, float depth)
 
 float3 GetShadowCoords(int layer, float3 worldPos)
 {
-    float4 coords = mul(float4(worldPos, 1.0f), CascData.ViewProj[layer]);
+    float4 coords = mul(mul(float4(worldPos, 1.0f), CascData.View[layer]), CascData.Proj[layer]);
     coords.xyz /= coords.w;
     coords.xy = coords.xy * float2(0.5f, -0.5f) + float2(0.5f, 0.5f);
     return coords.xyz;
@@ -186,7 +187,7 @@ float4 main(PS_IN input) : SV_Target
         float bias = max(0.05f * (1.0f - dot(input.inNormal, normalize(DirectionalLights[0].direction))), 0.005f);
         bias *= 1 / (CascData.Distances[layer] * 0.5f);
         
-        float currentDepth = shadowTexCoords.z - bias;
+        float currentDepth = shadowTexCoords.z - 0.0f;
     
         [unroll]
         for (int i = 0; i < 9; ++i)

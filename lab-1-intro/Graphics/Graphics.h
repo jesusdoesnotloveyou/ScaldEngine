@@ -68,9 +68,9 @@ private:
 	// get all 8 vertices of frustrum
 	std::vector<XMVECTOR> GetFrustumCornersWorldSpace(const XMMATRIX& viewProjection);
 
-	XMMATRIX GetLightSpaceMatrix(const float nearPlane, const float farPlane);
+	std::pair<XMMATRIX, XMMATRIX> GetLightSpaceMatrix(const float nearPlane, const float farPlane);
 	// Doubt that't a good idea to return vector of matrices. Should rather pass vector as a parameter probalby and fill it inside function.
-	void GetLightSpaceMatrices(std::vector<XMMATRIX>& outMatrices);
+	void GetLightSpaceMatrices(std::vector<std::pair<XMMATRIX, XMMATRIX>>& outMatrices);
 	void UpdateShadowCascadeSplits();
 
 	template<typename T>
