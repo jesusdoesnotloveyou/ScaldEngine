@@ -213,15 +213,38 @@ void Graphics::ClearBuffer(float r)
 	mDeviceContext->ClearDepthStencilView(mDSV.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL /*Clearing Both Depth and Stencil*/, 1.0f, 0u);
 }
 
+// Forward rendering
+//void Graphics::DrawScene()
+//{
+//	// @todo: Render->Draw(); // deferred|forward|forward+
+//
+//	RenderDepthOnlyPass();
+//
+//	mDeviceContext->ClearState();
+//
+//	RenderColorPass();
+//}
+
+// deferred rendering
 void Graphics::DrawScene()
 {
-	// @todo: Render->Draw(); // deferred|forward|forward+
+	/*ID3D11ShaderResourceView* nullSrv[2] = { nullptr, nullptr };
+	mDeviceContext->PSSetShaderResources(0u, 2u, nullSrv);*/
 
-	RenderDepthOnlyPass();
+	// pRenderer->BindDepthOnlyPass();
 
-	mDeviceContext->ClearState();
+	pRenderer->BindGeometryPass();
+	for (auto actor : mRenderObjects)
+	{
+		actor->Draw(mTPCamera->GetViewMatrix(), mTPCamera->GetPerspectiveProjectionMatrix());
+	}
 
-	RenderColorPass();
+	//mDeviceContext->ClearState();
+
+	pRenderer->BindLightingPass();
+	//mDeviceContext->ClearState();
+
+	pRenderer->BindTransparentPass();
 }
 
 void Graphics::RenderDepthOnlyPass()
@@ -366,7 +389,7 @@ void Graphics::CreateDepthStencilState()
 
 void Graphics::CreateRasterizerState()
 {
-	//Bias = (float)DepthBias * r + SlopeScaledDepthBias * MaxDepthSlope;
+	pRenderer->CreateRasterizerState();
 
 	// Step 10: Setup Rasterizer Stage and Viewport
 	currentViewport.TopLeftX = 0.0f;
@@ -388,6 +411,8 @@ void Graphics::CreateRasterizerState()
 
 void Graphics::CreateSamplerState()
 {
+	pRenderer->CreateSamplerState();
+
 	D3D11_SAMPLER_DESC sampDesc = {};
 	ZeroMemory(&sampDesc, sizeof(sampDesc));
 	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
@@ -419,6 +444,8 @@ void Graphics::CreateSamplerState()
 
 void Graphics::SetupShaders()
 {
+	pRenderer->SetupShaders();
+
 	// Step 05: Create Input Layout for IA Stage
 	D3D11_INPUT_ELEMENT_DESC inputLayoutDefaultDesc[] = {
 		D3D11_INPUT_ELEMENT_DESC {

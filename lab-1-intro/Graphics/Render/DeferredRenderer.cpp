@@ -78,6 +78,48 @@ DeferredRenderer::DeferredRenderer(ID3D11Device* device, ID3D11DeviceContext* de
 DeferredRenderer::~DeferredRenderer() noexcept
 {
 	mDepthStencilView->Release();
+
+	for (UINT i = 0; i < BUFFER_COUNT; i++)
+	{
+		mGBuffer[i].texture->Release();
+		mGBuffer[i].rtv->Release();
+		mGBuffer[i].srv->Release();
+	}
+}
+
+void DeferredRenderer::SetupShaders()
+{
+	Renderer::SetupShaders();
+
+	D3D11_INPUT_ELEMENT_DESC inputLayoutOpaqueDesc[] = {
+	D3D11_INPUT_ELEMENT_DESC {
+		"POSITION",
+		0u,
+		DXGI_FORMAT_R32G32B32A32_FLOAT,
+		0u,
+		0u,
+		D3D11_INPUT_PER_VERTEX_DATA,
+		0u},
+	D3D11_INPUT_ELEMENT_DESC {
+		"TEXCOORD",
+		0u,
+		DXGI_FORMAT_R32G32_FLOAT,
+		0u,
+		D3D11_APPEND_ALIGNED_ELEMENT,
+		D3D11_INPUT_PER_VERTEX_DATA,
+		0u},
+	D3D11_INPUT_ELEMENT_DESC {
+		"NORMAL",
+		0u,
+		DXGI_FORMAT_R32G32B32_FLOAT,
+		0u,
+		D3D11_APPEND_ALIGNED_ELEMENT,
+		D3D11_INPUT_PER_VERTEX_DATA,
+		0u}
+	};
+
+	mOpaqueVertexShader.Init(mDevice, inputLayoutOpaqueDesc, (UINT)std::size(inputLayoutOpaqueDesc), L"./Shaders/DeferredOpaqueVS.hlsl");
+	mOpaquePixelShader.Init(mDevice, L"./Shaders/DeferredOpaquePS.hlsl");
 }
 
 void DeferredRenderer::BindGeometryPass()
@@ -99,8 +141,16 @@ void DeferredRenderer::BindGeometryPass()
 	mDeviceContext->ClearRenderTargetView(mGBuffer[1].rtv, Colors::Black);
 	mDeviceContext->ClearRenderTargetView(mGBuffer[2].rtv, Colors::Black);
 	mDeviceContext->ClearDepthStencilView(mDepthStencilView, D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0u);
-	
 
+	mDeviceContext->IASetInputLayout(mOpaqueVertexShader.GetInputLayout());
+	mDeviceContext->VSSetShader(mOpaqueVertexShader.Get(), nullptr, 0u);
+
+	mDeviceContext->RSSetViewports(1u, &mViewport);
+	mDeviceContext->RSSetState(mRasterizerState.Get());
+
+	// Step 09: Set Pixel Shaders
+	mDeviceContext->PSSetShader(mOpaquePixelShader.Get(), nullptr, 0u);
+	mDeviceContext->PSSetSamplers(0u, 1u, mSamplerState.GetAddressOf());
 }
 
 void DeferredRenderer::BindLightingPass()
