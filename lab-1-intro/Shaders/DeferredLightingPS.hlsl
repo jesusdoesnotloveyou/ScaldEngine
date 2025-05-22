@@ -1,8 +1,8 @@
 struct Gbuffer
 {
     float4 DiffuseSpec : SV_Target0;
-    float3 WorldPos : SV_Target1;
-    float3 Normal : SV_Target2;
+    float3 Normal : SV_Target1;
+    float3 WorldPos : SV_Target2;
 };
 
 struct PS_IN
