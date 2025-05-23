@@ -22,9 +22,9 @@
 
 Graphics::Graphics(HWND hWnd, int width, int height)
 	:
+	hWnd(hWnd),
 	mScreenWidth(width),
-	mScreenHeight(height),
-	hWnd(hWnd)
+	mScreenHeight(height)
 {
 	D3D_FEATURE_LEVEL featureLevel[] = { D3D_FEATURE_LEVEL_11_1 };
 
@@ -62,34 +62,13 @@ Graphics::Graphics(HWND hWnd, int width, int height)
 		&mDeviceContext
 	));
 
-	// Step 03: Get the BackBuffer and create RTV
-	Microsoft::WRL::ComPtr<ID3D11Texture2D> pBackTex;
-	// gain access to texture subresource in swap chain (back buffer)
-	// check MSDN for more info about GetAddressOf, Get, (&) ReleaseAndGetAddressOf
-	ThrowIfFailed(mSwapChain->GetBuffer(0, __uuidof(ID3D11Texture2D), &pBackTex));
-	ThrowIfFailed(mDevice->CreateRenderTargetView(pBackTex.Get(), nullptr, &mRTV));
+	// RTV and BackBuffer are created down here in Renderer
+	pRenderer = std::make_unique<DeferredRenderer>(mSwapChain.Get(), mDevice.Get(), mDeviceContext.Get(), width, height);
 
-	// Describe our Depth/Stencil Buffer
-	D3D11_TEXTURE2D_DESC depthStencilTextureDesc;
-	depthStencilTextureDesc.Width = mScreenWidth;
-	depthStencilTextureDesc.Height = mScreenHeight;
-	depthStencilTextureDesc.MipLevels = 1u;
-	depthStencilTextureDesc.ArraySize = 1u;
-	depthStencilTextureDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
-	depthStencilTextureDesc.SampleDesc.Count = 1u;
-	depthStencilTextureDesc.SampleDesc.Quality = 0u;
-	depthStencilTextureDesc.Usage = D3D11_USAGE_DEFAULT;
-	depthStencilTextureDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
-	depthStencilTextureDesc.CPUAccessFlags = 0u;
-	depthStencilTextureDesc.MiscFlags = 0u;
-
-	ThrowIfFailed(mDevice->CreateTexture2D(&depthStencilTextureDesc, nullptr, mDepthStencilBuffer.GetAddressOf()));
-	ThrowIfFailed(mDevice->CreateDepthStencilView(mDepthStencilBuffer.Get(), nullptr, mDSV.GetAddressOf()));
-
+	// to renderer probably
 	mCascadeShadowMap = new CascadeShadowMap(mDevice.Get(), 2048u, 2048u);
-	mTPCamera = new ThirdPersonCamera();
 
-	pRenderer = std::make_unique<DeferredRenderer>(mDevice.Get(), mDeviceContext.Get(), width, height);
+	mTPCamera = new ThirdPersonCamera();
 }
 
 Graphics::~Graphics()
@@ -208,9 +187,7 @@ void Graphics::UpdateSpotLightParams()
 // Before rendering every frame we should clear render target view and depth stencil view
 void Graphics::ClearBuffer(float r)
 {
-	float color[] = { r, 0.0f, 0.0f, 1.0f };
-	mDeviceContext->ClearRenderTargetView(mRTV.Get(), color);
-	mDeviceContext->ClearDepthStencilView(mDSV.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL /*Clearing Both Depth and Stencil*/, 1.0f, 0u);
+	pRenderer->ClearBuffer(r);
 }
 
 // Forward rendering
@@ -228,23 +205,23 @@ void Graphics::ClearBuffer(float r)
 // deferred rendering
 void Graphics::DrawScene()
 {
-	/*ID3D11ShaderResourceView* nullSrv[2] = { nullptr, nullptr };
-	mDeviceContext->PSSetShaderResources(0u, 2u, nullSrv);*/
+	ID3D11ShaderResourceView* nullSrv[3] = { nullptr, nullptr, nullptr };
+	mDeviceContext->PSSetShaderResources(0u, 3u, nullSrv);
 
-	// pRenderer->BindDepthOnlyPass();
+	pRenderer->BindDepthOnlyPass();
 
 	pRenderer->BindGeometryPass();
 	for (auto actor : mRenderObjects)
 	{
 		actor->Draw(mTPCamera->GetViewMatrix(), mTPCamera->GetPerspectiveProjectionMatrix());
 	}
-
-	//mDeviceContext->ClearState();
+	mDeviceContext->ClearState();
 
 	pRenderer->BindLightingPass();
 	//mDeviceContext->ClearState();
 
-	pRenderer->BindTransparentPass();
+	//pRenderer->BindTransparentPass();
+	//mDeviceContext->ClearState();
 }
 
 void Graphics::RenderDepthOnlyPass()
@@ -364,7 +341,7 @@ void Graphics::RenderColorPass()
 void Graphics::EndFrame()
 {
 	// Step 15: At the End of While (!isExitRequested): Present the Result
-	mDeviceContext->OMSetRenderTargets(0, nullptr, nullptr);
+	mDeviceContext->OMSetRenderTargets(0u, nullptr, nullptr);
 	ThrowIfFailed(mSwapChain->Present(1u, /*DXGI_PRESENT_DO_NOT_WAIT*/ 0u));
 }
 
@@ -378,118 +355,22 @@ void Graphics::Update(const ScaldTimer& st)
 
 void Graphics::CreateDepthStencilState()
 {
-	//Create depth stencil state
-	CD3D11_DEPTH_STENCIL_DESC depthStencilDesc;
-	ZeroMemory(&depthStencilDesc, sizeof(CD3D11_DEPTH_STENCIL_DESC));
-	depthStencilDesc.DepthEnable = true;
-	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK::D3D11_DEPTH_WRITE_MASK_ALL;
-	depthStencilDesc.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS_EQUAL;
-	ThrowIfFailed(mDevice->CreateDepthStencilState(&depthStencilDesc, mDepthStencilState.GetAddressOf()));
+	pRenderer->CreateDepthStencilState();
 }
 
 void Graphics::CreateRasterizerState()
 {
 	pRenderer->CreateRasterizerState();
-
-	// Step 10: Setup Rasterizer Stage and Viewport
-	currentViewport.TopLeftX = 0.0f;
-	currentViewport.TopLeftY = 0.0f;
-	currentViewport.Width = static_cast<float>(mScreenWidth);
-	currentViewport.Height = static_cast<float>(mScreenHeight);
-	currentViewport.MinDepth = 0.0f;
-	currentViewport.MaxDepth = 1.0f;
-
-	CD3D11_RASTERIZER_DESC rastDesc = {};
-	rastDesc.FillMode = D3D11_FILL_SOLID;
-	rastDesc.CullMode = D3D11_CULL_BACK;
-	rastDesc.FrontCounterClockwise = false;
-	rastDesc.DepthBias;
-	rastDesc.DepthBiasClamp;
-	rastDesc.SlopeScaledDepthBias;
-	ThrowIfFailed(mDevice->CreateRasterizerState(&rastDesc, mRasterizerState.GetAddressOf()));
 }
 
 void Graphics::CreateSamplerState()
 {
 	pRenderer->CreateSamplerState();
-
-	D3D11_SAMPLER_DESC sampDesc = {};
-	ZeroMemory(&sampDesc, sizeof(sampDesc));
-	sampDesc.Filter = D3D11_FILTER_MIN_MAG_MIP_LINEAR;
-	sampDesc.AddressU = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampDesc.AddressV = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampDesc.AddressW = D3D11_TEXTURE_ADDRESS_WRAP;
-	sampDesc.ComparisonFunc = D3D11_COMPARISON_NEVER;
-	sampDesc.MinLOD = 0;
-	sampDesc.MaxLOD = D3D11_FLOAT32_MAX;
-	ThrowIfFailed(mDevice->CreateSamplerState(&sampDesc, mSamplerState.GetAddressOf()));
-
-	D3D11_SAMPLER_DESC shadowSampDesc = {};
-	ZeroMemory(&shadowSampDesc, sizeof(shadowSampDesc));
-	shadowSampDesc.Filter = D3D11_FILTER_COMPARISON_MIN_MAG_LINEAR_MIP_POINT;
-	shadowSampDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
-	shadowSampDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
-	shadowSampDesc.AddressW = D3D11_TEXTURE_ADDRESS_CLAMP;
-	shadowSampDesc.MipLODBias = 0.0f;
-	shadowSampDesc.MaxAnisotropy = 1u;
-	shadowSampDesc.ComparisonFunc = D3D11_COMPARISON_LESS_EQUAL;
-	shadowSampDesc.BorderColor[0] = 1.0f;
-	shadowSampDesc.BorderColor[1] = 1.0f;
-	shadowSampDesc.BorderColor[2] = 1.0f;
-	shadowSampDesc.BorderColor[3] = 1.0f;
-	shadowSampDesc.MinLOD = 0.0f;
-	shadowSampDesc.MaxLOD = D3D11_FLOAT32_MAX;
-	ThrowIfFailed(mDevice->CreateSamplerState(&shadowSampDesc, mShadowSamplerState.GetAddressOf()));
 }
 
 void Graphics::SetupShaders()
 {
 	pRenderer->SetupShaders();
-
-	// Step 05: Create Input Layout for IA Stage
-	D3D11_INPUT_ELEMENT_DESC inputLayoutDefaultDesc[] = {
-		D3D11_INPUT_ELEMENT_DESC {
-			"POSITION",
-			0u,
-			DXGI_FORMAT_R32G32B32A32_FLOAT,
-			0u,
-			0u,
-			D3D11_INPUT_PER_VERTEX_DATA,
-			0u},
-		D3D11_INPUT_ELEMENT_DESC {
-			"TEXCOORD",
-			0u,
-			DXGI_FORMAT_R32G32_FLOAT,
-			0u,
-			D3D11_APPEND_ALIGNED_ELEMENT,
-			D3D11_INPUT_PER_VERTEX_DATA,
-			0u},
-		D3D11_INPUT_ELEMENT_DESC {
-			"NORMAL",
-			0u,
-			DXGI_FORMAT_R32G32B32_FLOAT,
-			0u,
-			D3D11_APPEND_ALIGNED_ELEMENT,
-			D3D11_INPUT_PER_VERTEX_DATA,
-			0u}
-	};
-
-	D3D11_INPUT_ELEMENT_DESC inputLayoutShadowDesc[] = {
-		D3D11_INPUT_ELEMENT_DESC {
-			"POSITION",
-			0u,
-			DXGI_FORMAT_R32G32B32A32_FLOAT,
-			0u,
-			0u,
-			D3D11_INPUT_PER_VERTEX_DATA,
-			0u}
-	};
-
-	ThrowIfFailed(mShadowVertexShader.Init(mDevice.Get(), inputLayoutShadowDesc, (UINT)std::size(inputLayoutShadowDesc), L"./Shaders/ShadowVertexShader.hlsl"));
-	ThrowIfFailed(mCSMGeometryShader.Init(mDevice.Get(), L"./Shaders/CSMGeometryShader.hlsl"));
-
-	ThrowIfFailed(mVertexShader.Init(mDevice.Get(), inputLayoutDefaultDesc, (UINT)std::size(inputLayoutDefaultDesc), L"./Shaders/VertexShader.hlsl"));
-	ThrowIfFailed(mPixelShader.Init(mDevice.Get(), L"./Shaders/PixelShader.hlsl"));
 }
 
 void Graphics::InitPointLight()
