@@ -10,23 +10,24 @@ struct PS_IN
     float3 inNormal : NORMAL;
 };
 
-struct PS_OUT
+struct Gbuffer
 {
-    float4 outColor : SV_Target0;
-    float3 outNormal : SV_Target1;
-    float3 outWorldPos : SV_Target1;
+    float4 DiffuseSpec : SV_Target0;
+    float3 Normal : SV_Target1;
+    float3 WorldPos : SV_Target2;
 };
 
-PS_OUT main(PS_IN input) : SV_TARGET
+[earlydepthstencil]
+Gbuffer main(PS_IN input)
 {
-    PS_OUT output = (PS_OUT) 0;
+    Gbuffer output = (Gbuffer) 0;
 
     float4 sampleColor = objTexture.Sample(objSamplerState, input.inTexCoord);
-    output.outColor = sampleColor;
+    output.DiffuseSpec = sampleColor;
     
-    output.outNormal = input.inNormal;
+    output.Normal = input.inNormal;
     
-    output.outWorldPos = float3(1.0f, 1.0f, 1.0f);
+    output.WorldPos = float3(1.0f, 1.0f, 1.0f);
 
     return output;
 }
