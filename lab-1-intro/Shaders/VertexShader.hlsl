@@ -19,7 +19,7 @@ cbuffer CBufChangeOnResize : register(b2)
 struct VS_IN
 {
     float4 inPosition : POSITION0;
-    float2 inTexCoord : TEXCOORD;
+    float2 inTexCoord : TEXCOORD0;
     float3 inNormal : NORMAL;
 };
 

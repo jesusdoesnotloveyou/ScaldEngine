@@ -108,9 +108,9 @@ private:
 	}
 
 private:
+	HWND hWnd;
 	int mScreenWidth;
 	int mScreenHeight;
-	HWND hWnd;
 
 public:
 	std::vector<SceneGeometry*> mRenderObjects;
@@ -153,16 +153,15 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11Device> mDevice;
 	Microsoft::WRL::ComPtr<IDXGISwapChain> mSwapChain;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> mDeviceContext;
-	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> mRTV;
+	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> mRTV; // to deletem, see Renderer
 	// Depth Stencil
-	Microsoft::WRL::ComPtr<ID3D11Texture2D> mDepthStencilBuffer;
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> mDSV;
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> mDepthStencilState;
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> mDSV; // to delete, see Renderer
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> mDepthStencilState; // to delete, see Renderer
 	// Rast
-	Microsoft::WRL::ComPtr<ID3D11RasterizerState> mRasterizerState;
+	Microsoft::WRL::ComPtr<ID3D11RasterizerState> mRasterizerState; // to delete, see Renderer
 	// Sampler
-	Microsoft::WRL::ComPtr<ID3D11SamplerState> mSamplerState;
-	Microsoft::WRL::ComPtr<ID3D11SamplerState> mShadowSamplerState;
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> mSamplerState; // to delete, see Renderer
+	Microsoft::WRL::ComPtr<ID3D11SamplerState> mShadowSamplerState; // to delete, see Renderer
 
 	D3D11_VIEWPORT currentViewport = {};
 

@@ -14,7 +14,7 @@ struct TextureRenderTarget
 class DeferredRenderer final : public Renderer
 {
 public:
-	DeferredRenderer(ID3D11Device* device, ID3D11DeviceContext* deviceContext, UINT width, UINT height);
+	DeferredRenderer(IDXGISwapChain* spawChain, ID3D11Device* device, ID3D11DeviceContext* deviceContext, UINT width, UINT height);
 	virtual ~DeferredRenderer() noexcept override;
 
 	// Begin of Renderer interface
@@ -26,13 +26,12 @@ public:
 	void BindLightingPass();
 	void BindTransparentPass();
 	
-	void Draw();
-
 private:
 	// Deferred Renderer specific
 	VertexShader mOpaqueVertexShader;
 	PixelShader mOpaquePixelShader;
+	VertexShader mLightingVertexShader;
+	PixelShader mLightingPixelShader;
 
-	
 	TextureRenderTarget mGBuffer[BUFFER_COUNT];
 };
