@@ -1,14 +1,45 @@
 #include "Renderer.h"
+#include "../ScaldCoreTypes.h"
 
-Renderer::Renderer(ID3D11Device* device, ID3D11DeviceContext* deviceContext, int width, int height)
+Renderer::Renderer(IDXGISwapChain* spawChain, ID3D11Device* device, ID3D11DeviceContext* deviceContext, int width, int height)
 	:
 	mDevice(device),
 	mDeviceContext(deviceContext),
-	mDepthStencilView(nullptr),
 	mScreenWidth(width),
 	mScreenHeight(height)
 {
+	// Step 03: Get the BackBuffer and create RTV
+	Microsoft::WRL::ComPtr<ID3D11Texture2D> pBackTex;
+	// gain access to texture subresource in swap chain (back buffer)
+	// check MSDN for more info about GetAddressOf, Get, (&) ReleaseAndGetAddressOf
+	ThrowIfFailed(spawChain->GetBuffer(0, __uuidof(ID3D11Texture2D), &pBackTex));
+	ThrowIfFailed(mDevice->CreateRenderTargetView(pBackTex.Get(), nullptr, &mRTV));
 
+	// Describe our Depth/Stencil Buffer
+	ID3D11Texture2D* depthStencilBuffer = nullptr;
+	D3D11_TEXTURE2D_DESC depthStencilTextureDesc = {};
+	ZeroMemory(&depthStencilTextureDesc, sizeof(D3D11_TEXTURE2D_DESC));
+	depthStencilTextureDesc.Width = width;
+	depthStencilTextureDesc.Height = height;
+	depthStencilTextureDesc.MipLevels = 1u;
+	depthStencilTextureDesc.ArraySize = 1u;
+	depthStencilTextureDesc.Format = DXGI_FORMAT_D24_UNORM_S8_UINT;
+	depthStencilTextureDesc.SampleDesc.Count = 1u;
+	depthStencilTextureDesc.SampleDesc.Quality = 0u;
+	depthStencilTextureDesc.Usage = D3D11_USAGE_DEFAULT;
+	depthStencilTextureDesc.BindFlags = D3D11_BIND_DEPTH_STENCIL;
+	depthStencilTextureDesc.CPUAccessFlags = 0u;
+	depthStencilTextureDesc.MiscFlags = 0u;
+	ThrowIfFailed(device->CreateTexture2D(&depthStencilTextureDesc, nullptr, &depthStencilBuffer));
+
+	D3D11_DEPTH_STENCIL_VIEW_DESC depthStencilViewDesc = {};
+	ZeroMemory(&depthStencilViewDesc, sizeof(D3D11_DEPTH_STENCIL_VIEW_DESC));
+	depthStencilViewDesc.Format = depthStencilTextureDesc.Format;
+	depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
+	depthStencilViewDesc.Flags = 0u;
+	ThrowIfFailed(device->CreateDepthStencilView(depthStencilBuffer, &depthStencilViewDesc, &mDSV));
+
+	depthStencilBuffer->Release();
 }
 
 void Renderer::SetupShaders()
@@ -53,9 +84,6 @@ void Renderer::CreateRasterizerState()
 	rastDesc.FillMode = D3D11_FILL_SOLID;
 	rastDesc.CullMode = D3D11_CULL_BACK;
 	rastDesc.FrontCounterClockwise = false;
-	rastDesc.DepthBias;
-	rastDesc.DepthBiasClamp;
-	rastDesc.SlopeScaledDepthBias;
 	ThrowIfFailed(mDevice->CreateRasterizerState(&rastDesc, mRasterizerState.GetAddressOf()));
 }
 
@@ -88,4 +116,16 @@ void Renderer::CreateSamplerState()
 	shadowSampDesc.MinLOD = 0.0f;
 	shadowSampDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	ThrowIfFailed(mDevice->CreateSamplerState(&shadowSampDesc, mShadowSamplerState.GetAddressOf()));
+}
+
+void Renderer::ClearBuffer(float r)
+{
+	//float color[] = { r, 0.0f, 0.0f, 1.0f };
+	mDeviceContext->ClearRenderTargetView(mRTV.Get(), Colors::Black);
+	mDeviceContext->ClearDepthStencilView(mDSV.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL /*Clearing Both Depth and Stencil*/, 1.0f, 0u);
+}
+
+void Renderer::BindDepthOnlyPass()
+{
+
 }
