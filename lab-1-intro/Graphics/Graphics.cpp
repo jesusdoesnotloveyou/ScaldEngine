@@ -88,7 +88,7 @@ void Graphics::Setup()
 	mTPCamera->SetOrthographicProjectionValues(static_cast<float>(mScreenWidth), static_cast<float>(mScreenHeight), mCameraNearZ, mCameraFarZ);
 
 	// for cascade shadows
-	UpdateShadowCascadeSplits();
+	mCascadeShadowMap->UpdateShadowCascadeSplits(mCameraNearZ, mCameraFarZ);
 
 	// constant buffers setup
 	ThrowIfFailed(mCBVSPerFrame.Init(mDevice.Get(), mDeviceContext.Get()));
@@ -208,13 +208,20 @@ void Graphics::DrawScene()
 	ID3D11ShaderResourceView* nullSrv[3] = { nullptr, nullptr, nullptr };
 	mDeviceContext->PSSetShaderResources(0u, 3u, nullSrv);
 
+#pragma region ShadowMapping
+	mCascadeShadowMap->BindDsvAndSetNullRenderTarget(mDeviceContext.Get());
 	pRenderer->BindDepthOnlyPass();
+	RenderDepthOnlyPass();
+#pragma endregion ShadowMapping
+
+	mDeviceContext->ClearState();
 
 	pRenderer->BindGeometryPass();
 	for (auto actor : mRenderObjects)
 	{
 		actor->Draw(mTPCamera->GetViewMatrix(), mTPCamera->GetPerspectiveProjectionMatrix());
 	}
+
 	mDeviceContext->ClearState();
 
 	pRenderer->BindLightingPass();
@@ -226,20 +233,6 @@ void Graphics::DrawScene()
 
 void Graphics::RenderDepthOnlyPass()
 {
-	// imporatnt to fix d3d warning
-	ID3D11ShaderResourceView* nullSrv[2] = { nullptr, nullptr };
-	mDeviceContext->PSSetShaderResources(0u, 2u, nullSrv);
-
-	mDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	mCascadeShadowMap->BindDsvAndSetNullRenderTarget(mDeviceContext.Get());
-	mDeviceContext->IASetInputLayout(mShadowVertexShader.GetInputLayout());
-	mDeviceContext->VSSetShader(mShadowVertexShader.Get(), nullptr, 0u);
-	// for CSM
-	mDeviceContext->GSSetShader(mCSMGeometryShader.Get(), nullptr, 0u);
-
-	mDeviceContext->PSSetShader(nullptr, nullptr, 0u);
-
 	// usually we have only one dir light source, but i decided to leave it like generic case could be with multiple
 	for (auto dirLight : mDirectionalLights)
 	{
@@ -249,7 +242,7 @@ void Graphics::RenderDepthOnlyPass()
 		for (UINT i = 0; i < CASCADE_NUMBER; i++)
 		{
 			mCSMData.ViewProj[i] = XMMatrixTranspose(lightSpaceMatrices[i]);
-			mCSMData.distances[i] = 0.0f; // not used on GPU, so filled with zero
+			mCSMData.distances[i] = mCascadeShadowMap->GetCascadeLevel(i); // not used on GPU in Geometry shader, but still filled
 		}
 
 		mCB_CSM.SetData(mCSMData);
@@ -308,12 +301,7 @@ void Graphics::RenderColorPass()
 	mDeviceContext->PSSetConstantBuffers(0u, 1u, mCBPSPerFrame.GetAddressOf());
 #pragma endregion ConstBufferPSPerFrame
 
-	for (UINT i = 0; i < CASCADE_NUMBER; ++i)
-	{
-		mCSMData.distances[i] = shadowCascadeLevels[i];
-	}
-
-	mCB_CSM.SetData(mCSMData);
+	mCB_CSM.SetData(mCSMData); // mCSMData filled on depth pass
 	mCB_CSM.ApplyChanges();
 	// send cascades data to GPU
 	mDeviceContext->PSSetConstantBuffers(1u, 1u, mCB_CSM.GetAddressOf());
@@ -432,15 +420,15 @@ void Graphics::GetLightSpaceMatrices(std::vector<XMMATRIX>& outMatrices)
 	{
 		if (i == 0)
 		{
-			outMatrices.push_back(GetLightSpaceMatrix(mCameraNearZ, shadowCascadeLevels[i]));
+			outMatrices.push_back(GetLightSpaceMatrix(mCameraNearZ, mCascadeShadowMap->GetCascadeLevel(i)));
 		}
 		else if (i < CASCADE_NUMBER - 1)
 		{
-			outMatrices.push_back(GetLightSpaceMatrix(shadowCascadeLevels[i - 1], shadowCascadeLevels[i]));
+			outMatrices.push_back(GetLightSpaceMatrix(mCascadeShadowMap->GetCascadeLevel(i - 1), mCascadeShadowMap->GetCascadeLevel(i)));
 		}
 		else
 		{
-			outMatrices.push_back(GetLightSpaceMatrix(shadowCascadeLevels[i - 1], shadowCascadeLevels[i]));
+			outMatrices.push_back(GetLightSpaceMatrix(mCascadeShadowMap->GetCascadeLevel(i - 1), mCascadeShadowMap->GetCascadeLevel(i)));
 		}
 	}
 }
@@ -486,22 +474,4 @@ XMMATRIX Graphics::GetLightSpaceMatrix(const float nearPlane, const float farPla
 
 	const auto lightProjection = XMMatrixOrthographicOffCenterLH(minX, maxX, minY, maxY, minZ, maxZ);
 	return lightView * lightProjection;
-}
-
-void Graphics::UpdateShadowCascadeSplits()
-{
-	const float minZ = mCameraNearZ;
-	const float maxZ = mCameraFarZ;
-
-	const float range = maxZ - minZ;
-	const float ratio = maxZ / minZ;
-
-	for (int i = 0; i < CASCADE_NUMBER; i++)
-	{
-		float p = (i + 1) / (float)(CASCADE_NUMBER);
-		float log = (float)(minZ * pow(ratio, p));
-		float uniform = minZ + range * p;
-		float d = cascadeSplitLambda * (log - uniform) + uniform;
-		shadowCascadeLevels[i] = ((d - mCameraNearZ) / range) * maxZ;
-	}
 }

@@ -72,7 +72,6 @@ private:
 	std::vector<XMVECTOR> GetFrustumCornersWorldSpace(const XMMATRIX& viewProjection);
 	XMMATRIX GetLightSpaceMatrix(const float nearPlane, const float farPlane);
 	void GetLightSpaceMatrices(std::vector<XMMATRIX>& outMatrices);
-	void UpdateShadowCascadeSplits();
 
 	template<typename T>
 	bool ApplyChanges(ID3D11DeviceContext* deviceContext, ID3D11Buffer* buffer, const std::vector<T>& bufferData)
@@ -126,6 +125,7 @@ private:
 
 	Camera* mCamera = nullptr;
 	ThirdPersonCamera* mTPCamera = nullptr;
+	// should encapsulate in camera
 	float mCameraFarZ = 500.0f;
 	float mCameraNearZ = 0.1f;
 	float mFovDegrees = 90.0f;
@@ -167,8 +167,6 @@ private:
 
 	// Shadows
 	CascadeShadowMap* mCascadeShadowMap = nullptr;
-	float cascadeSplitLambda = 0.95f; // idk
-	float shadowCascadeLevels[CASCADE_NUMBER] = { 0.0f, 0.0f, 0.0f, 0.0f };
 	CascadeData mCSMData;
 
 	// Renderer
