@@ -27,12 +27,6 @@ void PointLight::Draw(const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatr
 	SceneGeometry::Draw(viewMatrix, projectionMatrix);
 }
 
-void PointLight::SetAmbientColor(float x, float y, float z, float w)
-{
-	if (!LightParams) return;
-	LightParams->ambient = XMFLOAT4(x, y, z, w);
-}
-
 void PointLight::SetDiffuseColor(float x, float y, float z, float w)
 {
 	if (!LightParams) return;
@@ -43,11 +37,6 @@ void PointLight::SetAttenuation(float x, float y, float z)
 {
 	if (!LightParams) return;
 	LightParams->attenuation = XMFLOAT3(x, y, z);
-}
-
-XMFLOAT4 PointLight::GetAmbientColor()
-{
-	return LightParams ? LightParams->ambient : XMFLOAT4{};
 }
 
 XMFLOAT4 PointLight::GetDiffuseColor()

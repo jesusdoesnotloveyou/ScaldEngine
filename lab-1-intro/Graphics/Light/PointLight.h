@@ -16,11 +16,9 @@ public:
 
 public:
 	//~ Begin of Light interface
-	virtual void SetAmbientColor(float x, float y, float z, float w) override;
 	virtual void SetDiffuseColor(float x, float y, float z, float w) override;
 	virtual void SetAttenuation(float x, float y, float z) override;
 
-	virtual XMFLOAT4 GetAmbientColor() override;
 	virtual XMFLOAT4 GetDiffuseColor() override;
 	virtual XMFLOAT3 GetAttenuation() override;
 private:

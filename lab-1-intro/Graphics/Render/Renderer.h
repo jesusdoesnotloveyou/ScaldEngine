@@ -39,6 +39,9 @@ protected:
 	// Sampler
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> mSamplerState;
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> mShadowSamplerState;
+	// Blend
+	Microsoft::WRL::ComPtr<ID3D11BlendState> mBlendState;
+
 	D3D11_VIEWPORT mViewport = {};
 
 protected:

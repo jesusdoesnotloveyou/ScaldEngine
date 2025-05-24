@@ -1,6 +1,8 @@
-#include "../../ScaldException.h"
 #include "DeferredRenderer.h"
 #include "../ScaldCoreTypes.h"
+#include "../Mesh.h"
+
+#include <vector>
 
 DeferredRenderer::DeferredRenderer(IDXGISwapChain* spawChain, ID3D11Device* device, ID3D11DeviceContext* deviceContext, UINT width, UINT height)
 	: Renderer(spawChain, device, deviceContext, width, height)
@@ -47,6 +49,10 @@ DeferredRenderer::DeferredRenderer(IDXGISwapChain* spawChain, ID3D11Device* devi
 	{
 		ThrowIfFailed(device->CreateShaderResourceView(mGBuffer[i].texture, &shaderResourceViewDesc, &mGBuffer[i].srv));
 	}
+
+	std::vector<VertexTex> quadVertices = { VertexTex(), VertexTex(), VertexTex(), VertexTex() };
+	std::vector<DWORD> quadIndeces = { 0 }; // at least one due to throwing exception in Init
+	screenQuad = new Mesh(device, deviceContext, quadVertices, quadIndeces);
 }
 
 DeferredRenderer::~DeferredRenderer() noexcept
@@ -148,10 +154,11 @@ void DeferredRenderer::BindGeometryPass()
 
 void DeferredRenderer::BindLightingPass()
 {
-	mDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	mDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP); // Quad -> two triangles
 	mDeviceContext->IASetInputLayout(mLightingVertexShader.GetInputLayout());
 
 	mDeviceContext->OMSetRenderTargets(1u, mRTV.GetAddressOf(), nullptr);
+	ClearBuffer(.0f); // to make separate pass in RenderDoc
 
 	mDeviceContext->VSSetShader(mLightingVertexShader.Get(), nullptr, 0u);
 
@@ -172,5 +179,17 @@ void DeferredRenderer::BindLightingPass()
 
 void DeferredRenderer::BindTransparentPass()
 {
+	mDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	mDeviceContext->OMSetRenderTargets(1u, mRTV.GetAddressOf(), nullptr);
+	ClearBuffer(.0f);
 
+	mDeviceContext->RSSetViewports(1u, &mViewport);
+	mDeviceContext->RSSetState(mRasterizerState.Get());
+}
+
+void DeferredRenderer::DrawScreenQuad()
+{
+	mDeviceContext->IASetVertexBuffers(0u, 1u, screenQuad->GetVertexBuffer().GetAddressOf(), screenQuad->GetVertexBuffer().GetStridePtr(), screenQuad->GetVertexBuffer().GetOffsetPtr());
+	mDeviceContext->IASetIndexBuffer(screenQuad->GetIndexBuffer().Get(), DXGI_FORMAT_R32_UINT, 0u);
+	mDeviceContext->Draw(screenQuad->GetVertexBuffer().GetBufferSize(), 0u);
 }

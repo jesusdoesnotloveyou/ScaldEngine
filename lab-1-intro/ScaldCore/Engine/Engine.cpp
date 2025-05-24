@@ -3,6 +3,7 @@
 #include "../../Games/Katamari/KatamariPlayer.h"
 #include "../../Graphics/Camera/ThirdPersonCamera.h"
 #include "../../Graphics/Light/PointLight.h"
+#include "../../Graphics/Light/SpotLight.h"
 #include "../../Graphics/Light/DirectionalLight.h"
 
 #include <sstream>
@@ -53,21 +54,25 @@ void Engine::SetupScene()
 
 #pragma region Light
 #pragma region PointLight
-	/*PointLight* light1 = new PointLight("./Data/Models/Light/light.obj");
-	light1->GetTransform()->SetPosition(0.0f, 4.0f, 2.0f);
-	light1->GetTransform()->SetRotation(-XM_PIDIV2, 0.0f, 0.0f);
-	light1->SetAmbientColor(1.0f, 1.0f, 1.0f, 0.0f);
-	light1->SetDiffuseColor(1.0f, 0.0f, 0.0f, 5.0f);
-	light1->SetAttenuation(1.0f, 0.1f, 0.1f);
+	PointLight* pointLight1 = new PointLight("./Data/Models/Light/light.obj");
+	pointLight1->GetTransform()->SetPosition(0.0f, 4.0f, 2.0f);
+	pointLight1->GetTransform()->SetRotation(-XM_PIDIV2, 0.0f, 0.0f);
+	pointLight1->SetDiffuseColor(1.0f, 0.0f, 0.0f, 5.0f);
+	pointLight1->SetAttenuation(1.0f, 0.1f, 0.1f);
 
-	PointLight* light2 = new PointLight("./Data/Models/Light/light.obj");
-	light2->GetTransform()->SetPosition(0.0f, 4.0f, 6.0f);
-	light2->GetTransform()->SetRotation(-XM_PIDIV2, 0.0f, 0.0f);
-	light2->SetAmbientColor(1.0f, 1.0f, 1.0f, 0.0f);
-	light2->SetDiffuseColor(0.0f, 0.0f, 1.0f, 5.0f);
-	light2->SetAttenuation(1.0f, 0.1f, 0.1f);*/
+	PointLight* pointLight2 = new PointLight("./Data/Models/Light/light.obj");
+	pointLight2->GetTransform()->SetPosition(0.0f, 4.0f, 6.0f);
+	pointLight2->GetTransform()->SetRotation(-XM_PIDIV2, 0.0f, 0.0f);
+	pointLight2->SetDiffuseColor(0.0f, 0.0f, 1.0f, 5.0f);
+	pointLight2->SetAttenuation(1.0f, 0.1f, 0.1f);
 #pragma endregion PointLight
-
+#pragma region SpotLight
+	SpotLight* spotLight1 = new SpotLight("./Data/Models/Light/light.obj");
+	spotLight1->GetTransform()->SetPosition(0.0f, 4.0f, -6.0f);
+	spotLight1->GetTransform()->SetRotation(-XM_PIDIV2, 0.0f, 0.0f);
+	spotLight1->SetDiffuseColor(1.0f, 1.0f, 0.0f, 5.0f);
+	spotLight1->SetAttenuation(1.0f, 0.1f, 0.1f);
+#pragma endregion SpotLight
 #pragma region DirectionalLight
 	DirectionalLight* directionalLight = new DirectionalLight("./Data/Models/Light/light.obj");
 	directionalLight->GetTransform()->SetPosition(10.0f, 50.0f, 100.0f);
@@ -77,7 +82,6 @@ void Engine::SetupScene()
 	// opposite to dir light pos vector
 	directionalLight->SetDirection(-10.0f, -50.0f, -100.0f);
 #pragma endregion DirectionalLight
-
 #pragma endregion Light
 
 	SceneGeometry* alien = new Actor(alienFemaleModel);
@@ -130,13 +134,12 @@ void Engine::SetupScene()
 	mRenderWindow.GetGfx().AddToRenderPool(pig);
 	mRenderWindow.GetGfx().AddToRenderPool(rock);
 
-#pragma region DirectionalLight
+#pragma region LightPool
 	mRenderWindow.GetGfx().AddToRenderPool(directionalLight);
-#pragma endregion DirectionalLight
-#pragma region PointLights
-	/*mRenderWindow.GetGfx().AddToRenderPool(light1);
-	mRenderWindow.GetGfx().AddToRenderPool(light2);*/
-#pragma endregion PointLights
+	mRenderWindow.GetGfx().AddToRenderPool(pointLight1);
+	mRenderWindow.GetGfx().AddToRenderPool(pointLight2);
+	mRenderWindow.GetGfx().AddToRenderPool(spotLight1);
+#pragma endregion LightPool
 	
 	mRenderWindow.GetGfx().InitSceneObjects();
 

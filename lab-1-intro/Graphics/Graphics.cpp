@@ -88,12 +88,13 @@ void Graphics::Setup()
 	mTPCamera->SetOrthographicProjectionValues(static_cast<float>(mScreenWidth), static_cast<float>(mScreenHeight), mCameraNearZ, mCameraFarZ);
 
 	// for cascade shadows
-	UpdateShadowCascadeSplits();
+	mCascadeShadowMap->UpdateShadowCascadeSplits(mCameraNearZ, mCameraFarZ);
 
 	// constant buffers setup
 	ThrowIfFailed(mCBVSPerFrame.Init(mDevice.Get(), mDeviceContext.Get()));
 	ThrowIfFailed(mCBPSPerFrame.Init(mDevice.Get(), mDeviceContext.Get()));
 	ThrowIfFailed(mCB_CSM.Init(mDevice.Get(), mDeviceContext.Get()));
+	ThrowIfFailed(mCB_Light.Init(mDevice.Get(), mDeviceContext.Get()));
 }
 
 void Graphics::AddToRenderPool(SceneGeometry* sceneObject)
@@ -130,14 +131,19 @@ void Graphics::InitSceneObjects()
 	SetupShaders();
 	mTPCamera->SetTarget(mRenderObjects[0]);
 
-	if (bIsPointLightEnabled)
-	{
-		InitPointLight();
-	}
-
-	if (bIsDirectionalLightEnabled)
+	if (bIsDirectionalLightEnabled && !mDirectionalLights.empty() && bIsForwardRenderingTechniqueApplied)
 	{
 		InitDirectionalLight();
+	}
+
+	if (bIsPointLightEnabled && !mPointLights.empty())
+	{
+		InitPointLights();
+	}
+
+	if (bIsSpotLightEnabled && !mSpotLights.empty())
+	{
+		InitSpotLights();
 	}
 
 	for (auto sceneObject : mRenderObjects)
@@ -176,12 +182,16 @@ void Graphics::UpdateDirectionalLightParams()
 
 void Graphics::AddSpotLightSourceParams(SpotLightParams* lightParams)
 {
-
+	mSpotLightsParameters.push_back(*lightParams);
 }
 
 void Graphics::UpdateSpotLightParams()
 {
-
+	if (mSpotLights.empty()) return;
+	for (int i = 0; i < mSpotLights.size(); i++)
+	{
+		mSpotLightsParameters[i] = *mSpotLights[i]->GetParams();
+	}
 }
 
 // Before rendering every frame we should clear render target view and depth stencil view
@@ -194,52 +204,46 @@ void Graphics::ClearBuffer(float r)
 //void Graphics::DrawScene()
 //{
 //	// @todo: Render->Draw(); // deferred|forward|forward+
-//
 //	RenderDepthOnlyPass();
-//
 //	mDeviceContext->ClearState();
-//
 //	RenderColorPass();
 //}
 
-// deferred rendering
+// Deferred rendering
 void Graphics::DrawScene()
 {
 	ID3D11ShaderResourceView* nullSrv[3] = { nullptr, nullptr, nullptr };
 	mDeviceContext->PSSetShaderResources(0u, 3u, nullSrv);
 
+#pragma region ShadowMapping
+	mCascadeShadowMap->BindDsvAndSetNullRenderTarget(mDeviceContext.Get());
 	pRenderer->BindDepthOnlyPass();
+	RenderDepthOnlyPass();
+#pragma endregion ShadowMapping
+
+	mDeviceContext->ClearState();
 
 	pRenderer->BindGeometryPass();
 	for (auto actor : mRenderObjects)
 	{
 		actor->Draw(mTPCamera->GetViewMatrix(), mTPCamera->GetPerspectiveProjectionMatrix());
 	}
+
 	mDeviceContext->ClearState();
 
 	pRenderer->BindLightingPass();
-	//mDeviceContext->ClearState();
+	BindLightingPassResources();
+	pRenderer->DrawScreenQuad();
 
-	//pRenderer->BindTransparentPass();
-	//mDeviceContext->ClearState();
+	mDeviceContext->ClearState();
+
+	/*pRenderer->BindTransparentPass();
+	mDeviceContext->ClearState();*/
 }
 
+// For both Forward and Deferred
 void Graphics::RenderDepthOnlyPass()
 {
-	// imporatnt to fix d3d warning
-	ID3D11ShaderResourceView* nullSrv[2] = { nullptr, nullptr };
-	mDeviceContext->PSSetShaderResources(0u, 2u, nullSrv);
-
-	mDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-
-	mCascadeShadowMap->BindDsvAndSetNullRenderTarget(mDeviceContext.Get());
-	mDeviceContext->IASetInputLayout(mShadowVertexShader.GetInputLayout());
-	mDeviceContext->VSSetShader(mShadowVertexShader.Get(), nullptr, 0u);
-	// for CSM
-	mDeviceContext->GSSetShader(mCSMGeometryShader.Get(), nullptr, 0u);
-
-	mDeviceContext->PSSetShader(nullptr, nullptr, 0u);
-
 	// usually we have only one dir light source, but i decided to leave it like generic case could be with multiple
 	for (auto dirLight : mDirectionalLights)
 	{
@@ -249,7 +253,7 @@ void Graphics::RenderDepthOnlyPass()
 		for (UINT i = 0; i < CASCADE_NUMBER; i++)
 		{
 			mCSMData.ViewProj[i] = XMMatrixTranspose(lightSpaceMatrices[i]);
-			mCSMData.distances[i] = 0.0f; // not used on GPU, so filled with zero
+			mCSMData.distances[i] = mCascadeShadowMap->GetCascadeLevel(i); // not used on GPU in Geometry shader, but still filled
 		}
 
 		mCB_CSM.SetData(mCSMData);
@@ -264,6 +268,33 @@ void Graphics::RenderDepthOnlyPass()
 	}
 }
 
+void Graphics::BindLightingPassResources()
+{
+	mLightWorldData.dirLight = *mDirectionalLights[0]->GetParams();
+	mLightWorldData.numPointLights = (float)mPointLightsParameters.size();
+	mLightWorldData.numSpotLights = (float)mSpotLightsParameters.size();
+	mCB_Light.SetData(mLightWorldData);
+	mCB_Light.ApplyChanges();
+	mDeviceContext->PSSetConstantBuffers(0u, 1u, mCB_Light.GetAddressOf());
+
+	mCB_CSM.SetData(mCSMData);
+	mCB_CSM.ApplyChanges();
+	mDeviceContext->PSSetConstantBuffers(1u, 1u, mCB_CSM.GetAddressOf());
+	mDeviceContext->PSSetShaderResources(3u, 1u, mCascadeShadowMap->GetAddressOf());
+	
+	if (bIsPointLightEnabled)
+	{
+		ApplyChanges(mDeviceContext.Get(), mPointLightBuffer.Get(), mPointLightsParameters);
+		mDeviceContext->PSSetShaderResources(4u, 1u, mPointLightSRV.GetAddressOf());
+	}
+	if (bIsSpotLightEnabled)
+	{
+		ApplyChanges(mDeviceContext.Get(), mSpotLightBuffer.Get(), mSpotLightsParameters);
+		mDeviceContext->PSSetShaderResources(5u, 1u, mSpotLightSRV.GetAddressOf());
+	}
+}
+
+// Forward Rendering
 void Graphics::RenderColorPass()
 {
 	// Have to set primitive topology again, since we call ClearState between passes
@@ -271,7 +302,7 @@ void Graphics::RenderColorPass()
 	mDeviceContext->IASetInputLayout(mVertexShader.GetInputLayout());
 
 	// Step 11: Set BackBuffer for Output merger
-	mDeviceContext->OMSetRenderTargets(1u, mRTV.GetAddressOf(), mDSV.Get());
+	//mDeviceContext->OMSetRenderTargets(1u, mRTV.GetAddressOf(), mDSV.Get());
 
 	// Step 09: Set Vertex Shaders
 	mDeviceContext->VSSetShader(mVertexShader.Get(), nullptr, 0u);
@@ -286,15 +317,15 @@ void Graphics::RenderColorPass()
 	mDeviceContext->VSSetConstantBuffers(1u, 1u, mCBVSPerFrame.GetAddressOf());
 #pragma endregion ConstBufferVSPerFrame
 
-	mDeviceContext->RSSetViewports(1u, &currentViewport);
-	mDeviceContext->RSSetState(mRasterizerState.Get());
+	//mDeviceContext->RSSetViewports(1u, &currentViewport);
+	//mDeviceContext->RSSetState(mRasterizerState.Get());
 
-	mDeviceContext->OMSetDepthStencilState(mDepthStencilState.Get(), 0u);
+	//mDeviceContext->OMSetDepthStencilState(mDepthStencilState.Get(), 0u);
 
 	// Step 09: Set Pixel Shaders
 	mDeviceContext->PSSetShader(mPixelShader.Get(), nullptr, 0u);
-	mDeviceContext->PSSetSamplers(0u, 1u, mSamplerState.GetAddressOf());
-	mDeviceContext->PSSetSamplers(1u, 1u, mShadowSamplerState.GetAddressOf());
+	//mDeviceContext->PSSetSamplers(0u, 1u, mSamplerState.GetAddressOf());
+	//mDeviceContext->PSSetSamplers(1u, 1u, mShadowSamplerState.GetAddressOf());
 
 #pragma region ConstBufferPSPerFrame
 	ConstBufferPSPerFrame cbPSPerFrame;
@@ -308,14 +339,7 @@ void Graphics::RenderColorPass()
 	mDeviceContext->PSSetConstantBuffers(0u, 1u, mCBPSPerFrame.GetAddressOf());
 #pragma endregion ConstBufferPSPerFrame
 
-	for (UINT i = 0; i < CASCADE_NUMBER; ++i)
-	{
-		mCSMData.distances[i] = shadowCascadeLevels[i];
-	}
-
-	mCB_CSM.SetData(mCSMData);
-	mCB_CSM.ApplyChanges();
-	// send cascades data to GPU
+	// send to GPU cascades data that filled on the depth only pass
 	mDeviceContext->PSSetConstantBuffers(1u, 1u, mCB_CSM.GetAddressOf());
 	
 	// Bind shadow maps from depth pass to pixel shader
@@ -324,12 +348,12 @@ void Graphics::RenderColorPass()
 	if (bIsPointLightEnabled)
 	{
 		ApplyChanges(mDeviceContext.Get(), mPointLightBuffer.Get(), mPointLightsParameters);
-		mDeviceContext->PSSetShaderResources(2u, 1u, mPointLightShaderResourceView.GetAddressOf());
+		mDeviceContext->PSSetShaderResources(2u, 1u, mPointLightSRV.GetAddressOf());
 	}
 	if (bIsDirectionalLightEnabled)
 	{
 		ApplyChanges(mDeviceContext.Get(), mDirectionalLightBuffer.Get(), mDirectionalLightParameters);
-		mDeviceContext->PSSetShaderResources(3u, 1u, mDirectionalLightShaderResourceView.GetAddressOf());
+		mDeviceContext->PSSetShaderResources(3u, 1u, mDirectionalLightSRV.GetAddressOf());
 	}
 
 	for (auto actor : mRenderObjects)
@@ -373,19 +397,6 @@ void Graphics::SetupShaders()
 	pRenderer->SetupShaders();
 }
 
-void Graphics::InitPointLight()
-{
-	ThrowIfFailed(CreateStructuredBuffer(mDevice.Get(), mPointLightBuffer.GetAddressOf(), mPointLightsParameters));
-
-	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
-	srvDesc.Format = DXGI_FORMAT_UNKNOWN;
-	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
-	srvDesc.Buffer.FirstElement = 0u;
-	srvDesc.Buffer.NumElements = (UINT)mPointLightsParameters.size();
-
-	ThrowIfFailed(mDevice->CreateShaderResourceView(mPointLightBuffer.Get(), &srvDesc, &mPointLightShaderResourceView));
-}
-
 void Graphics::InitDirectionalLight()
 {
 	ThrowIfFailed(CreateStructuredBuffer(mDevice.Get(), mDirectionalLightBuffer.GetAddressOf(), mDirectionalLightParameters));
@@ -396,7 +407,33 @@ void Graphics::InitDirectionalLight()
 	srvDesc.Buffer.FirstElement = 0u;
 	srvDesc.Buffer.NumElements = (UINT)mDirectionalLightParameters.size();
 
-	ThrowIfFailed(mDevice->CreateShaderResourceView(mDirectionalLightBuffer.Get(), &srvDesc, &mDirectionalLightShaderResourceView));
+	ThrowIfFailed(mDevice->CreateShaderResourceView(mDirectionalLightBuffer.Get(), &srvDesc, &mDirectionalLightSRV));
+}
+
+void Graphics::InitPointLights()
+{
+	ThrowIfFailed(CreateStructuredBuffer(mDevice.Get(), mPointLightBuffer.GetAddressOf(), mPointLightsParameters));
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+	srvDesc.Format = DXGI_FORMAT_UNKNOWN;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
+	srvDesc.Buffer.FirstElement = 0u;
+	srvDesc.Buffer.NumElements = (UINT)mPointLightsParameters.size();
+
+	ThrowIfFailed(mDevice->CreateShaderResourceView(mPointLightBuffer.Get(), &srvDesc, &mPointLightSRV));
+}
+
+void Graphics::InitSpotLights()
+{
+	ThrowIfFailed(CreateStructuredBuffer(mDevice.Get(), mSpotLightBuffer.GetAddressOf(), mSpotLightsParameters));
+
+	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
+	srvDesc.Format = DXGI_FORMAT_UNKNOWN;
+	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
+	srvDesc.Buffer.FirstElement = 0u;
+	srvDesc.Buffer.NumElements = (UINT)mSpotLightsParameters.size();
+
+	ThrowIfFailed(mDevice->CreateShaderResourceView(mSpotLightBuffer.Get(), &srvDesc, &mSpotLightSRV));
 }
 
 std::vector<XMVECTOR> Graphics::GetFrustumCornersWorldSpace(const XMMATRIX& viewProjection)
@@ -432,15 +469,15 @@ void Graphics::GetLightSpaceMatrices(std::vector<XMMATRIX>& outMatrices)
 	{
 		if (i == 0)
 		{
-			outMatrices.push_back(GetLightSpaceMatrix(mCameraNearZ, shadowCascadeLevels[i]));
+			outMatrices.push_back(GetLightSpaceMatrix(mCameraNearZ, mCascadeShadowMap->GetCascadeLevel(i)));
 		}
 		else if (i < CASCADE_NUMBER - 1)
 		{
-			outMatrices.push_back(GetLightSpaceMatrix(shadowCascadeLevels[i - 1], shadowCascadeLevels[i]));
+			outMatrices.push_back(GetLightSpaceMatrix(mCascadeShadowMap->GetCascadeLevel(i - 1), mCascadeShadowMap->GetCascadeLevel(i)));
 		}
 		else
 		{
-			outMatrices.push_back(GetLightSpaceMatrix(shadowCascadeLevels[i - 1], shadowCascadeLevels[i]));
+			outMatrices.push_back(GetLightSpaceMatrix(mCascadeShadowMap->GetCascadeLevel(i - 1), mCascadeShadowMap->GetCascadeLevel(i)));
 		}
 	}
 }
@@ -486,22 +523,4 @@ XMMATRIX Graphics::GetLightSpaceMatrix(const float nearPlane, const float farPla
 
 	const auto lightProjection = XMMatrixOrthographicOffCenterLH(minX, maxX, minY, maxY, minZ, maxZ);
 	return lightView * lightProjection;
-}
-
-void Graphics::UpdateShadowCascadeSplits()
-{
-	const float minZ = mCameraNearZ;
-	const float maxZ = mCameraFarZ;
-
-	const float range = maxZ - minZ;
-	const float ratio = maxZ / minZ;
-
-	for (int i = 0; i < CASCADE_NUMBER; i++)
-	{
-		float p = (i + 1) / (float)(CASCADE_NUMBER);
-		float log = (float)(minZ * pow(ratio, p));
-		float uniform = minZ + range * p;
-		float d = cascadeSplitLambda * (log - uniform) + uniform;
-		shadowCascadeLevels[i] = ((d - mCameraNearZ) / range) * maxZ;
-	}
 }

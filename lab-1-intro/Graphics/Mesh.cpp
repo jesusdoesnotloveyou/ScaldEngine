@@ -5,7 +5,7 @@ Mesh::Mesh(ID3D11DeviceContext* deviceContext)
     mDeviceContext = deviceContext;
 }
 
-Mesh::Mesh(ID3D11Device* device, ID3D11DeviceContext* deviceContext, std::vector<VertexTex>& vertices, std::vector<DWORD> indeces)
+Mesh::Mesh(ID3D11Device* device, ID3D11DeviceContext* deviceContext, std::vector<VertexTex>& vertices, std::vector<DWORD>& indeces)
     : Mesh(deviceContext)
 {
     ThrowIfFailed(mVB.Init(device, vertices.data(), (UINT)vertices.size()));

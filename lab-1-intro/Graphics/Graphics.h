@@ -63,16 +63,20 @@ private:
 	void CreateSamplerState();
 
 	void SetupShaders();
-	void InitPointLight();
+	
 	void InitDirectionalLight();
+	void InitPointLights();
+	void InitSpotLights();
+
 	void RenderDepthOnlyPass();
 	void RenderColorPass();
+
+	void BindLightingPassResources();
 
 	// get all 8 vertices of frustrum
 	std::vector<XMVECTOR> GetFrustumCornersWorldSpace(const XMMATRIX& viewProjection);
 	XMMATRIX GetLightSpaceMatrix(const float nearPlane, const float farPlane);
 	void GetLightSpaceMatrices(std::vector<XMMATRIX>& outMatrices);
-	void UpdateShadowCascadeSplits();
 
 	template<typename T>
 	bool ApplyChanges(ID3D11DeviceContext* deviceContext, ID3D11Buffer* buffer, const std::vector<T>& bufferData)
@@ -116,16 +120,17 @@ public:
 	std::vector<SceneGeometry*> mRenderObjects;
 private:
 	// temporary, need a LightManager that would control light pool
-	std::vector<PointLight*> mPointLights;
 	std::vector<DirectionalLight*> mDirectionalLights;
+	std::vector<PointLight*> mPointLights;
 	std::vector<SpotLight*> mSpotLights;
 
-	bool bIsPointLightEnabled = false;
+	bool bIsPointLightEnabled = true;
 	bool bIsDirectionalLightEnabled = true;
-	bool bIsSpotLightEnabled = false;
+	bool bIsSpotLightEnabled = true;
 
 	Camera* mCamera = nullptr;
 	ThirdPersonCamera* mTPCamera = nullptr;
+	// should encapsulate in camera
 	float mCameraFarZ = 500.0f;
 	float mCameraNearZ = 0.1f;
 	float mFovDegrees = 90.0f;
@@ -138,40 +143,39 @@ private:
 #pragma region Light
 	ConstantBuffer<ConstBufferVSPerFrame> mCBVSPerFrame;
 	ConstantBuffer<ConstBufferPSPerFrame> mCBPSPerFrame;
-	ConstantBuffer<CascadeData> mCB_CSM;
 
+	// need to update member
+	std::vector<DirectionalLightParams> mDirectionalLightParameters;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> mDirectionalLightBuffer;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mDirectionalLightSRV; // structured buffer
+	
 	// need to update members of vector
 	std::vector<PointLightParams> mPointLightsParameters;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> mPointLightBuffer;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mPointLightShaderResourceView; // structured buffer
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mPointLightSRV; // structured buffer
 
-	std::vector<DirectionalLightParams> mDirectionalLightParameters;
-	Microsoft::WRL::ComPtr<ID3D11Buffer> mDirectionalLightBuffer;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mDirectionalLightShaderResourceView; // structured buffer
+	// need to update members of vector
+	std::vector<SpotLightParams> mSpotLightsParameters;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> mSpotLightBuffer;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mSpotLightSRV; // structured buffer
 #pragma endregion Light
 
 	Microsoft::WRL::ComPtr<ID3D11Device> mDevice;
 	Microsoft::WRL::ComPtr<IDXGISwapChain> mSwapChain;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> mDeviceContext;
-	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> mRTV; // to deletem, see Renderer
-	// Depth Stencil
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> mDSV; // to delete, see Renderer
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> mDepthStencilState; // to delete, see Renderer
-	// Rast
-	Microsoft::WRL::ComPtr<ID3D11RasterizerState> mRasterizerState; // to delete, see Renderer
-	// Sampler
-	Microsoft::WRL::ComPtr<ID3D11SamplerState> mSamplerState; // to delete, see Renderer
-	Microsoft::WRL::ComPtr<ID3D11SamplerState> mShadowSamplerState; // to delete, see Renderer
-
-	D3D11_VIEWPORT currentViewport = {};
-
-	// Shadows
-	CascadeShadowMap* mCascadeShadowMap = nullptr;
-	float cascadeSplitLambda = 0.95f; // idk
-	float shadowCascadeLevels[CASCADE_NUMBER] = { 0.0f, 0.0f, 0.0f, 0.0f };
-	CascadeData mCSMData;
 
 	// Renderer
 	// Deferred Rendering
 	std::unique_ptr<DeferredRenderer> pRenderer;
+
+	ConstantBuffer<LightWorldConstantBuffer> mCB_Light;
+	LightWorldConstantBuffer mLightWorldData; // for mCB_Light
+
+	// Shadows
+	CascadeShadowMap* mCascadeShadowMap = nullptr;
+	ConstantBuffer<CascadeDataConstantBuffer> mCB_CSM;
+	CascadeDataConstantBuffer mCSMData;
+
+	bool bIsForwardRenderingTechniqueApplied = false;
+	bool bIsDeferredRenderingTechniqueApplied = true;
 };

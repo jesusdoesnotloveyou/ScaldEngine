@@ -81,6 +81,13 @@ struct ConstBufferPSPerFrame
 	//float numSpotLights = 0;
 };
 
+struct LightWorldConstantBuffer
+{
+	DirectionalLightParams dirLight;
+	float numPointLights = 0;
+	float numSpotLights = 0;
+};
+
 struct ConstBufferVSPerFrame
 {
 	XMMATRIX gLightViewProjection = XMMatrixIdentity();
@@ -90,9 +97,9 @@ struct ConstBufferVSPerFrame
 // must be divisible by 4
 const UINT CASCADE_NUMBER = 4;
 
-struct CascadeData
+struct CascadeDataConstantBuffer
 {
-	CascadeData() 
+	CascadeDataConstantBuffer() 
 	{
 		for (UINT i = 0; i < CASCADE_NUMBER; i++)
 		{
