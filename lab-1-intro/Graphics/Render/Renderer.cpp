@@ -1,5 +1,6 @@
 #include "Renderer.h"
 #include "../ScaldCoreTypes.h"
+#include "../Shadows/CascadeShadowMap.h"
 
 Renderer::Renderer(IDXGISwapChain* spawChain, ID3D11Device* device, ID3D11DeviceContext* deviceContext, int width, int height)
 	:
@@ -127,5 +128,10 @@ void Renderer::ClearBuffer(float r)
 
 void Renderer::BindDepthOnlyPass()
 {
+	mDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	mDeviceContext->IASetInputLayout(mShadowVertexShader.GetInputLayout());
 
+	mDeviceContext->VSSetShader(mShadowVertexShader.Get(), nullptr, 0u);
+	mDeviceContext->GSSetShader(mCSMGeometryShader.Get(), nullptr, 0u);
+	mDeviceContext->PSSetShader(nullptr, nullptr, 0u);
 }
