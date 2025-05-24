@@ -157,7 +157,7 @@ void DeferredRenderer::BindLightingPass()
 	mDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP); // Quad -> two triangles
 	mDeviceContext->IASetInputLayout(mLightingVertexShader.GetInputLayout());
 
-	mDeviceContext->OMSetRenderTargets(1u, mRTV.GetAddressOf(), mDSV.Get());
+	mDeviceContext->OMSetRenderTargets(1u, mRTV.GetAddressOf(), nullptr);
 	ClearBuffer(.0f); // to make separate pass in RenderDoc
 
 	mDeviceContext->VSSetShader(mLightingVertexShader.Get(), nullptr, 0u);
