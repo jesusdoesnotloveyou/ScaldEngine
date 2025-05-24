@@ -28,7 +28,6 @@ public:
 	void BindLightingPass();
 	void BindTransparentPass();
 	
-private:
 	void DrawScreenQuad();
 
 private:
