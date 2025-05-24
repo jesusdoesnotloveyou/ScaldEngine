@@ -16,9 +16,9 @@ public:
 	//~ End of SceneGeometry interface
 	
     // 4th parameter is intensity
-    virtual void SetAmbientColor(float x, float y, float z, float w) = 0;
+    virtual void SetAmbientColor(float x, float y, float z, float w) {} // only for dir light in Deferred Shading
     virtual void SetDiffuseColor(float x, float y, float z, float w) = 0;
-    virtual XMFLOAT4 GetAmbientColor() = 0;
+    virtual XMFLOAT4 GetAmbientColor() { return XMFLOAT4{}; } // only for dir light in Deferred Shading
     virtual XMFLOAT4 GetDiffuseColor() = 0;
 
     // only for directional and spot lights
