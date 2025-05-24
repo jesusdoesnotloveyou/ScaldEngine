@@ -175,12 +175,16 @@ void DeferredRenderer::BindLightingPass()
 	
 	//mDeviceContext->PSSetSamplers(0u, 1u, mSamplerState.GetAddressOf());
 	mDeviceContext->PSSetSamplers(0u, 1u, mShadowSamplerState.GetAddressOf());
-	DrawScreenQuad();
 }
 
 void DeferredRenderer::BindTransparentPass()
 {
+	mDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	mDeviceContext->OMSetRenderTargets(1u, mRTV.GetAddressOf(), nullptr);
+	ClearBuffer(.0f);
 
+	mDeviceContext->RSSetViewports(1u, &mViewport);
+	mDeviceContext->RSSetState(mRasterizerState.Get());
 }
 
 void DeferredRenderer::DrawScreenQuad()
