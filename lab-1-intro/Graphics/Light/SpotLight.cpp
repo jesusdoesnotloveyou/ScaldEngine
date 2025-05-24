@@ -1,6 +1,6 @@
 #include "SpotLight.h"
 
-SpotLight::SpotLight(const std::string& filePath)
+SpotLight::SpotLight(const std::string& filePath) : Light(filePath)
 {
 	LightParams = new SpotLightParams();
 	LightType = ELightType::Spot;
@@ -26,21 +26,10 @@ void SpotLight::Draw(const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatri
 	Light::Draw(viewMatrix, projectionMatrix);
 }
 
-void SpotLight::SetAmbientColor(float x, float y, float z, float w)
-{
-	if (!LightParams) return;
-	LightParams->ambient = XMFLOAT4(x, y, z, w);
-}
-
 void SpotLight::SetDiffuseColor(float x, float y, float z, float w)
 {
 	if (!LightParams) return;
 	LightParams->diffuse = XMFLOAT4(x, y, z, w);
-}
-
-XMFLOAT4 SpotLight::GetAmbientColor()
-{
-	return LightParams ? LightParams->ambient : XMFLOAT4{};
 }
 
 XMFLOAT4 SpotLight::GetDiffuseColor()
