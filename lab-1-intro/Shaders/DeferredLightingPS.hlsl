@@ -1,40 +1,20 @@
-struct DirectionalLight
+struct UniLight
 {
     float4 ambient;
     float4 diffuse;
     float4 specular;
     float3 direction;
-    float pad;
-};
-
-struct PointLight
-{
-    float4 diffuse;
-    float4 specular;
-    float3 position;
-    float range;
-    float3 attenuation;
-    float pad;
-};
-
-struct SpotLight
-{
-    float4 diffuse;
-    float4 specular;
-    float3 position;
-    float range;
-    float3 direction;
     float spot;
+    float3 position;
+    float lightType;
     float3 attenuation;
-    float pad;
+    float range;
 };
 
-cbuffer LightWCB : register(b0)
+cbuffer LightCB : register(b0)
 {
-    DirectionalLight dirLight;
-    float numPointLights;
-    float numSpotLights;
-};
+    UniLight LightSource;
+}
 
 struct CascadeData
 {
@@ -50,13 +30,10 @@ cbuffer CascBuf : register(b1)
 Texture2D<float4> diffuseTexture : register(t0);
 Texture2D<float3> normalTexture : register(t1);
 Texture2D<float3> posTexture : register(t2);
-
 Texture2DArray shadowMaps : register(t3);
 
-StructuredBuffer<PointLight> PointLights : register(t4);
-StructuredBuffer<SpotLight> SpotLights : register(t5);
-
-SamplerComparisonState shadowSamplerState : SAMPLER : register(s0);
+SamplerState objSamplerState : SAMPLER : register(s0);
+SamplerComparisonState shadowSamplerState : SAMPLER : register(s1);
 
 struct PS_IN
 {
@@ -82,5 +59,5 @@ float4 main(PS_IN input) : SV_Target
     uint width, height, elements, levels;
     shadowMaps.GetDimensions(0, width, height, elements, levels);
     
-    return diffuseColor + dirLight.ambient.x * levels * pos.x * normal.x * PointLights[0].pad * SpotLights[0].pad;
+    return diffuseColor;
 }
