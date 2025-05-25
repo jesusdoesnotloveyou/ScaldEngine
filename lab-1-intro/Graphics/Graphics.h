@@ -42,13 +42,13 @@ public:
 
 #pragma region LightManagment
 	void AddPointLightSourceParams(PointLightParams* lightParams);
-	void UpdatePointLightParams();
+	void UpdatePointLightsParams();
 
 	void AddDirectionalLightSourceParams(DirectionalLightParams* lightParams);
 	void UpdateDirectionalLightParams();
 
 	void AddSpotLightSourceParams(SpotLightParams* lightParams);
-	void UpdateSpotLightParams();
+	void UpdateSpotLightsParams();
 #pragma endregion LightManagment
 
 	void ClearBuffer(float r);
@@ -61,6 +61,7 @@ private:
 	void CreateDepthStencilState();
 	void CreateRasterizerState();
 	void CreateSamplerState();
+	void CreateBlendState();
 
 	void SetupShaders();
 	

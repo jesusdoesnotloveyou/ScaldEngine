@@ -157,7 +157,7 @@ void Graphics::AddPointLightSourceParams(PointLightParams* lightParams)
 	mPointLightsParameters.push_back(*lightParams);
 }
 
-void Graphics::UpdatePointLightParams()
+void Graphics::UpdatePointLightsParams()
 {
 	if (mPointLights.empty()) return;
 	for (int i = 0; i < mPointLights.size(); i++)
@@ -185,7 +185,7 @@ void Graphics::AddSpotLightSourceParams(SpotLightParams* lightParams)
 	mSpotLightsParameters.push_back(*lightParams);
 }
 
-void Graphics::UpdateSpotLightParams()
+void Graphics::UpdateSpotLightsParams()
 {
 	if (mSpotLights.empty()) return;
 	for (int i = 0; i < mSpotLights.size(); i++)
@@ -318,7 +318,7 @@ void Graphics::RenderColorPass()
 #pragma endregion ConstBufferVSPerFrame
 
 	//mDeviceContext->RSSetViewports(1u, &currentViewport);
-	//mDeviceContext->RSSetState(mRasterizerState.Get());
+	//mDeviceContext->RSSetState(mRasterizerStateCullBack.Get());
 
 	//mDeviceContext->OMSetDepthStencilState(mDepthStencilState.Get(), 0u);
 
@@ -372,9 +372,9 @@ void Graphics::EndFrame()
 void Graphics::Update(const ScaldTimer& st)
 {
 	mTPCamera->Update(st);
-	UpdatePointLightParams();
 	UpdateDirectionalLightParams();
-	//UpdateSpotLightParams();
+	UpdatePointLightsParams();
+	UpdateSpotLightsParams();
 }
 
 void Graphics::CreateDepthStencilState()
@@ -390,6 +390,11 @@ void Graphics::CreateRasterizerState()
 void Graphics::CreateSamplerState()
 {
 	pRenderer->CreateSamplerState();
+}
+
+void Graphics::CreateBlendState()
+{
+	pRenderer->CreateBlendState();
 }
 
 void Graphics::SetupShaders()
