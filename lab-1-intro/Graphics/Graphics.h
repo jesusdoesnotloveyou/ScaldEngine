@@ -18,8 +18,9 @@
 #pragma comment(lib, "dxgi.lib")
 
 class SceneGeometry;
-class PointLight;
+class Light;
 class DirectionalLight;
+class PointLight;
 class SpotLight;
 class Camera;
 class ThirdPersonCamera;
@@ -40,7 +41,7 @@ public:
 	void AddToRenderPool(SceneGeometry* sceneObject);
 	void InitSceneObjects();
 
-#pragma region LightManagment
+#pragma region ForwardRenderingLightManagment
 	void AddPointLightSourceParams(PointLightParams* lightParams);
 	void UpdatePointLightsParams();
 
@@ -49,7 +50,7 @@ public:
 
 	void AddSpotLightSourceParams(SpotLightParams* lightParams);
 	void UpdateSpotLightsParams();
-#pragma endregion LightManagment
+#pragma endregion ForwardRenderingLightManagment
 
 	void ClearBuffer(float r);
 	void DrawScene();
@@ -69,10 +70,13 @@ private:
 	void InitPointLights();
 	void InitSpotLights();
 
+	void BindLightingPassResources();
+
 	void RenderDepthOnlyPass();
 	void RenderColorPass();
+	void RenderLighting();
 
-	void BindLightingPassResources();
+	void UpdateLightConstantBuffer(Light* light);
 
 	// get all 8 vertices of frustrum
 	std::vector<XMVECTOR> GetFrustumCornersWorldSpace(const XMMATRIX& viewProjection);
@@ -119,6 +123,7 @@ private:
 
 public:
 	std::vector<SceneGeometry*> mRenderObjects;
+	std::vector<Light*> mLights;
 private:
 	// temporary, need a LightManager that would control light pool
 	std::vector<DirectionalLight*> mDirectionalLights;
@@ -169,8 +174,10 @@ private:
 	// Deferred Rendering
 	std::unique_ptr<DeferredRenderer> pRenderer;
 
-	ConstantBuffer<LightWorldConstantBuffer> mCB_Light;
-	LightWorldConstantBuffer mLightWorldData; // for mCB_Light
+#pragma region DeferredLightManagement
+	ConstantBuffer<LIGHT_DESC> mCB_Light;
+	LIGHT_DESC mLightData;
+#pragma endregion DeferredLightManagement
 
 	// Shadows
 	CascadeShadowMap* mCascadeShadowMap = nullptr;
@@ -179,4 +186,5 @@ private:
 
 	bool bIsForwardRenderingTechniqueApplied = false;
 	bool bIsDeferredRenderingTechniqueApplied = true;
+	bool bIsForwardPlusRenderingTechniqueApplied = false;
 };

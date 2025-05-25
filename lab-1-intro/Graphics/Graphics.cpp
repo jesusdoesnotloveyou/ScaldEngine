@@ -79,6 +79,8 @@ Graphics::~Graphics()
 
 void Graphics::Setup()
 {
+	SetupShaders();
+
 	CreateDepthStencilState();
 	CreateRasterizerState();
 	CreateSamplerState();
@@ -104,23 +106,31 @@ void Graphics::AddToRenderPool(SceneGeometry* sceneObject)
 	const auto lightObject = dynamic_cast<Light*>(sceneObject);
 	if (!lightObject) return;
 
-	if (lightObject->GetLightType() == ELightType::Point)
+	if (bIsDeferredRenderingTechniqueApplied)
 	{
-		const auto pointLight = static_cast<PointLight*>(lightObject);
-		mPointLights.push_back(pointLight);
-		AddPointLightSourceParams(pointLight->GetParams());
+		mLights.push_back(lightObject);
 	}
-	if (lightObject->GetLightType() == ELightType::Directional)
+
+	if (bIsForwardRenderingTechniqueApplied)
 	{
-		const auto dirLight = static_cast<DirectionalLight*>(lightObject);
-		mDirectionalLights.push_back(dirLight);
-		AddDirectionalLightSourceParams(dirLight->GetParams());
-	}
-	if (lightObject->GetLightType() == ELightType::Spot)
-	{
-		const auto spotLight = static_cast<SpotLight*>(lightObject);
-		mSpotLights.push_back(spotLight);
-		AddSpotLightSourceParams(spotLight->GetParams());
+		if (lightObject->GetLightType() == ELightType::Point)
+		{
+			const auto pointLight = static_cast<PointLight*>(lightObject);
+			mPointLights.push_back(pointLight);
+			AddPointLightSourceParams(pointLight->GetParams());
+		}
+		if (lightObject->GetLightType() == ELightType::Directional)
+		{
+			const auto dirLight = static_cast<DirectionalLight*>(lightObject);
+			mDirectionalLights.push_back(dirLight);
+			AddDirectionalLightSourceParams(dirLight->GetParams());
+		}
+		if (lightObject->GetLightType() == ELightType::Spot)
+		{
+			const auto spotLight = static_cast<SpotLight*>(lightObject);
+			mSpotLights.push_back(spotLight);
+			AddSpotLightSourceParams(spotLight->GetParams());
+		}
 	}
 }
 
@@ -128,22 +138,24 @@ void Graphics::InitSceneObjects()
 {
 	if (mRenderObjects.empty()) return; // assert or smth
 
-	SetupShaders();
 	mTPCamera->SetTarget(mRenderObjects[0]);
 
-	if (bIsDirectionalLightEnabled && !mDirectionalLights.empty() && bIsForwardRenderingTechniqueApplied)
+	if (bIsForwardRenderingTechniqueApplied)
 	{
-		InitDirectionalLight();
-	}
+		if (bIsDirectionalLightEnabled && !mDirectionalLights.empty())
+		{
+			InitDirectionalLight();
+		}
 
-	if (bIsPointLightEnabled && !mPointLights.empty())
-	{
-		InitPointLights();
-	}
+		if (bIsPointLightEnabled && !mPointLights.empty())
+		{
+			InitPointLights();
+		}
 
-	if (bIsSpotLightEnabled && !mSpotLights.empty())
-	{
-		InitSpotLights();
+		if (bIsSpotLightEnabled && !mSpotLights.empty())
+		{
+			InitSpotLights();
+		}
 	}
 
 	for (auto sceneObject : mRenderObjects)
@@ -233,7 +245,7 @@ void Graphics::DrawScene()
 
 	pRenderer->BindLightingPass();
 	BindLightingPassResources();
-	pRenderer->DrawScreenQuad();
+	RenderLighting();
 
 	mDeviceContext->ClearState();
 
@@ -270,28 +282,10 @@ void Graphics::RenderDepthOnlyPass()
 
 void Graphics::BindLightingPassResources()
 {
-	mLightWorldData.dirLight = *mDirectionalLights[0]->GetParams();
-	mLightWorldData.numPointLights = (float)mPointLightsParameters.size();
-	mLightWorldData.numSpotLights = (float)mSpotLightsParameters.size();
-	mCB_Light.SetData(mLightWorldData);
-	mCB_Light.ApplyChanges();
-	mDeviceContext->PSSetConstantBuffers(0u, 1u, mCB_Light.GetAddressOf());
-
 	mCB_CSM.SetData(mCSMData);
 	mCB_CSM.ApplyChanges();
 	mDeviceContext->PSSetConstantBuffers(1u, 1u, mCB_CSM.GetAddressOf());
 	mDeviceContext->PSSetShaderResources(3u, 1u, mCascadeShadowMap->GetAddressOf());
-	
-	if (bIsPointLightEnabled)
-	{
-		ApplyChanges(mDeviceContext.Get(), mPointLightBuffer.Get(), mPointLightsParameters);
-		mDeviceContext->PSSetShaderResources(4u, 1u, mPointLightSRV.GetAddressOf());
-	}
-	if (bIsSpotLightEnabled)
-	{
-		ApplyChanges(mDeviceContext.Get(), mSpotLightBuffer.Get(), mSpotLightsParameters);
-		mDeviceContext->PSSetShaderResources(5u, 1u, mSpotLightSRV.GetAddressOf());
-	}
 }
 
 // Forward Rendering
@@ -362,6 +356,50 @@ void Graphics::RenderColorPass()
 	}
 }
 
+void Graphics::RenderLighting()
+{
+	for (auto& light : mLights)
+	{
+		UpdateLightConstantBuffer(light);
+		mDeviceContext->PSSetConstantBuffers(0u, 1u, mCB_Light.GetAddressOf());
+
+		if (light->GetLightType() == ELightType::Directional)
+		{
+			pRenderer->DrawScreenQuad();
+		}
+		else // omni or spot
+		{
+			if (light->GetLightType() == ELightType::Point)
+			{
+
+			}
+			if (light->GetLightType() == ELightType::Spot)
+			{
+
+			}
+		}
+	}
+}
+
+void Graphics::UpdateLightConstantBuffer(Light* light)
+{
+	if (light->GetLightType() == ELightType::Directional)
+	{
+		//mCB_Light;
+		//mLightData;
+	}
+	if (light->GetLightType() == ELightType::Point)
+	{
+
+	}
+	if (light->GetLightType() == ELightType::Spot)
+	{
+
+	}
+	mCB_Light.SetData(mLightData);
+	mCB_Light.ApplyChanges();
+}
+
 void Graphics::EndFrame()
 {
 	// Step 15: At the End of While (!isExitRequested): Present the Result
@@ -372,9 +410,13 @@ void Graphics::EndFrame()
 void Graphics::Update(const ScaldTimer& st)
 {
 	mTPCamera->Update(st);
-	UpdateDirectionalLightParams();
-	UpdatePointLightsParams();
-	UpdateSpotLightsParams();
+
+	if (bIsForwardRenderingTechniqueApplied)
+	{
+		UpdateDirectionalLightParams();
+		UpdatePointLightsParams();
+		UpdateSpotLightsParams();
+	}
 }
 
 void Graphics::CreateDepthStencilState()
