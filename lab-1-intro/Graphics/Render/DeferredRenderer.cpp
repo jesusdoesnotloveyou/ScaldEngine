@@ -174,8 +174,8 @@ void DeferredRenderer::BindLightingPass()
 	mDeviceContext->PSSetShaderResources(1u, 1u, &mGBuffer[1].srv);
 	mDeviceContext->PSSetShaderResources(2u, 1u, &mGBuffer[2].srv);
 	
-	//mDeviceContext->PSSetSamplers(0u, 1u, mSamplerState.GetAddressOf());
-	mDeviceContext->PSSetSamplers(0u, 1u, mShadowSamplerState.GetAddressOf());
+	mDeviceContext->PSSetSamplers(0u, 1u, mSamplerState.GetAddressOf());
+	mDeviceContext->PSSetSamplers(1u, 1u, mShadowSamplerState.GetAddressOf());
 }
 
 void DeferredRenderer::BindTransparentPass()
