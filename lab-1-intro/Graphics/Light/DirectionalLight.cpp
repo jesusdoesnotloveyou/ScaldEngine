@@ -2,13 +2,12 @@
 
 DirectionalLight::DirectionalLight(const std::string& filePath) : Light(filePath)
 {
-	LightParams = new DirectionalLightParams();
 	LightType = ELightType::Directional;
 }
 
 DirectionalLight::~DirectionalLight() noexcept
 {
-	if (LightParams) delete LightParams;
+
 }
 
 void DirectionalLight::Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, const std::string& filePath, const std::wstring& texturePath)

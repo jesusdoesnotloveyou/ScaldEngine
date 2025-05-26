@@ -123,7 +123,8 @@ private:
 
 public:
 	std::vector<SceneGeometry*> mRenderObjects;
-	std::vector<Light*> mLights;
+	std::vector<Light*> mLights; // deferred rendering stuff
+	Light* mDirectionalLight = nullptr; // as well as this
 private:
 	// temporary, need a LightManager that would control light pool
 	std::vector<DirectionalLight*> mDirectionalLights;

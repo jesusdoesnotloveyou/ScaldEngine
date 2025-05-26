@@ -75,6 +75,7 @@ Graphics::~Graphics()
 {
 	if (mTPCamera) delete mTPCamera;
 	if (mCascadeShadowMap) delete mCascadeShadowMap;
+	if (mDirectionalLight) delete mDirectionalLight;
 }
 
 void Graphics::Setup()
@@ -109,11 +110,15 @@ void Graphics::AddToRenderPool(SceneGeometry* sceneObject)
 	if (bIsDeferredRenderingTechniqueApplied)
 	{
 		mLights.push_back(lightObject);
+		if (lightObject->GetLightType() == ELightType::Directional)
+		{
+			mDirectionalLight = lightObject;
+		}
 	}
 
 	if (bIsForwardRenderingTechniqueApplied)
 	{
-		if (lightObject->GetLightType() == ELightType::Point)
+		/*if (lightObject->GetLightType() == ELightType::Point)
 		{
 			const auto pointLight = static_cast<PointLight*>(lightObject);
 			mPointLights.push_back(pointLight);
@@ -130,7 +135,7 @@ void Graphics::AddToRenderPool(SceneGeometry* sceneObject)
 			const auto spotLight = static_cast<SpotLight*>(lightObject);
 			mSpotLights.push_back(spotLight);
 			AddSpotLightSourceParams(spotLight->GetParams());
-		}
+		}*/
 	}
 }
 
@@ -188,7 +193,7 @@ void Graphics::UpdateDirectionalLightParams()
 	if (mDirectionalLights.empty()) return;
 	for (int i = 0; i < mDirectionalLights.size(); i++)
 	{
-		mDirectionalLightParameters[i] = *mDirectionalLights[i]->GetParams();
+		//mDirectionalLightParameters[i] = *mDirectionalLights[i]->GetParams();
 	}
 }
 
@@ -256,27 +261,23 @@ void Graphics::DrawScene()
 // For both Forward and Deferred
 void Graphics::RenderDepthOnlyPass()
 {
-	// usually we have only one dir light source, but i decided to leave it like generic case could be with multiple
-	for (auto dirLight : mDirectionalLights)
-	{
-		std::vector<XMMATRIX> lightSpaceMatrices;
-		GetLightSpaceMatrices(lightSpaceMatrices);
+	std::vector<XMMATRIX> lightSpaceMatrices;
+	GetLightSpaceMatrices(lightSpaceMatrices);
 		
-		for (UINT i = 0; i < CASCADE_NUMBER; i++)
-		{
-			mCSMData.ViewProj[i] = XMMatrixTranspose(lightSpaceMatrices[i]);
-			mCSMData.distances[i] = mCascadeShadowMap->GetCascadeLevel(i); // not used on GPU in Geometry shader, but still filled
-		}
+	for (UINT i = 0; i < CASCADE_NUMBER; i++)
+	{
+		mCSMData.ViewProj[i] = XMMatrixTranspose(lightSpaceMatrices[i]);
+		mCSMData.distances[i] = mCascadeShadowMap->GetCascadeLevel(i); // not used on GPU in Geometry shader, but still filled
+	}
 
-		mCB_CSM.SetData(mCSMData);
-		mCB_CSM.ApplyChanges();
-		mDeviceContext->GSSetConstantBuffers(0u, 1u, mCB_CSM.GetAddressOf());
+	mCB_CSM.SetData(mCSMData);
+	mCB_CSM.ApplyChanges();
+	mDeviceContext->GSSetConstantBuffers(0u, 1u, mCB_CSM.GetAddressOf());
 
-		for (auto actor : mRenderObjects)
-		{
-			if (actor == mDirectionalLights[0]) continue;
-			actor->Draw(XMMatrixIdentity(), XMMatrixIdentity());
-		}
+	for (auto actor : mRenderObjects)
+	{
+		if (actor == mDirectionalLight) continue;
+		actor->Draw(XMMatrixIdentity(), XMMatrixIdentity());
 	}
 }
 
@@ -541,7 +542,7 @@ XMMATRIX Graphics::GetLightSpaceMatrix(const float nearPlane, const float farPla
 	}
 
 	center /= (float)frustumCorners.size();
-	const XMFLOAT3 lightDir = mDirectionalLights[0]->GetDirection();
+	const XMFLOAT3 lightDir = mDirectionalLight->GetDirection();
 	const auto lightView = XMMatrixLookAtLH(center, center + XMVectorSet(lightDir.x, lightDir.y, lightDir.z, 1.0f), ScaldMath::UpVector);
 
 	// Measuring cascade

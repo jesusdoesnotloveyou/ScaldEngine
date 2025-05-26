@@ -31,9 +31,5 @@ private:
 	//~ End of Light interface
 
 public:
-	FORCEINLINE DirectionalLightParams* GetParams() const { return LightParams; }
 	void UpdateParams(XMFLOAT4 ambientLight = { 1.0f, 1.0f, 1.0f, 0.9f }, XMFLOAT4 diffuseLight = { 1.0f, 1.0f, 1.0f, 1.0f }, XMFLOAT4 specularLight = { 1.0f, 1.0f, 1.0f, 1.0f }, XMFLOAT3 direction = { 0.57735f, -0.57735f, 0.57735f });
-
-private:
-	DirectionalLightParams* LightParams = nullptr;
 };
