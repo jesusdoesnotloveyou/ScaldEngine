@@ -270,8 +270,8 @@ void Graphics::RenderDepthOnlyPass()
 		mCSMData.distances[i] = mCascadeShadowMap->GetCascadeLevel(i); // not used on GPU in Geometry shader, but still filled
 	}
 
-	mCB_CSM.SetData(mCSMData);
-	mCB_CSM.ApplyChanges();
+	mCB_CSM.SetAndApplyData(mCSMData);
+	//mCB_CSM.ApplyChanges();
 	mDeviceContext->GSSetConstantBuffers(0u, 1u, mCB_CSM.GetAddressOf());
 
 	for (auto actor : mRenderObjects)
@@ -283,9 +283,10 @@ void Graphics::RenderDepthOnlyPass()
 
 void Graphics::BindLightingPassResources()
 {
-	mCB_CSM.SetData(mCSMData);
-	mCB_CSM.ApplyChanges();
+	mCB_CSM.SetAndApplyData(mCSMData);
+	//mCB_CSM.ApplyChanges();
 	mDeviceContext->PSSetConstantBuffers(1u, 1u, mCB_CSM.GetAddressOf());
+
 	mDeviceContext->PSSetShaderResources(3u, 1u, mCascadeShadowMap->GetAddressOf());
 }
 
@@ -362,6 +363,7 @@ void Graphics::RenderLighting()
 	for (auto& light : mLights)
 	{
 		UpdateLightConstantBuffer(light);
+		mDeviceContext->VSSetConstantBuffers(1u, 1u, mCB_Light.GetAddressOf());
 		mDeviceContext->PSSetConstantBuffers(0u, 1u, mCB_Light.GetAddressOf());
 
 		if (light->GetLightType() == ELightType::Directional)
@@ -386,8 +388,11 @@ void Graphics::UpdateLightConstantBuffer(Light* light)
 {
 	if (light->GetLightType() == ELightType::Directional)
 	{
-		//mCB_Light;
-		//mLightData;
+		mLightData.ambient = light->GetAmbientColor();
+		mLightData.diffuse = light->GetDiffuseColor();
+		mLightData.specular = light->GetSpecularColor();
+		mLightData.direction = light->GetDirection();
+		mLightData.lightType = ELightType::Directional;
 	}
 	if (light->GetLightType() == ELightType::Point)
 	{
@@ -397,8 +402,7 @@ void Graphics::UpdateLightConstantBuffer(Light* light)
 	{
 
 	}
-	mCB_Light.SetData(mLightData);
-	mCB_Light.ApplyChanges();
+	mCB_Light.SetAndApplyData(mLightData);
 }
 
 void Graphics::EndFrame()
