@@ -5,7 +5,7 @@
 
 using namespace DirectX;
 
-enum class ELightType : uint8_t
+enum class ELightType : int
 {
 	None = 0,
 	Directional,
@@ -69,8 +69,10 @@ struct LIGHT_DESC
 	XMFLOAT4 specular = { 0.0f, 0.0f, 0.0f, 0.0f };
 	XMFLOAT3 direction = { 0.0f, 0.0f, 0.0f };		// directional and spot
 	float spot = 0.0f;								// only spot
-	XMFLOAT3 position = { 0.0f, 0.0f, 0.0f };		// spot and omni
-	ELightType lightType = ELightType::None;
 	XMFLOAT3 attenuation = { 0.0f, 0.0f, 0.0f };	// spot and omni
 	float range = 0.0f;								// spot and omni
+	XMFLOAT3 position = { 0.0f, 0.0f, 0.0f };		// spot and omni
+	float pad1 = 0.0f;
+	ELightType lightType = ELightType::None;
+	float pad2[3] = { 0.0f, 0.0f, 0.0f };
 };

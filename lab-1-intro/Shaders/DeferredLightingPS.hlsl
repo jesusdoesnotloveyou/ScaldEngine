@@ -5,15 +5,17 @@ struct UniLight
     float4 specular;
     float3 direction;
     float spot;
-    float3 position;
-    float lightType;
     float3 attenuation;
     float range;
+    float3 position;
+    float pad;
+    int lightType;
+    float3 pad2;
 };
 
 cbuffer LightCB : register(b0)
 {
-    UniLight LightSource;
+    UniLight Light;
 }
 
 struct CascadeData
