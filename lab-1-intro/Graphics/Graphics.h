@@ -149,7 +149,9 @@ private:
 
 #pragma region Light
 	ConstantBuffer<ConstBufferVSPerFrame> mCBVSPerFrame;
-	ConstantBuffer<ConstBufferPSPerFrame> mCBPSPerFrame;
+
+	ConstantBuffer<ConstantBufferPerFrame> mCB_PerFrame;
+	ConstantBufferPerFrame mPerFrameData;
 
 	// need to update member
 	std::vector<DirectionalLightParams> mDirectionalLightParameters;

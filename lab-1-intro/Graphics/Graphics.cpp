@@ -95,7 +95,8 @@ void Graphics::Setup()
 
 	// constant buffers setup
 	ThrowIfFailed(mCBVSPerFrame.Init(mDevice.Get(), mDeviceContext.Get()));
-	ThrowIfFailed(mCBPSPerFrame.Init(mDevice.Get(), mDeviceContext.Get()));
+
+	ThrowIfFailed(mCB_PerFrame.Init(mDevice.Get(), mDeviceContext.Get()));
 	ThrowIfFailed(mCB_CSM.Init(mDevice.Get(), mDeviceContext.Get()));
 	ThrowIfFailed(mCB_Light.Init(mDevice.Get(), mDeviceContext.Get()));
 }
@@ -284,8 +285,11 @@ void Graphics::RenderDepthOnlyPass()
 void Graphics::BindLightingPassResources()
 {
 	mCB_CSM.SetAndApplyData(mCSMData);
-	//mCB_CSM.ApplyChanges();
-	mDeviceContext->PSSetConstantBuffers(1u, 1u, mCB_CSM.GetAddressOf());
+	mDeviceContext->PSSetConstantBuffers(0u, 1u, mCB_CSM.GetAddressOf());
+
+	mPerFrameData.gEyePos = mTPCamera->GetPosition();
+	mCB_PerFrame.SetAndApplyData(mPerFrameData);
+	mDeviceContext->PSSetConstantBuffers(1u, 1u, mCB_PerFrame.GetAddressOf());
 
 	mDeviceContext->PSSetShaderResources(3u, 1u, mCascadeShadowMap->GetAddressOf());
 }
@@ -323,17 +327,16 @@ void Graphics::RenderColorPass()
 	//mDeviceContext->PSSetSamplers(0u, 1u, mSamplerState.GetAddressOf());
 	//mDeviceContext->PSSetSamplers(1u, 1u, mShadowSamplerState.GetAddressOf());
 
-#pragma region ConstBufferPSPerFrame
-	ConstBufferPSPerFrame cbPSPerFrame;
+#pragma region ConstantBufferPerFrame
+	ConstantBufferPerFrame cbPSPerFrame;
 	cbPSPerFrame.gEyePos = mTPCamera->GetPosition();
 	// should be placed in other const buffer (cause there is no need to update these members every frame
-	cbPSPerFrame.numPointLights = (float)mPointLightsParameters.size();
-	cbPSPerFrame.numDirectionalLights = (float)mDirectionalLightParameters.size();
+	/*cbPSPerFrame.numPointLights = (float)mPointLightsParameters.size();
+	cbPSPerFrame.numDirectionalLights = (float)mDirectionalLightParameters.size();*/
 
-	mCBPSPerFrame.SetData(cbPSPerFrame);
-	mCBPSPerFrame.ApplyChanges();
-	mDeviceContext->PSSetConstantBuffers(0u, 1u, mCBPSPerFrame.GetAddressOf());
-#pragma endregion ConstBufferPSPerFrame
+	mCB_PerFrame.SetAndApplyData(cbPSPerFrame);
+	mDeviceContext->PSSetConstantBuffers(0u, 1u, mCB_PerFrame.GetAddressOf());
+#pragma endregion ConstantBufferPerFrame
 
 	// send to GPU cascades data that filled on the depth only pass
 	mDeviceContext->PSSetConstantBuffers(1u, 1u, mCB_CSM.GetAddressOf());
@@ -364,7 +367,7 @@ void Graphics::RenderLighting()
 	{
 		UpdateLightConstantBuffer(light);
 		mDeviceContext->VSSetConstantBuffers(1u, 1u, mCB_Light.GetAddressOf());
-		mDeviceContext->PSSetConstantBuffers(0u, 1u, mCB_Light.GetAddressOf());
+		mDeviceContext->PSSetConstantBuffers(2u, 1u, mCB_Light.GetAddressOf());
 
 		if (light->GetLightType() == ELightType::Directional)
 		{
@@ -386,21 +389,29 @@ void Graphics::RenderLighting()
 
 void Graphics::UpdateLightConstantBuffer(Light* light)
 {
+	mLightData.diffuse = light->GetDiffuseColor();
+	mLightData.specular = light->GetSpecularColor();
+	
 	if (light->GetLightType() == ELightType::Directional)
 	{
 		mLightData.ambient = light->GetAmbientColor();
-		mLightData.diffuse = light->GetDiffuseColor();
-		mLightData.specular = light->GetSpecularColor();
 		mLightData.direction = light->GetDirection();
 		mLightData.lightType = ELightType::Directional;
 	}
 	if (light->GetLightType() == ELightType::Point)
 	{
-
+		mLightData.attenuation = light->GetAttenuation();
+		mLightData.position = light->GetPositionFloat();
+		mLightData.range = 10.0f; // hard-coded value
+		mLightData.lightType = ELightType::Point;
 	}
 	if (light->GetLightType() == ELightType::Spot)
 	{
-
+		mLightData.attenuation = light->GetAttenuation();
+		mLightData.position = light->GetPositionFloat();
+		mLightData.direction = light->GetDirection();
+		mLightData.lightType = ELightType::Spot;
+		mLightData.spot = 10.0f; // hard-coded value
 	}
 	mCB_Light.SetAndApplyData(mLightData);
 }

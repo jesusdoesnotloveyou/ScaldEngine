@@ -72,13 +72,9 @@ struct ConstBufferVS
 // Light should be here 7.12.2 Luna
 // But I am using structured buffer in Graphics.cpp for lighting
 // It is even much better approach
-struct ConstBufferPSPerFrame
+struct ConstantBufferPerFrame
 {
 	XMVECTOR gEyePos = XMVectorZero();
-	// for point or spot lights
-	float numPointLights = 0;
-	float numDirectionalLights = 0;
-	//float numSpotLights = 0;
 };
 
 struct LightWorldConstantBuffer
