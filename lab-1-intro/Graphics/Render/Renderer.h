@@ -15,6 +15,7 @@ public:
 	void CreateDepthStencilState();
 	void CreateRasterizerState();
 	void CreateSamplerState();
+	void CreateBlendState();
 
 	void ClearBuffer(float r);
 	void BindDepthOnlyPass();
@@ -35,7 +36,8 @@ protected:
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> mDSV;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> mDepthStencilState;
 	// Rast
-	Microsoft::WRL::ComPtr<ID3D11RasterizerState> mRasterizerState;
+	Microsoft::WRL::ComPtr<ID3D11RasterizerState> mRasterizerStateCullBack;
+	Microsoft::WRL::ComPtr<ID3D11RasterizerState> mRasterizerStateCullFront;
 	// Sampler
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> mSamplerState;
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> mShadowSamplerState;

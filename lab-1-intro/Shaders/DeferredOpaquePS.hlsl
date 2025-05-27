@@ -8,6 +8,7 @@ struct PS_IN
     float4 inPosition : SV_POSITION;
     float2 inTexCoord : TEXCOORD0;
     float3 inNormal : NORMAL;
+    float3 inWorld : POSITION0;
 };
 
 struct Gbuffer
@@ -27,7 +28,7 @@ Gbuffer main(PS_IN input)
     
     output.Normal = input.inNormal;
     
-    output.WorldPos = float3(1.0f, 1.0f, 1.0f);
+    output.WorldPos = input.inWorld;
 
     return output;
 }

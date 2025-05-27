@@ -16,19 +16,19 @@ public:
 	//~ End of SceneGeometry interface
 	
     // 4th parameter is intensity
-    virtual void SetAmbientColor(float x, float y, float z, float w) {} // only for dir light in Deferred Shading
-    virtual void SetDiffuseColor(float x, float y, float z, float w) = 0;
-    virtual XMFLOAT4 GetAmbientColor() { return XMFLOAT4{}; } // only for dir light in Deferred Shading
-    virtual XMFLOAT4 GetDiffuseColor() = 0;
-
+    virtual void SetAmbientColor(float x, float y, float z, float w); // only for dir light in Deferred Shading
+    virtual XMFLOAT4 GetAmbientColor(); // only for dir light in Deferred Shading
+    virtual void SetDiffuseColor(float x, float y, float z, float w);
+    virtual XMFLOAT4 GetDiffuseColor();
+    virtual void SetSpecularColor(float x, float y, float z, float w);
+    virtual XMFLOAT4 GetSpecularColor();
     // only for directional and spot lights
     virtual void SetLookAt(float x, float y, float z);
-    virtual void SetDirection(float x, float y, float z) = 0;
-    virtual XMFLOAT3 GetDirection() = 0;
-
+    virtual void SetDirection(float x, float y, float z);
+    virtual XMFLOAT3 GetDirection();
     // only for point and spot lights
-    virtual void SetAttenuation(float x, float y, float z) = 0;
-    virtual XMFLOAT3 GetAttenuation() = 0;
+    virtual void SetAttenuation(float x, float y, float z);
+    virtual XMFLOAT3 GetAttenuation();
 
     void GenerateViewMatrix();
     void GeneratePerspectiveProjectionMatrix(float, float);
@@ -39,15 +39,17 @@ public:
     const XMMATRIX& GetOrthographicProjectionMatrix() const;
 
     FORCEINLINE ELightType GetLightType() const { return LightType; }
+    FORCEINLINE LIGHT_DESC* GetLightParams()const { return LightParams; }
+    virtual void UpdateLightParams();
 
+protected:
+    ELightType LightType = ELightType::None;
+    LIGHT_DESC* LightParams;
 private:
     XMFLOAT3 mLookAt;
     XMMATRIX mViewMatrix;
     XMMATRIX mPerspectiveProjectionMatrix;
     XMMATRIX mOrthographicProjectionMatrix;
-
-protected:
-    ELightType LightType = ELightType::None;
 private:
 	std::string modelPath;
 };

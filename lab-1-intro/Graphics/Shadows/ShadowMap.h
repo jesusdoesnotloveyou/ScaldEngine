@@ -22,9 +22,4 @@ private:
 	ID3D11ShaderResourceView* mDepthMapSRV;
 	ID3D11DepthStencilView* mDepthMapDSV;
 	D3D11_VIEWPORT mViewport;
-	
-	ID3D11SamplerState* mSamplerState;
-
-	ID3D11RasterizerState* mRasterizerState;
-	ID3D11RasterizerState* mShadowRastState;
 };

@@ -145,7 +145,7 @@ void DeferredRenderer::BindGeometryPass()
 	mDeviceContext->VSSetShader(mOpaqueVertexShader.Get(), nullptr, 0u);
 
 	mDeviceContext->RSSetViewports(1u, &mViewport);
-	mDeviceContext->RSSetState(mRasterizerState.Get());
+	mDeviceContext->RSSetState(mRasterizerStateCullBack.Get());
 
 	// Step 09: Set Pixel Shaders
 	mDeviceContext->PSSetShader(mOpaquePixelShader.Get(), nullptr, 0u);
@@ -163,9 +163,10 @@ void DeferredRenderer::BindLightingPass()
 	mDeviceContext->VSSetShader(mLightingVertexShader.Get(), nullptr, 0u);
 
 	mDeviceContext->RSSetViewports(1u, &mViewport);
-	mDeviceContext->RSSetState(mRasterizerState.Get());
+	mDeviceContext->RSSetState(mRasterizerStateCullBack.Get());
 
 	mDeviceContext->OMSetDepthStencilState(mDepthStencilState.Get(), 0u);
+	mDeviceContext->OMSetBlendState(mBlendState.Get(), nullptr, 0xFFFFFFFF);
 
 	mDeviceContext->PSSetShader(mLightingPixelShader.Get(), nullptr, 0u);
 	// Bind GBuffer resources
@@ -173,8 +174,8 @@ void DeferredRenderer::BindLightingPass()
 	mDeviceContext->PSSetShaderResources(1u, 1u, &mGBuffer[1].srv);
 	mDeviceContext->PSSetShaderResources(2u, 1u, &mGBuffer[2].srv);
 	
-	//mDeviceContext->PSSetSamplers(0u, 1u, mSamplerState.GetAddressOf());
-	mDeviceContext->PSSetSamplers(0u, 1u, mShadowSamplerState.GetAddressOf());
+	mDeviceContext->PSSetSamplers(0u, 1u, mSamplerState.GetAddressOf());
+	mDeviceContext->PSSetSamplers(1u, 1u, mShadowSamplerState.GetAddressOf());
 }
 
 void DeferredRenderer::BindTransparentPass()
@@ -184,7 +185,7 @@ void DeferredRenderer::BindTransparentPass()
 	ClearBuffer(.0f);
 
 	mDeviceContext->RSSetViewports(1u, &mViewport);
-	mDeviceContext->RSSetState(mRasterizerState.Get());
+	mDeviceContext->RSSetState(mRasterizerStateCullBack.Get());
 }
 
 void DeferredRenderer::DrawScreenQuad()

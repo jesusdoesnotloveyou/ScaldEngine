@@ -84,8 +84,11 @@ void Renderer::CreateRasterizerState()
 	CD3D11_RASTERIZER_DESC rastDesc = {};
 	rastDesc.FillMode = D3D11_FILL_SOLID;
 	rastDesc.CullMode = D3D11_CULL_BACK;
-	rastDesc.FrontCounterClockwise = false;
-	ThrowIfFailed(mDevice->CreateRasterizerState(&rastDesc, mRasterizerState.GetAddressOf()));
+	ThrowIfFailed(mDevice->CreateRasterizerState(&rastDesc, mRasterizerStateCullBack.GetAddressOf()));
+
+	rastDesc.FillMode = D3D11_FILL_SOLID;
+	rastDesc.CullMode = D3D11_CULL_FRONT;
+	ThrowIfFailed(mDevice->CreateRasterizerState(&rastDesc, mRasterizerStateCullFront.GetAddressOf()));
 }
 
 void Renderer::CreateSamplerState()
@@ -117,6 +120,25 @@ void Renderer::CreateSamplerState()
 	shadowSampDesc.MinLOD = 0.0f;
 	shadowSampDesc.MaxLOD = D3D11_FLOAT32_MAX;
 	ThrowIfFailed(mDevice->CreateSamplerState(&shadowSampDesc, mShadowSamplerState.GetAddressOf()));
+}
+
+void Renderer::CreateBlendState()
+{
+	D3D11_BLEND_DESC blendDesc = {};
+	ZeroMemory(&blendDesc, sizeof(D3D11_BLEND_DESC));
+
+	D3D11_RENDER_TARGET_BLEND_DESC RTBlendDesc = {};
+	ZeroMemory(&RTBlendDesc, sizeof(D3D11_RENDER_TARGET_BLEND_DESC));
+	RTBlendDesc.BlendEnable = TRUE;
+	RTBlendDesc.SrcBlend = D3D11_BLEND::D3D11_BLEND_ONE;
+	RTBlendDesc.DestBlend = D3D11_BLEND::D3D11_BLEND_ONE;
+	RTBlendDesc.BlendOp = D3D11_BLEND_OP::D3D11_BLEND_OP_ADD;
+	RTBlendDesc.SrcBlendAlpha = D3D11_BLEND::D3D11_BLEND_ONE;
+	RTBlendDesc.DestBlendAlpha = D3D11_BLEND::D3D11_BLEND_ONE;
+	RTBlendDesc.BlendOpAlpha = D3D11_BLEND_OP::D3D11_BLEND_OP_ADD;
+	RTBlendDesc.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE::D3D11_COLOR_WRITE_ENABLE_ALL;
+	blendDesc.RenderTarget[0] = RTBlendDesc;
+	ThrowIfFailed(mDevice->CreateBlendState(&blendDesc, mBlendState.GetAddressOf()));
 }
 
 void Renderer::ClearBuffer(float r)
