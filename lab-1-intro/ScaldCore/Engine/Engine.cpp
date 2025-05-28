@@ -55,23 +55,23 @@ void Engine::SetupScene()
 #pragma region Light
 #pragma region PointLight
 	PointLight* pointLight1 = new PointLight("./Data/Models/Light/light.obj");
-	pointLight1->GetTransform()->SetPosition(0.0f, 4.0f, 2.0f);
+	pointLight1->GetTransform()->SetPosition(20.0f, 4.0f, 60.0f);
 	pointLight1->GetTransform()->SetRotation(-XM_PIDIV2, 0.0f, 0.0f);
-	pointLight1->SetDiffuseColor(1.0f, 0.0f, 0.0f, 5.0f);
-	pointLight1->SetAttenuation(1.0f, 0.1f, 0.1f);
+	pointLight1->SetDiffuseColor(1.0f, 0.0f, 0.0f, 1.0f);
+	pointLight1->SetAttenuation(1.0f, 0.5f, 1.1f);
 
 	PointLight* pointLight2 = new PointLight("./Data/Models/Light/light.obj");
-	pointLight2->GetTransform()->SetPosition(0.0f, 4.0f, 6.0f);
+	pointLight2->GetTransform()->SetPosition(60.0f, 4.0f, 60.0f);
 	pointLight2->GetTransform()->SetRotation(-XM_PIDIV2, 0.0f, 0.0f);
-	pointLight2->SetDiffuseColor(0.0f, 0.0f, 1.0f, 5.0f);
-	pointLight2->SetAttenuation(1.0f, 0.1f, 0.1f);
+	pointLight2->SetDiffuseColor(0.0f, 0.0f, 1.0f, 1.0f);
+	pointLight2->SetAttenuation(1.0f, 0.7f, 1.8f);
 #pragma endregion PointLight
 #pragma region SpotLight
 	SpotLight* spotLight1 = new SpotLight("./Data/Models/Light/light.obj");
-	spotLight1->GetTransform()->SetPosition(0.0f, 4.0f, -6.0f);
+	spotLight1->GetTransform()->SetPosition(50.0f, 4.0f, 55.0f);
 	spotLight1->GetTransform()->SetRotation(-XM_PIDIV2, 0.0f, 0.0f);
-	spotLight1->SetDiffuseColor(1.0f, 1.0f, 0.0f, 5.0f);
-	spotLight1->SetAttenuation(1.0f, 0.1f, 0.1f);
+	spotLight1->SetDiffuseColor(0.0f, 1.0f, 0.0f, 1.0f);
+	spotLight1->SetAttenuation(1.0f, 0.7f, 1.8f);
 #pragma endregion SpotLight
 #pragma region DirectionalLight
 	DirectionalLight* directionalLight = new DirectionalLight("./Data/Models/Light/light.obj");

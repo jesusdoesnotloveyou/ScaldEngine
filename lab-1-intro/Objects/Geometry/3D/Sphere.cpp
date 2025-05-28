@@ -6,8 +6,8 @@ Sphere::Sphere() : SceneGeometry()
 
 Sphere::Sphere(const tuple<vector<VertexTex>, vector<DWORD>>& vi) : SceneGeometry()
 {
-	vertices = std::get<0>(vi);
-	indices = std::get<1>(vi);
+	/*vertices = std::get<0>(vi);
+	indices = std::get<1>(vi);*/
 }
 
 Sphere::~Sphere()
