@@ -2,7 +2,6 @@
 
 SpotLight::SpotLight(const std::string& filePath) : Light(filePath)
 {
-	LightParams = new SpotLightParams();
 	LightType = ELightType::Spot;
 }
 
@@ -24,37 +23,4 @@ void SpotLight::Update(const ScaldTimer& st)
 void SpotLight::Draw(const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix)
 {
 	Light::Draw(viewMatrix, projectionMatrix);
-}
-
-void SpotLight::SetDiffuseColor(float x, float y, float z, float w)
-{
-	if (!LightParams) return;
-	LightParams->diffuse = XMFLOAT4(x, y, z, w);
-}
-
-XMFLOAT4 SpotLight::GetDiffuseColor()
-{
-	return LightParams ? LightParams->diffuse : XMFLOAT4{};
-}
-
-void SpotLight::SetDirection(float x, float y, float z)
-{
-	if (!LightParams) return;
-	LightParams->direction = XMFLOAT3(x, y, z);
-}
-
-XMFLOAT3 SpotLight::GetDirection()
-{
-	return LightParams ? LightParams->direction : XMFLOAT3{};
-}
-
-void SpotLight::SetAttenuation(float x, float y, float z)
-{
-	if (!LightParams) return;
-	LightParams->attenuation = XMFLOAT3(x, y, z);
-}
-
-XMFLOAT3 SpotLight::GetAttenuation()
-{
-	return LightParams ? LightParams->attenuation : XMFLOAT3{};
 }
