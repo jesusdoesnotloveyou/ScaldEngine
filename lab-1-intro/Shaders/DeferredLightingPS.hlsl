@@ -61,9 +61,11 @@ struct PS_IN
     float2 inTexCoord : TEXCOORD;
 };
 
-float3 CalculateDirectionalLight(UniLight light, float4 diffuse, uniform float3 posW, uniform float3 normal, uniform float3 toEye)
+float3 CalcDirectionalLight(UniLight light, uniform float3 posW, uniform float3 normal, uniform float3 toEye)
 {
     float3 lightDir = -light.direction;
+    float3 ambient = light.ambient.xyz * light.ambient.w;
+    float4 diffuse = light.diffuse;
     float4 specular = light.specular;
     
     // necessary vectors
@@ -77,14 +79,44 @@ float3 CalculateDirectionalLight(UniLight light, float4 diffuse, uniform float3 
     float3 specularIntensity = 0.5f * pow(max(dot(reflectLight, viewDir), 0.0f), 200.0f); // * specular.xyz
     float3 specularLight = saturate(specularIntensity);
     
-    return diffuseLight + specularLight;
+    return ambient * float3(0.6f, 0.6f, 0.6f) + diffuseLight + specularLight;
+}
+
+float3 CalcPointLight(UniLight light, uniform float3 posW, uniform float3 normal, uniform float3 toEye)
+{    
+    float4 diffuse = light.diffuse;
+    float4 specular = light.specular;
+    float3 lightPos = light.position;
+    float3 attenuation = light.attenuation;
+    
+    // necessary vectors
+    float3 V = normalize(toEye - posW);
+    float3 L = -normalize(lightPos - posW);
+    float3 R = normalize(reflect(L, normal));
+    
+    float3 diffuseLightIntensity = saturate(max(dot(L, normal), 0.0f));
+    float3 diffuseLight = diffuseLightIntensity * diffuse.xyz * diffuse.w;
+    
+    float3 specularIntensity = 0.8f * pow(max(dot(R, V), 0.0f), 200.0f); // * specular.xyz
+    float3 specularLight = saturate(specularIntensity);
+    
+    float distanceToLight = distance(lightPos, posW);
+    float attenuationFactor = pow(attenuation.x + attenuation.y * distanceToLight + attenuation.z * pow(distanceToLight, 2), -1);
+    
+    return (diffuseLight + specularLight) * attenuationFactor;
+}
+
+float3 CalcSpotLight()
+{
+    return float3(1.0f, 1.0f, 1.0f);
+
 }
 
 float4 main(PS_IN input) : SV_Target
 {
     const int DIRECTIONAL = 1;
-    const int POINT = 1;
-    const int SPOT = 2;
+    const int POINT = 2;
+    const int SPOT = 3;
     
     float3 appliedLight = float3(0.0f, 0.0f, 0.0f);
     
@@ -95,12 +127,16 @@ float4 main(PS_IN input) : SV_Target
     uint width, height, elements, levels;
     shadowMaps.GetDimensions(0, width, height, elements, levels);
     
+    [branch]
     if (Light.lightType == DIRECTIONAL)
     {
-        appliedLight += CalculateDirectionalLight(Light, diffuseColor, pos, normal, gEyePos.xyz);
+        appliedLight += CalcDirectionalLight(Light, pos, normal, gEyePos.xyz);
     }
+    else
+    {
+        appliedLight += CalcPointLight(Light, pos, normal, gEyePos.xyz);
+    }
+    return diffuseColor * float4(appliedLight, 1.0f);
+    
     //output.LightAccumulation = (ambient + emissive);
-    //output.Specular = float4(specular.rgb, log2(specularPower) / 10.5f);
- 
-    return float4(appliedLight, 1.0f);
 }
