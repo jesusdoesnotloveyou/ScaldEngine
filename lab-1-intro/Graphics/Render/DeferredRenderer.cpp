@@ -154,7 +154,6 @@ void DeferredRenderer::BindGeometryPass()
 
 void DeferredRenderer::BindLightingPass()
 {
-	mDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP); // Quad -> two triangles
 	mDeviceContext->IASetInputLayout(mLightingVertexShader.GetInputLayout());
 
 	mDeviceContext->OMSetRenderTargets(1u, mRTV.GetAddressOf(), nullptr);
@@ -165,7 +164,7 @@ void DeferredRenderer::BindLightingPass()
 	mDeviceContext->RSSetViewports(1u, &mViewport);
 	mDeviceContext->RSSetState(mRasterizerStateCullBack.Get());
 
-	mDeviceContext->OMSetDepthStencilState(mDepthStencilState.Get(), 0u);
+	mDeviceContext->OMSetDepthStencilState(mDepthStencilStateLessThan.Get(), 0u);
 	mDeviceContext->OMSetBlendState(mBlendState.Get(), nullptr, 0xFFFFFFFF);
 
 	mDeviceContext->PSSetShader(mLightingPixelShader.Get(), nullptr, 0u);
@@ -190,7 +189,13 @@ void DeferredRenderer::BindTransparentPass()
 
 void DeferredRenderer::DrawScreenQuad()
 {
+	mDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP); // Quad -> two triangles
 	mDeviceContext->IASetVertexBuffers(0u, 1u, screenQuad->GetVertexBuffer().GetAddressOf(), screenQuad->GetVertexBuffer().GetStridePtr(), screenQuad->GetVertexBuffer().GetOffsetPtr());
 	mDeviceContext->IASetIndexBuffer(screenQuad->GetIndexBuffer().Get(), DXGI_FORMAT_R32_UINT, 0u);
 	mDeviceContext->Draw(screenQuad->GetVertexBuffer().GetBufferSize(), 0u);
+}
+
+void DeferredRenderer::SetCullModeFront()
+{
+	mDeviceContext->RSSetState(mRasterizerStateCullFront.Get());
 }

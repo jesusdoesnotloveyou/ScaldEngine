@@ -30,6 +30,8 @@ public:
 	
 	void DrawScreenQuad();
 
+	void SetCullModeFront();
+
 private:
 	// Deferred Renderer specific
 	VertexShader mOpaqueVertexShader;
