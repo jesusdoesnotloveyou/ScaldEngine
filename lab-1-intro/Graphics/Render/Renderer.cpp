@@ -68,7 +68,13 @@ void Renderer::CreateDepthStencilState()
 	depthStencilDesc.DepthEnable = true;
 	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK::D3D11_DEPTH_WRITE_MASK_ALL;
 	depthStencilDesc.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS_EQUAL;
-	ThrowIfFailed(mDevice->CreateDepthStencilState(&depthStencilDesc, mDepthStencilState.GetAddressOf()));
+	ThrowIfFailed(mDevice->CreateDepthStencilState(&depthStencilDesc, mDepthStencilStateLessThan.GetAddressOf()));
+
+	ZeroMemory(&depthStencilDesc, sizeof(CD3D11_DEPTH_STENCIL_DESC));
+	depthStencilDesc.DepthEnable = true;
+	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK::D3D11_DEPTH_WRITE_MASK_ALL;
+	depthStencilDesc.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS_EQUAL;
+	ThrowIfFailed(mDevice->CreateDepthStencilState(&depthStencilDesc, mDepthStencilStateGreaterThan.GetAddressOf()));
 }
 
 void Renderer::CreateRasterizerState()

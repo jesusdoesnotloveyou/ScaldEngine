@@ -34,7 +34,8 @@ protected:
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> mRTV;
 	// Depth Stencil
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> mDSV;
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> mDepthStencilState;
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> mDepthStencilStateLessThan;
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> mDepthStencilStateGreaterThan;
 	// Rast
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> mRasterizerStateCullBack;
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> mRasterizerStateCullFront;
