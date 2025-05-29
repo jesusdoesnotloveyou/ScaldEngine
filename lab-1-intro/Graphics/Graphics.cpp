@@ -290,6 +290,7 @@ void Graphics::BindLightingPassResources()
 	mDeviceContext->PSSetConstantBuffers(0u, 1u, mCB_CSM.GetAddressOf());
 
 	mPerFrameData.gEyePos = mTPCamera->GetPosition();
+	mPerFrameData.gView = XMMatrixTranspose(mTPCamera->GetViewMatrix());
 	mCB_PerFrame.SetAndApplyData(mPerFrameData);
 	mDeviceContext->PSSetConstantBuffers(1u, 1u, mCB_PerFrame.GetAddressOf());
 
@@ -374,13 +375,15 @@ void Graphics::RenderLighting()
 		const auto lightType = light->GetLightType();
 		if (lightType == ELightType::Directional)
 		{
+			pRenderer->BindOutsideFrustum();
 			pRenderer->DrawScreenQuad();
 		}
 		else // omni or spot
 		{
 			if (lightType == ELightType::Point)
 			{
-				float scale = CalcPointLightSphere(*light);
+				// TODO: here we could already have proper range and don't need to calculate it explicitly
+				const auto scale = light->GetRange();
 
 				mLightVolumeData.gWorld = XMMatrixTranspose(XMMatrixScaling(scale, scale, scale) * light->GetTransform()->mRotationMatrix * light->GetTransform()->mTranslationMatrix);
 				mLightVolumeData.gView = XMMatrixTranspose(mTPCamera->GetViewMatrix());
@@ -388,7 +391,7 @@ void Graphics::RenderLighting()
 				mCB_LightVolume.SetAndApplyData(mLightVolumeData);
 				mDeviceContext->VSSetConstantBuffers(0u, 1u, mCB_LightVolume.GetAddressOf());
 
-				pRenderer->SetCullModeFront();
+				pRenderer->BindWithinFrustum();
 				light->DrawLightVolume(mDeviceContext.Get());
 				continue;
 			}
@@ -421,7 +424,9 @@ void Graphics::UpdateLightConstantBuffer(Light* light)
 
 		if (ligthType == ELightType::Point)
 		{
-			mLightData.range = 10.0f; // hard-coded value
+			// TODO: move to point light update
+			light->SetRange(CalcPointLightRange(*light));
+			mLightData.range = light->GetRange(); // hard-coded value
 		}
 		else // spot
 		{
@@ -605,7 +610,7 @@ XMMATRIX Graphics::GetLightSpaceMatrix(const float nearPlane, const float farPla
 }
 
 // Deferred specific
-float Graphics::CalcPointLightSphere(const Light& light)
+float Graphics::CalcPointLightRange(const Light& light)
 {
 	const auto color = light.GetLightParams()->diffuse;
 	const auto attenuation = light.GetLightParams()->attenuation;
