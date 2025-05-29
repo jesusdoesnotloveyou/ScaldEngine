@@ -156,16 +156,16 @@ void DeferredRenderer::BindLightingPass()
 {
 	mDeviceContext->IASetInputLayout(mLightingVertexShader.GetInputLayout());
 
-	mDeviceContext->OMSetRenderTargets(1u, mRTV.GetAddressOf(), nullptr);
-	ClearBuffer(.0f); // to make separate pass in RenderDoc
+	mDeviceContext->OMSetRenderTargets(1u, mRTV.GetAddressOf(), mDSV.Get());
+	mDeviceContext->ClearRenderTargetView(mRTV.Get(), Colors::Black); // to make separate pass in RenderDoc
 
 	mDeviceContext->VSSetShader(mLightingVertexShader.Get(), nullptr, 0u);
 
 	mDeviceContext->RSSetViewports(1u, &mViewport);
 	mDeviceContext->RSSetState(mRasterizerStateCullBack.Get());
 
-	mDeviceContext->OMSetDepthStencilState(mDepthStencilStateLessThan.Get(), 0u);
-	mDeviceContext->OMSetBlendState(mBlendState.Get(), nullptr, 0xFFFFFFFF);
+	float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+	mDeviceContext->OMSetBlendState(mAdditiveBlendState.Get(), nullptr, 0xFFFFFFFF);
 
 	mDeviceContext->PSSetShader(mLightingPixelShader.Get(), nullptr, 0u);
 	// Bind GBuffer resources
@@ -195,7 +195,19 @@ void DeferredRenderer::DrawScreenQuad()
 	mDeviceContext->Draw(screenQuad->GetVertexBuffer().GetBufferSize(), 0u);
 }
 
-void DeferredRenderer::SetCullModeFront()
+void DeferredRenderer::BindWithinFrustum()
 {
-	mDeviceContext->RSSetState(mRasterizerStateCullFront.Get());
+	mDeviceContext->RSSetState(mRasterizerStateCullBack.Get());
+	mDeviceContext->OMSetDepthStencilState(mDSSGreater.Get(), 0u);
+}
+
+void DeferredRenderer::BindIntersectsFarPlane()
+{
+	mDeviceContext->RSSetState(mRasterizerStateCullBack.Get());
+	mDeviceContext->OMSetDepthStencilState(mDSSLessEqual.Get(), 0u);
+}
+
+void DeferredRenderer::BindOutsideFrustum()
+{
+	mDeviceContext->OMSetDepthStencilState(mDSSLessEqual.Get(), 0u);
 }
