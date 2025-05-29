@@ -4,6 +4,8 @@
 
 constexpr UINT BUFFER_COUNT = 3u;
 
+class Mesh;
+
 struct TextureRenderTarget
 {
 	ID3D11Texture2D* texture = nullptr;
@@ -26,6 +28,12 @@ public:
 	void BindLightingPass();
 	void BindTransparentPass();
 	
+	void DrawScreenQuad();
+
+	void BindWithinFrustum();
+	void BindIntersectsFarPlane();
+	void BindOutsideFrustum();
+
 private:
 	// Deferred Renderer specific
 	VertexShader mOpaqueVertexShader;
@@ -34,4 +42,6 @@ private:
 	PixelShader mLightingPixelShader;
 
 	TextureRenderTarget mGBuffer[BUFFER_COUNT];
+
+	Mesh* screenQuad = nullptr;
 };

@@ -54,6 +54,12 @@ public:
 		curr_data = data;
 	}
 
+	void SetAndApplyData(const T& data)
+	{
+		curr_data = data;
+		ApplyChanges();
+	}
+
 private:
 	T curr_data;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> mBuffer;

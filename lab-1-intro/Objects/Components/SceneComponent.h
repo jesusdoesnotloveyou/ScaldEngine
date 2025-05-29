@@ -19,6 +19,11 @@ public:
 		return mTransformComponent->GetPositionVector();
 	}
 
+	FORCEINLINE XMFLOAT3 GetPositionFloat() const
+	{
+		return mTransformComponent->GetPositionFloat3();
+	}
+
 	FORCEINLINE XMVECTOR GetRotation() const
 	{
 		return mTransformComponent->GetRotationVector();

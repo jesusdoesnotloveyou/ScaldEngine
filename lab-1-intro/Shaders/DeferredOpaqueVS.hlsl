@@ -17,6 +17,7 @@ struct VS_OUT
     float4 outPosition : SV_POSITION;
     float2 outTexCoord : TEXCOORD0;
     float3 outNormal : NORMAL;
+    float3 outWorld : POSITION0;
 };
 
 VS_OUT main(VS_IN input)
@@ -26,8 +27,9 @@ VS_OUT main(VS_IN input)
     // Change the position vector to be 4 units for proper matrix calculations.
     input.inPosition.w = 1.0f;
 
-    output.outPosition = mul(input.inPosition, gWorld);
-    output.outPosition = mul(output.outPosition, gView);
+    float4 model = mul(input.inPosition, gWorld);
+    output.outWorld = model.xyz;
+    output.outPosition = mul(model, gView);
     output.outPosition = mul(output.outPosition, gProjection);
     
     output.outTexCoord = input.inTexCoord;

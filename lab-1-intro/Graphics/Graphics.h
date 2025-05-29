@@ -18,8 +18,9 @@
 #pragma comment(lib, "dxgi.lib")
 
 class SceneGeometry;
-class PointLight;
+class Light;
 class DirectionalLight;
+class PointLight;
 class SpotLight;
 class Camera;
 class ThirdPersonCamera;
@@ -40,16 +41,16 @@ public:
 	void AddToRenderPool(SceneGeometry* sceneObject);
 	void InitSceneObjects();
 
-#pragma region LightManagment
+#pragma region ForwardRenderingLightManagment
 	void AddPointLightSourceParams(PointLightParams* lightParams);
-	void UpdatePointLightParams();
+	void UpdatePointLightsParams();
 
 	void AddDirectionalLightSourceParams(DirectionalLightParams* lightParams);
 	void UpdateDirectionalLightParams();
 
 	void AddSpotLightSourceParams(SpotLightParams* lightParams);
-	void UpdateSpotLightParams();
-#pragma endregion LightManagment
+	void UpdateSpotLightsParams();
+#pragma endregion ForwardRenderingLightManagment
 
 	void ClearBuffer(float r);
 	void DrawScene();
@@ -61,18 +62,28 @@ private:
 	void CreateDepthStencilState();
 	void CreateRasterizerState();
 	void CreateSamplerState();
+	void CreateBlendState();
 
 	void SetupShaders();
-	void InitPointLight();
+	
 	void InitDirectionalLight();
+	void InitPointLights();
+	void InitSpotLights();
+
+	void BindLightingPassResources();
+
 	void RenderDepthOnlyPass();
 	void RenderColorPass();
+	void RenderLighting();
+
+	void UpdateLightConstantBuffer(Light* light);
 
 	// get all 8 vertices of frustrum
 	std::vector<XMVECTOR> GetFrustumCornersWorldSpace(const XMMATRIX& viewProjection);
 	XMMATRIX GetLightSpaceMatrix(const float nearPlane, const float farPlane);
 	void GetLightSpaceMatrices(std::vector<XMMATRIX>& outMatrices);
-	void UpdateShadowCascadeSplits();
+
+	float CalcPointLightRange(const Light& light);
 
 	template<typename T>
 	bool ApplyChanges(ID3D11DeviceContext* deviceContext, ID3D11Buffer* buffer, const std::vector<T>& bufferData)
@@ -114,18 +125,21 @@ private:
 
 public:
 	std::vector<SceneGeometry*> mRenderObjects;
+	std::vector<Light*> mLights; // deferred rendering stuff
+	Light* mDirectionalLight = nullptr; // as well as this
 private:
 	// temporary, need a LightManager that would control light pool
-	std::vector<PointLight*> mPointLights;
 	std::vector<DirectionalLight*> mDirectionalLights;
+	std::vector<PointLight*> mPointLights;
 	std::vector<SpotLight*> mSpotLights;
 
-	bool bIsPointLightEnabled = false;
+	bool bIsPointLightEnabled = true;
 	bool bIsDirectionalLightEnabled = true;
-	bool bIsSpotLightEnabled = false;
+	bool bIsSpotLightEnabled = true;
 
 	Camera* mCamera = nullptr;
 	ThirdPersonCamera* mTPCamera = nullptr;
+	// should encapsulate in camera
 	float mCameraFarZ = 500.0f;
 	float mCameraNearZ = 0.1f;
 	float mFovDegrees = 90.0f;
@@ -137,41 +151,49 @@ private:
 
 #pragma region Light
 	ConstantBuffer<ConstBufferVSPerFrame> mCBVSPerFrame;
-	ConstantBuffer<ConstBufferPSPerFrame> mCBPSPerFrame;
-	ConstantBuffer<CascadeData> mCB_CSM;
 
+	ConstantBuffer<ConstBufferVS> mCB_LightVolume;
+	ConstBufferVS mLightVolumeData;
+
+	ConstantBuffer<ConstantBufferPerFrame> mCB_PerFrame;
+	ConstantBufferPerFrame mPerFrameData;
+
+	// need to update member
+	std::vector<DirectionalLightParams> mDirectionalLightParameters;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> mDirectionalLightBuffer;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mDirectionalLightSRV; // structured buffer
+	
 	// need to update members of vector
 	std::vector<PointLightParams> mPointLightsParameters;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> mPointLightBuffer;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mPointLightShaderResourceView; // structured buffer
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mPointLightSRV; // structured buffer
 
-	std::vector<DirectionalLightParams> mDirectionalLightParameters;
-	Microsoft::WRL::ComPtr<ID3D11Buffer> mDirectionalLightBuffer;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mDirectionalLightShaderResourceView; // structured buffer
+	// need to update members of vector
+	std::vector<SpotLightParams> mSpotLightsParameters;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> mSpotLightBuffer;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mSpotLightSRV; // structured buffer
 #pragma endregion Light
 
 	Microsoft::WRL::ComPtr<ID3D11Device> mDevice;
 	Microsoft::WRL::ComPtr<IDXGISwapChain> mSwapChain;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> mDeviceContext;
-	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> mRTV; // to deletem, see Renderer
-	// Depth Stencil
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> mDSV; // to delete, see Renderer
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> mDepthStencilState; // to delete, see Renderer
-	// Rast
-	Microsoft::WRL::ComPtr<ID3D11RasterizerState> mRasterizerState; // to delete, see Renderer
-	// Sampler
-	Microsoft::WRL::ComPtr<ID3D11SamplerState> mSamplerState; // to delete, see Renderer
-	Microsoft::WRL::ComPtr<ID3D11SamplerState> mShadowSamplerState; // to delete, see Renderer
-
-	D3D11_VIEWPORT currentViewport = {};
-
-	// Shadows
-	CascadeShadowMap* mCascadeShadowMap = nullptr;
-	float cascadeSplitLambda = 0.95f; // idk
-	float shadowCascadeLevels[CASCADE_NUMBER] = { 0.0f, 0.0f, 0.0f, 0.0f };
-	CascadeData mCSMData;
 
 	// Renderer
 	// Deferred Rendering
 	std::unique_ptr<DeferredRenderer> pRenderer;
+
+#pragma region DeferredLightManagement
+	ConstantBuffer<LIGHT_DESC> mCB_Light;
+	LIGHT_DESC mLightData;
+#pragma endregion DeferredLightManagement
+
+	// Shadows
+	// TODO: should probably placed in light class
+	CascadeShadowMap* mCascadeShadowMap = nullptr;
+	ConstantBuffer<CascadeDataConstantBuffer> mCB_CSM;
+	CascadeDataConstantBuffer mCSMData;
+
+	bool bIsForwardRenderingTechniqueApplied = false;
+	bool bIsDeferredRenderingTechniqueApplied = true;
+	bool bIsForwardPlusRenderingTechniqueApplied = false;
 };

@@ -79,3 +79,26 @@ void CascadeShadowMap::BindDsvAndSetNullRenderTarget(ID3D11DeviceContext* device
 	deviceContext->OMSetRenderTargets(1u, &rtv, mDepthMapDSV);
 	deviceContext->ClearDepthStencilView(mDepthMapDSV, D3D11_CLEAR_DEPTH, 1.0f, 0u);
 }
+
+void CascadeShadowMap::SetCascadeLevelValue(UINT index, float value)
+{
+	shadowCascadeLevels[index] = value;
+}
+
+void CascadeShadowMap::UpdateShadowCascadeSplits(float cameraNearZ, float cameraFarZ)
+{
+	const float minZ = cameraNearZ;
+	const float maxZ = cameraFarZ;
+
+	const float range = maxZ - minZ;
+	const float ratio = maxZ / minZ;
+
+	for (int i = 0; i < CASCADE_NUMBER; i++)
+	{
+		float p = (i + 1) / (float)(CASCADE_NUMBER);
+		float log = (float)(minZ * pow(ratio, p));
+		float uniform = minZ + range * p;
+		float d = cascadeSplitLambda * (log - uniform) + uniform;
+		shadowCascadeLevels[i] = ((d - cameraNearZ) / range) * maxZ;
+	}
+}

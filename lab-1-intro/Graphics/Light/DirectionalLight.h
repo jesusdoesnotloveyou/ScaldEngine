@@ -16,24 +16,8 @@ public:
 
 public:
 	//~ Begin of Light interface
-	virtual void SetAmbientColor(float x, float y, float z, float w) override;
-	virtual void SetDiffuseColor(float x, float y, float z, float w) override;
-
-	virtual XMFLOAT4 GetAmbientColor() override;
-	virtual XMFLOAT4 GetDiffuseColor() override;
-
-	virtual void SetDirection(float x, float y, float z) override;
-	virtual XMFLOAT3 GetDirection() override;
-	
 private:
 	virtual void SetAttenuation(float x, float y, float z) override {}
-	virtual XMFLOAT3 GetAttenuation() override { return XMFLOAT3{}; }
+	virtual XMFLOAT3 GetAttenuation()const override { return XMFLOAT3{}; }
 	//~ End of Light interface
-
-public:
-	FORCEINLINE DirectionalLightParams* GetParams() const { return LightParams; }
-	void UpdateParams(XMFLOAT4 ambientLight = { 1.0f, 1.0f, 1.0f, 0.9f }, XMFLOAT4 diffuseLight = { 1.0f, 1.0f, 1.0f, 1.0f }, XMFLOAT4 specularLight = { 1.0f, 1.0f, 1.0f, 1.0f }, XMFLOAT3 direction = { 0.57735f, -0.57735f, 0.57735f });
-
-private:
-	DirectionalLightParams* LightParams = nullptr;
 };

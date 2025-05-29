@@ -147,6 +147,21 @@
     <ClCompile Include="Graphics\Light\DirectionalLight.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\Light\SpotLight.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Render\DeferredRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Render\ForwardRenderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Render\Renderer.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Shadows\CascadeShadowMap.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ScaldException.h">
@@ -266,12 +281,31 @@
     <ClInclude Include="Graphics\Light\PointLight.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\Light\SpotLight.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Render\DeferredRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Render\ForwardRenderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Render\Renderer.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Shadows\CascadeShadowMap.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\VertexShader.hlsl" />
-    <FxCompile Include="Shaders\FragmentShader.hlsl" />
     <FxCompile Include="Shaders\ShadowVertexShader.hlsl" />
     <FxCompile Include="Shaders\CSMGeometryShader.hlsl" />
+    <FxCompile Include="Shaders\DeferredLightingPS.hlsl" />
+    <FxCompile Include="Shaders\DeferredLightingVS.hlsl" />
+    <FxCompile Include="Shaders\DeferredOpaquePS.hlsl" />
+    <FxCompile Include="Shaders\DeferredOpaqueVS.hlsl" />
+    <FxCompile Include="Shaders\PixelShader.hlsl" />
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="Delegates\Delegates.natvis" />

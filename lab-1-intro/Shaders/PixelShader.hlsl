@@ -1,13 +1,17 @@
-//cbuffer alphaBuffer : register(b1)
-//{
-//    float alpha;
-//};
-
 Texture2D objTexture : TEXTURE : register(t0);
 Texture2DArray depthMapTextures : register(t1);
 
 SamplerState objSamplerState : SAMPLER : register(s0);
 SamplerComparisonState shadowSamplerState : SAMPLER : register(s1);
+
+struct DirectionalLight
+{
+    float4 ambient;
+    float4 diffuse;
+    float4 specular;
+    float3 direction;
+    float pad;
+};
 
 struct PointLight
 {
@@ -20,18 +24,22 @@ struct PointLight
     float pad;
 };
 
-struct DirectionalLight
+struct SpotLight
 {
     float4 ambient;
     float4 diffuse;
     float4 specular;
+    float3 position;
+    float range;
     float3 direction;
+    float spot;
+    float3 attenuation;
     float pad;
 };
 
 StructuredBuffer<PointLight> PointLights : register(t2);
 StructuredBuffer<DirectionalLight> DirectionalLights : register(t3);
-//StructuredBuffer<PointLight> SpotLights : register(t4);
+StructuredBuffer<SpotLight> SpotLights : register(t4);
 
 cbuffer cbPerFrame : register(b0)
 {

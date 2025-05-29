@@ -1,5 +1,6 @@
 #include "Renderer.h"
 #include "../ScaldCoreTypes.h"
+#include "../Shadows/CascadeShadowMap.h"
 
 Renderer::Renderer(IDXGISwapChain* spawChain, ID3D11Device* device, ID3D11DeviceContext* deviceContext, int width, int height)
 	:
@@ -61,13 +62,15 @@ void Renderer::SetupShaders()
 
 void Renderer::CreateDepthStencilState()
 {
-	//Create depth stencil state
-	CD3D11_DEPTH_STENCIL_DESC depthStencilDesc;
-	ZeroMemory(&depthStencilDesc, sizeof(CD3D11_DEPTH_STENCIL_DESC));
-	depthStencilDesc.DepthEnable = true;
-	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK::D3D11_DEPTH_WRITE_MASK_ALL;
-	depthStencilDesc.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS_EQUAL;
-	ThrowIfFailed(mDevice->CreateDepthStencilState(&depthStencilDesc, mDepthStencilState.GetAddressOf()));
+	D3D11_DEPTH_STENCIL_DESC DSDesc;
+	DSDesc.DepthEnable = TRUE;
+	DSDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+	DSDesc.StencilEnable = FALSE;
+	DSDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+	ThrowIfFailed(mDevice->CreateDepthStencilState(&DSDesc, mDSSLessEqual.GetAddressOf()));
+	
+	DSDesc.DepthFunc = D3D11_COMPARISON_GREATER;
+	ThrowIfFailed(mDevice->CreateDepthStencilState(&DSDesc, mDSSGreater.GetAddressOf()));
 }
 
 void Renderer::CreateRasterizerState()
@@ -83,8 +86,12 @@ void Renderer::CreateRasterizerState()
 	CD3D11_RASTERIZER_DESC rastDesc = {};
 	rastDesc.FillMode = D3D11_FILL_SOLID;
 	rastDesc.CullMode = D3D11_CULL_BACK;
-	rastDesc.FrontCounterClockwise = false;
-	ThrowIfFailed(mDevice->CreateRasterizerState(&rastDesc, mRasterizerState.GetAddressOf()));
+	ThrowIfFailed(mDevice->CreateRasterizerState(&rastDesc, mRasterizerStateCullBack.GetAddressOf()));
+
+	rastDesc = {};
+	rastDesc.FillMode = D3D11_FILL_SOLID;
+	rastDesc.CullMode = D3D11_CULL_FRONT;
+	ThrowIfFailed(mDevice->CreateRasterizerState(&rastDesc, mRasterizerStateCullFront.GetAddressOf()));
 }
 
 void Renderer::CreateSamplerState()
@@ -118,6 +125,25 @@ void Renderer::CreateSamplerState()
 	ThrowIfFailed(mDevice->CreateSamplerState(&shadowSampDesc, mShadowSamplerState.GetAddressOf()));
 }
 
+void Renderer::CreateBlendState()
+{
+	D3D11_BLEND_DESC blendDesc = {};
+	ZeroMemory(&blendDesc, sizeof(D3D11_BLEND_DESC));
+
+	D3D11_RENDER_TARGET_BLEND_DESC RTBlendDesc = {};
+	ZeroMemory(&RTBlendDesc, sizeof(D3D11_RENDER_TARGET_BLEND_DESC));
+	RTBlendDesc.BlendEnable = TRUE;
+	RTBlendDesc.SrcBlend = D3D11_BLEND::D3D11_BLEND_ONE;
+	RTBlendDesc.DestBlend = D3D11_BLEND::D3D11_BLEND_ONE;
+	RTBlendDesc.BlendOp = D3D11_BLEND_OP::D3D11_BLEND_OP_ADD;
+	RTBlendDesc.SrcBlendAlpha = D3D11_BLEND::D3D11_BLEND_ONE;
+	RTBlendDesc.DestBlendAlpha = D3D11_BLEND::D3D11_BLEND_ONE;
+	RTBlendDesc.BlendOpAlpha = D3D11_BLEND_OP::D3D11_BLEND_OP_ADD;
+	RTBlendDesc.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE::D3D11_COLOR_WRITE_ENABLE_ALL;
+	blendDesc.RenderTarget[0] = RTBlendDesc;
+	ThrowIfFailed(mDevice->CreateBlendState(&blendDesc, mAdditiveBlendState.GetAddressOf()));
+}
+
 void Renderer::ClearBuffer(float r)
 {
 	//float color[] = { r, 0.0f, 0.0f, 1.0f };
@@ -127,5 +153,10 @@ void Renderer::ClearBuffer(float r)
 
 void Renderer::BindDepthOnlyPass()
 {
+	mDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+	mDeviceContext->IASetInputLayout(mShadowVertexShader.GetInputLayout());
 
+	mDeviceContext->VSSetShader(mShadowVertexShader.Get(), nullptr, 0u);
+	mDeviceContext->GSSetShader(mCSMGeometryShader.Get(), nullptr, 0u);
+	mDeviceContext->PSSetShader(nullptr, nullptr, 0u);
 }

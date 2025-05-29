@@ -36,8 +36,8 @@ public:
 protected:
 	Model model;
 
-	std::vector<VertexTex> vertices;
-	std::vector<DWORD> indices;
+	/*std::vector<VertexTex> vertices;
+	std::vector<DWORD> indices;*/
 
 	CollisionComponent* mCollisionComponent = nullptr;
 	//RenderComponent*	mRenderComponent	= nullptr;

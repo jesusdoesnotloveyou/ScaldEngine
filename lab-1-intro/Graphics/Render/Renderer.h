@@ -15,6 +15,7 @@ public:
 	void CreateDepthStencilState();
 	void CreateRasterizerState();
 	void CreateSamplerState();
+	void CreateBlendState();
 
 	void ClearBuffer(float r);
 	void BindDepthOnlyPass();
@@ -33,12 +34,19 @@ protected:
 	Microsoft::WRL::ComPtr<ID3D11RenderTargetView> mRTV;
 	// Depth Stencil
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> mDSV;
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> mDepthStencilState;
+
+	// TODO: should probably be moved to DeferredRenderer
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> mDSSLessEqual;
+	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> mDSSGreater;
 	// Rast
-	Microsoft::WRL::ComPtr<ID3D11RasterizerState> mRasterizerState;
+	Microsoft::WRL::ComPtr<ID3D11RasterizerState> mRasterizerStateCullBack;
+	Microsoft::WRL::ComPtr<ID3D11RasterizerState> mRasterizerStateCullFront;
 	// Sampler
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> mSamplerState;
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> mShadowSamplerState;
+	// Blend
+	Microsoft::WRL::ComPtr<ID3D11BlendState> mAdditiveBlendState;
+
 	D3D11_VIEWPORT mViewport = {};
 
 protected:

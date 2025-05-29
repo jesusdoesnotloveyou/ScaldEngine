@@ -2,7 +2,6 @@
 
 PointLight::PointLight(const std::string& filePath) : Light(filePath)
 {
-	LightParams = new PointLightParams();
 	LightType = ELightType::Point;
 }
 
@@ -18,8 +17,7 @@ void PointLight::Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext
 
 void PointLight::Update(const ScaldTimer& st)
 {
-	SceneGeometry::Update(st);
-	UpdateParams(st);
+	Light::Update(st);
 }
 
 void PointLight::Draw(const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix)
@@ -27,40 +25,7 @@ void PointLight::Draw(const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatr
 	SceneGeometry::Draw(viewMatrix, projectionMatrix);
 }
 
-void PointLight::SetAmbientColor(float x, float y, float z, float w)
-{
-	if (!LightParams) return;
-	LightParams->ambient = XMFLOAT4(x, y, z, w);
-}
-
-void PointLight::SetDiffuseColor(float x, float y, float z, float w)
-{
-	if (!LightParams) return;
-	LightParams->diffuse = XMFLOAT4(x, y, z, w);
-}
-
-void PointLight::SetAttenuation(float x, float y, float z)
-{
-	if (!LightParams) return;
-	LightParams->attenuation = XMFLOAT3(x, y, z);
-}
-
-XMFLOAT4 PointLight::GetAmbientColor()
-{
-	return LightParams ? LightParams->ambient : XMFLOAT4{};
-}
-
-XMFLOAT4 PointLight::GetDiffuseColor()
-{
-	return LightParams ? LightParams->diffuse : XMFLOAT4{};
-}
-
-XMFLOAT3 PointLight::GetAttenuation()
-{
-	return LightParams ? LightParams->attenuation : XMFLOAT3{};
-}
-
-void PointLight::UpdateParams(const ScaldTimer& st)
+void PointLight::UpdateLightParams()
 {
 	if (!LightParams) return;
 
