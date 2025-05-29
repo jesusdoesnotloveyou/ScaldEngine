@@ -112,6 +112,17 @@ XMFLOAT3 Light::GetDirection()const
     return LightParams ? LightParams->direction : XMFLOAT3{};
 }
 
+void Light::SetRange(const float radius)
+{
+    if (!LightParams) return;
+    LightParams->range = radius;
+}
+
+float Light::GetRange() const
+{
+    return LightParams ? LightParams->range : 0.0f;
+}
+
 void Light::SetAttenuation(float x, float y, float z)
 {
     if (!LightParams) return;

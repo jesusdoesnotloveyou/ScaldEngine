@@ -28,6 +28,8 @@ public:
     virtual void SetDirection(float x, float y, float z);
     virtual XMFLOAT3 GetDirection()const;
     // only for point and spot lights
+    virtual void SetRange(const float radius = 1.0f);
+    virtual float GetRange()const;
     virtual void SetAttenuation(float x, float y, float z);
     virtual XMFLOAT3 GetAttenuation()const;
 
