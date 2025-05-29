@@ -75,6 +75,7 @@ struct ConstBufferVS
 struct ConstantBufferPerFrame
 {
 	XMVECTOR gEyePos = XMVectorZero();
+	XMMATRIX gView = XMMatrixIdentity();
 };
 
 struct LightWorldConstantBuffer

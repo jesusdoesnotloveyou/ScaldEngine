@@ -85,6 +85,7 @@ void Graphics::Setup()
 	CreateDepthStencilState();
 	CreateRasterizerState();
 	CreateSamplerState();
+	CreateBlendState();
 
 	// Camera setup
 	mTPCamera->SetPerspectiveProjectionValues(mFovDegrees, static_cast<float>(mScreenWidth) / static_cast<float>(mScreenHeight), mCameraNearZ, mCameraFarZ);
@@ -96,6 +97,7 @@ void Graphics::Setup()
 	// constant buffers setup
 	ThrowIfFailed(mCBVSPerFrame.Init(mDevice.Get(), mDeviceContext.Get()));
 
+	ThrowIfFailed(mCB_LightVolume.Init(mDevice.Get(), mDeviceContext.Get()));
 	ThrowIfFailed(mCB_PerFrame.Init(mDevice.Get(), mDeviceContext.Get()));
 	ThrowIfFailed(mCB_CSM.Init(mDevice.Get(), mDeviceContext.Get()));
 	ThrowIfFailed(mCB_Light.Init(mDevice.Get(), mDeviceContext.Get()));
@@ -117,9 +119,9 @@ void Graphics::AddToRenderPool(SceneGeometry* sceneObject)
 		}
 	}
 
-	if (bIsForwardRenderingTechniqueApplied)
+	/*if (bIsForwardRenderingTechniqueApplied)
 	{
-		/*if (lightObject->GetLightType() == ELightType::Point)
+		if (lightObject->GetLightType() == ELightType::Point)
 		{
 			const auto pointLight = static_cast<PointLight*>(lightObject);
 			mPointLights.push_back(pointLight);
@@ -136,8 +138,8 @@ void Graphics::AddToRenderPool(SceneGeometry* sceneObject)
 			const auto spotLight = static_cast<SpotLight*>(lightObject);
 			mSpotLights.push_back(spotLight);
 			AddSpotLightSourceParams(spotLight->GetParams());
-		}*/
-	}
+		}
+	}*/
 }
 
 void Graphics::InitSceneObjects()
@@ -180,7 +182,7 @@ void Graphics::UpdatePointLightsParams()
 	if (mPointLights.empty()) return;
 	for (int i = 0; i < mPointLights.size(); i++)
 	{
-		mPointLightsParameters[i] = *mPointLights[i]->GetParams();
+		//mPointLightsParameters[i] = *mPointLights[i]->GetParams();
 	}
 }
 
@@ -208,7 +210,7 @@ void Graphics::UpdateSpotLightsParams()
 	if (mSpotLights.empty()) return;
 	for (int i = 0; i < mSpotLights.size(); i++)
 	{
-		mSpotLightsParameters[i] = *mSpotLights[i]->GetParams();
+		//mSpotLightsParameters[i] = *mSpotLights[i]->GetParams();
 	}
 }
 
@@ -288,6 +290,7 @@ void Graphics::BindLightingPassResources()
 	mDeviceContext->PSSetConstantBuffers(0u, 1u, mCB_CSM.GetAddressOf());
 
 	mPerFrameData.gEyePos = mTPCamera->GetPosition();
+	mPerFrameData.gView = XMMatrixTranspose(mTPCamera->GetViewMatrix());
 	mCB_PerFrame.SetAndApplyData(mPerFrameData);
 	mDeviceContext->PSSetConstantBuffers(1u, 1u, mCB_PerFrame.GetAddressOf());
 
@@ -320,7 +323,7 @@ void Graphics::RenderColorPass()
 	//mDeviceContext->RSSetViewports(1u, &currentViewport);
 	//mDeviceContext->RSSetState(mRasterizerStateCullBack.Get());
 
-	//mDeviceContext->OMSetDepthStencilState(mDepthStencilState.Get(), 0u);
+	//mDeviceContext->OMSetDepthStencilState(mDepthStencilStateLessThan.Get(), 0u);
 
 	// Step 09: Set Pixel Shaders
 	mDeviceContext->PSSetShader(mPixelShader.Get(), nullptr, 0u);
@@ -369,19 +372,33 @@ void Graphics::RenderLighting()
 		mDeviceContext->VSSetConstantBuffers(1u, 1u, mCB_Light.GetAddressOf());
 		mDeviceContext->PSSetConstantBuffers(2u, 1u, mCB_Light.GetAddressOf());
 
-		if (light->GetLightType() == ELightType::Directional)
+		const auto lightType = light->GetLightType();
+		if (lightType == ELightType::Directional)
 		{
+			pRenderer->BindOutsideFrustum();
 			pRenderer->DrawScreenQuad();
 		}
 		else // omni or spot
 		{
-			if (light->GetLightType() == ELightType::Point)
+			if (lightType == ELightType::Point)
 			{
+				// TODO: here we could already have proper range and don't need to calculate it explicitly
+				const auto scale = light->GetRange();
 
+				mLightVolumeData.gWorld = XMMatrixTranspose(XMMatrixScaling(scale, scale, scale) * light->GetTransform()->mRotationMatrix * light->GetTransform()->mTranslationMatrix);
+				mLightVolumeData.gView = XMMatrixTranspose(mTPCamera->GetViewMatrix());
+				mLightVolumeData.gProjection = XMMatrixTranspose(mTPCamera->GetPerspectiveProjectionMatrix());
+				mCB_LightVolume.SetAndApplyData(mLightVolumeData);
+				mDeviceContext->VSSetConstantBuffers(0u, 1u, mCB_LightVolume.GetAddressOf());
+
+				pRenderer->BindWithinFrustum();
+				light->DrawLightVolume(mDeviceContext.Get());
+				continue;
 			}
-			if (light->GetLightType() == ELightType::Spot)
-			{
 
+			if (lightType == ELightType::Spot)
+			{
+				continue;
 			}
 		}
 	}
@@ -389,29 +406,33 @@ void Graphics::RenderLighting()
 
 void Graphics::UpdateLightConstantBuffer(Light* light)
 {
+	const auto ligthType = light->GetLightType();
+
 	mLightData.diffuse = light->GetDiffuseColor();
 	mLightData.specular = light->GetSpecularColor();
+	mLightData.lightType = ligthType;
 	
-	if (light->GetLightType() == ELightType::Directional)
+	if (ligthType == ELightType::Directional)
 	{
 		mLightData.ambient = light->GetAmbientColor();
 		mLightData.direction = light->GetDirection();
-		mLightData.lightType = ELightType::Directional;
 	}
-	if (light->GetLightType() == ELightType::Point)
+	else // omni or spot
 	{
 		mLightData.attenuation = light->GetAttenuation();
 		mLightData.position = light->GetPositionFloat();
-		mLightData.range = 10.0f; // hard-coded value
-		mLightData.lightType = ELightType::Point;
-	}
-	if (light->GetLightType() == ELightType::Spot)
-	{
-		mLightData.attenuation = light->GetAttenuation();
-		mLightData.position = light->GetPositionFloat();
-		mLightData.direction = light->GetDirection();
-		mLightData.lightType = ELightType::Spot;
-		mLightData.spot = 10.0f; // hard-coded value
+
+		if (ligthType == ELightType::Point)
+		{
+			// TODO: move to point light update
+			light->SetRange(CalcPointLightRange(*light));
+			mLightData.range = light->GetRange(); // hard-coded value
+		}
+		else // spot
+		{
+			mLightData.direction = light->GetDirection();
+			mLightData.spot = 10.0f; // hard-coded value
+		}
 	}
 	mCB_Light.SetAndApplyData(mLightData);
 }
@@ -586,4 +607,16 @@ XMMATRIX Graphics::GetLightSpaceMatrix(const float nearPlane, const float farPla
 
 	const auto lightProjection = XMMatrixOrthographicOffCenterLH(minX, maxX, minY, maxY, minZ, maxZ);
 	return lightView * lightProjection;
+}
+
+// Deferred specific
+float Graphics::CalcPointLightRange(const Light& light)
+{
+	const auto color = light.GetLightParams()->diffuse;
+	const auto attenuation = light.GetLightParams()->attenuation;
+
+	float MaxChannel = fmax(fmax(color.x, color.y), color.z);
+
+	float ret = (-attenuation.y + sqrtf(attenuation.y * attenuation.y - 4 * attenuation.z * (attenuation.z - 256 * MaxChannel * color.w))) / (2 * attenuation.z);
+	return ret;
 }

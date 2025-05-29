@@ -154,19 +154,18 @@ void DeferredRenderer::BindGeometryPass()
 
 void DeferredRenderer::BindLightingPass()
 {
-	mDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP); // Quad -> two triangles
 	mDeviceContext->IASetInputLayout(mLightingVertexShader.GetInputLayout());
 
-	mDeviceContext->OMSetRenderTargets(1u, mRTV.GetAddressOf(), nullptr);
-	ClearBuffer(.0f); // to make separate pass in RenderDoc
+	mDeviceContext->OMSetRenderTargets(1u, mRTV.GetAddressOf(), mDSV.Get());
+	mDeviceContext->ClearRenderTargetView(mRTV.Get(), Colors::Black); // to make separate pass in RenderDoc
 
 	mDeviceContext->VSSetShader(mLightingVertexShader.Get(), nullptr, 0u);
 
 	mDeviceContext->RSSetViewports(1u, &mViewport);
 	mDeviceContext->RSSetState(mRasterizerStateCullBack.Get());
 
-	mDeviceContext->OMSetDepthStencilState(mDepthStencilState.Get(), 0u);
-	mDeviceContext->OMSetBlendState(mBlendState.Get(), nullptr, 0xFFFFFFFF);
+	float blendFactor[4] = { 0.0f, 0.0f, 0.0f, 0.0f };
+	mDeviceContext->OMSetBlendState(mAdditiveBlendState.Get(), nullptr, 0xFFFFFFFF);
 
 	mDeviceContext->PSSetShader(mLightingPixelShader.Get(), nullptr, 0u);
 	// Bind GBuffer resources
@@ -190,7 +189,25 @@ void DeferredRenderer::BindTransparentPass()
 
 void DeferredRenderer::DrawScreenQuad()
 {
+	mDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP); // Quad -> two triangles
 	mDeviceContext->IASetVertexBuffers(0u, 1u, screenQuad->GetVertexBuffer().GetAddressOf(), screenQuad->GetVertexBuffer().GetStridePtr(), screenQuad->GetVertexBuffer().GetOffsetPtr());
 	mDeviceContext->IASetIndexBuffer(screenQuad->GetIndexBuffer().Get(), DXGI_FORMAT_R32_UINT, 0u);
 	mDeviceContext->Draw(screenQuad->GetVertexBuffer().GetBufferSize(), 0u);
+}
+
+void DeferredRenderer::BindWithinFrustum()
+{
+	mDeviceContext->RSSetState(mRasterizerStateCullBack.Get());
+	mDeviceContext->OMSetDepthStencilState(mDSSGreater.Get(), 0u);
+}
+
+void DeferredRenderer::BindIntersectsFarPlane()
+{
+	mDeviceContext->RSSetState(mRasterizerStateCullBack.Get());
+	mDeviceContext->OMSetDepthStencilState(mDSSLessEqual.Get(), 0u);
+}
+
+void DeferredRenderer::BindOutsideFrustum()
+{
+	mDeviceContext->OMSetDepthStencilState(mDSSLessEqual.Get(), 0u);
 }

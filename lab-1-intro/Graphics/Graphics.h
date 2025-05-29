@@ -83,6 +83,8 @@ private:
 	XMMATRIX GetLightSpaceMatrix(const float nearPlane, const float farPlane);
 	void GetLightSpaceMatrices(std::vector<XMMATRIX>& outMatrices);
 
+	float CalcPointLightRange(const Light& light);
+
 	template<typename T>
 	bool ApplyChanges(ID3D11DeviceContext* deviceContext, ID3D11Buffer* buffer, const std::vector<T>& bufferData)
 	{
@@ -149,6 +151,9 @@ private:
 
 #pragma region Light
 	ConstantBuffer<ConstBufferVSPerFrame> mCBVSPerFrame;
+
+	ConstantBuffer<ConstBufferVS> mCB_LightVolume;
+	ConstBufferVS mLightVolumeData;
 
 	ConstantBuffer<ConstantBufferPerFrame> mCB_PerFrame;
 	ConstantBufferPerFrame mPerFrameData;

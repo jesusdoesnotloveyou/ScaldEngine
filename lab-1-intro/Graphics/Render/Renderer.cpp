@@ -62,13 +62,15 @@ void Renderer::SetupShaders()
 
 void Renderer::CreateDepthStencilState()
 {
-	//Create depth stencil state
-	CD3D11_DEPTH_STENCIL_DESC depthStencilDesc;
-	ZeroMemory(&depthStencilDesc, sizeof(CD3D11_DEPTH_STENCIL_DESC));
-	depthStencilDesc.DepthEnable = true;
-	depthStencilDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK::D3D11_DEPTH_WRITE_MASK_ALL;
-	depthStencilDesc.DepthFunc = D3D11_COMPARISON_FUNC::D3D11_COMPARISON_LESS_EQUAL;
-	ThrowIfFailed(mDevice->CreateDepthStencilState(&depthStencilDesc, mDepthStencilState.GetAddressOf()));
+	D3D11_DEPTH_STENCIL_DESC DSDesc;
+	DSDesc.DepthEnable = TRUE;
+	DSDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
+	DSDesc.StencilEnable = FALSE;
+	DSDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+	ThrowIfFailed(mDevice->CreateDepthStencilState(&DSDesc, mDSSLessEqual.GetAddressOf()));
+	
+	DSDesc.DepthFunc = D3D11_COMPARISON_GREATER;
+	ThrowIfFailed(mDevice->CreateDepthStencilState(&DSDesc, mDSSGreater.GetAddressOf()));
 }
 
 void Renderer::CreateRasterizerState()
@@ -86,6 +88,7 @@ void Renderer::CreateRasterizerState()
 	rastDesc.CullMode = D3D11_CULL_BACK;
 	ThrowIfFailed(mDevice->CreateRasterizerState(&rastDesc, mRasterizerStateCullBack.GetAddressOf()));
 
+	rastDesc = {};
 	rastDesc.FillMode = D3D11_FILL_SOLID;
 	rastDesc.CullMode = D3D11_CULL_FRONT;
 	ThrowIfFailed(mDevice->CreateRasterizerState(&rastDesc, mRasterizerStateCullFront.GetAddressOf()));
@@ -138,7 +141,7 @@ void Renderer::CreateBlendState()
 	RTBlendDesc.BlendOpAlpha = D3D11_BLEND_OP::D3D11_BLEND_OP_ADD;
 	RTBlendDesc.RenderTargetWriteMask = D3D11_COLOR_WRITE_ENABLE::D3D11_COLOR_WRITE_ENABLE_ALL;
 	blendDesc.RenderTarget[0] = RTBlendDesc;
-	ThrowIfFailed(mDevice->CreateBlendState(&blendDesc, mBlendState.GetAddressOf()));
+	ThrowIfFailed(mDevice->CreateBlendState(&blendDesc, mAdditiveBlendState.GetAddressOf()));
 }
 
 void Renderer::ClearBuffer(float r)

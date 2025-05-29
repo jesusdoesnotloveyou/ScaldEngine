@@ -37,7 +37,7 @@ struct VS_OUT
     float2 outTexCoord : TEXCOORD0;
 };
 
-VS_OUT main(uint id: SV_VertexID)
+VS_OUT main(VS_IN input, uint id : SV_VertexID)
 {
     VS_OUT output = (VS_OUT) 0;
     
@@ -45,6 +45,7 @@ VS_OUT main(uint id: SV_VertexID)
     const int POINT = 2;
     const int SPOT = 3;
     
+    [branch]
     if (Light.lightType == DIRECTIONAL)
     {
         output.outTexCoord = float2(id & 1, (id & 2) >> 1);
@@ -52,7 +53,9 @@ VS_OUT main(uint id: SV_VertexID)
     }
     else if (Light.lightType == POINT || Light.lightType == SPOT)
     {
-        
+        output.outPosition = mul(input.inPosition, gWorld);
+        output.outPosition = mul(output.outPosition, gView);
+        output.outPosition = mul(output.outPosition, gProjection);
     }
 
     return output;

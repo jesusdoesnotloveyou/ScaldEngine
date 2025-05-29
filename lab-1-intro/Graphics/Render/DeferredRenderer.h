@@ -30,6 +30,10 @@ public:
 	
 	void DrawScreenQuad();
 
+	void BindWithinFrustum();
+	void BindIntersectsFarPlane();
+	void BindOutsideFrustum();
+
 private:
 	// Deferred Renderer specific
 	VertexShader mOpaqueVertexShader;

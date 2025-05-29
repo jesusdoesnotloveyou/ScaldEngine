@@ -7,7 +7,6 @@
 #include <assimp/scene.h>
 #include <string>
 
-// Model for scene object
 class Model
 {
 public:
