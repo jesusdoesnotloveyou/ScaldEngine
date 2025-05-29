@@ -35,7 +35,7 @@ protected:
 	// Depth Stencil
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilView> mDSV;
 
-	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> mDSSLessEqualNoDepthWrites;
+	// TODO: should probably be moved to DeferredRenderer
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> mDSSLessEqual;
 	Microsoft::WRL::ComPtr<ID3D11DepthStencilState> mDSSGreater;
 	// Rast
