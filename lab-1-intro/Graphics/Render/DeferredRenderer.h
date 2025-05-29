@@ -30,7 +30,9 @@ public:
 	
 	void DrawScreenQuad();
 
-	void SetCullModeFront();
+	void BindWithinFrustum();
+	void BindIntersectsFarPlane();
+	void BindOutsideFrustum();
 
 private:
 	// Deferred Renderer specific
