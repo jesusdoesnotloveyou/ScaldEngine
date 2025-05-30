@@ -76,6 +76,12 @@ private:
 	void RenderColorPass();
 	void RenderLighting();
 
+	// deferred additional task specific
+	void RenderGBuffer();
+public:
+	void SwitchGBufferLayer(int layer);
+
+private:
 	void UpdateLightConstantBuffer(Light* light);
 
 	// get all 8 vertices of frustrum

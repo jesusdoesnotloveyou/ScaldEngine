@@ -53,6 +53,7 @@ DeferredRenderer::DeferredRenderer(IDXGISwapChain* spawChain, ID3D11Device* devi
 	std::vector<VertexTex> quadVertices = { VertexTex(), VertexTex(), VertexTex(), VertexTex() };
 	std::vector<DWORD> quadIndeces = { 0 }; // at least one due to throwing exception in Init
 	screenQuad = new Mesh(device, deviceContext, quadVertices, quadIndeces);
+	GBufferTexture = new Mesh(device, deviceContext, quadVertices, quadIndeces);
 }
 
 DeferredRenderer::~DeferredRenderer() noexcept
@@ -63,6 +64,9 @@ DeferredRenderer::~DeferredRenderer() noexcept
 		mGBuffer[i].rtv->Release();
 		mGBuffer[i].srv->Release();
 	}
+
+	if (screenQuad) delete screenQuad;
+	if (GBufferTexture) delete GBufferTexture;
 }
 
 void DeferredRenderer::SetupShaders()
@@ -115,11 +119,46 @@ void DeferredRenderer::SetupShaders()
 		0u}
 	};
 
+	D3D11_INPUT_ELEMENT_DESC inputLayoutGBufferDesc[] = {
+	D3D11_INPUT_ELEMENT_DESC {
+		"POSITION",
+		0u,
+		DXGI_FORMAT_R32G32B32A32_FLOAT,
+		0u,
+		0u,
+		D3D11_INPUT_PER_VERTEX_DATA,
+		0u},
+	D3D11_INPUT_ELEMENT_DESC {
+		"TEXCOORD",
+		0u,
+		DXGI_FORMAT_R32G32_FLOAT,
+		0u,
+		D3D11_APPEND_ALIGNED_ELEMENT,
+		D3D11_INPUT_PER_VERTEX_DATA,
+		0u}
+	};
+
+	mGBufferVS.Init(mDevice, inputLayoutGBufferDesc, (UINT)std::size(inputLayoutGBufferDesc), L"./Shaders/GBufferVS.hlsl");
+	mGBufferPS.Init(mDevice, L"./Shaders/GBufferPS.hlsl");
+
 	mOpaqueVertexShader.Init(mDevice, inputLayoutOpaqueDesc, (UINT)std::size(inputLayoutOpaqueDesc), L"./Shaders/DeferredOpaqueVS.hlsl");
 	mOpaquePixelShader.Init(mDevice, L"./Shaders/DeferredOpaquePS.hlsl");
 
 	mLightingVertexShader.Init(mDevice, inputLayoutLightingDesc, (UINT)std::size(inputLayoutLightingDesc), L"./Shaders/DeferredLightingVS.hlsl");
 	mLightingPixelShader.Init(mDevice, L"./Shaders/DeferredLightingPS.hlsl");
+}
+
+void DeferredRenderer::CreateRasterizerState()
+{
+	// Step 10: Setup Rasterizer Stage and Viewport
+	mGBufferViewport.TopLeftX = 0.0f;
+	mGBufferViewport.TopLeftY = 0.0f;
+	mGBufferViewport.Width = static_cast<float>(mScreenWidth * 0.2f);
+	mGBufferViewport.Height = static_cast<float>(mScreenHeight * 0.2f);
+	mGBufferViewport.MinDepth = 0.0f;
+	mGBufferViewport.MaxDepth = 1.0f;
+
+	Renderer::CreateRasterizerState();
 }
 
 void DeferredRenderer::BindGeometryPass()
@@ -193,6 +232,27 @@ void DeferredRenderer::DrawScreenQuad()
 	mDeviceContext->IASetVertexBuffers(0u, 1u, screenQuad->GetVertexBuffer().GetAddressOf(), screenQuad->GetVertexBuffer().GetStridePtr(), screenQuad->GetVertexBuffer().GetOffsetPtr());
 	mDeviceContext->IASetIndexBuffer(screenQuad->GetIndexBuffer().Get(), DXGI_FORMAT_R32_UINT, 0u);
 	mDeviceContext->Draw(screenQuad->GetVertexBuffer().GetBufferSize(), 0u);
+}
+
+void DeferredRenderer::DrawGBuffer()
+{
+	mDeviceContext->IASetInputLayout(mGBufferVS.GetInputLayout());
+	mDeviceContext->OMSetRenderTargets(1u, mRTV.GetAddressOf(), mDSV.Get());
+
+	mDeviceContext->VSSetShader(mGBufferVS.Get(), nullptr, 0u);
+
+	mDeviceContext->RSSetViewports(1u, &mGBufferViewport);
+	mDeviceContext->RSSetState(mRasterizerStateCullBack.Get());
+	
+	mDeviceContext->PSSetShader(mGBufferPS.Get(), nullptr, 0u);
+
+	mDeviceContext->PSSetShaderResources(0u, 1u, &mGBuffer[GBufferLayer % BUFFER_COUNT].srv);
+	mDeviceContext->PSSetSamplers(0u, 1u, mSamplerState.GetAddressOf());
+
+	mDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP); // Quad -> two triangles
+	mDeviceContext->IASetVertexBuffers(0u, 1u, GBufferTexture->GetVertexBuffer().GetAddressOf(), GBufferTexture->GetVertexBuffer().GetStridePtr(), GBufferTexture->GetVertexBuffer().GetOffsetPtr());
+	mDeviceContext->IASetIndexBuffer(GBufferTexture->GetIndexBuffer().Get(), DXGI_FORMAT_R32_UINT, 0u);
+	mDeviceContext->Draw(GBufferTexture->GetVertexBuffer().GetBufferSize(), 0u);
 }
 
 void DeferredRenderer::BindWithinFrustum()

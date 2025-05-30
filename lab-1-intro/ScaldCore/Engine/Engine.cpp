@@ -181,6 +181,20 @@ void Engine::PollInput()
 	{
 		Player->Jump();
 	}
+	// deferred additional task specific
+	if (mRenderWindow.kbd.IsKeyPressed('1'))
+	{
+		mRenderWindow.GetGfx().SwitchGBufferLayer(0);
+	}
+	if (mRenderWindow.kbd.IsKeyPressed('2'))
+	{
+		mRenderWindow.GetGfx().SwitchGBufferLayer(1);
+	}
+	if (mRenderWindow.kbd.IsKeyPressed('3'))
+	{
+		mRenderWindow.GetGfx().SwitchGBufferLayer(2);
+	}
+
 #pragma endregion PlayerMovement
 }
 

@@ -21,6 +21,7 @@ public:
 
 	// Begin of Renderer interface
 	virtual void SetupShaders() override;
+	virtual void CreateRasterizerState() override;
 	// End of Renderer interface
 
 public:
@@ -29,6 +30,9 @@ public:
 	void BindTransparentPass();
 	
 	void DrawScreenQuad();
+	// deferred additional task
+	void DrawGBuffer();
+	FORCEINLINE void ChangeGBufferLayer(int layer) { GBufferLayer = layer; }
 
 	void BindWithinFrustum();
 	void BindIntersectsFarPlane();
@@ -41,7 +45,17 @@ private:
 	VertexShader mLightingVertexShader;
 	PixelShader mLightingPixelShader;
 
+	// deferred additional task
+	VertexShader mGBufferVS;
+	PixelShader mGBufferPS;
+
 	TextureRenderTarget mGBuffer[BUFFER_COUNT];
 
 	Mesh* screenQuad = nullptr;
+
+	// deferred additional task
+	Mesh* GBufferTexture = nullptr;
+	int GBufferLayer = 0;
+
+	D3D11_VIEWPORT mGBufferViewport = {};
 };

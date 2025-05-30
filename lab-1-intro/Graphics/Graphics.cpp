@@ -94,8 +94,8 @@ void Graphics::Setup()
 	// for cascade shadows
 	mCascadeShadowMap->UpdateShadowCascadeSplits(mCameraNearZ, mCameraFarZ);
 
-	// constant buffers setup
-	ThrowIfFailed(mCBVSPerFrame.Init(mDevice.Get(), mDeviceContext.Get()));
+	// constant buffers setup (Forward)
+	//ThrowIfFailed(mCBVSPerFrame.Init(mDevice.Get(), mDeviceContext.Get()));
 
 	ThrowIfFailed(mCB_LightVolume.Init(mDevice.Get(), mDeviceContext.Get()));
 	ThrowIfFailed(mCB_PerFrame.Init(mDevice.Get(), mDeviceContext.Get()));
@@ -256,6 +256,10 @@ void Graphics::DrawScene()
 	RenderLighting();
 
 	mDeviceContext->ClearState();
+	// additional task to deferred
+	RenderGBuffer();
+
+	mDeviceContext->ClearState();
 
 	/*pRenderer->BindTransparentPass();
 	mDeviceContext->ClearState();*/
@@ -402,6 +406,16 @@ void Graphics::RenderLighting()
 			}
 		}
 	}
+}
+
+void Graphics::RenderGBuffer()
+{
+	pRenderer->DrawGBuffer();
+}
+
+void Graphics::SwitchGBufferLayer(int layer)
+{
+	pRenderer->ChangeGBufferLayer(layer);
 }
 
 void Graphics::UpdateLightConstantBuffer(Light* light)

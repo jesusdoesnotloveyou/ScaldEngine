@@ -306,6 +306,12 @@
     <FxCompile Include="Shaders\DeferredOpaquePS.hlsl" />
     <FxCompile Include="Shaders\DeferredOpaqueVS.hlsl" />
     <FxCompile Include="Shaders\PixelShader.hlsl" />
+    <FxCompile Include="Shaders\GBufferVS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\GBufferPS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="Delegates\Delegates.natvis" />
