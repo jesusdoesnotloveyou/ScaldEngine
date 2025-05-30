@@ -56,7 +56,7 @@ void Engine::SetupScene()
 #pragma region PointLight
 	PointLight* pointLight1 = new PointLight("./Data/Models/Light/light.obj");
 	pointLight1->GetTransform()->SetPosition(20.0f, 4.0f, 60.0f);
-	pointLight1->SetDiffuseColor(0.0f, 1.0f, 0.0f, 5.0f);
+	pointLight1->SetDiffuseColor(1.0f, 1.0f, 0.5f, 5.0f);
 	pointLight1->SetAttenuation(1.0f, 0.5f, 1.1f);
 	//pointLight1->SetRange(3.0f);
 

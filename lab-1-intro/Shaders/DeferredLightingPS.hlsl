@@ -183,7 +183,10 @@ float4 main(PS_IN input) : SV_Target
         float shadow = 0.0f;
         if (saturate(shadowTexCoords.x) == shadowTexCoords.x && saturate(shadowTexCoords.y) == shadowTexCoords.y)
         {
-            float currentDepth = shadowTexCoords.z - 0.001f;
+            float bias = max(0.05f * (1.0f - dot(normal, normalize(Light.direction))), 0.005f);
+            bias *= 1 / (CascData.Distances[layer] * 0.5f);
+        
+            float currentDepth = shadowTexCoords.z - bias;
     
             [unroll]
             for (int i = 0; i < 9; ++i)
