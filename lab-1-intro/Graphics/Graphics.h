@@ -153,6 +153,17 @@ private:
 	ConstantBuffer<ConstantBufferPerFrame> mCB_PerFrame;
 	ConstantBufferPerFrame mPerFrameData;
 
+	ConstantBuffer<ConstBufferVS> mCB_LightVolume;
+	ConstBufferVS mLightVolumeData;
+
+	ConstantBuffer<ConstantBufferPerFrame> mCB_PerFrame;
+	ConstantBufferPerFrame mPerFrameData;
+
+	// need to update member
+	std::vector<DirectionalLightParams> mDirectionalLightParameters;
+	Microsoft::WRL::ComPtr<ID3D11Buffer> mDirectionalLightBuffer;
+	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mDirectionalLightSRV; // structured buffer
+	
 	// need to update members of vector
 	std::vector<PointLightParams> mPointLightsParameters;
 	Microsoft::WRL::ComPtr<ID3D11Buffer> mPointLightBuffer;
