@@ -183,7 +183,7 @@ float4 main(PS_IN input) : SV_Target
         float shadow = 0.0f;
         if (saturate(shadowTexCoords.x) == shadowTexCoords.x && saturate(shadowTexCoords.y) == shadowTexCoords.y)
         {
-            float currentDepth = shadowTexCoords.z - 0.001f;
+            float currentDepth = shadowTexCoords.z - 0.002f;
     
             [unroll]
             for (int i = 0; i < 9; ++i)
