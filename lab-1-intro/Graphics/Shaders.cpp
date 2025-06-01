@@ -98,3 +98,32 @@ ID3DBlob* GeometryShader::GetBuffer()
 {
     return mShaderBuffer.Get();
 }
+
+/////////////////// COMPUTE SHADER ///////////////////
+HRESULT ComputeShader::Init(ID3D11Device* mDevice, LPCWSTR pFileName)
+{
+    Microsoft::WRL::ComPtr<ID3DBlob> mErrorPixelCode = nullptr;
+    HRESULT hr = D3DCompileFromFile(pFileName,
+        nullptr /*macros*/,
+        nullptr /*include*/,
+        "main",
+        "gs_5_0" /*pixel shader*/,
+        D3DCOMPILE_DEBUG, //| D3DCOMPILE_SKIP_OPTIMIZATION,
+        0u,
+        mShaderBuffer.GetAddressOf(),
+        &mErrorPixelCode);
+
+    if (FAILED(hr)) return hr;
+
+    return mDevice->CreateComputeShader(mShaderBuffer->GetBufferPointer(), mShaderBuffer->GetBufferSize(), nullptr, &mShader);
+}
+
+ID3D11ComputeShader* ComputeShader::Get()
+{
+    return mShader.Get();
+}
+
+ID3DBlob* ComputeShader::GetBuffer()
+{
+    return mShaderBuffer.Get();
+}

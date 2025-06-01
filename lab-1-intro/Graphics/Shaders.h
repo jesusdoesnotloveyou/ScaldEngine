@@ -50,3 +50,18 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11GeometryShader> mShader;
 	Microsoft::WRL::ComPtr<ID3DBlob> mShaderBuffer;
 };
+
+class ComputeShader
+{
+public:
+	ComputeShader() = default;
+
+	HRESULT Init(ID3D11Device* mDevice, LPCWSTR pFileName);
+
+	ID3D11ComputeShader* Get();
+	ID3DBlob* GetBuffer();
+
+private:
+	Microsoft::WRL::ComPtr<ID3D11ComputeShader> mShader;
+	Microsoft::WRL::ComPtr<ID3DBlob> mShaderBuffer;
+};

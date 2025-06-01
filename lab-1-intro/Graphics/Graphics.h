@@ -45,9 +45,6 @@ public:
 	void AddPointLightSourceParams(PointLightParams* lightParams);
 	void UpdatePointLightsParams();
 
-	void AddDirectionalLightSourceParams(DirectionalLightParams* lightParams);
-	void UpdateDirectionalLightParams();
-
 	void AddSpotLightSourceParams(SpotLightParams* lightParams);
 	void UpdateSpotLightsParams();
 #pragma endregion ForwardRenderingLightManagment
@@ -66,7 +63,6 @@ private:
 
 	void SetupShaders();
 	
-	void InitDirectionalLight();
 	void InitPointLights();
 	void InitSpotLights();
 
@@ -83,6 +79,7 @@ private:
 	XMMATRIX GetLightSpaceMatrix(const float nearPlane, const float farPlane);
 	void GetLightSpaceMatrices(std::vector<XMMATRIX>& outMatrices);
 
+	// should be moved to point light class
 	float CalcPointLightRange(const Light& light);
 
 	template<typename T>
@@ -129,7 +126,7 @@ public:
 	Light* mDirectionalLight = nullptr; // as well as this
 private:
 	// temporary, need a LightManager that would control light pool
-	std::vector<DirectionalLight*> mDirectionalLights;
+	// forward rendering specific
 	std::vector<PointLight*> mPointLights;
 	std::vector<SpotLight*> mSpotLights;
 
@@ -150,7 +147,11 @@ private:
 	GeometryShader mCSMGeometryShader;
 
 #pragma region Light
-	ConstantBuffer<ConstBufferVSPerFrame> mCBVSPerFrame;
+	ConstantBuffer<ConstBufferVS> mCB_LightVolume;
+	ConstBufferVS mLightVolumeData;
+
+	ConstantBuffer<ConstantBufferPerFrame> mCB_PerFrame;
+	ConstantBufferPerFrame mPerFrameData;
 
 	ConstantBuffer<ConstBufferVS> mCB_LightVolume;
 	ConstBufferVS mLightVolumeData;
@@ -188,6 +189,7 @@ private:
 #pragma endregion DeferredLightManagement
 
 	// Shadows
+	// TODO: should probably placed in light class
 	CascadeShadowMap* mCascadeShadowMap = nullptr;
 	ConstantBuffer<CascadeDataConstantBuffer> mCB_CSM;
 	CascadeDataConstantBuffer mCSMData;

@@ -94,9 +94,7 @@ void Graphics::Setup()
 	// for cascade shadows
 	mCascadeShadowMap->UpdateShadowCascadeSplits(mCameraNearZ, mCameraFarZ);
 
-	// constant buffers setup
-	ThrowIfFailed(mCBVSPerFrame.Init(mDevice.Get(), mDeviceContext.Get()));
-
+	// constant buffers setup for deferred rendering
 	ThrowIfFailed(mCB_LightVolume.Init(mDevice.Get(), mDeviceContext.Get()));
 	ThrowIfFailed(mCB_PerFrame.Init(mDevice.Get(), mDeviceContext.Get()));
 	ThrowIfFailed(mCB_CSM.Init(mDevice.Get(), mDeviceContext.Get()));
@@ -118,28 +116,6 @@ void Graphics::AddToRenderPool(SceneGeometry* sceneObject)
 			mDirectionalLight = lightObject;
 		}
 	}
-
-	/*if (bIsForwardRenderingTechniqueApplied)
-	{
-		if (lightObject->GetLightType() == ELightType::Point)
-		{
-			const auto pointLight = static_cast<PointLight*>(lightObject);
-			mPointLights.push_back(pointLight);
-			AddPointLightSourceParams(pointLight->GetParams());
-		}
-		if (lightObject->GetLightType() == ELightType::Directional)
-		{
-			const auto dirLight = static_cast<DirectionalLight*>(lightObject);
-			mDirectionalLights.push_back(dirLight);
-			AddDirectionalLightSourceParams(dirLight->GetParams());
-		}
-		if (lightObject->GetLightType() == ELightType::Spot)
-		{
-			const auto spotLight = static_cast<SpotLight*>(lightObject);
-			mSpotLights.push_back(spotLight);
-			AddSpotLightSourceParams(spotLight->GetParams());
-		}
-	}*/
 }
 
 void Graphics::InitSceneObjects()
@@ -147,24 +123,6 @@ void Graphics::InitSceneObjects()
 	if (mRenderObjects.empty()) return; // assert or smth
 
 	mTPCamera->SetTarget(mRenderObjects[0]);
-
-	if (bIsForwardRenderingTechniqueApplied)
-	{
-		if (bIsDirectionalLightEnabled && !mDirectionalLights.empty())
-		{
-			InitDirectionalLight();
-		}
-
-		if (bIsPointLightEnabled && !mPointLights.empty())
-		{
-			InitPointLights();
-		}
-
-		if (bIsSpotLightEnabled && !mSpotLights.empty())
-		{
-			InitSpotLights();
-		}
-	}
 
 	for (auto sceneObject : mRenderObjects)
 	{
@@ -183,20 +141,6 @@ void Graphics::UpdatePointLightsParams()
 	for (int i = 0; i < mPointLights.size(); i++)
 	{
 		//mPointLightsParameters[i] = *mPointLights[i]->GetParams();
-	}
-}
-
-void Graphics::AddDirectionalLightSourceParams(DirectionalLightParams* lightParams)
-{
-	mDirectionalLightParameters.push_back(*lightParams);
-}
-
-void Graphics::UpdateDirectionalLightParams()
-{
-	if (mDirectionalLights.empty()) return;
-	for (int i = 0; i < mDirectionalLights.size(); i++)
-	{
-		//mDirectionalLightParameters[i] = *mDirectionalLights[i]->GetParams();
 	}
 }
 
@@ -274,7 +218,6 @@ void Graphics::RenderDepthOnlyPass()
 	}
 
 	mCB_CSM.SetAndApplyData(mCSMData);
-	//mCB_CSM.ApplyChanges();
 	mDeviceContext->GSSetConstantBuffers(0u, 1u, mCB_CSM.GetAddressOf());
 
 	for (auto actor : mRenderObjects)
@@ -313,11 +256,11 @@ void Graphics::RenderColorPass()
 	// @todo: temporary solution, need a redesign
 #pragma region ConstBufferVSPerFrame
 	ConstBufferVSPerFrame cbVSPerFrame;
-	cbVSPerFrame.gLightViewProjection = XMMatrixTranspose(mDirectionalLights[0]->GetViewMatrix() * mDirectionalLights[0]->GetOrthographicProjectionMatrix());
-	mCBVSPerFrame.SetData(cbVSPerFrame);
-	mCBVSPerFrame.ApplyChanges();
+	cbVSPerFrame.gLightViewProjection = XMMatrixTranspose(mDirectionalLight->GetViewMatrix() * mDirectionalLight->GetOrthographicProjectionMatrix());
+	//mCBVSPerFrame.SetData(cbVSPerFrame);
+	//mCBVSPerFrame.ApplyChanges();
 
-	mDeviceContext->VSSetConstantBuffers(1u, 1u, mCBVSPerFrame.GetAddressOf());
+	//mDeviceContext->VSSetConstantBuffers(1u, 1u, mCBVSPerFrame.GetAddressOf());
 #pragma endregion ConstBufferVSPerFrame
 
 	//mDeviceContext->RSSetViewports(1u, &currentViewport);
@@ -354,8 +297,8 @@ void Graphics::RenderColorPass()
 	}
 	if (bIsDirectionalLightEnabled)
 	{
-		ApplyChanges(mDeviceContext.Get(), mDirectionalLightBuffer.Get(), mDirectionalLightParameters);
-		mDeviceContext->PSSetShaderResources(3u, 1u, mDirectionalLightSRV.GetAddressOf());
+		/*ApplyChanges(mDeviceContext.Get(), mDirectionalLightBuffer.Get(), mDirectionalLightParameters);
+		mDeviceContext->PSSetShaderResources(3u, 1u, mDirectionalLightSRV.GetAddressOf());*/
 	}
 
 	for (auto actor : mRenderObjects)
@@ -396,6 +339,7 @@ void Graphics::RenderLighting()
 				continue;
 			}
 
+			// @TODO: make a spot light
 			if (lightType == ELightType::Spot)
 			{
 				continue;
@@ -447,13 +391,6 @@ void Graphics::EndFrame()
 void Graphics::Update(const ScaldTimer& st)
 {
 	mTPCamera->Update(st);
-
-	if (bIsForwardRenderingTechniqueApplied)
-	{
-		UpdateDirectionalLightParams();
-		UpdatePointLightsParams();
-		UpdateSpotLightsParams();
-	}
 }
 
 void Graphics::CreateDepthStencilState()
@@ -479,19 +416,6 @@ void Graphics::CreateBlendState()
 void Graphics::SetupShaders()
 {
 	pRenderer->SetupShaders();
-}
-
-void Graphics::InitDirectionalLight()
-{
-	ThrowIfFailed(CreateStructuredBuffer(mDevice.Get(), mDirectionalLightBuffer.GetAddressOf(), mDirectionalLightParameters));
-
-	D3D11_SHADER_RESOURCE_VIEW_DESC srvDesc;
-	srvDesc.Format = DXGI_FORMAT_UNKNOWN;
-	srvDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
-	srvDesc.Buffer.FirstElement = 0u;
-	srvDesc.Buffer.NumElements = (UINT)mDirectionalLightParameters.size();
-
-	ThrowIfFailed(mDevice->CreateShaderResourceView(mDirectionalLightBuffer.Get(), &srvDesc, &mDirectionalLightSRV));
 }
 
 void Graphics::InitPointLights()
