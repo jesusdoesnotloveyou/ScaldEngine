@@ -74,7 +74,7 @@ ID3DBlob* PixelShader::GetBuffer()
 HRESULT GeometryShader::Init(ID3D11Device* mDevice, LPCWSTR pFileName)
 {
     Microsoft::WRL::ComPtr<ID3DBlob> mErrorPixelCode = nullptr;
-    HRESULT hr = D3DCompileFromFile(L"./Shaders/CSMGeometryShader.hlsl",
+    HRESULT hr = D3DCompileFromFile(pFileName,
         nullptr /*macros*/,
         nullptr /*include*/,
         "main",
