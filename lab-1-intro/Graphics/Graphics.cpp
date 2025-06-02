@@ -4,6 +4,7 @@
 #include <algorithm>
 
 #include "Render/DeferredRenderer.h"
+#include "Particles/FireParticleSystem.h"
 #include "Camera/ThirdPersonCamera.h"
 #include "../Objects/Geometry/Actor.h"
 #include "Light/PointLight.h"
@@ -65,6 +66,8 @@ Graphics::Graphics(HWND hWnd, int width, int height)
 	// RTV and BackBuffer are created down here in Renderer
 	pRenderer = std::make_unique<DeferredRenderer>(mSwapChain.Get(), mDevice.Get(), mDeviceContext.Get(), width, height);
 
+	pFireParticleSystem = std::make_unique<FireParticleSystem>(mDevice.Get(), mDeviceContext.Get(), 8 * 8192, XMVectorSet(0.0f, 4.0f, 0.0f, 1.0f));
+
 	// to renderer probably
 	mCascadeShadowMap = new CascadeShadowMap(mDevice.Get(), 2048u, 2048u);
 
@@ -86,6 +89,9 @@ void Graphics::Setup()
 	CreateRasterizerState();
 	CreateSamplerState();
 	CreateBlendState();
+
+	// Particles
+	pFireParticleSystem->InitializeSystem();
 
 	// Camera setup
 	mTPCamera->SetPerspectiveProjectionValues(mFovDegrees, static_cast<float>(mScreenWidth) / static_cast<float>(mScreenHeight), mCameraNearZ, mCameraFarZ);
@@ -201,6 +207,7 @@ void Graphics::DrawScene()
 
 	mDeviceContext->ClearState();
 
+	RenderParticles();
 	/*pRenderer->BindTransparentPass();
 	mDeviceContext->ClearState();*/
 }
@@ -348,6 +355,11 @@ void Graphics::RenderLighting()
 	}
 }
 
+void Graphics::RenderParticles()
+{
+	pFireParticleSystem->Render();
+}
+
 void Graphics::UpdateLightConstantBuffer(Light* light)
 {
 	const auto ligthType = light->GetLightType();
@@ -391,6 +403,8 @@ void Graphics::EndFrame()
 void Graphics::Update(const ScaldTimer& st)
 {
 	mTPCamera->Update(st);
+
+	pFireParticleSystem->Update(st.DeltaTime());
 }
 
 void Graphics::CreateDepthStencilState()
