@@ -165,7 +165,7 @@
     <ClCompile Include="Graphics\Particles\ParticleSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Graphics\Particles\FireParticles.cpp">
+    <ClCompile Include="Graphics\Particles\FireParticleSystem.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
@@ -305,7 +305,7 @@
     <ClInclude Include="Graphics\Particles\ParticleSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
-    <ClInclude Include="Graphics\Particles\FireParticles.h">
+    <ClInclude Include="Graphics\Particles\FireParticleSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
   </ItemGroup>
@@ -328,6 +328,9 @@
       <Filter>Shaders</Filter>
     </FxCompile>
     <FxCompile Include="Shaders\SortTransposeCS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\BillboardParticleGS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

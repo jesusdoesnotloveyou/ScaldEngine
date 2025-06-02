@@ -15,8 +15,9 @@ RWStructuredBuffer<unsigned int> Data : register(u0);
 
 groupshared unsigned int transpose_shared_data[TRANSPOSE_BLOCK_SIZE * TRANSPOSE_BLOCK_SIZE];
 
+// MatrixTranspose
 [numthreads(TRANSPOSE_BLOCK_SIZE, TRANSPOSE_BLOCK_SIZE, 1)]
-void MatrixTranspose(uint3 Gid : SV_GroupID,
+void main(uint3 Gid : SV_GroupID,
                       uint3 DTid : SV_DispatchThreadID,
                       uint3 GTid : SV_GroupThreadID,
                       uint GI : SV_GroupIndex)

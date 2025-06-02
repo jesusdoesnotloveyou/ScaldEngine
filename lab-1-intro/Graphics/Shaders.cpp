@@ -73,16 +73,16 @@ ID3DBlob* PixelShader::GetBuffer()
 /////////////////// GEOMETRY SHADER ///////////////////
 HRESULT GeometryShader::Init(ID3D11Device* mDevice, LPCWSTR pFileName)
 {
-    Microsoft::WRL::ComPtr<ID3DBlob> mErrorPixelCode = nullptr;
+    Microsoft::WRL::ComPtr<ID3DBlob> mErrorGeometryCode = nullptr;
     HRESULT hr = D3DCompileFromFile(pFileName,
         nullptr /*macros*/,
         nullptr /*include*/,
         "main",
-        "gs_5_0" /*pixel shader*/,
+        "gs_5_0" /*geometry shader*/,
         D3DCOMPILE_DEBUG, //| D3DCOMPILE_SKIP_OPTIMIZATION,
         0u,
         mShaderBuffer.GetAddressOf(),
-        &mErrorPixelCode);
+        &mErrorGeometryCode);
 
     if (FAILED(hr)) return hr;
 
@@ -102,16 +102,16 @@ ID3DBlob* GeometryShader::GetBuffer()
 /////////////////// COMPUTE SHADER ///////////////////
 HRESULT ComputeShader::Init(ID3D11Device* mDevice, LPCWSTR pFileName)
 {
-    Microsoft::WRL::ComPtr<ID3DBlob> mErrorPixelCode = nullptr;
+    Microsoft::WRL::ComPtr<ID3DBlob> mErrorComputeCode = nullptr;
     HRESULT hr = D3DCompileFromFile(pFileName,
         nullptr /*macros*/,
         nullptr /*include*/,
         "main",
-        "gs_5_0" /*pixel shader*/,
+        "cs_5_0" /*compute shader*/,
         D3DCOMPILE_DEBUG, //| D3DCOMPILE_SKIP_OPTIMIZATION,
         0u,
         mShaderBuffer.GetAddressOf(),
-        &mErrorPixelCode);
+        &mErrorComputeCode);
 
     if (FAILED(hr)) return hr;
 
