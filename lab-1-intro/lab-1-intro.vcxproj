@@ -28,7 +28,7 @@
     <ClCompile Include="Graphics\Light\SpotLight.cpp" />
     <ClCompile Include="Graphics\Model.cpp" />
     <ClCompile Include="Graphics\Mesh.cpp" />
-    <ClCompile Include="Graphics\Particles\FireParticles.cpp" />
+    <ClCompile Include="Graphics\Particles\FireParticleSystem.cpp" />
     <ClCompile Include="Graphics\Particles\ParticleSystem.cpp" />
     <ClCompile Include="Graphics\Render\DeferredRenderer.cpp" />
     <ClCompile Include="Graphics\Render\ForwardRenderer.cpp" />
@@ -71,7 +71,7 @@
     <ClInclude Include="Graphics\Light\SpotLight.h" />
     <ClInclude Include="Graphics\Model.h" />
     <ClInclude Include="Graphics\Mesh.h" />
-    <ClInclude Include="Graphics\Particles\FireParticles.h" />
+    <ClInclude Include="Graphics\Particles\FireParticleSystem.h" />
     <ClInclude Include="Graphics\Particles\ParticleSystem.h" />
     <ClInclude Include="Graphics\Render\DeferredRenderer.h" />
     <ClInclude Include="Graphics\Render\ForwardRenderer.h" />
@@ -107,6 +107,9 @@
     <ClInclude Include="Graphics\VertexBuffer.h" />
   </ItemGroup>
   <ItemGroup>
+    <FxCompile Include="Shaders\BillboardParticleGS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Geometry</ShaderType>
+    </FxCompile>
     <FxCompile Include="Shaders\CascadeShadowMapsGS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Geometry</ShaderType>
     </FxCompile>
@@ -127,15 +130,15 @@
     </FxCompile>
     <FxCompile Include="Shaders\SimulateCS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
-      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">DefaultCS</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">main</EntryPointName>
     </FxCompile>
     <FxCompile Include="Shaders\SortCS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
-      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">BitonicSort</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">main</EntryPointName>
     </FxCompile>
     <FxCompile Include="Shaders\SortTransposeCS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
-      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">MatrixTranspose</EntryPointName>
+      <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">main</EntryPointName>
     </FxCompile>
     <FxCompile Include="Shaders\DefaultVS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
