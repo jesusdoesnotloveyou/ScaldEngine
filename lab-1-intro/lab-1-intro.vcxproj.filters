@@ -162,6 +162,12 @@
     <ClCompile Include="Graphics\Shadows\CascadeShadowMap.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="Graphics\Particles\ParticleSystem.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="Graphics\Particles\FireParticles.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="ScaldException.h">
@@ -296,16 +302,34 @@
     <ClInclude Include="Graphics\Shadows\CascadeShadowMap.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\Particles\ParticleSystem.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="Graphics\Particles\FireParticles.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Shaders\VertexShader.hlsl" />
-    <FxCompile Include="Shaders\ShadowVertexShader.hlsl" />
-    <FxCompile Include="Shaders\CSMGeometryShader.hlsl" />
+    <FxCompile Include="Shaders\DefaultVS.hlsl" />
+    <FxCompile Include="Shaders\ShadowVS.hlsl" />
+    <FxCompile Include="Shaders\CascadeShadowMapsGS.hlsl" />
     <FxCompile Include="Shaders\DeferredLightingPS.hlsl" />
     <FxCompile Include="Shaders\DeferredLightingVS.hlsl" />
     <FxCompile Include="Shaders\DeferredOpaquePS.hlsl" />
     <FxCompile Include="Shaders\DeferredOpaqueVS.hlsl" />
-    <FxCompile Include="Shaders\PixelShader.hlsl" />
+    <FxCompile Include="Shaders\DefaultPS.hlsl" />
+    <FxCompile Include="Shaders\EmitCS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\SimulateCS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\SortCS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\SortTransposeCS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
   </ItemGroup>
   <ItemGroup>
     <Natvis Include="Delegates\Delegates.natvis" />

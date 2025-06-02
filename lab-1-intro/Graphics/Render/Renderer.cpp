@@ -56,8 +56,8 @@ void Renderer::SetupShaders()
 			0u}
 	};
 
-	ThrowIfFailed(mShadowVertexShader.Init(mDevice, inputLayoutShadowDesc, (UINT)std::size(inputLayoutShadowDesc), L"./Shaders/ShadowVertexShader.hlsl"));
-	ThrowIfFailed(mCSMGeometryShader.Init(mDevice, L"./Shaders/CSMGeometryShader.hlsl"));
+	ThrowIfFailed(mShadowVertexShader.Init(mDevice, inputLayoutShadowDesc, (UINT)std::size(inputLayoutShadowDesc), L"./Shaders/ShadowVS.hlsl"));
+	ThrowIfFailed(mCSMGeometryShader.Init(mDevice, L"./Shaders/CascadeShadowMapsGS.hlsl"));
 }
 
 void Renderer::CreateDepthStencilState()
