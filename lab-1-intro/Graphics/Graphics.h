@@ -27,6 +27,7 @@ class ThirdPersonCamera;
 class CascadeShadowMap;
 class DeferredRenderer;
 class ForwardRenderer;
+class FireParticleSystem;
 
 class Graphics
 {
@@ -71,6 +72,7 @@ private:
 	void RenderDepthOnlyPass();
 	void RenderColorPass();
 	void RenderLighting();
+	void RenderParticles();
 
 	void UpdateLightConstantBuffer(Light* light);
 
@@ -101,9 +103,9 @@ private:
 
 		D3D11_BUFFER_DESC desc;
 		desc.ByteWidth = byteWidth;
-		desc.Usage = D3D11_USAGE_DYNAMIC;
-		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
-		desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+		desc.Usage = D3D11_USAGE_DYNAMIC;				// to use map/unmap to update
+		desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;	// from cpu
+		desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;	// to get from GPU
 		desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
 		desc.StructureByteStride = stride;
 
@@ -169,13 +171,16 @@ private:
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mSpotLightSRV; // structured buffer
 #pragma endregion Light
 
-	Microsoft::WRL::ComPtr<ID3D11Device> mDevice;
 	Microsoft::WRL::ComPtr<IDXGISwapChain> mSwapChain;
+	Microsoft::WRL::ComPtr<ID3D11Device> mDevice;
 	Microsoft::WRL::ComPtr<ID3D11DeviceContext> mDeviceContext;
 
 	// Renderer
 	// Deferred Rendering
 	std::unique_ptr<DeferredRenderer> pRenderer;
+
+	// Particles
+	std::unique_ptr<FireParticleSystem> pFireParticleSystem;
 
 #pragma region DeferredLightManagement
 	ConstantBuffer<LIGHT_DESC> mCB_Light;
