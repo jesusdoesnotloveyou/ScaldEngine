@@ -36,6 +36,6 @@ void ForwardRenderer::SetupShaders()
 			0u}
 	};
 
-	ThrowIfFailed(mVertexShader.Init(mDevice, inputLayoutDefaultDesc, (UINT)std::size(inputLayoutDefaultDesc), L"./Shaders/VertexShader.hlsl"));
-	ThrowIfFailed(mPixelShader.Init(mDevice, L"./Shaders/PixelShader.hlsl"));
+	ThrowIfFailed(mVertexShader.Init(mDevice, inputLayoutDefaultDesc, (UINT)std::size(inputLayoutDefaultDesc), L"./Shaders/DefaultVS.hlsl"));
+	ThrowIfFailed(mPixelShader.Init(mDevice, L"./Shaders/DefaultPS.hlsl"));
 }

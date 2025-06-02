@@ -16,6 +16,16 @@ void FireParticles::Render()
 
 }
 
+int FireParticles::Emit(int numParticles)
+{
+	return 0;
+}
+
+void FireParticles::InitializeSystem()
+{
+
+}
+
 FireParticles::~FireParticles() noexcept
 {
 
