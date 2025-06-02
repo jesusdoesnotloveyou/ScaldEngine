@@ -13,8 +13,9 @@ RWStructuredBuffer<unsigned int> Data : register(u0);
 
 groupshared unsigned int shared_data[BITONIC_BLOCK_SIZE];
 
+// BitonicSort
 [numthreads(BITONIC_BLOCK_SIZE, 1, 1)]
-void BitonicSort(uint3 Gid : SV_GroupID,
+void main(uint3 Gid : SV_GroupID,
                   uint3 DTid : SV_DispatchThreadID,
                   uint3 GTid : SV_GroupThreadID,
                   uint GI : SV_GroupIndex)

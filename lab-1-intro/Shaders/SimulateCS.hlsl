@@ -18,7 +18,7 @@ RWStructuredBuffer<Particle> Particles : register(u0); // Read-Write structured 
 #define THREAD_GROUP_TOTAL 1024
 
 [numthreads(THREAD_GROUP_X, THREAD_GROUP_Y, 1)]
-void DefaultCS(uint3 groupID : SV_GroupID, uint groupIndex : SV_GroupIndex)
+void main(uint3 groupID : SV_GroupID, uint groupIndex : SV_GroupIndex)
 {
     uint index = groupID.x * THREAD_GROUP_TOTAL + groupID.y * GroupDim * THREAD_GROUP_TOTAL + groupIndex;
 	
