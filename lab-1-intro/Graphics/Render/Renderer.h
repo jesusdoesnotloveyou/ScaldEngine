@@ -41,6 +41,7 @@ protected:
 	// Rast
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> mRasterizerStateCullBack;
 	Microsoft::WRL::ComPtr<ID3D11RasterizerState> mRasterizerStateCullFront;
+	Microsoft::WRL::ComPtr<ID3D11RasterizerState> mRasterizerStateCullNone;
 	// Sampler
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> mSamplerState;
 	Microsoft::WRL::ComPtr<ID3D11SamplerState> mShadowSamplerState;
