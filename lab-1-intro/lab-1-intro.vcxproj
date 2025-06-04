@@ -72,6 +72,7 @@
     <ClInclude Include="Graphics\Model.h" />
     <ClInclude Include="Graphics\Mesh.h" />
     <ClInclude Include="Graphics\Particles\FireParticleSystem.h" />
+    <ClInclude Include="Graphics\Particles\ParticleHelper.h" />
     <ClInclude Include="Graphics\Particles\ParticleSystem.h" />
     <ClInclude Include="Graphics\Render\DeferredRenderer.h" />
     <ClInclude Include="Graphics\Render\ForwardRenderer.h" />
@@ -107,7 +108,7 @@
     <ClInclude Include="Graphics\VertexBuffer.h" />
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Shaders\BillboardParticleGS.hlsl">
+    <FxCompile Include="Shaders\particles\BillboardParticleGS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Geometry</ShaderType>
     </FxCompile>
     <FxCompile Include="Shaders\CascadeShadowMapsGS.hlsl">
@@ -125,18 +126,24 @@
     <FxCompile Include="Shaders\DeferredOpaqueVS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
     </FxCompile>
-    <FxCompile Include="Shaders\EmitCS.hlsl">
+    <FxCompile Include="Shaders\particles\fire\EmitCS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
     </FxCompile>
-    <FxCompile Include="Shaders\SimulateCS.hlsl">
+    <FxCompile Include="Shaders\particles\fire\ParticlesPS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Pixel</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Shaders\particles\fire\ParticlesVS.hlsl">
+      <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Vertex</ShaderType>
+    </FxCompile>
+    <FxCompile Include="Shaders\particles\fire\SimulateCS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">main</EntryPointName>
     </FxCompile>
-    <FxCompile Include="Shaders\SortCS.hlsl">
+    <FxCompile Include="Shaders\particles\SortCS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">main</EntryPointName>
     </FxCompile>
-    <FxCompile Include="Shaders\SortTransposeCS.hlsl">
+    <FxCompile Include="Shaders\particles\SortTransposeCS.hlsl">
       <ShaderType Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Compute</ShaderType>
       <EntryPointName Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">main</EntryPointName>
     </FxCompile>

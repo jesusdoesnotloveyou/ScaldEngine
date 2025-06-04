@@ -187,6 +187,14 @@ void DeferredRenderer::BindTransparentPass()
 	mDeviceContext->RSSetState(mRasterizerStateCullBack.Get());
 }
 
+void DeferredRenderer::BindParticlesPass()
+{
+	mDeviceContext->RSSetState(mRasterizerStateCullNone.Get());
+	mDeviceContext->RSSetViewports(1u, &mViewport);
+	mDeviceContext->OMSetRenderTargets(1u, mRTV.GetAddressOf(), mDSV.Get());
+	mDeviceContext->OMSetDepthStencilState(mDSSLessEqual.Get(), 0u);
+}
+
 void DeferredRenderer::DrawScreenQuad()
 {
 	mDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP); // Quad -> two triangles

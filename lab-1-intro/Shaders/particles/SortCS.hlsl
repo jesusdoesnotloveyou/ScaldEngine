@@ -8,10 +8,15 @@ cbuffer CB : register(b0)
     unsigned int g_iHeight;
 };
 
-StructuredBuffer<unsigned int> Input : register(t0);
-RWStructuredBuffer<unsigned int> Data : register(u0);
+struct ParticleDepth
+{
+    uint Index;
+    float Depth;
+};
 
-groupshared unsigned int shared_data[BITONIC_BLOCK_SIZE];
+RWStructuredBuffer<ParticleDepth> Data : register(u0);
+
+groupshared ParticleDepth shared_data[BITONIC_BLOCK_SIZE];
 
 // BitonicSort
 [numthreads(BITONIC_BLOCK_SIZE, 1, 1)]
@@ -27,12 +32,21 @@ void main(uint3 Gid : SV_GroupID,
     // Sort the shared data
     for (unsigned int j = g_iLevel >> 1; j > 0; j >>= 1)
     {
-        unsigned int result = ((shared_data[GI & ~j] <= shared_data[GI | j]) == (bool) (g_iLevelMask & DTid.x)) ? shared_data[GI ^ j] : shared_data[GI];
-        GroupMemoryBarrierWithGroupSync();
-        shared_data[GI] = result;
+        uint ixj = GI ^ j;
+        if (ixj > GI)
+        {
+            ParticleDepth a = shared_data[GI];
+            ParticleDepth b = shared_data[ixj];
+
+            bool ascending = ((DTid.x & g_iLevelMask) == 0);
+            if ((a.Depth > b.Depth) == ascending)
+            {
+                shared_data[GI] = b;
+                shared_data[ixj] = a;
+            }
+        }
         GroupMemoryBarrierWithGroupSync();
     }
-    
     // Store shared data
     Data[DTid.x] = shared_data[GI];
 }

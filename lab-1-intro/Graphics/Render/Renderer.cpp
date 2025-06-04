@@ -92,6 +92,11 @@ void Renderer::CreateRasterizerState()
 	rastDesc.FillMode = D3D11_FILL_SOLID;
 	rastDesc.CullMode = D3D11_CULL_FRONT;
 	ThrowIfFailed(mDevice->CreateRasterizerState(&rastDesc, mRasterizerStateCullFront.GetAddressOf()));
+
+	rastDesc = {};
+	rastDesc.FillMode = D3D11_FILL_SOLID;
+	rastDesc.CullMode = D3D11_CULL_NONE;
+	ThrowIfFailed(mDevice->CreateRasterizerState(&rastDesc, mRasterizerStateCullNone.GetAddressOf()));
 }
 
 void Renderer::CreateSamplerState()

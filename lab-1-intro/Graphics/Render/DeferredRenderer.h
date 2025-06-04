@@ -27,6 +27,7 @@ public:
 	void BindGeometryPass();
 	void BindLightingPass();
 	void BindTransparentPass();
+	void BindParticlesPass();
 	
 	void DrawScreenQuad();
 

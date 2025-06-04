@@ -308,6 +308,9 @@
     <ClInclude Include="Graphics\Particles\FireParticleSystem.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="Graphics\Particles\ParticleHelper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\DefaultVS.hlsl" />
@@ -318,19 +321,25 @@
     <FxCompile Include="Shaders\DeferredOpaquePS.hlsl" />
     <FxCompile Include="Shaders\DeferredOpaqueVS.hlsl" />
     <FxCompile Include="Shaders\DefaultPS.hlsl" />
-    <FxCompile Include="Shaders\EmitCS.hlsl">
+    <FxCompile Include="Shaders\particles\fire\EmitCS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\SimulateCS.hlsl">
+    <FxCompile Include="Shaders\particles\fire\SimulateCS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\SortCS.hlsl">
+    <FxCompile Include="Shaders\particles\SortCS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\SortTransposeCS.hlsl">
+    <FxCompile Include="Shaders\particles\SortTransposeCS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
-    <FxCompile Include="Shaders\BillboardParticleGS.hlsl">
+    <FxCompile Include="Shaders\particles\BillboardParticleGS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\particles\fire\ParticlesVS.hlsl">
+      <Filter>Shaders</Filter>
+    </FxCompile>
+    <FxCompile Include="Shaders\particles\fire\ParticlesPS.hlsl">
       <Filter>Shaders</Filter>
     </FxCompile>
   </ItemGroup>

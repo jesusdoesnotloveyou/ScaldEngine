@@ -111,8 +111,8 @@ private:
 
 		D3D11_SUBRESOURCE_DATA data;
 		data.pSysMem = bufferData.data();
-		data.SysMemPitch = 0;
-		data.SysMemSlicePitch = 0;
+		data.SysMemPitch = 0u;
+		data.SysMemSlicePitch = 0u;
 
 		return device->CreateBuffer(&desc, &data, buffer);
 	}
