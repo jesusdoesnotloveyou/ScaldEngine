@@ -62,16 +62,15 @@ Graphics::Graphics(HWND hWnd, int width, int height)
 		nullptr,
 		&mDeviceContext
 	));
+	mTPCamera = new ThirdPersonCamera();
 
 	// RTV and BackBuffer are created down here in Renderer
 	pRenderer = std::make_unique<DeferredRenderer>(mSwapChain.Get(), mDevice.Get(), mDeviceContext.Get(), width, height);
 
-	pFireParticleSystem = std::make_unique<FireParticleSystem>(mDevice.Get(), mDeviceContext.Get(), 8 * 8192, XMVectorSet(0.0f, 4.0f, 0.0f, 1.0f));
+	pFireParticleSystem = std::make_unique<FireParticleSystem>(mDevice.Get(), mDeviceContext.Get(), 4096, XMVectorSet(15.0f, 5.0f, 60.0f, 1.0f), mTPCamera);
 
 	// to renderer probably
 	mCascadeShadowMap = new CascadeShadowMap(mDevice.Get(), 2048u, 2048u);
-
-	mTPCamera = new ThirdPersonCamera();
 }
 
 Graphics::~Graphics()
@@ -204,12 +203,13 @@ void Graphics::DrawScene()
 	pRenderer->BindLightingPass();
 	BindLightingPassResources();
 	RenderLighting();
-
 	mDeviceContext->ClearState();
 
-	RenderParticles();
 	/*pRenderer->BindTransparentPass();
 	mDeviceContext->ClearState();*/
+
+	RenderParticles();
+	mDeviceContext->ClearState();
 }
 
 // For both Forward and Deferred
@@ -357,6 +357,8 @@ void Graphics::RenderLighting()
 
 void Graphics::RenderParticles()
 {
+	pRenderer->BindParticlesPass();
+
 	pFireParticleSystem->Render();
 }
 
