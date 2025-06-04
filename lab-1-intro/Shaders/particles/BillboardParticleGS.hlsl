@@ -1,31 +1,27 @@
 struct Particle
 {
+    float4 pos;
+    float4 prevPos;
+    float4 velocity;
+    float4 acceleration;
     float4 initialColor;
     float4 endColor;
-    float3 position;
-    float _1;
-    float3 prevPosition;
-    float _2;
-    float3 velocity;
-    float _3;
-    float3 acceleration;
-    float _4;
-    float maxLifetime;
-    float lifetime;
+    
+    float maxLifeTime;
+    float lifeTime;
     float initialSize;
     float endSize;
     float initialWeight;
     float endWeight;
+    float2 _pad;
 };
 
 cbuffer CameraData : register(b0)
 {
     matrix view;
     matrix proj;
-    float3 camForward;
-    float _1;
-    float3 camUp;
-    float _2;
+    float4 camForward;
+    float4 camUp;
 };
 
 struct GS_IN
@@ -47,11 +43,11 @@ void main(point GS_IN input[1], inout TriangleStream<GS_OUT> triStream)
 {
     Particle p = particlePool[input[0].particleIndex];
 
-    float3 center = p.position;
-    float size = lerp(p.initialSize, p.endSize, p.lifetime / p.maxLifetime);
-    float4 color = lerp(p.initialColor, p.endColor, p.lifetime / p.maxLifetime);
+    float3 center = p.pos.xyz;
+    float size = lerp(p.initialSize, p.endSize, p.lifeTime / p.maxLifeTime);
+    float4 color = lerp(p.initialColor, p.endColor, p.lifeTime / p.maxLifeTime);
 
-    float3 camRight = normalize(cross(camForward, camUp));
+    float3 camRight = normalize(cross(camForward.xyz, camUp.xyz));
 
     // float3 forward = -normalize(view._13_23_33); 
     float3 up = normalize(view._12_22_32) * 0.5f * size;

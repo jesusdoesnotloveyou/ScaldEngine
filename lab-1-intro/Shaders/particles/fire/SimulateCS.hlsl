@@ -1,40 +1,80 @@
+cbuffer ParticlesData : register(b0)
+{
+    float deltaTime;
+    uint maxNumParticles;
+    uint numEmitInThisFrame;
+    uint numAliveParticles;
+    float4 gEmitPos;
+    float4 gEyePos;
+};
+
 struct Particle
 {
-    float3 Position;
-    float3 Velocity;
+    float4 pos;
+    float4 prevPos;
+    float4 velocity;
+    float4 acceleration;
+    float4 initialColor;
+    float4 endColor;
+    
+    float maxLifeTime;
+    float lifeTime;
+    float initialSize;
+    float endSize;
+    float initialWeight;
+    float endWeight;        
+    float2 _pad;
 };
 
-cbuffer Handler : register(b0)
+struct Sort
 {
-    int GroupDim;
-    uint MaxParticles;
-    float DeltaTime;
+    uint index;
+    float distanceSq;
 };
 
-RWStructuredBuffer<Particle> Particles : register(u0); // Read-Write structured buffer, has to be created on CPU side UnorderedAccessView
+RWStructuredBuffer<Particle> ParticlePool : register(u0);   // Read-Write structured buffer, has to be created on CPU side UnorderedAccessView
+RWStructuredBuffer<Sort> SortList : register(u1);           // Read-Write structured buffer, has to be created on CPU side UnorderedAccessView
+AppendStructuredBuffer<uint> DeadList : register(u2);       // Read-Write structured buffer, has to be created on CPU side UnorderedAccessView
+
+float distanceSquared(float3 a, float3 b)
+{
+    float3 d = a - b;
+    return dot(d, d);
+}
 
 #define THREAD_GROUP_X 32
 #define THREAD_GROUP_Y 32
 #define THREAD_GROUP_TOTAL 1024
 
 [numthreads(THREAD_GROUP_X, THREAD_GROUP_Y, 1)]
-void main(uint3 groupID : SV_GroupID, uint groupIndex : SV_GroupIndex)
+void main(uint3 DTid : SV_GroupThreadID, uint3 Gid : SV_GroupID)
 {
-    uint index = groupID.x * THREAD_GROUP_TOTAL + groupID.y * GroupDim * THREAD_GROUP_TOTAL + groupIndex;
-	
-	[flatten]
-    if (index >= MaxParticles)
-        return;
+    uint threadGroupOffset = THREAD_GROUP_TOTAL * (Gid.x + Gid.y * 32);
+    uint sortStructIndex = threadGroupOffset + DTid.y * 32 + DTid.x;
 
-    Particle particle = Particles[index];
+    if (sortStructIndex >= numAliveParticles || sortStructIndex >= maxNumParticles) return;
 
-    float3 position = particle.Position;
-    float3 velocity = particle.Velocity;
+    Sort sls = SortList[sortStructIndex];
+    uint particleIndex = sls.index;
+    Particle p = ParticlePool[particleIndex];
 
-    // payload
+    p.lifeTime += deltaTime;
+    p.prevPos = p.pos;
+    p.pos += p.velocity * deltaTime;
+    p.velocity += p.acceleration * deltaTime;
 
-    particle.Position = position + velocity * DeltaTime;
-    particle.Velocity = velocity;
-
-    Particles[index] = particle;
+    [branch]
+    if (p.lifeTime >= p.maxLifeTime)
+    {
+        DeadList.Append(particleIndex);
+        sls.distanceSq = 100000.0f;
+        SortList.DecrementCounter();
+    }
+    else
+    {
+        sls.distanceSq = distanceSquared(p.pos.xyz, gEyePos.xyz);
+    }
+    
+    ParticlePool[particleIndex] = p;
+    SortList[sortStructIndex] = sls;
 }
