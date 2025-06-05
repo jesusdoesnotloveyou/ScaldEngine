@@ -210,7 +210,7 @@ void Engine::RenderFrame(const ScaldTimer& st)
 {
 	//const float color = static_cast<float>(sin(mTimer.DeltaTime()) + 1.0f);
 	mRenderWindow.GetGfx().ClearBuffer(0.0f);
-	mRenderWindow.GetGfx().DrawScene();
+	mRenderWindow.GetGfx().DrawScene(st);
 	mRenderWindow.GetGfx().EndFrame();
 }
 

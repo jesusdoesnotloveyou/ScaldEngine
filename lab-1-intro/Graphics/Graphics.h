@@ -51,7 +51,7 @@ public:
 #pragma endregion ForwardRenderingLightManagment
 
 	void ClearBuffer(float r);
-	void DrawScene();
+	void DrawScene(const ScaldTimer& st);
 	void EndFrame();
 
 	void Update(const ScaldTimer& st);
@@ -72,7 +72,7 @@ private:
 	void RenderDepthOnlyPass();
 	void RenderColorPass();
 	void RenderLighting();
-	void RenderParticles();
+	void RenderParticles(float deltaTime);
 
 	void UpdateLightConstantBuffer(Light* light);
 
