@@ -54,7 +54,6 @@ void FireParticleSystem::Emit(int numParticles)
 	mParticleData.gEyePos = camera->GetPosition();
 
 	if (firstEmit) mParticleData.numAliveParticles = 0u;
-
 	mCBParticle.SetAndApplyData(mParticleData);
 	
 	if (!firstEmit)
@@ -80,16 +79,14 @@ void FireParticleSystem::Emit(int numParticles)
 		mDeviceContext->CSSetUnorderedAccessViews(2u, 1u, mDeadListBufferUAV.GetAddressOf(), &minOne);
 	}
 
-	// ???
-	ID3D11Buffer* rawParticleDataBuffer = mCBParticle.Get();
-	mDeviceContext->CSSetConstantBuffers(0u, 1u, &rawParticleDataBuffer);
+	mDeviceContext->CSSetConstantBuffers(0u, 1u, mCBParticle.GetAddressOf());
 	mDeviceContext->CSSetShaderResources(0u, 1u, mInjectionBufferSRV.GetAddressOf());
 	mDeviceContext->Dispatch(1u, 1u, 1u);
 
-	ID3D11UnorderedAccessView* np = nullptr;
-	mDeviceContext->CSSetUnorderedAccessViews(0u, 1u, &np, nullptr);
-	mDeviceContext->CSSetUnorderedAccessViews(1u, 1u, &np, nullptr);
-	mDeviceContext->CSSetUnorderedAccessViews(2u, 1u, &np, nullptr);
+	ID3D11UnorderedAccessView* nullUAV = nullptr;
+	mDeviceContext->CSSetUnorderedAccessViews(0u, 1u, &nullUAV, nullptr);
+	mDeviceContext->CSSetUnorderedAccessViews(1u, 1u, &nullUAV, nullptr);
+	mDeviceContext->CSSetUnorderedAccessViews(2u, 1u, &nullUAV, nullptr);
 	mParticleData.numEmitInThisFrame = 0u;
 }
 
@@ -127,7 +124,7 @@ void FireParticleSystem::InitializeParticle(int index)
 	p.initialColor = XMVectorSet(1.0f, 1.0f, 1.0f, 1.0f);
 	p.endColor = XMVectorSet(1.0f, 1.0f, 0.8f, 1.0f); //randColor();
 	p.initialSize = 0.02f;
-	p.endSize = 0.03f;
+	p.endSize = 0.04f;
 	p.initialWeight = 1.0f;
 	p.endWeight = 1.0f;
 	p.lifeTime = 0.0f;

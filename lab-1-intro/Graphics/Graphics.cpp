@@ -179,7 +179,7 @@ void Graphics::ClearBuffer(float r)
 //}
 
 // Deferred rendering
-void Graphics::DrawScene()
+void Graphics::DrawScene(const ScaldTimer& st)
 {
 	ID3D11ShaderResourceView* nullSrv[3] = { nullptr, nullptr, nullptr };
 	mDeviceContext->PSSetShaderResources(0u, 3u, nullSrv);
@@ -208,7 +208,7 @@ void Graphics::DrawScene()
 	/*pRenderer->BindTransparentPass();
 	mDeviceContext->ClearState();*/
 
-	RenderParticles();
+	RenderParticles(st.DeltaTime());
 	mDeviceContext->ClearState();
 }
 
@@ -355,10 +355,10 @@ void Graphics::RenderLighting()
 	}
 }
 
-void Graphics::RenderParticles()
+void Graphics::RenderParticles(float deltaTime)
 {
 	pRenderer->BindParticlesPass();
-
+	pFireParticleSystem->Update(deltaTime);
 	pFireParticleSystem->Render();
 }
 
@@ -406,7 +406,7 @@ void Graphics::Update(const ScaldTimer& st)
 {
 	mTPCamera->Update(st);
 
-	pFireParticleSystem->Update(st.DeltaTime());
+	//pFireParticleSystem->Update(st.DeltaTime());
 }
 
 void Graphics::CreateDepthStencilState()

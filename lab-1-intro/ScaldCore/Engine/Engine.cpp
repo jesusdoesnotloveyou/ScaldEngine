@@ -76,7 +76,7 @@ void Engine::SetupScene()
 	DirectionalLight* directionalLight = new DirectionalLight("./Data/Models/Light/light.obj");
 	directionalLight->GetTransform()->SetPosition(10.0f, 50.0f, 100.0f);
 	directionalLight->GetCollisionComponent()->DisableCollision();
-	directionalLight->SetAmbientColor(1.0f, 1.0f, 1.0f, 1.0f);
+	directionalLight->SetAmbientColor(0.5f, 0.5f, 0.5f, 1.0f);
 	directionalLight->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
 	// opposite to dir light pos vector
 	directionalLight->SetDirection(-10.0f, -50.0f, -100.0f);
@@ -210,7 +210,7 @@ void Engine::RenderFrame(const ScaldTimer& st)
 {
 	//const float color = static_cast<float>(sin(mTimer.DeltaTime()) + 1.0f);
 	mRenderWindow.GetGfx().ClearBuffer(0.0f);
-	mRenderWindow.GetGfx().DrawScene();
+	mRenderWindow.GetGfx().DrawScene(st);
 	mRenderWindow.GetGfx().EndFrame();
 }
 
