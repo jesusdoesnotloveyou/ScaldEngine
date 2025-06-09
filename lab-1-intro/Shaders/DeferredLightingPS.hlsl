@@ -177,9 +177,12 @@ float4 main(PS_IN input) : SV_Target
     
     float3 shadowTexCoords = GetShadowCoords(layer, pos);
     
+    float3 ambient = float3(0.0f, 0.0f, 0.0f);
+    
     [branch]
     if (Light.lightType == DIRECTIONAL)
     {
+        ambient = Light.ambient.xyz * Light.ambient.z;
         float shadow = 0.0f;
         if (saturate(shadowTexCoords.x) == shadowTexCoords.x && saturate(shadowTexCoords.y) == shadowTexCoords.y)
         {
@@ -198,5 +201,5 @@ float4 main(PS_IN input) : SV_Target
     {
         appliedLight += CalcPointLight(Light, pos, normal, gEyePos);
     }
-    return diffuseColor * float4(appliedLight, 1.0f);
+    return diffuseColor * (float4(appliedLight, 1.0f) + float4(ambient, 1.0f));
 }
