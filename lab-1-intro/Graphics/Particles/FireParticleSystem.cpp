@@ -46,6 +46,7 @@ static bool firstEmit = true;
 void FireParticleSystem::Emit(int numParticles)
 {
 	ParticleSystem::Emit(numParticles);
+	
 	ApplyChanges(mDeviceContext, injectionBuffer, injectionBufferSize, injectionParticleData);
 
 	mParticleData.maxNumParticles = maxParticles;
