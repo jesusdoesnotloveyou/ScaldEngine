@@ -35,7 +35,15 @@ void SceneGeometry::Update(const ScaldTimer& st)
 void SceneGeometry::Draw(const XMMATRIX& viewMatrix, const XMMATRIX& ProjectionMatrix)
 {
     ConstBufferVS bufferVS = {};
-    bufferVS.gWorld = XMMatrixTranspose(GetTransform()->mWorldMatrix);
+
+    XMMATRIX world = GetTransform()->mWorldMatrix;
+    XMMATRIX transpWorld = XMMatrixTranspose(world);
+    auto det = XMMatrixDeterminant(transpWorld);
+
+    XMMATRIX invTransWorld = XMMatrixInverse(&det, transpWorld);
+
+    bufferVS.gWorld = XMMatrixTranspose(world);
+    bufferVS.gInvTransWorld = XMMatrixTranspose(invTransWorld);
     bufferVS.gView = XMMatrixTranspose(viewMatrix);
     bufferVS.gProjection = XMMatrixTranspose(ProjectionMatrix);
 
