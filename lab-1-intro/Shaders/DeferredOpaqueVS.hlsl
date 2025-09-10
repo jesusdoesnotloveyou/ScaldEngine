@@ -1,6 +1,7 @@
 cbuffer cbPerObject
 {
     matrix gWorld;
+    matrix gInvTransWorld;
     matrix gView;
     matrix gProjection;
 };
@@ -34,7 +35,7 @@ VS_OUT main(VS_IN input)
     
     output.outTexCoord = input.inTexCoord;
     
-    output.outNormal = mul(input.inNormal, (float3x3) gWorld);
+    output.outNormal = mul(input.inNormal, (float3x3) gInvTransWorld);
     output.outNormal = normalize(output.outNormal);
 
     return output;
