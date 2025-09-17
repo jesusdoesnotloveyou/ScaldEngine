@@ -6,8 +6,10 @@
 
 #include <wrl.h>
 #include <vector>
+#include <memory>
 
 #include "../ScaldCore/Engine/ScaldTimer.h"
+#include "Camera/ThirdPersonCamera.h"
 #include "Shaders.h"
 #include "ConstantBuffer.h"
 #include "ScaldCoreTypes.h"
@@ -21,14 +23,12 @@ class SceneGeometry;
 class PointLight;
 class DirectionalLight;
 class SpotLight;
-class Camera;
-class ThirdPersonCamera;
 
-class Graphics
+class Graphics final
 {
 public:
 	Graphics(HWND hWnd, int width, int height);
-	~Graphics();
+	~Graphics() = default;
 
 	Graphics(const Graphics&) = delete;
 	Graphics& operator=(const Graphics&) = delete;
@@ -53,7 +53,7 @@ public:
 	void EndFrame();
 
 	void Update(const ScaldTimer& st);
-	FORCEINLINE ThirdPersonCamera* GetCamera() const { return mTPCamera; }
+	FORCEINLINE ThirdPersonCamera* GetCamera() const { return mTPCamera.get(); }
 private:
 	void CreateDepthStencilState();
 	void CreateRasterizerState();
@@ -117,8 +117,8 @@ private:
 	bool bIsDirectionalLightEnabled = true;
 	bool bIsSpotLightEnabled = false;
 
-	Camera* mCamera = nullptr;
-	ThirdPersonCamera* mTPCamera = nullptr;
+	std::unique_ptr<Camera> mCamera = nullptr;
+	std::unique_ptr<ThirdPersonCamera> mTPCamera = nullptr;
 	
 	VertexShader mShadowVertexShader;
 	VertexShader mVertexShader;
@@ -157,5 +157,5 @@ private:
 	D3D11_VIEWPORT currentViewport = {};
 
 	// Shadows
-	ShadowMap* mShadowMap = nullptr;
+	std::unique_ptr<ShadowMap> mShadowMap = nullptr;
 };

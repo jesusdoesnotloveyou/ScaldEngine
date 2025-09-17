@@ -1,7 +1,5 @@
 #include "../ScaldException.h"
 #include "Graphics.h"
-#include <chrono>
-#include <algorithm>
 
 #include "Camera/ThirdPersonCamera.h"
 #include "../Objects/Geometry/Actor.h"
@@ -12,6 +10,9 @@
 #include <d3d.h>
 #include <d3d11.h>
 #include <d3dcompiler.h>
+
+#include <chrono>
+#include <algorithm>
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "dxgi.lib")
@@ -84,14 +85,8 @@ Graphics::Graphics(HWND hWnd, int width, int height)
 	ThrowIfFailed(mDevice->CreateTexture2D(&depthStencilTextureDesc, nullptr, mDepthStencilBuffer.GetAddressOf()));
 	ThrowIfFailed(mDevice->CreateDepthStencilView(mDepthStencilBuffer.Get(), nullptr, mDSV.GetAddressOf()));
 
-	mShadowMap = new ShadowMap(mDevice.Get(), 2048u, 2048u);
-	mTPCamera = new ThirdPersonCamera();
-}
-
-Graphics::~Graphics()
-{
-	if (mTPCamera) delete mTPCamera;
-	if (mShadowMap) delete mShadowMap;
+	mShadowMap = std::make_unique<ShadowMap>(mDevice.Get(), 2048u, 2048u);
+	mTPCamera = std::make_unique<ThirdPersonCamera>();
 }
 
 void Graphics::Setup()
@@ -208,9 +203,13 @@ void Graphics::ClearBuffer(float r)
 
 void Graphics::DrawScene()
 {
+	// to clear some render target and dsv stuff after previous frame (remove line below to see output warnings)
+	mDeviceContext->ClearState();
+
 	mDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
 
 	RenderDepthOnlyPass();
+
 
 	mDeviceContext->IASetInputLayout(mVertexShader.GetInputLayout());
 
@@ -354,42 +353,16 @@ void Graphics::CreateSamplerState()
 void Graphics::SetupShaders()
 {
 	// Step 05: Create Input Layout for IA Stage
-	D3D11_INPUT_ELEMENT_DESC inputLayoutDefaultDesc[] = {
-		D3D11_INPUT_ELEMENT_DESC {
-			"POSITION",
-			0u,
-			DXGI_FORMAT_R32G32B32A32_FLOAT,
-			0u,
-			0u,
-			D3D11_INPUT_PER_VERTEX_DATA,
-			0u},
-		D3D11_INPUT_ELEMENT_DESC {
-			"TEXCOORD",
-			0u,
-			DXGI_FORMAT_R32G32_FLOAT,
-			0u,
-			D3D11_APPEND_ALIGNED_ELEMENT,
-			D3D11_INPUT_PER_VERTEX_DATA,
-			0u},
-		D3D11_INPUT_ELEMENT_DESC {
-			"NORMAL",
-			0u,
-			DXGI_FORMAT_R32G32B32_FLOAT,
-			0u,
-			D3D11_APPEND_ALIGNED_ELEMENT,
-			D3D11_INPUT_PER_VERTEX_DATA,
-			0u}
+	D3D11_INPUT_ELEMENT_DESC inputLayoutDefaultDesc[] =
+	{
+		{ "POSITION", 0u, DXGI_FORMAT_R32G32B32A32_FLOAT, 0u, 0u, D3D11_INPUT_PER_VERTEX_DATA, 0u },
+		{ "TEXCOORD", 0u, DXGI_FORMAT_R32G32_FLOAT, 0u, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0u },
+		{ "NORMAL", 0u, DXGI_FORMAT_R32G32B32_FLOAT, 0u, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0u }
 	};
 
-	D3D11_INPUT_ELEMENT_DESC inputLayoutShadowDesc[] = {
-		D3D11_INPUT_ELEMENT_DESC {
-			"POSITION",
-			0u,
-			DXGI_FORMAT_R32G32B32A32_FLOAT,
-			0u,
-			0u,
-			D3D11_INPUT_PER_VERTEX_DATA,
-			0u}
+	D3D11_INPUT_ELEMENT_DESC inputLayoutShadowDesc[] = 
+	{
+		{ "POSITION", 0u, DXGI_FORMAT_R32G32B32A32_FLOAT, 0u, 0u, D3D11_INPUT_PER_VERTEX_DATA, 0u }
 	};
 
 	ThrowIfFailed(mShadowVertexShader.Init(mDevice.Get(), inputLayoutShadowDesc, (UINT)std::size(inputLayoutShadowDesc), L"./Shaders/ShadowVertexShader.hlsl"));
