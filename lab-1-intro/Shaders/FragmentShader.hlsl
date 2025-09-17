@@ -108,7 +108,7 @@ float3 CalculateDirectionalLight(DirectionalLight light, uniform float3 posW, un
     float3 diffuseLightIntensity = saturate(max(dot(lightVector, normal), 0.0f));
     float3 diffuseLight = diffuseLightIntensity * diffuse.xyz * diffuse.w;
     
-    float3 specularIntensity = 10.0f * pow(max(dot(reflectLight, viewDir), 0.0f), 50.0f); // * specular.xyz
+    float3 specularIntensity = pow(max(dot(reflectLight, viewDir), 0.0f), 50.0f); // * specular.xyz
     float3 specularLight = saturate(specularIntensity);
     
     appliedLight = ambientLight + diffuseLight + specularLight;

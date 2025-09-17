@@ -32,11 +32,16 @@ void SceneGeometry::Update(const ScaldTimer& st)
     UpdateObjectCBs(st);
 }
 
-void SceneGeometry::Draw(const XMMATRIX& viewProjectionMatrix)
+void SceneGeometry::Draw(const XMMATRIX& viewProjMatrix)
 {
     ConstBufferVS bufferVS = {};
-    bufferVS.gWorldViewProj = XMMatrixTranspose(GetTransform()->mWorldMatrix * viewProjectionMatrix);
-    bufferVS.gWorld = XMMatrixTranspose(GetTransform()->mWorldMatrix);
+    XMMATRIX world = GetTransform()->mWorldMatrix;
+    auto det = XMMatrixDeterminant(XMMatrixTranspose(world));
+    XMMATRIX invTransWorld = XMMatrixInverse(&det, XMMatrixTranspose(world));
+
+    bufferVS.gWorldViewProj = XMMatrixTranspose(world * viewProjMatrix);
+    bufferVS.gWorld = XMMatrixTranspose(world);
+    bufferVS.gInvTransWorld = XMMatrixTranspose(invTransWorld);
 
     model.GetConstantBufferVS().SetData(bufferVS);
     model.GetConstantBufferVS().ApplyChanges();

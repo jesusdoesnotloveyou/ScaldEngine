@@ -1,17 +1,18 @@
 cbuffer cbPerObject : register(b0)
 {
-    matrix gWorldViewProj;
-    matrix gWorld;
+    float4x4 gWorldViewProj;
+    float4x4 gWorld;
+    float4x4 gInvTransWorld;
 };
 
 cbuffer cbLightViewProj : register(b1)
 {
-    matrix gLightViewProj;
+    float4x4 gLightViewProj;
 }
 
 cbuffer CBufChangeOnResize : register(b2)
 {
-    matrix mProjection;
+    float4x4 mProjection;
 }
 
 struct VS_IN
@@ -37,7 +38,7 @@ VS_OUT main(VS_IN input)
 	
     output.outPosition = mul(float4(input.inPosition.xyz, 1.0f), gWorldViewProj);
     output.outTexCoord = input.inTexCoord;
-    output.outNormal = normalize(mul(float4(input.inNormal, 0.0f), gWorld)).xyz;
+    output.outNormal = normalize(mul(input.inNormal, (float3x3)gInvTransWorld));
     
     float4 modelPos = mul(float4(input.inPosition.xyz, 1.0f), gWorld);
     output.outWorldPos = modelPos.xyz;

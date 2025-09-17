@@ -66,6 +66,7 @@ struct ConstBufferVS
 {
 	XMMATRIX gWorldViewProj = XMMatrixIdentity();
 	XMMATRIX gWorld = XMMatrixIdentity();
+	XMMATRIX gInvTransWorld = XMMatrixIdentity();
 };
 
 // Light should be here 7.12.2 Luna
