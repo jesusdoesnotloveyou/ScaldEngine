@@ -1,18 +1,12 @@
-#include "../ScaldException.h"
+#include "ScaldException.h"
+#include "stdafx.h"
 #include "Graphics.h"
 
 #include "Camera/ThirdPersonCamera.h"
-#include "../Objects/Geometry/Actor.h"
+#include "Objects/Geometry/Actor.h"
 #include "Light/PointLight.h"
 #include "Light/DirectionalLight.h"
 #include "Light/SpotLight.h"
-
-#include <d3d.h>
-#include <d3d11.h>
-#include <d3dcompiler.h>
-
-#include <chrono>
-#include <algorithm>
 
 #pragma comment(lib, "d3d11.lib")
 #pragma comment(lib, "dxgi.lib")

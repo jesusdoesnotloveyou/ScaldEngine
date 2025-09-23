@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../ScaldCore/Engine/ScaldWindows.h"
+#include "ScaldCore/Engine/ScaldWindows.h"
 #include "Mesh.h"
 #include <assimp/Importer.hpp>
 #include <assimp/postprocess.h>
