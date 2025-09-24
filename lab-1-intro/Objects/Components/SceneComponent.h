@@ -2,9 +2,7 @@
 
 #include "ScaldComponent.h"
 #include "TransformComponent.h"
-#include "../../Graphics/ScaldCoreTypes.h"
-
-#include <vector>
+#include "Graphics/DXHelper.h"
 
 class SceneComponent : public ScaldComponent
 {

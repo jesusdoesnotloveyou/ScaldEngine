@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "DirectionalLight.h"
 
 DirectionalLight::DirectionalLight(const std::string& filePath) : Light(filePath)

@@ -1,5 +1,5 @@
-#include "ScaldException.h"
 #include "stdafx.h"
+#include "ScaldException.h"
 #include "Graphics.h"
 
 #include "Camera/ThirdPersonCamera.h"
@@ -7,11 +7,6 @@
 #include "Light/PointLight.h"
 #include "Light/DirectionalLight.h"
 #include "Light/SpotLight.h"
-
-#pragma comment(lib, "d3d11.lib")
-#pragma comment(lib, "dxgi.lib")
-#pragma comment(lib, "d3dcompiler.lib")
-#pragma comment(lib, "dxguid.lib")
 
 Graphics::Graphics(HWND hWnd, int width, int height)
 	:

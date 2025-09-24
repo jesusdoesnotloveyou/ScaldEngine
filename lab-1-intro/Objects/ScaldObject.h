@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../ScaldCore/Engine/ScaldTimer.h"
+#include "ScaldCore/Engine/ScaldTimer.h"
 
 class ScaldObject
 {

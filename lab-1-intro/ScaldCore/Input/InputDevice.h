@@ -3,7 +3,7 @@
 #include <queue>
 #include <bitset>
 #include "Keys.h"
-#include "../../Delegates/Delegates.h"
+#include "Delegates/Delegates.h"
 
 // KEYBOARD INPUT
 class Keyboard

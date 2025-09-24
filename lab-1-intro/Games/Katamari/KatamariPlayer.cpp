@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "KatamariPlayer.h"
 
 KatamariPlayer::KatamariPlayer(ModelData* modelData) : Actor(modelData)

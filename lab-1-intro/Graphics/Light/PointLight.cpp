@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "PointLight.h"
 
 PointLight::PointLight(const std::string& filePath) : Light(filePath)

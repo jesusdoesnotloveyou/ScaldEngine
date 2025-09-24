@@ -1,3 +1,4 @@
+#include "stdafx.h"
 //#include "Shapes.h"
 //
 //using std::vector;

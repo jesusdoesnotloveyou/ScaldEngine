@@ -1,13 +1,9 @@
 #pragma once
 
-#include "../../Graphics/Model.h"
-#include "../Components/SceneComponent.h"
-#include "../Components/Movement/MovementComponent.h"
-#include "../Components/Collision/CollisionComponent.h"
-
-#include <cmath>
-#include <vector>
-#include <tuple>
+#include "Graphics/Model.h"
+#include "Objects/Components/SceneComponent.h"
+#include "Objects/Components/Movement/MovementComponent.h"
+#include "Objects/Components/Collision/CollisionComponent.h"
 
 using std::vector;
 using std::tuple;
@@ -34,6 +30,7 @@ public:
 public:
 	std::string ObjectName = "";
 protected:
+	std::vector<ScaldComponent*> m_components;
 	Model model;
 
 	std::vector<VertexTex> vertices;

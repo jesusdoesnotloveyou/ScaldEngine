@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "ScaldException.h"
 #include "ShadowMap.h"
 

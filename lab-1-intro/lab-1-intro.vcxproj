@@ -33,7 +33,7 @@
     <ClCompile Include="Graphics\Shadows\ShadowMap.cpp" />
     <ClCompile Include="Graphics\Camera\ThirdPersonCamera.cpp" />
     <ClCompile Include="Objects\Components\Collision\CollisionComponent.cpp" />
-    <ClCompile Include="Graphics\IndexBuffer.h" />
+    <ClInclude Include="Graphics\IndexBuffer.h" />
     <ClCompile Include="Objects\Components\InputComponent.cpp" />
     <ClCompile Include="Objects\Components\Movement\MovementComponent.cpp" />
     <ClCompile Include="Objects\Components\SceneComponent.cpp" />
@@ -45,14 +45,17 @@
     <ClCompile Include="Graphics\Light\Light.cpp" />
     <ClCompile Include="ScaldCore\Engine\Engine.cpp" />
     <ClCompile Include="Graphics\Graphics.cpp" />
-    <ClCompile Include="MySuper3DApp.cpp" />
+    <ClCompile Include="EntryPoint.cpp" />
     <ClCompile Include="Objects\Geometry\SceneGeometry.cpp" />
     <ClCompile Include="Objects\Components\RenderComponent.cpp" />
     <ClCompile Include="ScaldCore\Engine\RenderWindow.cpp" />
     <ClCompile Include="ScaldCore\Engine\ScaldTimer.cpp" />
     <ClCompile Include="ScaldCore\Input\InputDevice.cpp" />
     <ClCompile Include="ScaldException.cpp" />
-    <ClCompile Include="stdafx.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Data\ModelData.h" />
@@ -61,6 +64,7 @@
     <ClInclude Include="Games\Katamari\KatamariMovementComponent.h" />
     <ClInclude Include="Games\Katamari\KatamariPlayer.h" />
     <ClInclude Include="Graphics\Camera\Camera.h" />
+    <ClInclude Include="Graphics\DXHelper.h" />
     <ClInclude Include="Graphics\Light\DirectionalLight.h" />
     <ClInclude Include="Graphics\Light\LightHelper.h" />
     <ClInclude Include="Graphics\Light\PointLight.h" />
@@ -236,10 +240,12 @@
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <FloatingPointModel>Fast</FloatingPointModel>
       <AdditionalIncludeDirectories>$(SolutionDir)lab-1-intro\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeader>Use</PrecompiledHeader>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>d3d11.lib;dxgi.lib;d3dcompiler.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <FxCompile>
       <ShaderType>Effect</ShaderType>
@@ -260,12 +266,14 @@
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FloatingPointModel>Fast</FloatingPointModel>
       <AdditionalIncludeDirectories>$(SolutionDir)lab-1-intro\;%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeader>Use</PrecompiledHeader>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
       <EnableCOMDATFolding>true</EnableCOMDATFolding>
       <OptimizeReferences>true</OptimizeReferences>
       <GenerateDebugInformation>true</GenerateDebugInformation>
+      <AdditionalDependencies>d3d11.lib;dxgi.lib;d3dcompiler.lib;dxguid.lib;%(AdditionalDependencies)</AdditionalDependencies>
     </Link>
     <FxCompile>
       <ShaderType>Effect</ShaderType>

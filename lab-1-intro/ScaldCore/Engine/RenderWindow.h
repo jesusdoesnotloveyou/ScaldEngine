@@ -3,8 +3,6 @@
 #include "ScaldException.h"
 #include "Graphics/Graphics.h"
 #include <optional>
-#include <string>
-#include <memory>
 
 #include "ScaldCore/Input/InputDevice.h"
 

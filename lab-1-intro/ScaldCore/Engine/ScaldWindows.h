@@ -52,3 +52,15 @@
 
 
 #include <Windows.h>
+
+#ifdef max
+#undef max
+#endif
+
+#ifdef min
+#undef min
+#endif
+
+#ifdef CreateWindow
+#undef CreateWindow
+#endif

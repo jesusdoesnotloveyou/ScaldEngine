@@ -1,23 +1,11 @@
 #pragma once
 
-#include <d3d11.h>
-#include <d3dcompiler.h>
-#include <d3d.h>
-
-#include <wrl.h>
-#include <vector>
-#include <memory>
-
 #include "ScaldCore/Engine/ScaldTimer.h"
 #include "Camera/ThirdPersonCamera.h"
 #include "Shaders.h"
 #include "ConstantBuffer.h"
 #include "ScaldCoreTypes.h"
 #include "Shadows/ShadowMap.h"
-
-#pragma comment(lib, "d3d11.lib")
-#pragma comment(lib, "d3dcompiler.lib")
-#pragma comment(lib, "dxgi.lib")
 
 class SceneGeometry;
 class PointLight;

@@ -1,4 +1,5 @@
-#include "../../ScaldException.h"
+#include "stdafx.h"
+#include "ScaldException.h"
 #include "CascadeShadowMap.h"
 
 CascadeShadowMap::CascadeShadowMap(ID3D11Device* device, UINT width, UINT height)

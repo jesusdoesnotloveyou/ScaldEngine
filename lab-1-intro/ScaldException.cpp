@@ -1,5 +1,5 @@
+#include "stdafx.h"
 #include "ScaldException.h"
-//#include <comdef.h>
 
 ScaldException::ScaldException(int line, const char* file)
     :

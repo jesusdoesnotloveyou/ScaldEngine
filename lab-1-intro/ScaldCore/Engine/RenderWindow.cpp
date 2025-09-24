@@ -1,5 +1,5 @@
+#include "stdafx.h"
 #include "ScaldWindows.h"
-#include <sstream>
 #include "RenderWindow.h"
 
 RenderWindow::WindowClass RenderWindow::WindowClass::wndClass;

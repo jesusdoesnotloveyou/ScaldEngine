@@ -1,7 +1,5 @@
+#include "stdafx.h"
 #include "Shaders.h"
-
-#pragma comment(lib, "d3d11.lib")
-#pragma comment(lib, "d3dcompiler.lib")
 
 /////////////////// VERTEX SHADER ///////////////////
 HRESULT VertexShader::Init(ID3D11Device* mDevice, D3D11_INPUT_ELEMENT_DESC* layoutDesc, UINT numElements, LPCWSTR pFileName)
