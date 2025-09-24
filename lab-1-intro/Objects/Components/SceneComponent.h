@@ -1,17 +1,59 @@
 #pragma once
 
 #include "ScaldComponent.h"
-#include "TransformComponent.h"
+#include "Transform/TransformComponent.h"
 #include "Graphics/DXHelper.h"
 
 class SceneComponent : public ScaldComponent
 {
+	using Super = ScaldComponent;
 public:
 	SceneComponent();
 	virtual ~SceneComponent() override;
 	virtual void Update(const ScaldTimer& st) override;
 
 public:
+
+	template<typename T>
+	std::vector<std::shared_ptr<T>> GetComponents() const
+	{
+		static_assert(std::is_base_of<ScaldComponent, T>::value, "Component must be derived from component class!");
+		std::vector<std::shared_ptr<T>> foundComponents;
+
+		for (const auto& comp : m_components)
+		{
+			if (std::shared_ptr<T> castedComp = std::dynamic_pointer_cast<T>(comp))
+			{
+				foundComponents.push_back(castedComp);
+			}
+		}
+		return foundComponents;
+	}
+
+	// restriction for having one component of each class
+	template<typename T>
+	std::shared_ptr<T> GetComponent() const
+	{
+		static_assert(std::is_base_of<ScaldComponent, T>::value, "T must be a component class!");
+		for (const auto& comp : m_components)
+		{
+			if (std::shared_ptr<T> castedComp = std::dynamic_pointer_cast<T>(comp))
+			{
+				return castedComp;
+			}
+		}
+		return nullptr;
+	}
+
+	template<typename T, typename... Args>
+	void AddComponent(Args&&... args)
+	{
+		static_assert(std::is_base_of<ScaldComponent, T>::value, "T must be a component class!");
+	
+		auto comp = std::make_shared<T>(/*owner*/shared_from_this(), std::forward<Args>(args)...);
+		m_components.emplace_back(std::move(comp));
+	}
+
 	FORCEINLINE XMVECTOR GetPosition() const
 	{
 		return mTransformComponent->GetPositionVector();
@@ -85,6 +127,8 @@ public:
 	FORCEINLINE TransformComponent* GetTransform()const { return mTransformComponent; }
 
 private:
+	std::vector<std::shared_ptr<ScaldComponent>> m_components;
+
 	SceneComponent* mParent = nullptr;
 	TransformComponent* mTransformComponent = nullptr;
 	std::vector<SceneComponent*> mChildren{};
