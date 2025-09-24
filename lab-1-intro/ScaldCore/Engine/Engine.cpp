@@ -7,14 +7,11 @@
 #include "Graphics/Light/DirectionalLight.h"
 
 Engine::Engine()
-    :
-    mRenderWindow(1600, 900, "Direct3DApp")
+    : mRenderWindow(1600, 900, "Direct3DApp")
 {}
 
 Engine::~Engine()
-{
-	if (Player) delete Player;
-}
+{}
 
 int Engine::Launch()
 {
@@ -41,24 +38,24 @@ int Engine::Launch()
 
 void Engine::SetupScene()
 {
-	ModelData* alienFemaleModel = new ModelData("./Data/Models/AlienFemale/AlienFemale.obj", L"./Data/Textures/brick.png");
-	ModelData* angryBirdModel	= new ModelData("./Data/Models/AngryBird/AngryBird.obj",	 L"./Data/Models/AngryBird/AngryBird.png");
-	ModelData* minionPigModel	= new ModelData("./Data/Models/MinionPig/MinionPig.obj",	 L"./Data/Models/MinionPig/MinionPig.png");
-	ModelData* chairModel		= new ModelData("./Data/Models/Chair/PlasticChair.obj",		 L"./Data/Textures/valakas.png");
-	ModelData* tonyModel		= new ModelData("./Data/Models/Tony/Tony.obj",				 L"./Data/Models/Tony/Tony.png");
-	ModelData* boxModel			= new ModelData("./Data/Models/Box/Box.obj",				 L"./Data/Models/Box/CardboardBox.png");
-	ModelData* rockModel		= new ModelData("./Data/Models/Rock/Rock.obj",				 L"./Data/Textures/planks.png");
-
+	m_models["alien"] = std::make_unique<ModelData>("./Data/Models/AlienFemale/AlienFemale.obj", L"./Data/Textures/brick.png");
+	m_models["angrybird"] = std::make_unique<ModelData>("./Data/Models/AngryBird/AngryBird.obj", L"./Data/Models/AngryBird/AngryBird.png");
+	m_models["minion"] = std::make_unique<ModelData>("./Data/Models/MinionPig/MinionPig.obj", L"./Data/Models/MinionPig/MinionPig.png");
+	m_models["chair"] = std::make_unique<ModelData>("./Data/Models/Chair/PlasticChair.obj", L"./Data/Textures/valakas.png");
+	m_models["tony"] = std::make_unique<ModelData>("./Data/Models/Tony/Tony.obj", L"./Data/Models/Tony/Tony.png");
+	m_models["box"] = std::make_unique<ModelData>("./Data/Models/Box/Box.obj", L"./Data/Models/Box/CardboardBox.png");
+	m_models["rock"] = std::make_unique<ModelData>("./Data/Models/Rock/Rock.obj", L"./Data/Textures/planks.png");
+	
 #pragma region Light
 #pragma region PointLight
-	/*PointLight* light1 = new PointLight("./Data/Models/Light/light.obj");
+	/*auto light1 = std::make_unique<PointLight>("./Data/Models/Light/light.obj");
 	light1->GetTransform()->SetPosition(0.0f, 4.0f, 2.0f);
 	light1->GetTransform()->SetRotation(-XM_PIDIV2, 0.0f, 0.0f);
 	light1->SetAmbientColor(1.0f, 1.0f, 1.0f, 0.0f);
 	light1->SetDiffuseColor(1.0f, 0.0f, 0.0f, 5.0f);
 	light1->SetAttenuation(1.0f, 0.1f, 0.1f);
 
-	PointLight* light2 = new PointLight("./Data/Models/Light/light.obj");
+	auto light2 = std::make_unique<PointLight>("./Data/Models/Light/light.obj");
 	light2->GetTransform()->SetPosition(0.0f, 4.0f, 6.0f);
 	light2->GetTransform()->SetRotation(-XM_PIDIV2, 0.0f, 0.0f);
 	light2->SetAmbientColor(1.0f, 1.0f, 1.0f, 0.0f);
@@ -67,7 +64,7 @@ void Engine::SetupScene()
 #pragma endregion PointLight
 
 #pragma region DirectionalLight
-	DirectionalLight* directionalLight = new DirectionalLight("./Data/Models/Light/light.obj");
+	auto directionalLight = std::make_shared<DirectionalLight>("./Data/Models/Light/light.obj");
 	directionalLight->GetTransform()->SetPosition(60.0f, 30.0f, 0.0f);
 	directionalLight->GetCollisionComponent()->DisableCollision();
 	directionalLight->SetAmbientColor(0.4f, 0.4f, 0.5f, 1.0f);
@@ -79,69 +76,70 @@ void Engine::SetupScene()
 
 #pragma endregion Light
 
-	SceneGeometry* alien = new Actor(alienFemaleModel);
+	auto alien = std::make_shared<Actor>(m_models["alien"].get());
 	alien->GetTransform()->SetScale(0.03f, 0.03f, 0.03f);
 	alien->GetTransform()->SetPosition(-15.0f, 0.0f, 10.0f);
 	alien->ObjectName = std::string("alien");
 	alien->GetCollisionComponent()->SetRadius(2.0f);
 
-	SceneGeometry* box = new Actor(boxModel);
+	auto box = std::make_shared<Actor>(m_models["box"].get());
 	box->GetTransform()->SetScale(3.0f, 3.0f, 3.0f);
 	box->GetTransform()->SetPosition(0.0f, 0.0f, 15.0f);
 	box->ObjectName = std::string("box");
 	box->GetCollisionComponent()->SetRadius(3.0f);
 
-	SceneGeometry* chair = new Actor(chairModel);
+	auto chair = std::make_shared<Actor>(m_models["chair"].get());
 	chair->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
 	chair->GetTransform()->SetPosition(50.0f, 2.3f, 0.0f);
 	chair->ObjectName = std::string("chair");
 	chair->GetCollisionComponent()->SetRadius(4.0f);
 
-	Player = new KatamariPlayer(angryBirdModel);
-	Player->GetTransform()->SetScale(0.02f, 0.02f, 0.02f);
-	Player->GetTransform()->SetPosition(10.0f, 1.9f, 20.0f);
-	Player->ObjectName = std::string("Player");
-	Player->GetCollisionComponent()->SetRadius(4.0f);
+	m_player = std::make_shared<KatamariPlayer>(m_models["angrybird"].get());
+	m_player->GetTransform()->SetScale(0.02f, 0.02f, 0.02f);
+	m_player->GetTransform()->SetPosition(10.0f, 1.9f, 20.0f);
+	m_player->ObjectName = std::string("Player");
+	m_player->GetCollisionComponent()->SetRadius(4.0f);
 
-	SceneGeometry* pig = new Actor(minionPigModel);
+	auto pig = std::make_shared<Actor>(m_models["minion"].get());
 	pig->GetTransform()->SetScale(0.02f, 0.02f, 0.02f);
 	pig->GetTransform()->SetPosition(30.0f, 0.3f, 0.0f);
-	pig->ObjectName = std::string("pig");
+	pig->ObjectName = std::string("minion");
 	pig->GetCollisionComponent()->SetRadius(3.0f);
 
-	SceneGeometry* angryBird = new Actor(tonyModel);
-	angryBird->GetTransform()->SetScale(0.02f, 0.02f, 0.02f);
-	angryBird->GetTransform()->SetPosition(10.0f, 0.0f, 0.0f);
-	angryBird->ObjectName = std::string("angryBird");
-	angryBird->GetCollisionComponent()->SetRadius(2.0f);
+	auto tony = std::make_shared<Actor>(m_models["tony"].get());
+	tony->GetTransform()->SetScale(0.02f, 0.02f, 0.02f);
+	tony->GetTransform()->SetPosition(10.0f, 0.0f, 0.0f);
+	tony->ObjectName = std::string("tony");
+	tony->GetCollisionComponent()->SetRadius(2.0f);
 
-	SceneGeometry* rockFloor = new Actor(rockModel);
+	auto rockFloor = std::make_shared<Actor>(m_models["rock"].get());
 	rockFloor->GetTransform()->SetScale(5.0f, 0.1f, 5.0f);
 	rockFloor->GetTransform()->SetPosition(15.0f, -1.5f, 0.0f);
-	rockFloor->ObjectName = std::string("floor");
+	rockFloor->ObjectName = std::string("rockFloor");
 	rockFloor->GetCollisionComponent()->DisableCollision();
 
-	mRenderWindow.GetGfx().AddToRenderPool(Player);
-	mRenderWindow.GetGfx().AddToRenderPool(angryBird);
-	mRenderWindow.GetGfx().AddToRenderPool(box);
-	mRenderWindow.GetGfx().AddToRenderPool(alien);
-	mRenderWindow.GetGfx().AddToRenderPool(chair);
-	mRenderWindow.GetGfx().AddToRenderPool(pig);
-	mRenderWindow.GetGfx().AddToRenderPool(rockFloor);
+	mRenderWindow.GetGfx().AddPlayer(m_player);
+	mRenderWindow.GetGfx().AddToRenderPool(m_player);
+	mRenderWindow.GetGfx().AddToRenderPool(std::move(tony));
+	mRenderWindow.GetGfx().AddToRenderPool(std::move(box));
+	mRenderWindow.GetGfx().AddToRenderPool(std::move(alien));
+	mRenderWindow.GetGfx().AddToRenderPool(std::move(chair));
+	mRenderWindow.GetGfx().AddToRenderPool(std::move(pig));
+	mRenderWindow.GetGfx().AddToRenderPool(std::move(rockFloor));
 
 #pragma region DirectionalLight
-	mRenderWindow.GetGfx().AddToRenderPool(directionalLight);
+	mRenderWindow.GetGfx().AddToRenderPool(std::move(directionalLight));
 #pragma endregion DirectionalLight
 #pragma region PointLights
-	/*mRenderWindow.GetGfx().AddToRenderPool(light1);
-	mRenderWindow.GetGfx().AddToRenderPool(light2);*/
+	/*mRenderWindow.GetGfx().AddToRenderPool(std::move(light1));
+	mRenderWindow.GetGfx().AddToRenderPool(std::move(light2));*/
 #pragma endregion PointLights
 	
 	mRenderWindow.GetGfx().InitSceneObjects();
 
 #pragma region PlayerInputDelegates
-	mRenderWindow.kbd.OnKeyPressedEvent.AddRaw(Player->GetMovement(), &KatamariMovementComponent::OnKeyPressed);
-	mRenderWindow.kbd.OnKeyReleasedEvent.AddRaw(Player->GetMovement(), &KatamariMovementComponent::OnKeyReleased);
+	mRenderWindow.kbd.OnKeyPressedEvent.AddRaw(m_player->GetMovement(), &KatamariMovementComponent::OnKeyPressed);
+	mRenderWindow.kbd.OnKeyReleasedEvent.AddRaw(m_player->GetMovement(), &KatamariMovementComponent::OnKeyReleased);
 #pragma endregion PlayerInputDelegates
 }
 
@@ -167,30 +165,30 @@ void Engine::PollInput()
 	// Camera forward without Y (XoZ)
 	auto forward = XMVectorSetY(mRenderWindow.GetGfx().GetCamera()->GetForwardVector(), 0.0f);
 	forward = XMVector3Normalize(forward);
-	Player->SetForwardVector(forward);
+	m_player->SetForwardVector(forward);
 
 	// Camera right without Y (XoZ)
 	auto right = XMVectorSetY(mRenderWindow.GetGfx().GetCamera()->GetRightVector(), 0.0f);
 	right = XMVector3Normalize(right);
-	Player->SetRightVector(right);
+	m_player->SetRightVector(right);
 
-	if (mRenderWindow.kbd.IsKeyPressed(VK_SPACE) && !Player->IsFalling())
+	if (mRenderWindow.kbd.IsKeyPressed(VK_SPACE) && !m_player->IsFalling())
 	{
-		Player->Jump();
+		m_player->Jump();
 	}
 #pragma endregion PlayerMovement
 }
 
 void Engine::UpdateScene(const ScaldTimer& st)
 {
-	for (auto sceneObject : mRenderWindow.GetGfx().mRenderObjects)
+	for (auto&& sceneObject : mRenderWindow.GetGfx().mRenderObjects)
 	{
 		sceneObject->Update(st);
 // Very inefficient code I suppose
 #pragma region Collision
-		if (sceneObject == Player) continue;
+		if (sceneObject == m_player) continue;
 		// checks for collision should be here...
-		if (const auto playerPawnCollision = Player->GetCollisionComponent()) {
+		if (const auto playerPawnCollision = m_player->GetCollisionComponent()) {
 			if (const auto otherCollision = sceneObject->GetCollisionComponent()) {
 				if (!otherCollision->IsEnabled()) continue;
 				if (playerPawnCollision->Intersects(otherCollision)) {

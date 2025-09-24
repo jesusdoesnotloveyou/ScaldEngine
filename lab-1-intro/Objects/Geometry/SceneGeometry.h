@@ -24,13 +24,12 @@ protected:
 	void UpdateObjectCBs(const ScaldTimer& st);
 
 public:
+
 	FORCEINLINE CollisionComponent* GetCollisionComponent()const	{ return mCollisionComponent; }
-	//FORCEINLINE RenderComponent*	GetRenderComponent()const		{ return mRenderComponent; }
-	//FORCEINLINE InputComponent*	GetInputComponent()const		{ return mInputComponent; }
 public:
+
 	std::string ObjectName = "";
 protected:
-	std::vector<ScaldComponent*> m_components;
 	Model model;
 
 	std::vector<VertexTex> vertices;

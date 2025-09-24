@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "CollisionComponent.h"
 #include "Objects/Geometry/Actor.h"
-#include "Objects/Components/TransformComponent.h"
+#include "Objects/Components/Transform/TransformComponent.h"
 
 CollisionComponent::CollisionComponent(SceneGeometry* Owner)
 	: 

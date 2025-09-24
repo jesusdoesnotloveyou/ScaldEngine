@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../ScaldComponent.h"
+#include "Objects/Components/ScaldComponent.h"
 #include "DirectXCollision.h"
-#include "../../../Delegates/Delegates.h"
+#include "Delegates/Delegates.h"
 
 class SceneGeometry;
 class TransformComponent;

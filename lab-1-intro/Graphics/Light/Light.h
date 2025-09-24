@@ -1,7 +1,7 @@
 #pragma once
 
 #include "LightHelper.h"
-#include "../../Objects/Geometry/SceneGeometry.h"
+#include "Objects/Geometry/SceneGeometry.h"
 
 class Light : public SceneGeometry
 {

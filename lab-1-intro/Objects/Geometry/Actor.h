@@ -17,7 +17,7 @@ public:
 	FORCEINLINE void DisableShadowCasting() { bCastsShadow = false; }
 
 private:
-	ModelData* mModelData = nullptr;
+	ModelData* m_modelData = nullptr;
 
 	bool bCastsShadow = true;
 };

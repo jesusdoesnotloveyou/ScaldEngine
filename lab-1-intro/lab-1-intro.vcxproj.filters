@@ -72,7 +72,7 @@
     <ClCompile Include="Objects\Components\Collision\CollisionComponent.cpp">
       <Filter>Source Files\Components</Filter>
     </ClCompile>
-    <ClCompile Include="Objects\Components\RenderComponent.cpp">
+    <ClCompile Include="Objects\Components\Render\RenderComponent.cpp">
       <Filter>Source Files\Components</Filter>
     </ClCompile>
     <ClCompile Include="Objects\Geometry\SceneGeometry.cpp">
@@ -87,10 +87,10 @@
     <ClCompile Include="Delegates\Delegates.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
-    <ClCompile Include="Objects\Components\InputComponent.cpp">
+    <ClCompile Include="Objects\Components\Input\InputComponent.cpp">
       <Filter>Source Files\Components</Filter>
     </ClCompile>
-    <ClCompile Include="Objects\Components\TransformComponent.cpp">
+    <ClCompile Include="Objects\Components\Transform\TransformComponent.cpp">
       <Filter>Source Files\Components</Filter>
     </ClCompile>
     <ClCompile Include="Graphics\Camera\Camera.cpp">
@@ -185,7 +185,7 @@
     <ClInclude Include="Objects\Components\ScaldComponent.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
-    <ClInclude Include="Objects\Components\RenderComponent.h">
+    <ClInclude Include="Objects\Components\Render\RenderComponent.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
     <ClInclude Include="ScaldCore\Engine\RenderWindow.h">
@@ -209,10 +209,10 @@
     <ClInclude Include="Graphics\Camera\Camera.h">
       <Filter>Header Files\Graphics</Filter>
     </ClInclude>
-    <ClInclude Include="Objects\Components\InputComponent.h">
+    <ClInclude Include="Objects\Components\Input\InputComponent.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
-    <ClInclude Include="Objects\Components\TransformComponent.h">
+    <ClInclude Include="Objects\Components\Transform\TransformComponent.h">
       <Filter>Header Files\Components</Filter>
     </ClInclude>
     <ClInclude Include="Objects\Geometry\3D\Shapes.h">

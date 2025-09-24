@@ -2,8 +2,6 @@
 
 #include "Camera.h"
 
-class SceneGeometry;
-
 class ThirdPersonCamera : public Camera
 {
 public:
@@ -14,8 +12,19 @@ public:
 
 	virtual void AdjustRotation(float x, float y, float z) override;
 
-	void SetTarget(SceneGeometry* PlayerCharacter);
-	SceneGeometry* GetTarget() const;
+	template<typename T>
+	void SetTarget(std::shared_ptr<T> playerCharacter)
+	{
+		static_assert(std::is_base_of<SceneComponent, T>::value, "Camera target must be a scene component!");
+		
+		if (m_target != playerCharacter && playerCharacter)
+		{
+			m_target = playerCharacter;
+		}
+		SetLookAtPosition(m_target->GetPosition());
+	}
+
+	std::shared_ptr<SceneComponent> GetTarget() const;
 
 protected:
 	virtual void UpdateViewMatrix() override;
@@ -25,5 +34,5 @@ private:
 	float mPitch;
 	float mArmLength = 15.0f;
 
-	SceneGeometry* mTarget = nullptr;
+	std::shared_ptr<SceneComponent> m_target = nullptr;
 };

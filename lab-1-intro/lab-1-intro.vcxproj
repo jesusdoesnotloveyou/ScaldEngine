@@ -34,10 +34,10 @@
     <ClCompile Include="Graphics\Camera\ThirdPersonCamera.cpp" />
     <ClCompile Include="Objects\Components\Collision\CollisionComponent.cpp" />
     <ClInclude Include="Graphics\IndexBuffer.h" />
-    <ClCompile Include="Objects\Components\InputComponent.cpp" />
+    <ClCompile Include="Objects\Components\Input\InputComponent.cpp" />
     <ClCompile Include="Objects\Components\Movement\MovementComponent.cpp" />
     <ClCompile Include="Objects\Components\SceneComponent.cpp" />
-    <ClCompile Include="Objects\Components\TransformComponent.cpp" />
+    <ClCompile Include="Objects\Components\Transform\TransformComponent.cpp" />
     <ClCompile Include="Objects\Geometry\3D\Cube.cpp" />
     <ClCompile Include="Objects\Geometry\3D\Shapes.cpp" />
     <ClCompile Include="Objects\Geometry\3D\Sphere.cpp" />
@@ -47,7 +47,7 @@
     <ClCompile Include="Graphics\Graphics.cpp" />
     <ClCompile Include="EntryPoint.cpp" />
     <ClCompile Include="Objects\Geometry\SceneGeometry.cpp" />
-    <ClCompile Include="Objects\Components\RenderComponent.cpp" />
+    <ClCompile Include="Objects\Components\Render\RenderComponent.cpp" />
     <ClCompile Include="ScaldCore\Engine\RenderWindow.cpp" />
     <ClCompile Include="ScaldCore\Engine\ScaldTimer.cpp" />
     <ClCompile Include="ScaldCore\Input\InputDevice.cpp" />
@@ -78,10 +78,10 @@
     <ClInclude Include="Graphics\Camera\ThirdPersonCamera.h" />
     <ClInclude Include="Objects\Components\Collision\CollisionComponent.h" />
     <ClInclude Include="Graphics\ConstantBuffer.h" />
-    <ClInclude Include="Objects\Components\InputComponent.h" />
+    <ClInclude Include="Objects\Components\Input\InputComponent.h" />
     <ClInclude Include="Objects\Components\Movement\MovementComponent.h" />
     <ClInclude Include="Objects\Components\SceneComponent.h" />
-    <ClInclude Include="Objects\Components\TransformComponent.h" />
+    <ClInclude Include="Objects\Components\Transform\TransformComponent.h" />
     <ClInclude Include="Objects\Geometry\3D\Cube.h" />
     <ClInclude Include="Objects\Geometry\3D\Shapes.h" />
     <ClInclude Include="Objects\Geometry\3D\Sphere.h" />
@@ -92,7 +92,7 @@
     <ClInclude Include="Graphics\Graphics.h" />
     <ClInclude Include="Objects\Components\ScaldComponent.h" />
     <ClInclude Include="Objects\Geometry\SceneGeometry.h" />
-    <ClInclude Include="Objects\Components\RenderComponent.h" />
+    <ClInclude Include="Objects\Components\Render\RenderComponent.h" />
     <ClInclude Include="ScaldCore\Engine\RenderWindow.h" />
     <ClInclude Include="ScaldCore\Engine\ScaldTimer.h" />
     <ClInclude Include="ScaldCore\Input\InputDevice.h" />

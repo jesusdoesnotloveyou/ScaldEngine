@@ -1,6 +1,6 @@
 #pragma once
 
-#include "ScaldComponent.h"
+#include "Objects/Components/ScaldComponent.h"
 
 class TransformComponent : public ScaldComponent
 {

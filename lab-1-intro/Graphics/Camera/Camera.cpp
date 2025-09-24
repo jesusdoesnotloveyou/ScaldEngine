@@ -1,6 +1,6 @@
 #include "stdafx.h"
 #include "Camera.h"
-#include "Objects/Components/TransformComponent.h"
+#include "Objects/Components/Transform/TransformComponent.h"
 
 Camera::Camera()
 {

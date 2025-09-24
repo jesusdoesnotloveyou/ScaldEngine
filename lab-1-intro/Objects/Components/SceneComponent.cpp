@@ -1,6 +1,5 @@
 #include "stdafx.h"
 #include "SceneComponent.h"
-#include "TransformComponent.h"
 
 SceneComponent::SceneComponent()
 {
@@ -14,7 +13,8 @@ SceneComponent::~SceneComponent()
 
 void SceneComponent::Update(const ScaldTimer& st)
 {
-	//ScaldComponent::Update(st);
+	Super::Update(st);
+
 	mTransformComponent->Update(st);
 }
 
@@ -22,7 +22,7 @@ void SceneComponent::SetPosition(const XMVECTOR& pos)
 {
 	mTransformComponent->SetPosition(pos);
 	if (mChildren.empty()) return;
-	for (auto child : mChildren)
+	for (auto&& child : mChildren)
 	{
 		child->GetTransform()->UpdateWorldMatrix();
 	}

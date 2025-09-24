@@ -7,14 +7,15 @@ Actor::Actor()
 
 }
 
-Actor::Actor(ModelData* modelData) : Actor()
+Actor::Actor(ModelData* modelData)
+	: Actor()
 {
-	mModelData = modelData;
+	m_modelData = modelData;
 }
 
 Actor::~Actor() noexcept
 {
-	if (mModelData) delete mModelData;
+	if (m_modelData) delete m_modelData;
 }
 
 void Actor::Update(const ScaldTimer& st)
@@ -24,7 +25,8 @@ void Actor::Update(const ScaldTimer& st)
 
 void Actor::Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, const std::string& filePath, const std::wstring& texturePath)
 {
-	SceneGeometry::Init(pDevice, pDeviceContext, mModelData->modelPath, mModelData->texturePath);
+	SceneGeometry::Init(pDevice, pDeviceContext, m_modelData->modelPath, m_modelData->texturePath);
+	m_modelData = nullptr;
 }
 
 bool Actor::IsPlayerPawn() const

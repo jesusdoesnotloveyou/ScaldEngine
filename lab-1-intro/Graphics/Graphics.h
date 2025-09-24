@@ -6,6 +6,8 @@
 #include "ConstantBuffer.h"
 #include "ScaldCoreTypes.h"
 #include "Shadows/ShadowMap.h"
+#include "Light/Light.h"
+#include "Games/Katamari/KatamariPlayer.h"
 
 class SceneGeometry;
 class PointLight;
@@ -22,7 +24,35 @@ public:
 	Graphics& operator=(const Graphics&) = delete;
 	
 	void Setup();
-	void AddToRenderPool(SceneGeometry* sceneObject);
+
+	void AddPlayer(std::shared_ptr<KatamariPlayer> player)
+	{
+		mPlayer = player;
+	}
+
+	template<typename T>
+	void AddToRenderPool(std::shared_ptr<T> sceneObject)
+	{
+		static_assert(std::is_base_of<SceneComponent, T>::value, "Render object must be a scene component!");
+		
+		const auto lightObject = dynamic_cast<Light*>(sceneObject.get());
+		if (lightObject)
+		{
+			if (lightObject->GetLightType() == ELightType::Directional)
+			{
+				const auto dirLight = static_cast<DirectionalLight*>(lightObject);
+				mDirectionalLights.push_back(dirLight);
+				AddDirectionalLightSourceParams(dirLight->GetParams());
+			}
+			//else if (Point)
+			// ...
+			//else if (Spot)
+			// ...
+		}
+
+		mRenderObjects.emplace_back(std::move(sceneObject));
+	}
+
 	void InitSceneObjects();
 
 #pragma region LightManagment
@@ -94,7 +124,8 @@ private:
 	HWND hWnd;
 
 public:
-	std::vector<SceneGeometry*> mRenderObjects;
+	std::shared_ptr<KatamariPlayer> mPlayer;
+	std::vector<std::shared_ptr<SceneGeometry>> mRenderObjects;
 private:
 	// temporary, need a LightManager that would control light pool
 	std::vector<PointLight*> mPointLights;

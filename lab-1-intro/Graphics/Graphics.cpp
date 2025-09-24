@@ -93,39 +93,12 @@ void Graphics::Setup()
 	ThrowIfFailed(mCBGS.Init(mDevice.Get(), mDeviceContext.Get()));
 }
 
-void Graphics::AddToRenderPool(SceneGeometry* sceneObject)
-{
-	mRenderObjects.push_back(sceneObject);
-
-	const auto lightObject = dynamic_cast<Light*>(sceneObject);
-	if (!lightObject) return;
-
-	if (lightObject->GetLightType() == ELightType::Point)
-	{
-		const auto pointLight = static_cast<PointLight*>(lightObject);
-		mPointLights.push_back(pointLight);
-		AddPointLightSourceParams(pointLight->GetParams());
-	}
-	if (lightObject->GetLightType() == ELightType::Directional)
-	{
-		const auto dirLight = static_cast<DirectionalLight*>(lightObject);
-		mDirectionalLights.push_back(dirLight);
-		AddDirectionalLightSourceParams(dirLight->GetParams());
-	}
-	if (lightObject->GetLightType() == ELightType::Spot)
-	{
-		const auto spotLight = static_cast<SpotLight*>(lightObject);
-		mSpotLights.push_back(spotLight);
-		AddSpotLightSourceParams(spotLight->GetParams());
-	}
-}
-
 void Graphics::InitSceneObjects()
 {
 	if (mRenderObjects.empty()) return; // assert or smth
 
 	SetupShaders();
-	mTPCamera->SetTarget(mRenderObjects[0]);
+	mTPCamera->SetTarget(mPlayer);
 
 	if (bIsPointLightEnabled)
 	{
@@ -137,7 +110,7 @@ void Graphics::InitSceneObjects()
 		InitDirectionalLight();
 	}
 
-	for (auto sceneObject : mRenderObjects)
+	for (auto&& sceneObject : mRenderObjects)
 	{
 		sceneObject->Init(mDevice.Get(), mDeviceContext.Get());
 	}
@@ -254,7 +227,7 @@ void Graphics::DrawScene()
 		mDeviceContext->PSSetShaderResources(3u, 1u, mDirectionalLightShaderResourceView.GetAddressOf());
 	}
 
-	for (auto actor : mRenderObjects)
+	for (auto&& actor : mRenderObjects)
 	{
 		actor->Draw(mTPCamera->GetViewMatrix() * mTPCamera->GetPerspectiveProjectionMatrix());
 	}
@@ -441,7 +414,7 @@ void Graphics::RenderDepthOnlyPass()
 
 		const auto lightProjection = XMMatrixOrthographicOffCenterLH(minX, maxX, minY, maxY, minZ, maxZ);
 
-		for (auto actor : mRenderObjects)
+		for (auto&& actor : mRenderObjects)
 		{
 			actor->Draw(lightViewMatrix * lightProjectionMatrix);
 		}

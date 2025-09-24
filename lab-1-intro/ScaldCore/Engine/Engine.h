@@ -1,7 +1,9 @@
 #pragma once
 
 #include "RenderWindow.h"
+#include "Graphics/DXHelper.h"
 #include "ScaldTimer.h"
+#include "Data/ModelData.h"
 
 class KatamariPlayer;
 class SceneGeometry;
@@ -16,7 +18,8 @@ public:
 	int Launch();
 	
 	// Katamari specific
-	KatamariPlayer* Player = nullptr;
+	std::shared_ptr<KatamariPlayer> m_player = nullptr;
+	std::unordered_map<std::string, std::unique_ptr<ModelData>> m_models;
 
 private:
 	void SetupScene();
