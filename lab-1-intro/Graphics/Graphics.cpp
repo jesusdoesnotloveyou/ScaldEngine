@@ -74,7 +74,7 @@ Graphics::Graphics(HWND hWnd, int width, int height)
 	ThrowIfFailed(mDevice->CreateTexture2D(&depthStencilTextureDesc, nullptr, mDepthStencilBuffer.GetAddressOf()));
 	ThrowIfFailed(mDevice->CreateDepthStencilView(mDepthStencilBuffer.Get(), nullptr, mDSV.GetAddressOf()));
 
-	mShadowMap = std::make_unique<ShadowMap>(mDevice.Get(), 2048u, 2048u);
+	mShadowMap = std::make_unique<ShadowMap>(mDevice.Get(), 4096u, 4096u);
 	mTPCamera = std::make_unique<ThirdPersonCamera>();
 }
 

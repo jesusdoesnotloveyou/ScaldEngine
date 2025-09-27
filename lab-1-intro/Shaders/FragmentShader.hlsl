@@ -143,7 +143,8 @@ float4 main(PS_IN input) : SV_Target
         
         if (lightDepthValue < depthValue)
         {
-            // Directional Lights
+            // Directional Lights (usually only one)
+            [unroll(1)]
             for (float i = 0; i < numDirectionalLights; i++)
             {
                 appliedLight += CalculateDirectionalLight(DirectionalLights[i], input.inWorldPos, input.inNormal, gEyePos.xyz);
