@@ -127,7 +127,7 @@ float4 main(PS_IN input) : SV_Target
     shadowTexCoords.x = 0.5f + (input.inLightSpacePos.x / input.inLightSpacePos.w * 0.5f);
     shadowTexCoords.y = 0.5f - (input.inLightSpacePos.y / input.inLightSpacePos.w * 0.5f);
     
-    // Check if the pixel texture coordinate is in the view frustum of the light before doing any shadow work
+    // Check if the pixel texture coordinate is in the view frustum (NDC! so that's why saturate is used) of the light before doing any shadow work
     if ((saturate(shadowTexCoords.x) == shadowTexCoords.x) && (saturate(shadowTexCoords.y) == shadowTexCoords.y))
     {
         // Sample the shadow map depth value from the depth texture using the sampler at the projected texture coordinate location
