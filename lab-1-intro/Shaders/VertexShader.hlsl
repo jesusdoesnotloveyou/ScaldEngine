@@ -1,8 +1,10 @@
 cbuffer cbPerObject : register(b0)
 {
     matrix gWorld;
+    matrix gInvTransWorld;
     matrix gView;
-    matrix gProjection;
+    matrix gProj;
+    matrix gViewProj;
 };
 
 cbuffer cbLightViewProj : register(b1)
@@ -40,11 +42,11 @@ VS_OUT main(VS_IN input)
 	
     float4 modelPos = mul(float4(input.inPosition.xyz, 1.0f), gWorld);
     output.outWorldView = mul(modelPos, gView);
-    output.outPosition = mul(output.outWorldView, gProjection);
+    output.outPosition = mul(output.outWorldView, gProj);
     
     output.outTexCoord = input.inTexCoord;
     
-    output.outNormal = normalize(mul(float4(input.inNormal, 0.0f), gWorld)).xyz;
+    output.outNormal = normalize(mul(input.inNormal, (float3x3) gInvTransWorld));
     
     output.outWorldPos = modelPos.xyz;
 

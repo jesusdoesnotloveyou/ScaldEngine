@@ -376,9 +376,9 @@ void Graphics::CreateRasterizerState()
 	rastDesc.FillMode = D3D11_FILL_SOLID;
 	rastDesc.CullMode = D3D11_CULL_BACK;
 	rastDesc.FrontCounterClockwise = false;
-	rastDesc.DepthBias;
-	rastDesc.DepthBiasClamp;
-	rastDesc.SlopeScaledDepthBias;
+	rastDesc.DepthBias = 10000;
+	rastDesc.DepthBiasClamp = 0.0f;
+	rastDesc.SlopeScaledDepthBias = 1.0f;
 	ThrowIfFailed(mDevice->CreateRasterizerState(&rastDesc, mRasterizerState.GetAddressOf()));
 }
 

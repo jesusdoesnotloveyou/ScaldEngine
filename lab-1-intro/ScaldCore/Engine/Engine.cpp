@@ -42,14 +42,13 @@ int Engine::Launch()
 
 void Engine::SetupScene()
 {
-	ModelData* alienFemaleModel = new ModelData("./Data/Models/AlienFemale/Alien_Female_Lores.obj", L"./Data/Textures/brick.png");
-	ModelData* angryBirdModel	= new ModelData("./Data/Models/AngryBird/Angry_Bird.obj",			L"./Data/Models/AngryBird/Angry_Bird.png");
+	ModelData* alienFemaleModel = new ModelData("./Data/Models/AlienFemale/AlienFemale.obj", L"./Data/Textures/brick.png");
+	ModelData* angryBirdModel	= new ModelData("./Data/Models/AngryBird/AngryBird.obj",			L"./Data/Models/AngryBird/Angry_Bird.png");
 	ModelData* minionPigModel	= new ModelData("./Data/Models/MinionPig/MinionPig.obj",			L"./Data/Models/MinionPig/AngryBirdsChancho.png");
-	ModelData* marvelModel		= new ModelData("./Data/Models/Marvel/Model.obj",					L"./Data/Textures/planks.png");
-	ModelData* chairModel		= new ModelData("./Data/Models/Chair/monoblock_CHAIR.obj",			L"./Data/Textures/planks.png");
+	ModelData* chairModel		= new ModelData("./Data/Models/Chair/PlasticChair.obj",			L"./Data/Textures/planks.png");
 	ModelData* tonyModel		= new ModelData("./Data/Models/Tony/Tony.obj",						L"./Data/Models/Tony/AngryBirdCeleste.png");
-	ModelData* boxModel			= new ModelData("./Data/Models/Box/box2.obj",						L"./Data/Textures/brick.png");
-	ModelData* rockModel		= new ModelData("./Data/Models/Rock/rock.obj",						L"./Data/Textures/planks.png");
+	ModelData* boxModel			= new ModelData("./Data/Models/Box/Box.obj",						L"./Data/Textures/brick.png");
+	ModelData* rockModel		= new ModelData("./Data/Models/Rock/Rock.obj",						L"./Data/Textures/planks.png");
 
 #pragma region Light
 #pragma region PointLight
@@ -72,7 +71,7 @@ void Engine::SetupScene()
 	DirectionalLight* directionalLight = new DirectionalLight("./Data/Models/Light/light.obj");
 	directionalLight->GetTransform()->SetPosition(10.0f, 50.0f, 100.0f);
 	directionalLight->GetCollisionComponent()->DisableCollision();
-	directionalLight->SetAmbientColor(1.0f, 1.0f, 1.0f, 1.0f);
+	directionalLight->SetAmbientColor(.3f, .3f, .4f, 1.0f);
 	directionalLight->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
 	// opposite to dir light pos vector
 	directionalLight->SetDirection(-10.0f, -50.0f, -100.0f);

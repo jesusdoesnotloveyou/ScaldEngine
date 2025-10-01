@@ -65,8 +65,10 @@ struct VertexTex
 struct ConstBufferVS
 {
 	XMMATRIX gWorld = XMMatrixIdentity();
+	XMMATRIX gInvTransWorld = XMMatrixIdentity();
 	XMMATRIX gView = XMMatrixIdentity();
-	XMMATRIX gProjection = XMMatrixIdentity();
+	XMMATRIX gProj = XMMatrixIdentity();
+	XMMATRIX gViewProj = XMMatrixIdentity();
 };
 
 // Light should be here 7.12.2 Luna
