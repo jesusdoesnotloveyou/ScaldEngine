@@ -230,7 +230,7 @@ void Graphics::RenderDepthOnlyPass()
 	mCascadeShadowMap->BindDsvAndSetNullRenderTarget(mDeviceContext.Get());
 	mDeviceContext->IASetInputLayout(mShadowVertexShader.GetInputLayout());
 	mDeviceContext->VSSetShader(mShadowVertexShader.Get(), nullptr, 0u);
-	// for CSM
+	// for CSMs
 	mDeviceContext->GSSetShader(mCSMGeometryShader.Get(), nullptr, 0u);
 
 	mDeviceContext->PSSetShader(nullptr, nullptr, 0u);
@@ -243,8 +243,8 @@ void Graphics::RenderDepthOnlyPass()
 		
 		for (UINT i = 0; i < CASCADE_NUMBER; i++)
 		{
-			mCSMData.View[i] = (lightSpaceMatrices[i].first);
-			mCSMData.Proj[i] = (lightSpaceMatrices[i].second);
+			mCSMData.View[i] = XMMatrixTranspose(lightSpaceMatrices[i].first);
+			mCSMData.Proj[i] = XMMatrixTranspose(lightSpaceMatrices[i].second);
 			mCSMData.distances[i] = 0.0f; // not used on GPU, so filled with zero
 		}
 
@@ -489,7 +489,7 @@ void Graphics::InitDirectionalLight()
 
 std::vector<XMVECTOR> Graphics::GetFrustumCornersWorldSpace(const XMMATRIX& viewProjection)
 {
-	XMVECTOR det;
+	XMVECTOR det = XMMatrixDeterminant(viewProjection);
 	const auto inv = XMMatrixInverse(&det, viewProjection);
 
 	std::vector<XMVECTOR> frustumCorners;
@@ -502,11 +502,11 @@ std::vector<XMVECTOR> Graphics::GetFrustumCornersWorldSpace(const XMMATRIX& view
 			for (UINT z = 0; z < 2; ++z)
 			{
 				// translate NDC coords to world space
-				const XMVECTOR pt = XMVector4Transform(std::move(XMVectorSet(
+				const XMVECTOR pt = XMVector4Transform(XMVectorSet(
 					2.0f * x - 1.0f,
 					2.0f * y - 1.0f,
 					(float)z, 
-					1.0f)), inv);
+					1.0f), inv);
 				frustumCorners.push_back(pt / XMVectorGetW(pt));
 			}
 		}

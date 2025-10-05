@@ -11,8 +11,8 @@ struct GS_OUT
 
 struct CascadeData
 {
-    row_major matrix View[4];
-    row_major matrix Proj[4];
+    float4x4 View[4];
+    float4x4 Proj[4];
     float4 Distances; // not used, so not filled on the CPU side
 };
 

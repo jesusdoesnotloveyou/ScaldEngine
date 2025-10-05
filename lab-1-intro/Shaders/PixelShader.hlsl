@@ -51,8 +51,8 @@ cbuffer cbPerFrame : register(b0)
 
 struct CascadeData
 {
-    row_major matrix View[4];
-    row_major matrix Proj[4];
+    float4x4 View[4];
+    float4x4 Proj[4];
     float4 Distances; // not used, so not filled on the CPU side
 };
 
@@ -94,7 +94,7 @@ float3 CalculatePointLight(PointLight light, uniform float3 posW, uniform float3
     float3 diffuseLightIntensity = saturate(max(dot(lightVector, normal), 0.0f));
     float3 diffuseLight = diffuseLightIntensity * diffuse.xyz * diffuse.w;
     
-    float3 specularIntensity = 1.2f * pow(max(dot(reflectLight, viewDir), 0.0f), 100.0f); // * specular.xyz
+    float3 specularIntensity = 1.0f * pow(max(dot(reflectLight, viewDir), 0.0f), 100.0f); // * specular.xyz
     float3 specularLight = saturate(specularIntensity);
     
     float distanceToLight = distance(lightPos, posW);
@@ -147,6 +147,8 @@ float4 main(PS_IN input) : SV_Target
     
     int layer = 3;
     float viewDepth = abs(input.inWorldView.z / input.inWorldView.w);
+
+    [unroll]
     for (int i = 0; i < 4; ++i)
     {
         if (viewDepth < CascData.Distances[i])
