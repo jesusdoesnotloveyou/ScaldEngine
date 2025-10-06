@@ -1,5 +1,6 @@
+#include "stdafx.h"
 #include "ThirdPersonCamera.h"
-#include "../../Objects/Geometry/SceneGeometry.h"
+#include "Objects/Geometry/SceneGeometry.h"
 
 ThirdPersonCamera::ThirdPersonCamera()
 {

@@ -1,4 +1,5 @@
-#include "../../ScaldException.h"
+#include "stdafx.h"
+#include "ScaldException.h"
 #include "ShadowMap.h"
 
 ShadowMap::ShadowMap(ID3D11Device* device, UINT width, UINT height)

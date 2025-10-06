@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "SpotLight.h"
 
 SpotLight::SpotLight(const std::string& filePath) : Light(filePath)

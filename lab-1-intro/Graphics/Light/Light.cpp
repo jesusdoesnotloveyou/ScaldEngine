@@ -1,5 +1,6 @@
+#include "stdafx.h"
 #include "Light.h"
-#include "../../Objects/Geometry/3D/Shapes.h"
+#include "Objects/Geometry/3D/Shapes.h"
 
 Light::Light(const std::string& filePath)
     :

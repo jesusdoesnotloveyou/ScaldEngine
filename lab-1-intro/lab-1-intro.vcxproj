@@ -38,7 +38,7 @@
     <ClCompile Include="Graphics\Shadows\ShadowMap.cpp" />
     <ClCompile Include="Graphics\Camera\ThirdPersonCamera.cpp" />
     <ClCompile Include="Objects\Components\Collision\CollisionComponent.cpp" />
-    <ClCompile Include="Graphics\IndexBuffer.h" />
+    <ClInclude Include="Graphics\IndexBuffer.h" />
     <ClCompile Include="Objects\Components\InputComponent.cpp" />
     <ClCompile Include="Objects\Components\Movement\MovementComponent.cpp" />
     <ClCompile Include="Objects\Components\SceneComponent.cpp" />
@@ -50,13 +50,17 @@
     <ClCompile Include="Graphics\Light\Light.cpp" />
     <ClCompile Include="ScaldCore\Engine\Engine.cpp" />
     <ClCompile Include="Graphics\Graphics.cpp" />
-    <ClCompile Include="MySuper3DApp.cpp" />
+    <ClCompile Include="main.cpp" />
     <ClCompile Include="Objects\Geometry\SceneGeometry.cpp" />
     <ClCompile Include="Objects\Components\RenderComponent.cpp" />
     <ClCompile Include="ScaldCore\Engine\RenderWindow.cpp" />
     <ClCompile Include="ScaldCore\Engine\ScaldTimer.cpp" />
     <ClCompile Include="ScaldCore\Input\InputDevice.cpp" />
     <ClCompile Include="ScaldException.cpp" />
+    <ClCompile Include="stdafx.cpp">
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
+      <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Release|x64'">Create</PrecompiledHeader>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Data\ModelData.h" />
@@ -106,6 +110,7 @@
     <ClInclude Include="ScaldException.h" />
     <ClInclude Include="ScaldCore\Engine\ScaldWindows.h" />
     <ClInclude Include="Graphics\VertexBuffer.h" />
+    <ClInclude Include="stdafx.h" />
   </ItemGroup>
   <ItemGroup>
     <FxCompile Include="Shaders\particles\BillboardParticleGS.hlsl">
@@ -227,6 +232,14 @@
     <Import Project="$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props" Condition="exists('$(UserRootDir)\Microsoft.Cpp.$(Platform).user.props')" Label="LocalAppDataPlatform" />
   </ImportGroup>
   <PropertyGroup Label="UserMacros" />
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">
+    <OutDir>$(SolutionDir)\Build\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\Intermediate\$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
+  <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Release|x64'">
+    <OutDir>$(SolutionDir)\Build\$(Platform)\$(Configuration)\</OutDir>
+    <IntDir>$(SolutionDir)\Intermediate\$(Platform)\$(Configuration)\</IntDir>
+  </PropertyGroup>
   <ItemDefinitionGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">
     <ClCompile>
       <WarningLevel>Level3</WarningLevel>
@@ -280,8 +293,8 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <RuntimeLibrary>MultiThreadedDebugDLL</RuntimeLibrary>
       <FloatingPointModel>Fast</FloatingPointModel>
-      <AdditionalIncludeDirectories>
-      </AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\$(ProjectName);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeader>Use</PrecompiledHeader>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>
@@ -305,8 +318,8 @@
       <FavorSizeOrSpeed>Speed</FavorSizeOrSpeed>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FloatingPointModel>Fast</FloatingPointModel>
-      <AdditionalIncludeDirectories>
-      </AdditionalIncludeDirectories>
+      <AdditionalIncludeDirectories>$(SolutionDir)\$(ProjectName);%(AdditionalIncludeDirectories)</AdditionalIncludeDirectories>
+      <PrecompiledHeader>Use</PrecompiledHeader>
     </ClCompile>
     <Link>
       <SubSystem>Windows</SubSystem>

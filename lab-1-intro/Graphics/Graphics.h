@@ -8,7 +8,7 @@
 #include <vector>
 #include <memory>
 
-#include "../ScaldCore/Engine/ScaldTimer.h"
+#include "ScaldCore/Engine/ScaldTimer.h"
 #include "Shaders.h"
 #include "ConstantBuffer.h"
 #include "ScaldCoreTypes.h"

@@ -1,4 +1,5 @@
-#include "../../ScaldException.h"
+#include "stdafx.h"
+#include "ScaldException.h"
 #include "SceneGeometry.h"
 
 // could be used to set materials and models

@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "ScaldCore/Engine/Engine.h"
 
 int CALLBACK WinMain(

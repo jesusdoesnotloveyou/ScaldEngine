@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../Objects/Components/Movement/MovementComponent.h"
+#include "Objects/Components/Movement/MovementComponent.h"
 
 class SceneGeometry;
 

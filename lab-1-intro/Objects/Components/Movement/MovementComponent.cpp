@@ -1,5 +1,6 @@
+#include "stdafx.h"
 #include "MovementComponent.h"
-#include "../../Geometry/SceneGeometry.h"
+#include "Objects/Geometry/SceneGeometry.h"
 
 MovementComponent::MovementComponent(SceneGeometry* CompOwner)
 	:

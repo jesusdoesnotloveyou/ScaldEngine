@@ -1,12 +1,11 @@
+#include "stdafx.h"
 #include "Engine.h"
-#include "../../Data/ModelData.h"
-#include "../../Games/Katamari/KatamariPlayer.h"
-#include "../../Graphics/Camera/ThirdPersonCamera.h"
-#include "../../Graphics/Light/PointLight.h"
-#include "../../Graphics/Light/SpotLight.h"
-#include "../../Graphics/Light/DirectionalLight.h"
-
-#include <sstream>
+#include "Data/ModelData.h"
+#include "Games/Katamari/KatamariPlayer.h"
+#include "Graphics/Camera/ThirdPersonCamera.h"
+#include "Graphics/Light/PointLight.h"
+#include "Graphics/Light/SpotLight.h"
+#include "Graphics/Light/DirectionalLight.h"
 
 Engine::Engine()
     :

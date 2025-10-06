@@ -1,8 +1,8 @@
 #pragma once
 
-#include "../../ScaldException.h"
-#include "../Shaders.h"
-#include "../ConstantBuffer.h"
+#include "ScaldException.h"
+#include "Graphics/Shaders.h"
+#include "Graphics/ConstantBuffer.h"
 
 class Renderer
 {

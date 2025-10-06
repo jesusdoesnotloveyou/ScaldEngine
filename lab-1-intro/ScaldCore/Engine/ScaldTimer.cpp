@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "ScaldWindows.h"
 #include "ScaldTimer.h"
 

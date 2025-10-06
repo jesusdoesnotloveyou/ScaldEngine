@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "ParticleSystem.h"
 #include <WICTextureLoader.h>
 
