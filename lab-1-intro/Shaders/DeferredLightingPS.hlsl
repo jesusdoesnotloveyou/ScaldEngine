@@ -8,7 +8,7 @@ SamplerComparisonState shadowSamplerState : SAMPLER : register(s1);
 
 struct CascadeData
 {
-    matrix ViewProj[4];
+    float4x4 ViewProj[4];
     float4 Distances; // not used, so not filled on the CPU side
 };
 
@@ -22,7 +22,7 @@ float SampleShadowMap(int layer, float2 uv, float depth)
     return shadowMaps.SampleCmp(shadowSamplerState, float3(uv, layer), depth).r;
 }
 
-float3 GetShadowCoords(int layer, float3 worldPos)
+float3 GetCascadeCoords(int layer, float3 worldPos)
 {
     float4 coords = mul(float4(worldPos, 1.0f), CascData.ViewProj[layer]);
     coords.xyz /= coords.w;
@@ -33,7 +33,7 @@ float3 GetShadowCoords(int layer, float3 worldPos)
 cbuffer ConstantBufferData : register(b1)
 {
     float4 gEyePos;
-    matrix gView;
+    float4x4 gView;
 }
 
 struct UniLight
@@ -175,7 +175,7 @@ float4 main(PS_IN input) : SV_Target
         float2(-dx, +dx), float2(0.0f, +dx), float2(dx, +dx)
     };
     
-    float3 shadowTexCoords = GetShadowCoords(layer, pos);
+    float3 cascadeTexCoords = GetCascadeCoords(layer, pos);
     
     float3 ambient = float3(0.0f, 0.0f, 0.0f);
     
@@ -184,14 +184,13 @@ float4 main(PS_IN input) : SV_Target
     {
         ambient = Light.ambient.xyz * Light.ambient.z;
         float shadow = 0.0f;
-        if (saturate(shadowTexCoords.x) == shadowTexCoords.x && saturate(shadowTexCoords.y) == shadowTexCoords.y)
+        if (saturate(cascadeTexCoords.x) == cascadeTexCoords.x && saturate(cascadeTexCoords.y) == cascadeTexCoords.y)
         {
-            float currentDepth = shadowTexCoords.z - 0.002f;
-    
+            float currDepth = cascadeTexCoords.z - 0.0005f;
             [unroll]
             for (int i = 0; i < 9; ++i)
             {
-                shadow += SampleShadowMap(layer, shadowTexCoords.xy + offsets[i], currentDepth);
+                shadow += SampleShadowMap(layer, cascadeTexCoords.xy + offsets[i], currDepth);
             }
             shadow = shadow / 9.0f;
         }
