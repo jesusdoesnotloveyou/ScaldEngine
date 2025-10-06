@@ -1,6 +1,7 @@
+#include "stdafx.h"
 #include "Renderer.h"
-#include "../ScaldCoreTypes.h"
-#include "../Shadows/CascadeShadowMap.h"
+#include "Graphics/ScaldCoreTypes.h"
+#include "Graphics/Shadows/CascadeShadowMap.h"
 
 Renderer::Renderer(IDXGISwapChain* spawChain, ID3D11Device* device, ID3D11DeviceContext* deviceContext, int width, int height)
 	:
@@ -86,6 +87,10 @@ void Renderer::CreateRasterizerState()
 	CD3D11_RASTERIZER_DESC rastDesc = {};
 	rastDesc.FillMode = D3D11_FILL_SOLID;
 	rastDesc.CullMode = D3D11_CULL_BACK;
+	rastDesc.DepthBias = 10000;
+	rastDesc.SlopeScaledDepthBias = 1.0f;
+	rastDesc.DepthClipEnable = (BOOL)0.0f;
+
 	ThrowIfFailed(mDevice->CreateRasterizerState(&rastDesc, mRasterizerStateCullBack.GetAddressOf()));
 
 	rastDesc = {};
