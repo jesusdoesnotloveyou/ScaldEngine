@@ -1,6 +1,7 @@
+#include "stdafx.h"
 #include "KatamariMovementComponent.h"
-#include "../../Graphics/ScaldCoreTypes.h"
-#include "../../Objects/Geometry/SceneGeometry.h"
+#include "Graphics/ScaldCoreTypes.h"
+#include "Objects/Geometry/SceneGeometry.h"
 
 KatamariMovementComponent::KatamariMovementComponent(SceneGeometry* OwnerPlayer) : MovementComponent(OwnerPlayer)
 {

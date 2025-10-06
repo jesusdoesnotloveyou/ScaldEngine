@@ -1,25 +1,15 @@
-#include "../ScaldException.h"
+#include "stdafx.h"
+#include "ScaldException.h"
 #include "Graphics.h"
-#include <chrono>
-#include <algorithm>
 
 #include "Render/DeferredRenderer.h"
 #include "Particles/FireParticleSystem.h"
 #include "Camera/ThirdPersonCamera.h"
-#include "../Objects/Geometry/Actor.h"
+#include "Objects/Geometry/Actor.h"
 #include "Light/PointLight.h"
 #include "Light/DirectionalLight.h"
 #include "Light/SpotLight.h"
 #include "Shadows/CascadeShadowMap.h"
-
-#include <d3d.h>
-#include <d3d11.h>
-#include <d3dcompiler.h>
-
-#pragma comment(lib, "d3d11.lib")
-#pragma comment(lib, "dxgi.lib")
-#pragma comment(lib, "d3dcompiler.lib")
-#pragma comment(lib, "dxguid.lib")
 
 Graphics::Graphics(HWND hWnd, int width, int height)
 	:
@@ -335,7 +325,14 @@ void Graphics::RenderLighting()
 				// TODO: here we could already have proper range and don't need to calculate it explicitly
 				const auto scale = light->GetRange();
 
-				mLightVolumeData.gWorld = XMMatrixTranspose(XMMatrixScaling(scale, scale, scale) * light->GetTransform()->mRotationMatrix * light->GetTransform()->mTranslationMatrix);
+				XMMATRIX lightWorld = XMMatrixScaling(scale, scale, scale) * light->GetTransform()->mRotationMatrix * light->GetTransform()->mTranslationMatrix;
+				auto transpWorld = XMMatrixTranspose(lightWorld);
+				auto det = XMMatrixDeterminant(transpWorld);
+
+				XMMATRIX invTransWorld = XMMatrixInverse(&det, transpWorld);
+
+				mLightVolumeData.gWorld = XMMatrixTranspose(lightWorld);
+				mLightVolumeData.gInvTransWorld = XMMatrixTranspose(invTransWorld);
 				mLightVolumeData.gView = XMMatrixTranspose(mTPCamera->GetViewMatrix());
 				mLightVolumeData.gProjection = XMMatrixTranspose(mTPCamera->GetPerspectiveProjectionMatrix());
 				mCB_LightVolume.SetAndApplyData(mLightVolumeData);

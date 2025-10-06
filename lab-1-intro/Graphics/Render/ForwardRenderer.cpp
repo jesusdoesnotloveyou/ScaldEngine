@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "ForwardRenderer.h"
 
 ForwardRenderer::ForwardRenderer(IDXGISwapChain* spawChain, ID3D11Device* device, ID3D11DeviceContext* deviceContext, UINT width, UINT height)

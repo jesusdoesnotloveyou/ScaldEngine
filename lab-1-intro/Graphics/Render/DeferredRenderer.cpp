@@ -1,8 +1,7 @@
+#include "stdafx.h"
 #include "DeferredRenderer.h"
-#include "../ScaldCoreTypes.h"
-#include "../Mesh.h"
-
-#include <vector>
+#include "Graphics/ScaldCoreTypes.h"
+#include "Graphics/Mesh.h"
 
 DeferredRenderer::DeferredRenderer(IDXGISwapChain* spawChain, ID3D11Device* device, ID3D11DeviceContext* deviceContext, UINT width, UINT height)
 	: Renderer(spawChain, device, deviceContext, width, height)

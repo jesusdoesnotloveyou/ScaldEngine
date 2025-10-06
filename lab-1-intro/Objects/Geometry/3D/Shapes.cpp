@@ -1,3 +1,4 @@
+#include "stdafx.h"
 #include "Shapes.h"
 
 //tuple<vector<VertexTex>, vector<DWORD>> Shapes::GetBoxShape(float width, float height, float depth, float u, float v)

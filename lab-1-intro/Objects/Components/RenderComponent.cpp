@@ -1,4 +1,5 @@
-#include "../../ScaldException.h"
+#include "stdafx.h"
+#include "ScaldException.h"
 #include "RenderComponent.h"
 
 RenderComponent::RenderComponent()

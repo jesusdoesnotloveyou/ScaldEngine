@@ -1,5 +1,6 @@
+#include "stdafx.h"
 #include "Actor.h"
-#include "../../Data/ModelData.h"
+#include "Data/ModelData.h"
 
 Actor::Actor()
 {
