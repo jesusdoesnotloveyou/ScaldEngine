@@ -64,6 +64,21 @@ void Engine::SetupScene()
 	pointLight2->SetDiffuseColor(0.0f, 1.0f, 1.0f, 5.0f);
 	pointLight2->SetAttenuation(1.0f, 0.7f, 1.8f);
 	//pointLight2->SetRange(2.0f);
+
+	PointLight* pointLight3 = new PointLight("./Data/Models/Light/light.obj");
+	pointLight3->GetTransform()->SetPosition(0.0f, 4.0f, 60.0f);
+	pointLight3->SetDiffuseColor(1.0f, 0.3f, 0.0f, 4.0f);
+	pointLight3->SetAttenuation(1.0f, 0.5f, 2.0f);
+	
+	PointLight* pointLight4 = new PointLight("./Data/Models/Light/light.obj");
+	pointLight4->GetTransform()->SetPosition(20.0f, 4.0f, 80.0f);
+	pointLight4->SetDiffuseColor(0.5f, 1.0f, 0.5f, 5.0f);
+	pointLight4->SetAttenuation(1.0f, 0.7f, 2.0f);
+
+	PointLight* pointLight5 = new PointLight("./Data/Models/Light/light.obj");
+	pointLight5->GetTransform()->SetPosition(30.0f, 4.0f, 100.0f);
+	pointLight5->SetDiffuseColor(1.0f, 0.0f, 0.8f, 5.0f);
+	pointLight5->SetAttenuation(1.0f, 0.5f, 2.0f);
 #pragma endregion PointLight
 #pragma region SpotLight
 	SpotLight* spotLight1 = new SpotLight("./Data/Models/Light/light.obj");
@@ -136,6 +151,9 @@ void Engine::SetupScene()
 	mRenderWindow.GetGfx().AddToRenderPool(directionalLight);
 	mRenderWindow.GetGfx().AddToRenderPool(pointLight1);
 	mRenderWindow.GetGfx().AddToRenderPool(pointLight2);
+	mRenderWindow.GetGfx().AddToRenderPool(pointLight3);
+	mRenderWindow.GetGfx().AddToRenderPool(pointLight4);
+	mRenderWindow.GetGfx().AddToRenderPool(pointLight5);
 	//mRenderWindow.GetGfx().AddToRenderPool(spotLight1);
 #pragma endregion LightPool
 	
