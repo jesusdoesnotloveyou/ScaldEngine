@@ -1,8 +1,9 @@
 cbuffer cbPerObject
 {
-    matrix gWorld;
-    matrix gView;
-    matrix gProjection;
+    float4x4 gWorld;
+    float4x4 gInvTransWorld;
+    float4x4 gView;
+    float4x4 gProjection;
 };
 
 struct VS_IN
@@ -34,7 +35,7 @@ VS_OUT main(VS_IN input)
     
     output.outTexCoord = input.inTexCoord;
     
-    output.outNormal = mul(input.inNormal, (float3x3) gWorld);
+    output.outNormal = mul(input.inNormal, (float3x3) gInvTransWorld);
     output.outNormal = normalize(output.outNormal);
 
     return output;

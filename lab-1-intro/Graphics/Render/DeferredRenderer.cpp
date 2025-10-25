@@ -42,7 +42,6 @@ DeferredRenderer::DeferredRenderer(IDXGISwapChain* spawChain, ID3D11Device* devi
 	ZeroMemory(&textureDesc, sizeof(D3D11_SHADER_RESOURCE_VIEW_DESC));
 	shaderResourceViewDesc.Format = textureDesc.Format;
 	shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
-	shaderResourceViewDesc.ViewDimension = D3D11_SRV_DIMENSION_TEXTURE2D;
 	shaderResourceViewDesc.Texture2D.MipLevels = 1u;
 
 	for (UINT i = 0; i < BUFFER_COUNT; i++)

@@ -65,7 +65,6 @@ struct PS_IN
 float3 CalcDirectionalLight(UniLight light, uniform float3 posW, uniform float3 normal, uniform float4 toEye)
 {
     float3 lightDir = normalize(-light.direction);
-    float3 ambient = light.ambient.xyz * light.ambient.w;
     float4 diffuse = light.diffuse;
     float4 specular = light.specular;
 

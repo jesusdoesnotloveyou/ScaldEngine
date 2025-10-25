@@ -65,6 +65,7 @@ struct VertexTex
 struct ConstBufferVS
 {
 	XMMATRIX gWorld = XMMatrixIdentity();
+	XMMATRIX gInvTransWorld = XMMatrixIdentity();
 	XMMATRIX gView = XMMatrixIdentity();
 	XMMATRIX gProjection = XMMatrixIdentity();
 };

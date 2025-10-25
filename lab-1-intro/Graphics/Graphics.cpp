@@ -389,7 +389,13 @@ void Graphics::RenderLighting()
 				// TODO: here we could already have proper range and don't need to calculate it explicitly
 				const auto scale = light->GetRange();
 
-				mLightVolumeData.gWorld = XMMatrixTranspose(XMMatrixScaling(scale, scale, scale) * light->GetTransform()->mRotationMatrix * light->GetTransform()->mTranslationMatrix);
+				XMMATRIX world = XMMatrixScaling(scale, scale, scale) * light->GetTransform()->mRotationMatrix * light->GetTransform()->mTranslationMatrix;
+
+				auto det = XMMatrixDeterminant(world);
+				XMMATRIX invTransWorld = XMMatrixInverse(&det, XMMatrixTranspose(world));
+
+				mLightVolumeData.gWorld = XMMatrixTranspose(world);
+				mLightVolumeData.gInvTransWorld = XMMatrixTranspose(invTransWorld);
 				mLightVolumeData.gView = XMMatrixTranspose(mTPCamera->GetViewMatrix());
 				mLightVolumeData.gProjection = XMMatrixTranspose(mTPCamera->GetPerspectiveProjectionMatrix());
 				mCB_LightVolume.SetAndApplyData(mLightVolumeData);
