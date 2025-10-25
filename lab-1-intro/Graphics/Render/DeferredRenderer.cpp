@@ -256,7 +256,7 @@ void DeferredRenderer::DrawGBuffer()
 
 void DeferredRenderer::BindWithinFrustum()
 {
-	mDeviceContext->RSSetState(mRasterizerStateCullBack.Get());
+	mDeviceContext->RSSetState(mRasterizerStateCullFront.Get());
 	mDeviceContext->OMSetDepthStencilState(mDSSGreater.Get(), 0u);
 }
 

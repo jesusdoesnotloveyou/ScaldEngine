@@ -123,13 +123,13 @@ void CalcSpotLight(UniLight L, float3 posW, float3 normal, float3 toEye, out flo
     float diffuseFactor = dot(lightVec, normal);
 
     [flatten]
-        if (diffuseFactor > 0.0f)
-        {
-            float3 v = reflect(-lightVec, normal);
-            float specFactor = pow(max(dot(v, toEye), 0.0f), 200.0f);
-            diffuse = diffuseFactor * L.diffuse;
-            spec = specFactor * L.specular;
-        }
+    if (diffuseFactor > 0.0f)
+    {
+        float3 v = reflect(-lightVec, normal);
+        float specFactor = pow(max(dot(v, toEye), 0.0f), 200.0f);
+        diffuse = diffuseFactor * L.diffuse;
+        spec = specFactor * L.specular;
+    }
 
     float spot = pow(max(dot(-lightVec, L.direction), 0.0f), L.spot);
     float att = spot / dot(L.attenuation, float3(1.0f, d, d * d));

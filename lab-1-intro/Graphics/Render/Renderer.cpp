@@ -63,10 +63,12 @@ void Renderer::SetupShaders()
 void Renderer::CreateDepthStencilState()
 {
 	D3D11_DEPTH_STENCIL_DESC DSDesc;
-	DSDesc.DepthEnable = TRUE;
+	DSDesc.DepthEnable = FALSE;
+	DSDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
 	DSDesc.DepthFunc = D3D11_COMPARISON_LESS_EQUAL;
 	DSDesc.StencilEnable = FALSE;
-	DSDesc.DepthWriteMask = D3D11_DEPTH_WRITE_MASK_ZERO;
+	DSDesc.StencilReadMask = 0xFF;
+	DSDesc.StencilWriteMask = 0xFF;
 	ThrowIfFailed(mDevice->CreateDepthStencilState(&DSDesc, mDSSLessEqual.GetAddressOf()));
 	
 	DSDesc.DepthFunc = D3D11_COMPARISON_GREATER;
