@@ -76,20 +76,24 @@ private:
 	void RenderColorPass();
 	void RenderLighting();
 
+	void RenderDirectionalLight();
+	void RenderOmniLights();
+	void RenderSpotLights();
+
 	// deferred additional task specific
 	void RenderGBuffer();
 public:
 	void SwitchGBufferLayer(int layer);
 
 private:
-	void UpdateLightConstantBuffer(Light* light);
+	void UpdateDirLightConstantBuffer(Light* dirLight);
+	void UpdateOmniLightConstantBuffer(Light* light);
+	void UpdateSpotLightConstantBuffer(Light* light);
 
 	// get all 8 vertices of frustrum
 	std::vector<XMVECTOR> GetFrustumCornersWorldSpace(const XMMATRIX& viewProjection);
 	XMMATRIX GetLightSpaceMatrix(const float nearPlane, const float farPlane);
 	void GetLightSpaceMatrices(std::vector<XMMATRIX>& outMatrices);
-
-	float CalcPointLightRange(const Light& light);
 
 	template<typename T>
 	bool ApplyChanges(ID3D11DeviceContext* deviceContext, ID3D11Buffer* buffer, const std::vector<T>& bufferData)

@@ -136,7 +136,7 @@ void Engine::SetupScene()
 	mRenderWindow.GetGfx().AddToRenderPool(directionalLight);
 	mRenderWindow.GetGfx().AddToRenderPool(pointLight1);
 	mRenderWindow.GetGfx().AddToRenderPool(pointLight2);
-	mRenderWindow.GetGfx().AddToRenderPool(spotLight1);
+	//mRenderWindow.GetGfx().AddToRenderPool(spotLight1);
 #pragma endregion LightPool
 	
 	mRenderWindow.GetGfx().InitSceneObjects();
