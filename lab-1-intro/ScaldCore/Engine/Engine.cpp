@@ -71,14 +71,29 @@ void Engine::SetupScene()
 	pointLight3->SetAttenuation(1.0f, 0.5f, 2.0f);
 	
 	PointLight* pointLight4 = new PointLight("./Data/Models/Light/light.obj");
-	pointLight4->GetTransform()->SetPosition(20.0f, 4.0f, 80.0f);
+	pointLight4->GetTransform()->SetPosition(20.0f, 4.0f, 10.0f);
 	pointLight4->SetDiffuseColor(0.5f, 1.0f, 0.5f, 5.0f);
 	pointLight4->SetAttenuation(1.0f, 0.7f, 2.0f);
 
 	PointLight* pointLight5 = new PointLight("./Data/Models/Light/light.obj");
-	pointLight5->GetTransform()->SetPosition(30.0f, 4.0f, 100.0f);
+	pointLight5->GetTransform()->SetPosition(30.0f, 4.0f, 30.0f);
 	pointLight5->SetDiffuseColor(1.0f, 0.0f, 0.8f, 5.0f);
 	pointLight5->SetAttenuation(1.0f, 0.5f, 2.0f);
+
+	PointLight* pointLight6 = new PointLight("./Data/Models/Light/light.obj");
+	pointLight6->GetTransform()->SetPosition(50.0f, 4.0f, 40.0f);
+	pointLight6->SetDiffuseColor(0.2f, 1.0f, 0.8f, 5.0f);
+	pointLight6->SetAttenuation(1.0f, 0.5f, 2.0f);
+
+	PointLight* pointLight7 = new PointLight("./Data/Models/Light/light.obj");
+	pointLight7->GetTransform()->SetPosition(40.0f, 4.0f, 50.0f);
+	pointLight7->SetDiffuseColor(1.0f, 0.0f, 1.0f, 5.0f);
+	pointLight7->SetAttenuation(1.0f, 0.5f, 2.0f);
+
+	PointLight* pointLight8 = new PointLight("./Data/Models/Light/light.obj");
+	pointLight8->GetTransform()->SetPosition(30.0f, 4.0f, 0.0f);
+	pointLight8->SetDiffuseColor(0.2f, 0.2f, 1.0f, 4.0f);
+	pointLight8->SetAttenuation(1.0f, 0.5f, 2.0f);
 #pragma endregion PointLight
 #pragma region SpotLight
 	SpotLight* spotLight1 = new SpotLight("./Data/Models/Light/light.obj");
@@ -154,6 +169,9 @@ void Engine::SetupScene()
 	mRenderWindow.GetGfx().AddToRenderPool(pointLight3);
 	mRenderWindow.GetGfx().AddToRenderPool(pointLight4);
 	mRenderWindow.GetGfx().AddToRenderPool(pointLight5);
+	mRenderWindow.GetGfx().AddToRenderPool(pointLight6);
+	mRenderWindow.GetGfx().AddToRenderPool(pointLight7);
+	mRenderWindow.GetGfx().AddToRenderPool(pointLight8);
 	//mRenderWindow.GetGfx().AddToRenderPool(spotLight1);
 #pragma endregion LightPool
 	
