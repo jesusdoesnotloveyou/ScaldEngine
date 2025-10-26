@@ -313,7 +313,7 @@
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
-    <FxCompile Include="Shaders\DefaultVS.hlsl" />
+    <FxCompile Include="Shaders\VertexShader.hlsl" />
     <FxCompile Include="Shaders\ShadowVS.hlsl" />
     <FxCompile Include="Shaders\CascadeShadowMapsGS.hlsl" />
     <FxCompile Include="Shaders\DeferredLightingPS.hlsl" />

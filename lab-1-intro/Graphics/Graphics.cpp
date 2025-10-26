@@ -375,7 +375,6 @@ void Graphics::RenderParticles(float deltaTime)
 	pFireParticleSystem->Render();
 }
 
-void Graphics::UpdateLightConstantBuffer(Light* light)
 void Graphics::RenderGBuffer()
 {
 	pRenderer->DrawGBuffer();

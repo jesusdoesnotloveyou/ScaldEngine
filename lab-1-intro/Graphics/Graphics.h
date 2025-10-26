@@ -85,8 +85,8 @@ public:
 
 private:
 	void UpdateDirLightConstantBuffer(Light* dirLight);
-	void UpdateOmniLightConstantBuffer(Light* light);
-	void UpdateSpotLightConstantBuffer(Light* light);
+	void UpdateOmniLightConstantBuffer(Light* omniLight);
+	void UpdateSpotLightConstantBuffer(Light* spotLight);
 
 	// get all 8 vertices of frustrum
 	std::vector<XMVECTOR> GetFrustumCornersWorldSpace(const XMMATRIX& viewProjection);
