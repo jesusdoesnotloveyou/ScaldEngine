@@ -2,14 +2,11 @@
 
 # Screenshots
 ![](Screenshots/final_scene1.png)
-<p align="center">
-</p>
+</br>
 ![](Screenshots/final_scene2.png)
-<p align="center">
-</p>
+</br>
 ![](Screenshots/final_scene3.png)
-<p align="center">
-</p>
+</br>
 
 # Features
 
