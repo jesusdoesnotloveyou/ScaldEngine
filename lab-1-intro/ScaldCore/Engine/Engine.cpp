@@ -105,7 +105,7 @@ void Engine::SetupScene()
 	DirectionalLight* directionalLight = new DirectionalLight("./Data/Models/Light/light.obj");
 	directionalLight->GetTransform()->SetPosition(10.0f, 50.0f, 100.0f);
 	directionalLight->GetCollisionComponent()->DisableCollision();
-	directionalLight->SetAmbientColor(0.5f, 0.5f, 0.5f, 1.0f);
+	directionalLight->SetAmbientColor(0.25f, 0.25f, 0.35f, 1.0f);
 	directionalLight->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
 	// opposite to dir light pos vector
 	directionalLight->SetDirection(-10.0f, -50.0f, -100.0f);

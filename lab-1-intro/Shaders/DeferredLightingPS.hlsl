@@ -83,10 +83,12 @@ float3 CalcDirectionalLight(UniLight light, uniform float3 posW, uniform float3 
 
 float3 CalcPointLight(UniLight light, uniform float3 posW, uniform float3 normal, uniform float4 toEye)
 {
+    float3 pointLight = float3(0.0f, 0.0f, 0.0f);
+    
     float4 diffuse = light.diffuse;
     float4 specular = light.specular;
     float3 lightPos = light.position;
-    float3 attenuation = light.attenuation;
+    //float3 attenuation = light.attenuation;
 
     // necessary vectors
     float3 V = normalize(toEye.xyz - posW);
@@ -100,12 +102,14 @@ float3 CalcPointLight(UniLight light, uniform float3 posW, uniform float3 normal
     float3 specularLight = saturate(specularIntensity);
 
     float distanceToLight = distance(lightPos, posW);
-    if (distanceToLight > light.range)
-        return float3(0.0f, 0.0f, 0.0f);
+    
+    if (distanceToLight > light.range) return pointLight;
 
     float attenuationFactor = (1.0f - distanceToLight / light.range);
     attenuationFactor *= attenuationFactor;
-    return (diffuseLight + specularLight) * attenuationFactor;
+    pointLight = (diffuseLight + specularLight) * attenuationFactor;
+    
+    return pointLight;
 }
 
 void CalcSpotLight(UniLight L, float3 posW, float3 normal, float3 toEye, out float4 diffuse, out float4 spec)
