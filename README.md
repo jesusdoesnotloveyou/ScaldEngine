@@ -1,2 +1,24 @@
-Screenshots
-![Uploading {50C6013C-FA64-48EA-9EA6-9FC39F1DD1B3}.png…]()
+# Scald Render Engine
+
+# Screenshots
+![](Screenshots/final_scene1.png)
+<p align="center">
+</p>
+![](Screenshots/final_scene2.png)
+<p align="center">
+</p>
+![](Screenshots/final_scene3.png)
+<p align="center">
+</p>
+
+# Features
+
+## Graphics
+
+- Deferred Rendering
+  - GBuffer (Color, Normal, WorldPos)
+- Lighting & Shadows
+  - Directional Lights (Cascaded Shadows)
+  - Point Lights
+  - PCF Shadows
+- Simple Particles
