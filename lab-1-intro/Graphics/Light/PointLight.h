@@ -24,4 +24,7 @@ private:
 
 public:
 	virtual void UpdateLightParams() override;
+
+private:
+	float CalcPointLightRange();
 };

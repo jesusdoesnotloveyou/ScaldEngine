@@ -26,7 +26,7 @@ Gbuffer main(PS_IN input)
     float4 sampleColor = objTexture.Sample(objSamplerState, input.inTexCoord);
     output.DiffuseSpec = sampleColor;
     
-    output.Normal = input.inNormal;
+    output.Normal = normalize(input.inNormal);
     
     output.WorldPos = input.inWorld;
 

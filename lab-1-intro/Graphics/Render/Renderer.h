@@ -13,7 +13,7 @@ public:
 	virtual void SetupShaders();
 
 	void CreateDepthStencilState();
-	void CreateRasterizerState();
+	virtual void CreateRasterizerState();
 	void CreateSamplerState();
 	void CreateBlendState();
 
@@ -25,7 +25,6 @@ protected:
 	ID3D11Device* mDevice = nullptr;
 	ID3D11DeviceContext* mDeviceContext = nullptr;
 
-private:
 	int mScreenHeight;
 	int mScreenWidth;
 

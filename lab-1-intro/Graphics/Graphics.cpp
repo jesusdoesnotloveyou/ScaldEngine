@@ -89,6 +89,9 @@ void Graphics::Setup()
 	// for cascade shadows
 	mCascadeShadowMap->UpdateShadowCascadeSplits(mCameraNearZ, mCameraFarZ);
 
+	// constant buffers setup (Forward)
+	//ThrowIfFailed(mCBVSPerFrame.Init(mDevice.Get(), mDeviceContext.Get()));
+
 	// constant buffers setup for deferred rendering
 	ThrowIfFailed(mCB_LightVolume.Init(mDevice.Get(), mDeviceContext.Get()));
 	ThrowIfFailed(mCB_PerFrame.Init(mDevice.Get(), mDeviceContext.Get()));
@@ -105,11 +108,12 @@ void Graphics::AddToRenderPool(SceneGeometry* sceneObject)
 
 	if (bIsDeferredRenderingTechniqueApplied)
 	{
-		mLights.push_back(lightObject);
 		if (lightObject->GetLightType() == ELightType::Directional)
 		{
 			mDirectionalLight = lightObject;
+			return;
 		}
+		mLights.push_back(lightObject);
 	}
 }
 
@@ -194,6 +198,10 @@ void Graphics::DrawScene(const ScaldTimer& st)
 	BindLightingPassResources();
 	RenderLighting();
 	mDeviceContext->ClearState();
+	// additional task to deferred
+	RenderGBuffer();
+
+	mDeviceContext->ClearState();
 
 	/*pRenderer->BindTransparentPass();
 	mDeviceContext->ClearState();*/
@@ -231,7 +239,9 @@ void Graphics::BindLightingPassResources()
 
 	mPerFrameData.gEyePos = mTPCamera->GetPosition();
 	mPerFrameData.gView = XMMatrixTranspose(mTPCamera->GetViewMatrix());
+	// here should be view and proj matrices
 	mCB_PerFrame.SetAndApplyData(mPerFrameData);
+
 	mDeviceContext->PSSetConstantBuffers(1u, 1u, mCB_PerFrame.GetAddressOf());
 
 	mDeviceContext->PSSetShaderResources(3u, 1u, mCascadeShadowMap->GetAddressOf());
@@ -306,49 +316,55 @@ void Graphics::RenderColorPass()
 
 void Graphics::RenderLighting()
 {
-	for (auto& light : mLights)
+	RenderDirectionalLight();
+	RenderOmniLights();
+	//RenderSpotLights();
+}
+
+void Graphics::RenderDirectionalLight()
+{
+	UpdateDirLightConstantBuffer(mDirectionalLight);
+	mDeviceContext->VSSetConstantBuffers(1u, 1u, mCB_Light.GetAddressOf());
+	mDeviceContext->PSSetConstantBuffers(2u, 1u, mCB_Light.GetAddressOf());
+
+	pRenderer->BindOutsideFrustum();
+	pRenderer->DrawScreenQuad();
+}
+
+void Graphics::RenderOmniLights()
+{
+	pRenderer->BindIntersectsFarPlane(); // !!! HACK (TO DRAW EVEN IF FRUSTUM INTERSECTS LIGHT VOLUME)
+	//pRenderer->BindWithinFrustum(); // SHOULD BE INSTEAD
+
+	for (auto&& light : mLights)
 	{
-		UpdateLightConstantBuffer(light);
-		mDeviceContext->VSSetConstantBuffers(1u, 1u, mCB_Light.GetAddressOf());
-		mDeviceContext->PSSetConstantBuffers(2u, 1u, mCB_Light.GetAddressOf());
+		UpdateOmniLightConstantBuffer(light);
 
-		const auto lightType = light->GetLightType();
-		if (lightType == ELightType::Directional)
-		{
-			pRenderer->BindOutsideFrustum();
-			pRenderer->DrawScreenQuad();
-		}
-		else // omni or spot
-		{
-			if (lightType == ELightType::Point)
-			{
-				// TODO: here we could already have proper range and don't need to calculate it explicitly
-				const auto scale = light->GetRange();
+		const float sphereVolumeRadius = light->GetRange();
+		XMMATRIX world = XMMatrixScalingFromVector(XMVectorReplicate(sphereVolumeRadius)) * light->GetTransform()->mRotationMatrix * light->GetTransform()->mTranslationMatrix;
 
-				XMMATRIX lightWorld = XMMatrixScaling(scale, scale, scale) * light->GetTransform()->mRotationMatrix * light->GetTransform()->mTranslationMatrix;
-				auto transpWorld = XMMatrixTranspose(lightWorld);
-				auto det = XMMatrixDeterminant(transpWorld);
+		auto det = XMMatrixDeterminant(world);
+		XMMATRIX invTransWorld = XMMatrixInverse(&det, XMMatrixTranspose(world));
 
-				XMMATRIX invTransWorld = XMMatrixInverse(&det, transpWorld);
+		mLightVolumeData.gWorld = XMMatrixTranspose(world);
+		mLightVolumeData.gInvTransWorld = XMMatrixTranspose(invTransWorld);
+		mLightVolumeData.gView = XMMatrixTranspose(mTPCamera->GetViewMatrix());
+		mLightVolumeData.gProjection = XMMatrixTranspose(mTPCamera->GetPerspectiveProjectionMatrix());
+		mCB_LightVolume.SetAndApplyData(mLightVolumeData);
 
-				mLightVolumeData.gWorld = XMMatrixTranspose(lightWorld);
-				mLightVolumeData.gInvTransWorld = XMMatrixTranspose(invTransWorld);
-				mLightVolumeData.gView = XMMatrixTranspose(mTPCamera->GetViewMatrix());
-				mLightVolumeData.gProjection = XMMatrixTranspose(mTPCamera->GetPerspectiveProjectionMatrix());
-				mCB_LightVolume.SetAndApplyData(mLightVolumeData);
-				mDeviceContext->VSSetConstantBuffers(0u, 1u, mCB_LightVolume.GetAddressOf());
+		mDeviceContext->VSSetConstantBuffers(0u, 1u, mCB_LightVolume.GetAddressOf());
 
-				pRenderer->BindWithinFrustum();
-				light->DrawLightVolume(mDeviceContext.Get());
-				continue;
-			}
+		light->DrawLightVolume(mDeviceContext.Get());
+	}
+}
 
-			// @TODO: make a spot light
-			if (lightType == ELightType::Spot)
-			{
-				continue;
-			}
-		}
+void Graphics::RenderSpotLights()
+{
+	pRenderer->BindWithinFrustum();
+
+	for (auto& light : mLights) // must be list only with spots
+	{
+		UpdateSpotLightConstantBuffer(light);
 	}
 }
 
@@ -360,36 +376,59 @@ void Graphics::RenderParticles(float deltaTime)
 }
 
 void Graphics::UpdateLightConstantBuffer(Light* light)
+void Graphics::RenderGBuffer()
 {
-	const auto ligthType = light->GetLightType();
+	pRenderer->DrawGBuffer();
+}
 
-	mLightData.diffuse = light->GetDiffuseColor();
-	mLightData.specular = light->GetSpecularColor();
-	mLightData.lightType = ligthType;
-	
-	if (ligthType == ELightType::Directional)
-	{
-		mLightData.ambient = light->GetAmbientColor();
-		mLightData.direction = light->GetDirection();
-	}
-	else // omni or spot
-	{
-		mLightData.attenuation = light->GetAttenuation();
-		mLightData.position = light->GetPositionFloat();
+void Graphics::SwitchGBufferLayer(int layer)
+{
+	pRenderer->ChangeGBufferLayer(layer);
+}
 
-		if (ligthType == ELightType::Point)
-		{
-			// TODO: move to point light update
-			light->SetRange(CalcPointLightRange(*light));
-			mLightData.range = light->GetRange(); // hard-coded value
-		}
-		else // spot
-		{
-			mLightData.direction = light->GetDirection();
-			mLightData.spot = 10.0f; // hard-coded value
-		}
-	}
+void Graphics::UpdateDirLightConstantBuffer(Light* dirLight)
+{
+	mLightData.ambient = dirLight->GetAmbientColor();
+	mLightData.diffuse = dirLight->GetDiffuseColor();
+	mLightData.specular = dirLight->GetSpecularColor();
+	mLightData.direction = dirLight->GetDirection();
+	mLightData.lightType = ELightType::Directional;
 	mCB_Light.SetAndApplyData(mLightData);
+}
+
+void Graphics::UpdateOmniLightConstantBuffer(Light* pointLight)
+{
+	mLightData.diffuse = pointLight->GetDiffuseColor();
+	mLightData.specular = pointLight->GetSpecularColor();
+	mLightData.lightType = pointLight->GetLightType();;
+
+	mLightData.attenuation = pointLight->GetAttenuation();
+	mLightData.position = pointLight->GetPositionFloat();
+
+	mLightData.range = pointLight->GetRange(); // hard-coded value
+
+	mCB_Light.SetAndApplyData(mLightData);
+
+	mDeviceContext->VSSetConstantBuffers(1u, 1u, mCB_Light.GetAddressOf());
+	mDeviceContext->PSSetConstantBuffers(2u, 1u, mCB_Light.GetAddressOf());
+}
+
+void Graphics::UpdateSpotLightConstantBuffer(Light* spotLight)
+{
+	mLightData.diffuse = spotLight->GetDiffuseColor();
+	mLightData.specular = spotLight->GetSpecularColor();
+	mLightData.lightType = spotLight->GetLightType();;
+
+	mLightData.attenuation = spotLight->GetAttenuation();
+	mLightData.position = spotLight->GetPositionFloat();
+
+	mLightData.direction = spotLight->GetDirection();
+	mLightData.spot = 10.0f; // hard-coded value
+
+	mCB_Light.SetAndApplyData(mLightData);
+
+	mDeviceContext->VSSetConstantBuffers(1u, 1u, mCB_Light.GetAddressOf());
+	mDeviceContext->PSSetConstantBuffers(2u, 1u, mCB_Light.GetAddressOf());
 }
 
 void Graphics::EndFrame()
@@ -544,16 +583,4 @@ XMMATRIX Graphics::GetLightSpaceMatrix(const float nearPlane, const float farPla
 
 	const auto lightProjection = XMMatrixOrthographicOffCenterLH(minX, maxX, minY, maxY, minZ, maxZ);
 	return lightView * lightProjection;
-}
-
-// Deferred specific
-float Graphics::CalcPointLightRange(const Light& light)
-{
-	const auto color = light.GetLightParams()->diffuse;
-	const auto attenuation = light.GetLightParams()->attenuation;
-
-	float MaxChannel = fmax(fmax(color.x, color.y), color.z);
-
-	float ret = (-attenuation.y + sqrtf(attenuation.y * attenuation.y - 4 * attenuation.z * (attenuation.z - 256 * MaxChannel * color.w))) / (2 * attenuation.z);
-	return ret;
 }

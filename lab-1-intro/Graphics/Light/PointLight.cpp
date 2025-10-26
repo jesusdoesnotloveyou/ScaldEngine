@@ -33,4 +33,17 @@ void PointLight::UpdateLightParams()
 	XMFLOAT3 tmp;
 	XMStoreFloat3(&tmp, GetPosition());
 	LightParams->position = tmp;
+
+	LightParams->range = CalcPointLightRange();
+}
+
+float PointLight::CalcPointLightRange()
+{
+	const auto color = LightParams->diffuse;
+	const auto attenuation = LightParams->attenuation;
+
+	float MaxChannel = fmax(fmax(color.x, color.y), color.z);
+
+	float ret = (-attenuation.y + sqrtf(attenuation.y * attenuation.y - 4 * attenuation.z * (attenuation.z - 256 * MaxChannel * color.w))) / (2 * attenuation.z);
+	return ret;
 }

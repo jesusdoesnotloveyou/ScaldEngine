@@ -38,10 +38,9 @@ void SceneGeometry::Draw(const XMMATRIX& viewMatrix, const XMMATRIX& ProjectionM
     ConstBufferVS bufferVS = {};
 
     XMMATRIX world = GetTransform()->mWorldMatrix;
-    XMMATRIX transpWorld = XMMatrixTranspose(world);
-    auto det = XMMatrixDeterminant(transpWorld);
 
-    XMMATRIX invTransWorld = XMMatrixInverse(&det, transpWorld);
+    auto det = XMMatrixDeterminant(world);
+    XMMATRIX invTransWorld = XMMatrixInverse(&det, XMMatrixTranspose(world));
 
     bufferVS.gWorld = XMMatrixTranspose(world);
     bufferVS.gInvTransWorld = XMMatrixTranspose(invTransWorld);
