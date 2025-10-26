@@ -88,15 +88,14 @@ void Camera::AdjustRotation(float x, float y, float z)
 
 void Camera::SetLookAtPosition(XMFLOAT3 lookAtPosition)
 {
+	auto Transform = GetTransform();
+	const XMFLOAT3 posFloat = Transform->GetPositionFloat3();
 	// May be is would be enough to use GetPosition() from SceneComponent
-	if (lookAtPosition.x == GetTransform()->GetPositionFloat3().x
-		&& lookAtPosition.y == GetTransform()->GetPositionFloat3().y
-		&& lookAtPosition.z == GetTransform()->GetPositionFloat3().z)
-		return;
+	if (lookAtPosition.x == posFloat.x && lookAtPosition.y == posFloat.y && lookAtPosition.z == posFloat.z) return;
 
-	lookAtPosition.x = GetTransform()->GetPositionFloat3().x - lookAtPosition.x;
-	lookAtPosition.y = GetTransform()->GetPositionFloat3().y - lookAtPosition.y;
-	lookAtPosition.z = GetTransform()->GetPositionFloat3().z - lookAtPosition.z;
+	lookAtPosition.x = posFloat.x - lookAtPosition.x;
+	lookAtPosition.y = posFloat.y - lookAtPosition.y;
+	lookAtPosition.z = posFloat.z - lookAtPosition.z;
 
 	float pitch = 0.0f;
 	if (lookAtPosition.y != 0.0f)

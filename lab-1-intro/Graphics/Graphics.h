@@ -74,15 +74,24 @@ private:
 	void RenderLighting();
 	void RenderParticles(float deltaTime);
 
-	void UpdateLightConstantBuffer(Light* light);
+	void RenderDirectionalLight();
+	void RenderOmniLights();
+	void RenderSpotLights();
+
+	// deferred additional task specific
+	void RenderGBuffer();
+public:
+	void SwitchGBufferLayer(int layer);
+
+private:
+	void UpdateDirLightConstantBuffer(Light* dirLight);
+	void UpdateOmniLightConstantBuffer(Light* omniLight);
+	void UpdateSpotLightConstantBuffer(Light* spotLight);
 
 	// get all 8 vertices of frustrum
 	std::vector<XMVECTOR> GetFrustumCornersWorldSpace(const XMMATRIX& viewProjection);
 	XMMATRIX GetLightSpaceMatrix(const float nearPlane, const float farPlane);
 	void GetLightSpaceMatrices(std::vector<XMMATRIX>& outMatrices);
-
-	// should be moved to point light class
-	float CalcPointLightRange(const Light& light);
 
 	template<typename T>
 	bool ApplyChanges(ID3D11DeviceContext* deviceContext, ID3D11Buffer* buffer, const std::vector<T>& bufferData)

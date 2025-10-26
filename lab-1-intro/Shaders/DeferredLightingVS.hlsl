@@ -1,8 +1,9 @@
 cbuffer cbPerObject : register(b0)
 {
-    matrix gWorld;
-    matrix gView;
-    matrix gProjection;
+    float4x4 gWorld;
+    float4x4 gInvTransWorld;
+    float4x4 gView;
+    float4x4 gProjection;
 };
 
 struct UniLight

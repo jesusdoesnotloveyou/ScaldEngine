@@ -3,8 +3,8 @@ Texture2D<float3> normalTexture : register(t1);
 Texture2D<float3> posTexture : register(t2);
 Texture2DArray shadowMaps : register(t3);
 
-SamplerState objSamplerState : SAMPLER : register(s0);
-SamplerComparisonState shadowSamplerState : SAMPLER : register(s1);
+SamplerState objSamplerState : SAMPLER: register(s0);
+SamplerComparisonState shadowSamplerState : SAMPLER: register(s1);
 
 struct CascadeData
 {
@@ -65,62 +65,65 @@ struct PS_IN
 float3 CalcDirectionalLight(UniLight light, uniform float3 posW, uniform float3 normal, uniform float4 toEye)
 {
     float3 lightDir = normalize(-light.direction);
-    float3 ambient = light.ambient.xyz * light.ambient.w;
     float4 diffuse = light.diffuse;
     float4 specular = light.specular;
-    
+
     // necessary vectors
     float3 viewDir = normalize(toEye.xyz - posW);
     float3 reflectLight = normalize(reflect(-lightDir, normal));
-    
+
     float3 diffuseLightIntensity = saturate(max(dot(lightDir, normal), 0.0f));
     float3 diffuseLight = diffuseLightIntensity * diffuse.xyz * diffuse.w;
-    
+
     float3 specularIntensity = 0.5f * pow(max(dot(reflectLight, viewDir), 0.0f), 200.0f); // * specular.xyz
     float3 specularLight = saturate(specularIntensity);
-    
+
     return diffuseLight + specularLight;
 }
 
 float3 CalcPointLight(UniLight light, uniform float3 posW, uniform float3 normal, uniform float4 toEye)
-{    
+{
+    float3 pointLight = float3(0.0f, 0.0f, 0.0f);
+    
     float4 diffuse = light.diffuse;
     float4 specular = light.specular;
     float3 lightPos = light.position;
-    float3 attenuation = light.attenuation;
-    
+    //float3 attenuation = light.attenuation;
+
     // necessary vectors
     float3 V = normalize(toEye.xyz - posW);
     float3 L = normalize(lightPos - posW);
     float3 R = normalize(reflect(-L, normal));
-    
+
     float3 diffuseLightIntensity = saturate(max(dot(L, normal), 0.0f));
     float3 diffuseLight = diffuseLightIntensity * diffuse.xyz * diffuse.w;
-    
+
     float3 specularIntensity = 0.8f * pow(max(dot(R, V), 0.0f), 200.0f); // * specular.xyz
     float3 specularLight = saturate(specularIntensity);
-    
+
     float distanceToLight = distance(lightPos, posW);
-    if (distanceToLight > light.range)
-        return float3(0.0f, 0.0f, 0.0f);
     
+    if (distanceToLight > light.range) return pointLight;
+
     float attenuationFactor = (1.0f - distanceToLight / light.range);
     attenuationFactor *= attenuationFactor;
-    return (diffuseLight + specularLight) * attenuationFactor;
+    pointLight = (diffuseLight + specularLight) * attenuationFactor;
+    
+    return pointLight;
 }
 
 void CalcSpotLight(UniLight L, float3 posW, float3 normal, float3 toEye, out float4 diffuse, out float4 spec)
 {
     diffuse = float4(0.0f, 0.0f, 0.0f, 0.0f);
     spec = float4(0.0f, 0.0f, 0.0f, 0.0f);
-    
+
     float3 lightVec = L.position - posW;
     float d = length(lightVec);
-    
-    if(d > L.range ) return;
-    
+
+    if (d > L.range) return;
+
     lightVec /= d;
-    
+
     float diffuseFactor = dot(lightVec, normal);
 
     [flatten]
@@ -131,10 +134,10 @@ void CalcSpotLight(UniLight L, float3 posW, float3 normal, float3 toEye, out flo
         diffuse = diffuseFactor * L.diffuse;
         spec = specFactor * L.specular;
     }
-    
+
     float spot = pow(max(dot(-lightVec, L.direction), 0.0f), L.spot);
     float att = spot / dot(L.attenuation, float3(1.0f, d, d * d));
-    
+
     diffuse *= att;
     spec *= att;
 }
@@ -144,16 +147,16 @@ float4 main(PS_IN input) : SV_Target
     const int DIRECTIONAL = 1;
     const int POINT = 2;
     const int SPOT = 3;
-    
+
     float4 diffuseColor = diffuseTexture.Load(input.inPosition.xyz);
     float3 normal = normalTexture.Load(input.inPosition.xyz);
     float3 pos = posTexture.Load(input.inPosition.xyz);
-    
+
     float3 appliedLight = float3(0.0f, 0.0f, 0.0f);
-    
+
     int layer = 3;
     float4 worldView = mul(float4(pos, 1.0f), gView);
-    
+
     float viewDepth = abs(worldView.z);
     for (int i = 0; i < 4; ++i)
     {
@@ -163,10 +166,10 @@ float4 main(PS_IN input) : SV_Target
             break;
         }
     }
-    
+
     uint width, height, elements, levels;
     shadowMaps.GetDimensions(0, width, height, elements, levels);
-    
+
     const float dx = 1.0f / width;
     const float2 offsets[9] =
     {

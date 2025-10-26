@@ -45,6 +45,7 @@ void Engine::SetupScene()
 	ModelData* alienFemaleModel = new ModelData("./Data/Models/AlienFemale/Alien_Female_Lores.obj", L"./Data/Textures/brick.png");
 	ModelData* angryBirdModel	= new ModelData("./Data/Models/AngryBird/Angry_Bird.obj",			L"./Data/Models/AngryBird/Angry_Bird.png");
 	ModelData* minionPigModel	= new ModelData("./Data/Models/MinionPig/MinionPig.obj",			L"./Data/Models/MinionPig/AngryBirdsChancho.png");
+	ModelData* marvelModel		= new ModelData("./Data/Models/Marvel/Model.obj",					L"./Data/Textures/planks.png");
 	ModelData* chairModel		= new ModelData("./Data/Models/Chair/monoblock_CHAIR.obj",			L"./Data/Textures/planks.png");
 	ModelData* tonyModel		= new ModelData("./Data/Models/Tony/Tony.obj",						L"./Data/Models/Tony/AngryBirdCeleste.png");
 	ModelData* boxModel			= new ModelData("./Data/Models/Box/box2.obj",						L"./Data/Textures/brick.png");
@@ -54,7 +55,7 @@ void Engine::SetupScene()
 #pragma region PointLight
 	PointLight* pointLight1 = new PointLight("./Data/Models/Light/light.obj");
 	pointLight1->GetTransform()->SetPosition(20.0f, 4.0f, 60.0f);
-	pointLight1->SetDiffuseColor(1.0f, 1.0f, 0.8f, 5.0f);
+	pointLight1->SetDiffuseColor(1.0f, 1.0f, 0.5f, 5.0f);
 	pointLight1->SetAttenuation(1.0f, 0.5f, 1.1f);
 	//pointLight1->SetRange(3.0f);
 
@@ -63,6 +64,36 @@ void Engine::SetupScene()
 	pointLight2->SetDiffuseColor(0.0f, 1.0f, 1.0f, 5.0f);
 	pointLight2->SetAttenuation(1.0f, 0.7f, 1.8f);
 	//pointLight2->SetRange(2.0f);
+
+	PointLight* pointLight3 = new PointLight("./Data/Models/Light/light.obj");
+	pointLight3->GetTransform()->SetPosition(0.0f, 4.0f, 60.0f);
+	pointLight3->SetDiffuseColor(1.0f, 0.3f, 0.0f, 4.0f);
+	pointLight3->SetAttenuation(1.0f, 0.5f, 2.0f);
+	
+	PointLight* pointLight4 = new PointLight("./Data/Models/Light/light.obj");
+	pointLight4->GetTransform()->SetPosition(20.0f, 4.0f, 10.0f);
+	pointLight4->SetDiffuseColor(0.5f, 1.0f, 0.5f, 5.0f);
+	pointLight4->SetAttenuation(1.0f, 0.7f, 2.0f);
+
+	PointLight* pointLight5 = new PointLight("./Data/Models/Light/light.obj");
+	pointLight5->GetTransform()->SetPosition(30.0f, 4.0f, 30.0f);
+	pointLight5->SetDiffuseColor(1.0f, 0.0f, 0.8f, 5.0f);
+	pointLight5->SetAttenuation(1.0f, 0.5f, 2.0f);
+
+	PointLight* pointLight6 = new PointLight("./Data/Models/Light/light.obj");
+	pointLight6->GetTransform()->SetPosition(50.0f, 4.0f, 40.0f);
+	pointLight6->SetDiffuseColor(0.2f, 1.0f, 0.8f, 5.0f);
+	pointLight6->SetAttenuation(1.0f, 0.5f, 2.0f);
+
+	PointLight* pointLight7 = new PointLight("./Data/Models/Light/light.obj");
+	pointLight7->GetTransform()->SetPosition(40.0f, 4.0f, 50.0f);
+	pointLight7->SetDiffuseColor(1.0f, 0.0f, 1.0f, 5.0f);
+	pointLight7->SetAttenuation(1.0f, 0.5f, 2.0f);
+
+	PointLight* pointLight8 = new PointLight("./Data/Models/Light/light.obj");
+	pointLight8->GetTransform()->SetPosition(30.0f, 4.0f, 0.0f);
+	pointLight8->SetDiffuseColor(0.2f, 0.2f, 1.0f, 4.0f);
+	pointLight8->SetAttenuation(1.0f, 0.5f, 2.0f);
 #pragma endregion PointLight
 #pragma region SpotLight
 	SpotLight* spotLight1 = new SpotLight("./Data/Models/Light/light.obj");
@@ -74,7 +105,7 @@ void Engine::SetupScene()
 	DirectionalLight* directionalLight = new DirectionalLight("./Data/Models/Light/light.obj");
 	directionalLight->GetTransform()->SetPosition(10.0f, 50.0f, 100.0f);
 	directionalLight->GetCollisionComponent()->DisableCollision();
-	directionalLight->SetAmbientColor(0.5f, 0.5f, 0.5f, 1.0f);
+	directionalLight->SetAmbientColor(0.25f, 0.25f, 0.35f, 1.0f);
 	directionalLight->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
 	// opposite to dir light pos vector
 	directionalLight->SetDirection(-10.0f, -50.0f, -100.0f);
@@ -135,7 +166,13 @@ void Engine::SetupScene()
 	mRenderWindow.GetGfx().AddToRenderPool(directionalLight);
 	mRenderWindow.GetGfx().AddToRenderPool(pointLight1);
 	mRenderWindow.GetGfx().AddToRenderPool(pointLight2);
-	mRenderWindow.GetGfx().AddToRenderPool(spotLight1);
+	mRenderWindow.GetGfx().AddToRenderPool(pointLight3);
+	mRenderWindow.GetGfx().AddToRenderPool(pointLight4);
+	mRenderWindow.GetGfx().AddToRenderPool(pointLight5);
+	mRenderWindow.GetGfx().AddToRenderPool(pointLight6);
+	mRenderWindow.GetGfx().AddToRenderPool(pointLight7);
+	mRenderWindow.GetGfx().AddToRenderPool(pointLight8);
+	//mRenderWindow.GetGfx().AddToRenderPool(spotLight1);
 #pragma endregion LightPool
 	
 	mRenderWindow.GetGfx().InitSceneObjects();
@@ -179,6 +216,20 @@ void Engine::PollInput()
 	{
 		Player->Jump();
 	}
+	// deferred additional task specific
+	if (mRenderWindow.kbd.IsKeyPressed('1'))
+	{
+		mRenderWindow.GetGfx().SwitchGBufferLayer(0);
+	}
+	if (mRenderWindow.kbd.IsKeyPressed('2'))
+	{
+		mRenderWindow.GetGfx().SwitchGBufferLayer(1);
+	}
+	if (mRenderWindow.kbd.IsKeyPressed('3'))
+	{
+		mRenderWindow.GetGfx().SwitchGBufferLayer(2);
+	}
+
 #pragma endregion PlayerMovement
 }
 

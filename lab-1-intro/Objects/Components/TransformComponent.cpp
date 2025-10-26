@@ -18,8 +18,10 @@ TransformComponent::TransformComponent()
 
 void TransformComponent::Update(const ScaldTimer& st)
 {
-	// Bad for perfomance
-	//UpdateWorldMatrix();
+	/*if (mDirtyFlag)
+	{
+		UpdateWorldMatrix();
+	}*/
 }
 
 void TransformComponent::SetWorldMatrix(const XMMATRIX& worldMat)
