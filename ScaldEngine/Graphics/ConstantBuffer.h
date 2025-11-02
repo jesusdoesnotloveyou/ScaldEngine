@@ -1,10 +1,7 @@
 #pragma once
 
-#include "../ScaldException.h"
-#include <wrl.h>
-#include <d3d11.h>
-
-#pragma comment(lib, "d3d11.lib")
+#include "ScaldException.h"
+#include "DXHelper.h"
 
 template<typename T>
 class ConstantBuffer

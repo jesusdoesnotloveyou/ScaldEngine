@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../Objects/Geometry/Actor.h"
+#include "Objects/Geometry/Actor.h"
 #include "KatamariMovementComponent.h"
 
 class KatamariPlayer : public Actor

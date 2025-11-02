@@ -2,7 +2,7 @@
 
 #include "ScaldComponent.h"
 #include "TransformComponent.h"
-#include "../../Graphics/ScaldCoreTypes.h"
+#include "Graphics/ScaldCoreTypes.h"
 
 #include <vector>
 

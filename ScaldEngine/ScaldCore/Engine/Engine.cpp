@@ -3,9 +3,7 @@
 #include "Data/ModelData.h"
 #include "Games/Katamari/KatamariPlayer.h"
 #include "Graphics/Camera/ThirdPersonCamera.h"
-#include "Graphics/Light/PointLight.h"
-#include "Graphics/Light/SpotLight.h"
-#include "Graphics/Light/DirectionalLight.h"
+#include "Graphics/Light/Light.h"
 
 Engine::Engine()
     :

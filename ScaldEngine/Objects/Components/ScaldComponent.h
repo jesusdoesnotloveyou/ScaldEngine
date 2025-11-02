@@ -1,7 +1,7 @@
 #pragma once
 
-#include "../../Graphics/ScaldCoreTypes.h"
-#include "../ScaldObject.h"
+#include "Graphics/ScaldCoreTypes.h"
+#include "Objects/ScaldObject.h"
 
 class ScaldComponent : public ScaldObject
 {

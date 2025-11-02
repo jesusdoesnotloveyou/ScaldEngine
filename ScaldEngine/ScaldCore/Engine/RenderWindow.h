@@ -1,12 +1,12 @@
 #pragma once
 
-#include "../../ScaldException.h"
-#include "../../Graphics/Graphics.h"
+#include "ScaldException.h"
+#include "Graphics/Graphics.h"
 #include <optional>
 #include <string>
 #include <memory>
 
-#include "../Input/InputDevice.h"
+#include "ScaldCore/Input/InputDevice.h"
 
 class RenderWindow
 {

@@ -6,9 +6,7 @@
 #include "Particles/FireParticleSystem.h"
 #include "Camera/ThirdPersonCamera.h"
 #include "Objects/Geometry/Actor.h"
-#include "Light/PointLight.h"
-#include "Light/DirectionalLight.h"
-#include "Light/SpotLight.h"
+#include "Light/Light.h"
 #include "Shadows/CascadeShadowMap.h"
 
 Graphics::Graphics(HWND hWnd, int width, int height)

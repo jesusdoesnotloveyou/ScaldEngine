@@ -15,9 +15,6 @@
     <ClCompile Include="Games\Katamari\KatamariMovementComponent.cpp" />
     <ClCompile Include="Games\Katamari\KatamariPlayer.cpp" />
     <ClCompile Include="Graphics\Camera\Camera.cpp" />
-    <ClCompile Include="Graphics\Light\DirectionalLight.cpp" />
-    <ClCompile Include="Graphics\Light\PointLight.cpp" />
-    <ClCompile Include="Graphics\Light\SpotLight.cpp" />
     <ClCompile Include="Graphics\Model.cpp" />
     <ClCompile Include="Graphics\Mesh.cpp" />
     <ClCompile Include="Graphics\Particles\FireParticleSystem.cpp" />
@@ -30,6 +27,7 @@
     <ClCompile Include="Graphics\Shadows\ShadowMap.cpp" />
     <ClCompile Include="Graphics\Camera\ThirdPersonCamera.cpp" />
     <ClCompile Include="Objects\Components\Collision\CollisionComponent.cpp" />
+    <ClInclude Include="Graphics\DXHelper.h" />
     <ClInclude Include="Graphics\IndexBuffer.h" />
     <ClCompile Include="Objects\Components\InputComponent.cpp" />
     <ClCompile Include="Objects\Components\Movement\MovementComponent.cpp" />
@@ -61,10 +59,7 @@
     <ClInclude Include="Games\Katamari\KatamariMovementComponent.h" />
     <ClInclude Include="Games\Katamari\KatamariPlayer.h" />
     <ClInclude Include="Graphics\Camera\Camera.h" />
-    <ClInclude Include="Graphics\Light\DirectionalLight.h" />
     <ClInclude Include="Graphics\Light\LightHelper.h" />
-    <ClInclude Include="Graphics\Light\PointLight.h" />
-    <ClInclude Include="Graphics\Light\SpotLight.h" />
     <ClInclude Include="Graphics\Model.h" />
     <ClInclude Include="Graphics\Mesh.h" />
     <ClInclude Include="Graphics\Particles\FireParticleSystem.h" />

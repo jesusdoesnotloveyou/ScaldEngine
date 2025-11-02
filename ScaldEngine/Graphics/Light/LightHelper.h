@@ -1,6 +1,6 @@
 #pragma once
 
-#include "../../ScaldCore/Engine/ScaldWindows.h"
+#include "ScaldCore/Engine/ScaldWindows.h"
 #include <DirectXMath.h>
 
 using namespace DirectX;

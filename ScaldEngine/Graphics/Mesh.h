@@ -5,8 +5,6 @@
 #include "IndexBuffer.h"
 #include "ConstantBuffer.h"
 
-#include <vector>
-
 class Mesh
 {
 private:
