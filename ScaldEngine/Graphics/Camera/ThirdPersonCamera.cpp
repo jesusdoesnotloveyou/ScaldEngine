@@ -8,30 +8,22 @@ ThirdPersonCamera::ThirdPersonCamera()
 	mYaw = XM_PIDIV4;
 }
 
-void ThirdPersonCamera::SetTarget(SceneGeometry* PlayerCharacter)
+std::shared_ptr<SceneComponent> ThirdPersonCamera::GetTarget() const
 {
-	if (mTarget == PlayerCharacter || !PlayerCharacter) return;
-	mTarget = PlayerCharacter;
-
-	SetLookAtPosition(PlayerCharacter->GetPosition());
-}
-
-SceneGeometry* ThirdPersonCamera::GetTarget() const
-{
-	return mTarget;
+	return m_target;
 }
 
 void ThirdPersonCamera::Update(const ScaldTimer& st)
 {
 	// Update Position
 	// Spherical coordinates to Cartesian
-	const float NewX = XMVectorGetX(mTarget->GetPosition()) + mArmLength * cosf(mPitch) * sinf(mYaw);
-	const float NewY = XMVectorGetY(mTarget->GetPosition()) + mArmLength * sinf(mPitch);
-	const float NewZ = XMVectorGetZ(mTarget->GetPosition()) + mArmLength * cosf(mPitch) * cosf(mYaw);
+	const float NewX = XMVectorGetX(m_target->GetPosition()) + mArmLength * cosf(mPitch) * sinf(mYaw);
+	const float NewY = XMVectorGetY(m_target->GetPosition()) + mArmLength * sinf(mPitch);
+	const float NewZ = XMVectorGetZ(m_target->GetPosition()) + mArmLength * cosf(mPitch) * cosf(mYaw);
 	SetPosition(XMVectorSet(NewX, NewY, NewZ, 0.0f));
 
 	// Update Rotation
-	SetLookAtPosition(mTarget->GetPosition());
+	SetLookAtPosition(m_target->GetPosition());
 }
 
 void ThirdPersonCamera::AdjustRotation(float x, float y, float z)

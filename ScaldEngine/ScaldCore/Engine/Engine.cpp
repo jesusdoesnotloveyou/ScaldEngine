@@ -10,10 +10,7 @@ Engine::Engine()
     mRenderWindow(1600, 900, "Direct3DApp")
 {}
 
-Engine::~Engine()
-{
-	if (Player) delete Player;
-}
+Engine::~Engine() {}
 
 int Engine::Launch()
 {
@@ -40,55 +37,54 @@ int Engine::Launch()
 
 void Engine::SetupScene()
 {
-	ModelData* alienFemaleModel = new ModelData("./Data/Models/AlienFemale/Alien_Female_Lores.obj", L"./Data/Textures/brick.png");
-	ModelData* angryBirdModel	= new ModelData("./Data/Models/AngryBird/Angry_Bird.obj",			L"./Data/Models/AngryBird/Angry_Bird.png");
-	ModelData* minionPigModel	= new ModelData("./Data/Models/MinionPig/MinionPig.obj",			L"./Data/Models/MinionPig/AngryBirdsChancho.png");
-	ModelData* marvelModel		= new ModelData("./Data/Models/Marvel/Model.obj",					L"./Data/Textures/planks.png");
-	ModelData* chairModel		= new ModelData("./Data/Models/Chair/monoblock_CHAIR.obj",			L"./Data/Textures/planks.png");
-	ModelData* tonyModel		= new ModelData("./Data/Models/Tony/Tony.obj",						L"./Data/Models/Tony/AngryBirdCeleste.png");
-	ModelData* boxModel			= new ModelData("./Data/Models/Box/box2.obj",						L"./Data/Textures/brick.png");
-	ModelData* rockModel		= new ModelData("./Data/Models/Rock/rock.obj",						L"./Data/Textures/planks.png");
+	m_models["alien"] = std::make_unique<ModelData>("./Data/Models/AlienFemale/Alien_Female_Lores.obj", L"./Data/Textures/brick.png");
+	m_models["angrybird"] = std::make_unique<ModelData>("./Data/Models/AngryBird/Angry_Bird.obj", L"./Data/Models/AngryBird/Angry_Bird.png");
+	m_models["minion"] = std::make_unique<ModelData>("./Data/Models/MinionPig/MinionPig.obj", L"./Data/Models/MinionPig/AngryBirdsChancho.png");
+	m_models["chair"] = std::make_unique<ModelData>("./Data/Models/Chair/monoblock_CHAIR.obj", L"./Data/Textures/planks.png");
+	m_models["tony"] = std::make_unique<ModelData>("./Data/Models/Tony/Tony.obj", L"./Data/Models/Tony/AngryBirdCeleste.png");
+	m_models["box"] = std::make_unique<ModelData>("./Data/Models/Box/box2.obj", L"./Data/Textures/brick.png");
+	m_models["rock"] = std::make_unique<ModelData>("./Data/Models/Rock/rock.obj", L"./Data/Textures/planks.png");
 
 #pragma region Light
 #pragma region PointLight
-	PointLight* pointLight1 = new PointLight("./Data/Models/Light/light.obj");
+	auto pointLight1 = std::make_shared<PointLight>("./Data/Models/Light/light.obj");
 	pointLight1->GetTransform()->SetPosition(20.0f, 4.0f, 60.0f);
 	pointLight1->SetDiffuseColor(1.0f, 1.0f, 0.5f, 5.0f);
 	pointLight1->SetAttenuation(1.0f, 0.5f, 1.1f);
 	//pointLight1->SetRange(3.0f);
 
-	PointLight* pointLight2 = new PointLight("./Data/Models/Light/light.obj");
+	auto pointLight2 = std::make_shared<PointLight>("./Data/Models/Light/light.obj");
 	pointLight2->GetTransform()->SetPosition(60.0f, 4.0f, 60.0f);
 	pointLight2->SetDiffuseColor(0.0f, 1.0f, 1.0f, 5.0f);
 	pointLight2->SetAttenuation(1.0f, 0.7f, 1.8f);
 	//pointLight2->SetRange(2.0f);
 
-	PointLight* pointLight3 = new PointLight("./Data/Models/Light/light.obj");
+	auto pointLight3 = std::make_shared<PointLight>("./Data/Models/Light/light.obj");
 	pointLight3->GetTransform()->SetPosition(0.0f, 4.0f, 60.0f);
 	pointLight3->SetDiffuseColor(1.0f, 0.3f, 0.0f, 4.0f);
 	pointLight3->SetAttenuation(1.0f, 0.5f, 2.0f);
 	
-	PointLight* pointLight4 = new PointLight("./Data/Models/Light/light.obj");
+	auto pointLight4 = std::make_shared<PointLight>("./Data/Models/Light/light.obj");
 	pointLight4->GetTransform()->SetPosition(20.0f, 4.0f, 10.0f);
 	pointLight4->SetDiffuseColor(0.5f, 1.0f, 0.5f, 5.0f);
 	pointLight4->SetAttenuation(1.0f, 0.7f, 2.0f);
 
-	PointLight* pointLight5 = new PointLight("./Data/Models/Light/light.obj");
+	auto pointLight5 = std::make_shared<PointLight>("./Data/Models/Light/light.obj");
 	pointLight5->GetTransform()->SetPosition(30.0f, 4.0f, 30.0f);
 	pointLight5->SetDiffuseColor(1.0f, 0.0f, 0.8f, 5.0f);
 	pointLight5->SetAttenuation(1.0f, 0.5f, 2.0f);
 
-	PointLight* pointLight6 = new PointLight("./Data/Models/Light/light.obj");
+	auto pointLight6 = std::make_shared<PointLight>("./Data/Models/Light/light.obj");
 	pointLight6->GetTransform()->SetPosition(50.0f, 4.0f, 40.0f);
 	pointLight6->SetDiffuseColor(0.2f, 1.0f, 0.8f, 5.0f);
 	pointLight6->SetAttenuation(1.0f, 0.5f, 2.0f);
 
-	PointLight* pointLight7 = new PointLight("./Data/Models/Light/light.obj");
+	auto pointLight7 = std::make_shared<PointLight>("./Data/Models/Light/light.obj");
 	pointLight7->GetTransform()->SetPosition(40.0f, 4.0f, 50.0f);
 	pointLight7->SetDiffuseColor(1.0f, 0.0f, 1.0f, 5.0f);
 	pointLight7->SetAttenuation(1.0f, 0.5f, 2.0f);
 
-	PointLight* pointLight8 = new PointLight("./Data/Models/Light/light.obj");
+	auto pointLight8 = std::make_shared<PointLight>("./Data/Models/Light/light.obj");
 	pointLight8->GetTransform()->SetPosition(30.0f, 4.0f, 0.0f);
 	pointLight8->SetDiffuseColor(0.2f, 0.2f, 1.0f, 4.0f);
 	pointLight8->SetAttenuation(1.0f, 0.5f, 2.0f);
@@ -100,7 +96,7 @@ void Engine::SetupScene()
 	spotLight1->SetAttenuation(1.0f, 0.7f, 1.8f);
 #pragma endregion SpotLight
 #pragma region DirectionalLight
-	DirectionalLight* directionalLight = new DirectionalLight("./Data/Models/Light/light.obj");
+	auto directionalLight = std::make_shared<DirectionalLight>("./Data/Models/Light/light.obj");
 	directionalLight->GetTransform()->SetPosition(10.0f, 50.0f, 100.0f);
 	directionalLight->GetCollisionComponent()->DisableCollision();
 	directionalLight->SetAmbientColor(0.25f, 0.25f, 0.35f, 1.0f);
@@ -110,55 +106,56 @@ void Engine::SetupScene()
 #pragma endregion DirectionalLight
 #pragma endregion Light
 
-	SceneGeometry* alien = new Actor(alienFemaleModel);
+	auto alien = std::make_shared<Actor>(m_models["alien"].get());
 	alien->GetTransform()->SetScale(0.03f, 0.03f, 0.03f);
 	alien->GetTransform()->SetPosition(40.0f, 0.0f, 30.0f);
 	alien->ObjectName = std::string("alien");
 	alien->GetCollisionComponent()->SetRadius(2.0f);
 
-	SceneGeometry* box = new Actor(boxModel);
+	auto box = std::make_shared<Actor>(m_models["box"].get());
 	box->GetTransform()->SetScale(3.0f, 3.0f, 3.0f);
 	box->GetTransform()->SetPosition(0.0f, 0.0f, 15.0f);
 	box->ObjectName = std::string("box");
 	box->GetCollisionComponent()->SetRadius(3.0f);
 
-	SceneGeometry* chair = new Actor(chairModel);
+	auto chair = std::make_shared<Actor>(m_models["chair"].get());
 	chair->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
 	chair->GetTransform()->SetPosition(50.0f, 2.3f, 60.0f);
 	chair->ObjectName = std::string("chair");
 	chair->GetCollisionComponent()->SetRadius(4.0f);
 
-	Player = new KatamariPlayer(angryBirdModel);
-	Player->GetTransform()->SetScale(0.02f, 0.02f, 0.02f);
-	Player->GetTransform()->SetPosition(10.0f, 1.9f, 20.0f);
-	Player->ObjectName = std::string("Player");
-	Player->GetCollisionComponent()->SetRadius(4.0f);
+	m_player = std::make_shared<KatamariPlayer>(m_models["angrybird"].get());
+	m_player->GetTransform()->SetScale(0.02f, 0.02f, 0.02f);
+	m_player->GetTransform()->SetPosition(10.0f, 1.9f, 20.0f);
+	m_player->ObjectName = std::string("Player");
+	m_player->GetCollisionComponent()->SetRadius(4.0f);
 
-	SceneGeometry* pig = new Actor(minionPigModel);
+	auto pig = std::make_shared<Actor>(m_models["minion"].get());
 	pig->GetTransform()->SetScale(0.02f, 0.02f, 0.02f);
 	pig->GetTransform()->SetPosition(30.0f, 0.3f, 35.0f);
 	pig->ObjectName = std::string("pig");
 	pig->GetCollisionComponent()->SetRadius(3.0f);
 
-	SceneGeometry* angryBird = new Actor(tonyModel);
-	angryBird->GetTransform()->SetScale(0.02f, 0.02f, 0.02f);
-	angryBird->GetTransform()->SetPosition(10.0f, 0.0f, 40.0f);
-	angryBird->ObjectName = std::string("angryBird");
-	angryBird->GetCollisionComponent()->SetRadius(2.0f);
+	auto tony = std::make_shared<Actor>(m_models["tony"].get());
+	tony->GetTransform()->SetScale(0.02f, 0.02f, 0.02f);
+	tony->GetTransform()->SetPosition(10.0f, 0.0f, 40.0f);
+	tony->ObjectName = std::string("angryBird");
+	tony->GetCollisionComponent()->SetRadius(2.0f);
 
-	SceneGeometry* rock = new Actor(rockModel);
-	rock->GetTransform()->SetScale(10.0f, 0.1f, 10.0f);
-	rock->GetTransform()->SetPosition(0.0f, -1.7f, 0.0f);
-	rock->ObjectName = std::string("rock");
-	rock->GetCollisionComponent()->DisableCollision();
+	auto rockFloor = std::make_shared<Actor>(m_models["rock"].get());
+	rockFloor->GetTransform()->SetScale(10.0f, 0.1f, 10.0f);
+	rockFloor->GetTransform()->SetPosition(0.0f, -1.7f, 0.0f);
+	rockFloor->ObjectName = std::string("rock");
+	rockFloor->GetCollisionComponent()->DisableCollision();
 
-	mRenderWindow.GetGfx().AddToRenderPool(Player);
-	mRenderWindow.GetGfx().AddToRenderPool(angryBird);
-	mRenderWindow.GetGfx().AddToRenderPool(box);
-	mRenderWindow.GetGfx().AddToRenderPool(alien);
-	mRenderWindow.GetGfx().AddToRenderPool(chair);
-	mRenderWindow.GetGfx().AddToRenderPool(pig);
-	mRenderWindow.GetGfx().AddToRenderPool(rock);
+	mRenderWindow.GetGfx().AddPlayer(m_player);
+	mRenderWindow.GetGfx().AddToRenderPool(m_player);
+	mRenderWindow.GetGfx().AddToRenderPool(std::move(tony));
+	mRenderWindow.GetGfx().AddToRenderPool(std::move(box));
+	mRenderWindow.GetGfx().AddToRenderPool(std::move(alien));
+	mRenderWindow.GetGfx().AddToRenderPool(std::move(chair));
+	mRenderWindow.GetGfx().AddToRenderPool(std::move(pig));
+	mRenderWindow.GetGfx().AddToRenderPool(std::move(rockFloor));
 
 #pragma region LightPool
 	mRenderWindow.GetGfx().AddToRenderPool(directionalLight);
@@ -176,8 +173,8 @@ void Engine::SetupScene()
 	mRenderWindow.GetGfx().InitSceneObjects();
 
 #pragma region PlayerInputDelegates
-	mRenderWindow.kbd.OnKeyPressedEvent.AddRaw(Player->GetMovement(), &KatamariMovementComponent::OnKeyPressed);
-	mRenderWindow.kbd.OnKeyReleasedEvent.AddRaw(Player->GetMovement(), &KatamariMovementComponent::OnKeyReleased);
+	mRenderWindow.kbd.OnKeyPressedEvent.AddRaw(m_player->GetMovement(), &KatamariMovementComponent::OnKeyPressed);
+	mRenderWindow.kbd.OnKeyReleasedEvent.AddRaw(m_player->GetMovement(), &KatamariMovementComponent::OnKeyReleased);
 #pragma endregion PlayerInputDelegates
 }
 
@@ -203,16 +200,16 @@ void Engine::PollInput()
 	// Camera forward without Y (XoZ)
 	auto forward = XMVectorSetY(mRenderWindow.GetGfx().GetCamera()->GetForwardVector(), 0.0f);
 	forward = XMVector3Normalize(forward);
-	Player->SetForwardVector(forward);
+	m_player->SetForwardVector(forward);
 
 	// Camera right without Y (XoZ)
 	auto right = XMVectorSetY(mRenderWindow.GetGfx().GetCamera()->GetRightVector(), 0.0f);
 	right = XMVector3Normalize(right);
-	Player->SetRightVector(right);
+	m_player->SetRightVector(right);
 
-	if (mRenderWindow.kbd.IsKeyPressed(VK_SPACE) && !Player->IsFalling())
+	if (mRenderWindow.kbd.IsKeyPressed(VK_SPACE) && !m_player->IsFalling())
 	{
-		Player->Jump();
+		m_player->Jump();
 	}
 	// deferred additional task specific
 	if (mRenderWindow.kbd.IsKeyPressed('1'))
@@ -233,14 +230,14 @@ void Engine::PollInput()
 
 void Engine::UpdateScene(const ScaldTimer& st)
 {
-	for (auto sceneObject : mRenderWindow.GetGfx().mRenderObjects)
+	for (auto&& sceneObject : mRenderWindow.GetGfx().mRenderObjects)
 	{
 		sceneObject->Update(st);
-// Very inefficient code I suppose
+		// Very inefficient code I suppose
 #pragma region Collision
-		if (sceneObject == Player) continue;
+		if (sceneObject == m_player) continue;
 		// checks for collision should be here...
-		if (const auto playerPawnCollision = Player->GetCollisionComponent()) {
+		if (const auto playerPawnCollision = m_player->GetCollisionComponent()) {
 			if (const auto otherCollision = sceneObject->GetCollisionComponent()) {
 				if (!otherCollision->IsEnabled()) continue;
 				if (playerPawnCollision->Intersects(otherCollision)) {

@@ -2,8 +2,13 @@
 
 #include "RenderWindow.h"
 #include "ScaldTimer.h"
+#include "Graphics/DXHelper.h"
+#include "Data/ModelData.h"
 
 class KatamariPlayer;
+class SceneGeometry;
+class PointLight;
+class DirectionalLight;
 
 class Engine
 {
@@ -13,7 +18,8 @@ public:
 	int Launch();
 	
 	// Katamari specific
-	KatamariPlayer* Player = nullptr;
+	std::shared_ptr<KatamariPlayer> m_player = nullptr;
+	std::unordered_map<std::string, std::unique_ptr<ModelData>> m_models;
 
 private:
 	void SetupScene();

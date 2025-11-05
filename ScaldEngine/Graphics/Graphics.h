@@ -4,6 +4,7 @@
 #include "Shaders.h"
 #include "ConstantBuffer.h"
 #include "ScaldCoreTypes.h"
+#include "Games/Katamari/KatamariPlayer.h"
 
 class SceneGeometry;
 class Light;
@@ -14,7 +15,6 @@ class Camera;
 class ThirdPersonCamera;
 class CascadeShadowMap;
 class DeferredRenderer;
-class ForwardRenderer;
 class FireParticleSystem;
 
 class Graphics
@@ -27,23 +27,44 @@ public:
 	Graphics& operator=(const Graphics&) = delete;
 	
 	void Setup();
-	void AddToRenderPool(SceneGeometry* sceneObject);
+
+	void AddPlayer(std::shared_ptr<KatamariPlayer> player)
+	{
+		mPlayer = player;
+	}
+
+	template<typename T>
+	void AddToRenderPool(std::shared_ptr<T> sceneObject)
+	{
+		static_assert(std::is_base_of<SceneComponent, T>::value, "Render object must be a scene component!");
+
+		const auto lightObject = dynamic_cast<Light*>(sceneObject.get());
+		if (lightObject)
+		{
+			if (lightObject->GetLightType() == ELightType::Directional)
+			{
+				const auto dirLight = static_cast<DirectionalLight*>(lightObject);
+				mDirectionalLight = dirLight;
+			}
+			else if (lightObject->GetLightType() == ELightType::Point)
+			{
+				mLights.push_back(lightObject);
+			}
+			//else if (Spot)
+			// ...
+		}
+
+		mRenderObjects.emplace_back(std::move(sceneObject));
+	}
+
 	void InitSceneObjects();
-
-#pragma region ForwardRenderingLightManagment
-	void AddPointLightSourceParams(PointLightParams* lightParams);
-	void UpdatePointLightsParams();
-
-	void AddSpotLightSourceParams(SpotLightParams* lightParams);
-	void UpdateSpotLightsParams();
-#pragma endregion ForwardRenderingLightManagment
 
 	void ClearBuffer(float r);
 	void DrawScene(const ScaldTimer& st);
 	void EndFrame();
 
 	void Update(const ScaldTimer& st);
-	FORCEINLINE ThirdPersonCamera* GetCamera() const { return mTPCamera; }
+	FORCEINLINE ThirdPersonCamera* GetCamera() const { return mTPCamera.get(); }
 private:
 	void CreateDepthStencilState();
 	void CreateRasterizerState();
@@ -51,14 +72,10 @@ private:
 	void CreateBlendState();
 
 	void SetupShaders();
-	
-	void InitPointLights();
-	void InitSpotLights();
 
 	void BindLightingPassResources();
 
 	void RenderDepthOnlyPass();
-	void RenderColorPass();
 	void RenderLighting();
 	void RenderParticles(float deltaTime);
 
@@ -120,21 +137,18 @@ private:
 	int mScreenHeight;
 
 public:
-	std::vector<SceneGeometry*> mRenderObjects;
+	std::shared_ptr<KatamariPlayer> mPlayer;
+	std::vector<std::shared_ptr<SceneGeometry>> mRenderObjects;
+
 	std::vector<Light*> mLights; // deferred rendering stuff
 	Light* mDirectionalLight = nullptr; // as well as this
 private:
-	// temporary, need a LightManager that would control light pool
-	// forward rendering specific
-	std::vector<PointLight*> mPointLights;
-	std::vector<SpotLight*> mSpotLights;
 
 	bool bIsPointLightEnabled = true;
 	bool bIsDirectionalLightEnabled = true;
 	bool bIsSpotLightEnabled = true;
 
-	Camera* mCamera = nullptr;
-	ThirdPersonCamera* mTPCamera = nullptr;
+	std::unique_ptr<ThirdPersonCamera> mTPCamera = nullptr;
 	// should encapsulate in camera
 	float mCameraFarZ = 500.0f;
 	float mCameraNearZ = 0.1f;
@@ -151,21 +165,6 @@ private:
 
 	ConstantBuffer<ConstantBufferPerFrame> mCB_PerFrame;
 	ConstantBufferPerFrame mPerFrameData;
-
-	// need to update member
-	std::vector<DirectionalLightParams> mDirectionalLightParameters;
-	Microsoft::WRL::ComPtr<ID3D11Buffer> mDirectionalLightBuffer;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mDirectionalLightSRV; // structured buffer
-	
-	// need to update members of vector
-	std::vector<PointLightParams> mPointLightsParameters;
-	Microsoft::WRL::ComPtr<ID3D11Buffer> mPointLightBuffer;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mPointLightSRV; // structured buffer
-
-	// need to update members of vector
-	std::vector<SpotLightParams> mSpotLightsParameters;
-	Microsoft::WRL::ComPtr<ID3D11Buffer> mSpotLightBuffer;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mSpotLightSRV; // structured buffer
 #pragma endregion Light
 
 	Microsoft::WRL::ComPtr<IDXGISwapChain> mSwapChain;
@@ -175,7 +174,6 @@ private:
 	// Renderer
 	// Deferred Rendering
 	std::unique_ptr<DeferredRenderer> pRenderer;
-
 	// Particles
 	std::unique_ptr<FireParticleSystem> pFireParticleSystem;
 
@@ -186,7 +184,7 @@ private:
 
 	// Shadows
 	// TODO: should probably placed in light class
-	CascadeShadowMap* mCascadeShadowMap = nullptr;
+	std::unique_ptr<CascadeShadowMap> mCascadeShadowMap = nullptr;
 	ConstantBuffer<CascadeDataConstantBuffer> mCB_CSM;
 	CascadeDataConstantBuffer mCSMData;
 
