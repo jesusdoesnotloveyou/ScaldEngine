@@ -12,7 +12,7 @@ public:
 	//~ Begin of SceneGeometry interface
 	virtual void Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, const std::string& filePath = "", const std::wstring& texturePath = L"") override;
 	virtual void Update(const ScaldTimer& st) override;
-    virtual void Draw(const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix) override;
+    virtual void Draw() override;
     void DrawLightVolume(ID3D11DeviceContext* pDeviceContext);
 	//~ End of SceneGeometry interface
 	
@@ -42,14 +42,13 @@ public:
     const XMMATRIX& GetOrthographicProjectionMatrix() const;
 
     FORCEINLINE ELightType GetLightType() const { return LightType; }
-    FORCEINLINE LIGHT_DESC* GetLightParams()const { return LightParams; }
+    // to update dynamic properties of light objects (position, direction, intensity etc.)
     virtual void UpdateLightParams();
 
 protected:
+    std::unique_ptr<LIGHT_DESC> LightParams = nullptr;
+    std::unique_ptr<Mesh> LightVolume = nullptr;
     ELightType LightType = ELightType::None;
-    LIGHT_DESC* LightParams = nullptr;
-
-    Mesh* LightVolume = nullptr;
 private:
     XMFLOAT3 mLookAt;
     XMMATRIX mViewMatrix;
@@ -68,7 +67,7 @@ public:
     //~ Begin of SceneGeometry interface
     virtual void Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, const std::string& filePath = "", const std::wstring& texturePath = L"") override;
     virtual void Update(const ScaldTimer& st) override;
-    virtual void Draw(const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix) override;
+    virtual void Draw() override;
     //~ End of SceneGeometry interface
 
 public:
@@ -88,7 +87,7 @@ public:
     //~ Begin of SceneGeometry interface
     virtual void Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, const std::string& filePath = "", const std::wstring& texturePath = L"") override;
     virtual void Update(const ScaldTimer& st) override;
-    virtual void Draw(const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix) override;
+    virtual void Draw() override;
     //~ End of SceneGeometry interface
 
     //~ Begin of Light interface
@@ -116,7 +115,7 @@ public:
     //~ Begin of SceneGeometry interface
     virtual void Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, const std::string& filePath = "", const std::wstring& texturePath = L"") override;
     virtual void Update(const ScaldTimer& st) override;
-    virtual void Draw(const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix) override;
+    virtual void Draw() override;
     //~ End of SceneGeometry interface
 
     //~ Begin of Light interface

@@ -9,14 +9,13 @@ Light::Light(const std::string& filePath)
     mPerspectiveProjectionMatrix(XMMatrixIdentity()),
     mOrthographicProjectionMatrix(XMMatrixIdentity())
 {
-    LightParams = new LIGHT_DESC{};
+    LightParams = std::make_unique<LIGHT_DESC>();
 	modelPath = filePath;
     mCollisionComponent->DisableCollision();
 }
 
 Light::~Light() noexcept
 {
-    if (LightParams) delete LightParams;
 }
 
 void Light::Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, const std::string& filePath, const std::wstring& texturePath)
@@ -30,10 +29,10 @@ void Light::Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, con
     if (LightType == ELightType::Point || LightType == ELightType::Spot)
     {
         std::vector<VertexTex> volumeVertices;
-        std::vector<DWORD> volumeIndeces;
-        Shapes::GetSphereShape(volumeVertices, volumeIndeces, 1.0f /*hard - coded value just for now*/, 8, 16);
+        std::vector<DWORD> volumeIndices;
+        Shapes::GetSphereShape(volumeVertices, volumeIndices, 1.0f /*hard - coded value just for now*/, 8, 16);
 
-        LightVolume = new Mesh(pDevice, pDeviceContext, volumeVertices, volumeIndeces);
+        LightVolume = std::make_unique<Mesh>(pDevice, pDeviceContext, volumeVertices, volumeIndices);
     }
 
 	SceneGeometry::Init(pDevice, pDeviceContext, modelPath, texturePath);
@@ -51,17 +50,27 @@ void Light::Update(const ScaldTimer& st)
     //GenerateOrthographicProjectionMatrix(100.0f, 100.0f, 0.1f, 100.0f);
 }
 
-void Light::Draw(const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix)
+void Light::Draw()
 {
-	SceneGeometry::Draw(viewMatrix, projectionMatrix);
+	SceneGeometry::Draw();
 }
 
 void Light::DrawLightVolume(ID3D11DeviceContext* pDeviceContext)
 {
+    // might be good idea to encapsulate light mesh draw here whatever kind of light it is
+    // light volume could be sphere, cone or quad
+    auto& lightVB = LightVolume->GetVertexBuffer();
+    auto& lightIB = LightVolume->GetIndexBuffer();
+
     pDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    pDeviceContext->IASetVertexBuffers(0u, 1u, LightVolume->GetVertexBuffer().GetAddressOf(), LightVolume->GetVertexBuffer().GetStridePtr(), LightVolume->GetVertexBuffer().GetOffsetPtr());
-    pDeviceContext->IASetIndexBuffer(LightVolume->GetIndexBuffer().Get(), DXGI_FORMAT_R32_UINT, 0u);
-    pDeviceContext->DrawIndexed(LightVolume->GetIndexBuffer().GetBufferSize(), 0u, 0);
+    pDeviceContext->IASetVertexBuffers(0u, 1u, lightVB.GetAddressOf(), lightVB.GetStridePtr(), lightVB.GetOffsetPtr());
+    pDeviceContext->IASetIndexBuffer(lightIB.Get(), DXGI_FORMAT_R32_UINT, 0u);
+    /*if (lightIB is empty)
+    {
+        pDeviceContext->Draw(lightVB.GetBufferSize(), 0u);  
+    }
+    else*/
+        pDeviceContext->DrawIndexed(lightIB.GetBufferSize(), 0u, 0);
 }
 
 void Light::SetAmbientColor(float x, float y, float z, float w)
@@ -203,9 +212,9 @@ void DirectionalLight::Update(const ScaldTimer& st)
     SetLookAt(LightParams->direction.x, LightParams->direction.y, LightParams->direction.z);
 }
 
-void DirectionalLight::Draw(const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix)
+void DirectionalLight::Draw()
 {
-    Light::Draw(viewMatrix, projectionMatrix);
+    Light::Draw();
 }
 
 /*
@@ -218,7 +227,6 @@ PointLight::PointLight(const std::string& filePath) : Light(filePath)
 
 PointLight::~PointLight() noexcept
 {
-    if (LightParams) delete LightParams;
 }
 
 void PointLight::Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, const std::string& filePath, const std::wstring& texturePath)
@@ -231,9 +239,9 @@ void PointLight::Update(const ScaldTimer& st)
     Light::Update(st);
 }
 
-void PointLight::Draw(const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix)
+void PointLight::Draw()
 {
-    SceneGeometry::Draw(viewMatrix, projectionMatrix);
+    SceneGeometry::Draw();
 }
 
 void PointLight::UpdateLightParams()
@@ -268,7 +276,6 @@ SpotLight::SpotLight(const std::string& filePath) : Light(filePath)
 
 SpotLight::~SpotLight() noexcept
 {
-    if (LightParams) delete LightParams;
 }
 
 void SpotLight::Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, const std::string& filePath, const std::wstring& texturePath)
@@ -281,7 +288,7 @@ void SpotLight::Update(const ScaldTimer& st)
     Light::Update(st);
 }
 
-void SpotLight::Draw(const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix)
+void SpotLight::Draw()
 {
-    Light::Draw(viewMatrix, projectionMatrix);
+    Light::Draw();
 }
