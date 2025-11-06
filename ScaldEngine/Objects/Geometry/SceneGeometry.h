@@ -1,9 +1,9 @@
 #pragma once
 
-#include "../../Graphics/Model.h"
-#include "../Components/SceneComponent.h"
-#include "../Components/Movement/MovementComponent.h"
-#include "../Components/Collision/CollisionComponent.h"
+#include "Graphics/Model.h"
+#include "Objects/Components/SceneComponent.h"
+#include "Objects/Components/Movement/MovementComponent.h"
+#include "Objects/Components/Collision/CollisionComponent.h"
 
 #include <cmath>
 #include <vector>
@@ -22,7 +22,7 @@ public:
 
 	virtual void Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, const std::string& filePath = "", const std::wstring& texturePath = L"") = 0;
 	virtual void Update(const ScaldTimer& st) = 0;
-	virtual void Draw(const XMMATRIX& viewMatrix, const XMMATRIX& projectionMatrix);
+	virtual void Draw();
 protected:
 	// @todo: From Luna's book
 	void UpdateObjectCBs(const ScaldTimer& st);
