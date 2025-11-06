@@ -52,10 +52,10 @@ private:
 
 	TextureRenderTarget mGBuffer[BUFFER_COUNT];
 
-	Mesh* screenQuad = nullptr;
+	std::unique_ptr<Mesh> screenQuad = nullptr;
 
 	// deferred additional task
-	Mesh* GBufferTexture = nullptr;
+	std::unique_ptr<Mesh> GBufferTexture = nullptr;
 	int GBufferLayer = 0;
 
 	D3D11_VIEWPORT mGBufferViewport = {};

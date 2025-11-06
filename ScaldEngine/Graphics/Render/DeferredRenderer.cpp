@@ -50,8 +50,8 @@ DeferredRenderer::DeferredRenderer(IDXGISwapChain* spawChain, ID3D11Device* devi
 
 	std::vector<VertexTex> quadVertices = { VertexTex(), VertexTex(), VertexTex(), VertexTex() };
 	std::vector<DWORD> quadIndeces = { 0 }; // at least one due to throwing exception in Init
-	screenQuad = new Mesh(device, deviceContext, quadVertices, quadIndeces);
-	GBufferTexture = new Mesh(device, deviceContext, quadVertices, quadIndeces);
+	screenQuad = std::make_unique<Mesh>(device, deviceContext, quadVertices, quadIndeces);
+	GBufferTexture = std::make_unique<Mesh>(device, deviceContext, quadVertices, quadIndeces);
 }
 
 DeferredRenderer::~DeferredRenderer() noexcept
@@ -62,9 +62,6 @@ DeferredRenderer::~DeferredRenderer() noexcept
 		mGBuffer[i].rtv->Release();
 		mGBuffer[i].srv->Release();
 	}
-
-	if (screenQuad) delete screenQuad;
-	if (GBufferTexture) delete GBufferTexture;
 }
 
 void DeferredRenderer::SetupShaders()
@@ -234,10 +231,11 @@ void DeferredRenderer::BindParticlesPass()
 
 void DeferredRenderer::DrawScreenQuad()
 {
+	auto& quadVB = screenQuad->GetVertexBuffer();
 	mDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP); // Quad -> two triangles
-	mDeviceContext->IASetVertexBuffers(0u, 1u, screenQuad->GetVertexBuffer().GetAddressOf(), screenQuad->GetVertexBuffer().GetStridePtr(), screenQuad->GetVertexBuffer().GetOffsetPtr());
+	mDeviceContext->IASetVertexBuffers(0u, 1u, quadVB.GetAddressOf(), quadVB.GetStridePtr(), quadVB.GetOffsetPtr());
 	mDeviceContext->IASetIndexBuffer(screenQuad->GetIndexBuffer().Get(), DXGI_FORMAT_R32_UINT, 0u);
-	mDeviceContext->Draw(screenQuad->GetVertexBuffer().GetBufferSize(), 0u);
+	mDeviceContext->Draw(quadVB.GetBufferSize(), 0u);
 }
 
 void DeferredRenderer::DrawGBuffer()
@@ -255,10 +253,11 @@ void DeferredRenderer::DrawGBuffer()
 	mDeviceContext->PSSetShaderResources(0u, 1u, &mGBuffer[GBufferLayer % BUFFER_COUNT].srv);
 	mDeviceContext->PSSetSamplers(0u, 1u, mSamplerState.GetAddressOf());
 
+	auto& GBufferVB = GBufferTexture->GetVertexBuffer();
 	mDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP); // Quad -> two triangles
-	mDeviceContext->IASetVertexBuffers(0u, 1u, GBufferTexture->GetVertexBuffer().GetAddressOf(), GBufferTexture->GetVertexBuffer().GetStridePtr(), GBufferTexture->GetVertexBuffer().GetOffsetPtr());
+	mDeviceContext->IASetVertexBuffers(0u, 1u, GBufferVB.GetAddressOf(), GBufferVB.GetStridePtr(), GBufferVB.GetOffsetPtr());
 	mDeviceContext->IASetIndexBuffer(GBufferTexture->GetIndexBuffer().Get(), DXGI_FORMAT_R32_UINT, 0u);
-	mDeviceContext->Draw(GBufferTexture->GetVertexBuffer().GetBufferSize(), 0u);
+	mDeviceContext->Draw(GBufferVB.GetBufferSize(), 0u);
 }
 
 void DeferredRenderer::BindWithinFrustum()

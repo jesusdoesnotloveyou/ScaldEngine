@@ -7,7 +7,7 @@ bool Model::Init(ID3D11Device* device, ID3D11DeviceContext* deviceContext, const
     pDevice = device;
     pDeviceContext = deviceContext;
 
-    ThrowIfFailed(mCB_VS.Init(pDevice, pDeviceContext));
+    ThrowIfFailed(mCBPerObject.Init(pDevice, pDeviceContext));
     
     if (!textureFilePath.empty())
     {
@@ -27,7 +27,7 @@ void Model::Draw()
 {
                                                  // &mTexture will delete texture, since & clears memory
     pDeviceContext->PSSetShaderResources(0u, 1u, mTexture.GetAddressOf());
-    pDeviceContext->VSSetConstantBuffers(0u, 1u, mCB_VS.GetAddressOf());
+    pDeviceContext->VSSetConstantBuffers(0u, 1u, mCBPerObject.GetAddressOf());
 
     for (auto& mesh : mMeshes)
     {
@@ -97,7 +97,7 @@ Mesh Model::ProcessMesh(aiMesh* mesh, const aiScene* scene)
     return Mesh(pDevice, pDeviceContext, vertices, indices);
 }
 
-ConstantBuffer<ConstBufferVS>& Model::GetConstantBufferVS()
+ConstantBuffer<ConstantBufferPerObject>& Model::GetConstantBufferVS()
 {
-    return mCB_VS;
+    return mCBPerObject;
 }

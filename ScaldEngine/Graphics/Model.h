@@ -19,14 +19,14 @@ public:
 	void SetTexture(ID3D11ShaderResourceView* texture);
 	void Draw();
 
-	ConstantBuffer<ConstBufferVS>& GetConstantBufferVS();
+	ConstantBuffer<ConstantBufferPerObject>& GetConstantBufferVS();
 
 private:
 	bool LoadModel(const std::string& filePath);
 	void ProcessNode(aiNode* node, const aiScene* scene);
 	Mesh ProcessMesh(aiMesh* mesh, const aiScene* scene);
 
-	ConstantBuffer<ConstBufferVS> mCB_VS;
+	ConstantBuffer<ConstantBufferPerObject> mCBPerObject;
 	
 	std::vector<Mesh> mMeshes;
 	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mTexture;
