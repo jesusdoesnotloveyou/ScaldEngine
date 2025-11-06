@@ -1,10 +1,16 @@
-cbuffer cbPerObject
+cbuffer cbPerObject : register(b0)
 {
     float4x4 gWorld;
     float4x4 gInvTransWorld;
+};
+
+cbuffer cbPerFrame : register(b1)
+{
     float4x4 gView;
     float4x4 gProjection;
-};
+    float4x4 gViewProj;  
+    float4 gEyePos;
+}
 
 struct VS_IN
 {
@@ -30,8 +36,7 @@ VS_OUT main(VS_IN input)
 
     float4 model = mul(input.inPosition, gWorld);
     output.outWorld = model.xyz;
-    output.outPosition = mul(model, gView);
-    output.outPosition = mul(output.outPosition, gProjection);
+    output.outPosition = mul(model, gViewProj);
     
     output.outTexCoord = input.inTexCoord;
     

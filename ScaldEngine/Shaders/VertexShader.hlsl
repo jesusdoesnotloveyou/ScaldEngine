@@ -1,19 +1,22 @@
 cbuffer cbPerObject : register(b0)
 {
-    matrix gWorld;
-    matrix gView;
-    matrix gProjection;
+    float4x4 gWorld;
+    float4x4 gInvTransposeWorld;
 };
 
+// forward rendering and simple shadows stuff
+// won't work, because there is no such structure on the cpu side as well as code that bins it to the shader
 cbuffer cbLightViewProj : register(b1)
 {
     matrix gLightViewProj;
 }
 
-// ratio changed
-cbuffer CBufChangeOnResize : register(b2)
+cbuffer cbPerFrame : register(b2)
 {
-    matrix mProj;
+    float4x4 gView;
+    float4x4 gProjection;
+    float4x4 gViewProj;
+    float4 gEyePos;
 }
 
 struct VS_IN
@@ -44,7 +47,8 @@ VS_OUT main(VS_IN input)
     
     output.outTexCoord = input.inTexCoord;
     
-    output.outNormal = normalize(mul(float4(input.inNormal, 0.0f), gWorld)).xyz;
+    // has to be normalized in pixel shader
+    output.outNormal = mul(input.inNormal, (float3x3) gInvTransposeWorld);
     
     output.outWorldPos = modelPos.xyz;
 

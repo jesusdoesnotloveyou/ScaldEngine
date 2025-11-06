@@ -2,8 +2,14 @@ cbuffer cbPerObject : register(b0)
 {
     float4x4 gWorld;
     float4x4 gInvTransWorld;
+};
+
+cbuffer cbPerFrame : register(b1)
+{
     float4x4 gView;
     float4x4 gProjection;
+    float4x4 gViewProj;
+    float4 gEyePos;
 };
 
 struct UniLight
@@ -21,7 +27,7 @@ struct UniLight
     float3 pad2;
 };
 
-cbuffer LightCB : register(b1)
+cbuffer LightCB : register(b2)
 {
     UniLight Light;
 }
@@ -43,8 +49,6 @@ VS_OUT main(VS_IN input, uint id : SV_VertexID)
     VS_OUT output = (VS_OUT) 0;
     
     const int DIRECTIONAL = 1;
-    const int POINT = 2;
-    const int SPOT = 3;
     
     [branch]
     if (Light.lightType == DIRECTIONAL)
@@ -52,7 +56,7 @@ VS_OUT main(VS_IN input, uint id : SV_VertexID)
         output.outTexCoord = float2(id & 1, (id & 2) >> 1);
         output.outPosition = float4(output.outTexCoord * float2(2.0f, -2.0f) + float2(-1.0f, 1.0f), 0.0f, 1.0f);
     }
-    else if (Light.lightType == POINT || Light.lightType == SPOT)
+    else
     {
         output.outPosition = mul(input.inPosition, gWorld);
         output.outPosition = mul(output.outPosition, gView);

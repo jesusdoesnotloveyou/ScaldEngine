@@ -30,10 +30,12 @@ float3 GetCascadeCoords(int layer, float3 worldPos)
     return coords.xyz;
 }
 
-cbuffer ConstantBufferData : register(b1)
+cbuffer cbPerFrame : register(b1)
 {
-    float4 gEyePos;
     float4x4 gView;
+    float4x4 gProjection;
+    float4x4 gViewProj;
+    float4 gEyePos;
 }
 
 struct UniLight

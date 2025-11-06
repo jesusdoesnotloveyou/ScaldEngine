@@ -1,8 +1,7 @@
 cbuffer cbPerObject : register(b0)
 {
-    matrix gWorld;
-    matrix gView; // for simple shadow - lightView, for cascades - nothing
-    matrix gProjection; // for simple shadow - lightProjection, for cascades - nothing
+    float4x4 gWorld;
+    float4x4 gInvTransposeWorld;
 }
 
 struct VS_IN

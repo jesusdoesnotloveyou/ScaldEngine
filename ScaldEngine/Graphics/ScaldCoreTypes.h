@@ -62,12 +62,10 @@ struct VertexTex
 };
 
 // Constant buffer types
-struct ConstBufferVS
+struct ConstantBufferPerObject
 {
 	XMMATRIX gWorld = XMMatrixIdentity();
 	XMMATRIX gInvTransWorld = XMMatrixIdentity();
-	XMMATRIX gView = XMMatrixIdentity();
-	XMMATRIX gProjection = XMMatrixIdentity();
 };
 
 // Light should be here 7.12.2 Luna
@@ -75,20 +73,10 @@ struct ConstBufferVS
 // It is even much better approach
 struct ConstantBufferPerFrame
 {
-	XMVECTOR gEyePos = XMVectorZero();
 	XMMATRIX gView = XMMatrixIdentity();
-};
-
-struct LightWorldConstantBuffer
-{
-	DirectionalLightParams dirLight;
-	float numPointLights = 0;
-	float numSpotLights = 0;
-};
-
-struct ConstBufferVSPerFrame
-{
-	XMMATRIX gLightViewProjection = XMMatrixIdentity();
+	XMMATRIX gProjection = XMMatrixIdentity();
+	XMMATRIX gViewProj = XMMatrixIdentity();
+	XMVECTOR gEyePos = XMVectorZero();
 };
 
 // Geometry Shader and Cascade Shadows specific
@@ -109,8 +97,3 @@ struct CascadeDataConstantBuffer
 	XMMATRIX ViewProj[CASCADE_NUMBER];
 	float distances[CASCADE_NUMBER];
 };
-
-//struct ConstBufferPS
-//{
-//	float alpha = 1.0f;
-//};
