@@ -134,9 +134,10 @@ void Graphics::DrawScene(const ScaldTimer& st)
 	mDeviceContext->ClearState();
 
 	pRenderer->BindGeometryPass();
-	for (auto actor : mRenderObjects)
+	BindGeometryPassResources();
+	for (auto&& actor : mRenderObjects)
 	{
-		actor->Draw(mTPCamera->GetViewMatrix(), mTPCamera->GetPerspectiveProjectionMatrix());
+		actor->Draw();
 	}
 
 	mDeviceContext->ClearState();
@@ -172,25 +173,34 @@ void Graphics::RenderDepthOnlyPass()
 	mCB_CSM.SetAndApplyData(mCSMData);
 	mDeviceContext->GSSetConstantBuffers(0u, 1u, mCB_CSM.GetAddressOf());
 
-	for (auto actor : mRenderObjects)
+	for (auto&& actor : mRenderObjects)
 	{
-		if (actor.get() == mDirectionalLight) continue;
-		actor->Draw(XMMatrixIdentity(), XMMatrixIdentity());
+		if (actor == mDirectionalLight) continue;
+		actor->Draw();
 	}
+}
+
+void Graphics::BindGeometryPassResources()
+{
+	const auto viewMat = mTPCamera->GetViewMatrix();
+	const auto projMat = mTPCamera->GetPerspectiveProjectionMatrix();
+	mPerFrameData.gView = XMMatrixTranspose(viewMat);
+	mPerFrameData.gProjection = XMMatrixTranspose(projMat);
+	mPerFrameData.gViewProj = XMMatrixTranspose(viewMat * projMat);
+	mPerFrameData.gEyePos = mTPCamera->GetPosition();
+
+	mCB_PerFrame.SetAndApplyData(mPerFrameData);
+	mDeviceContext->VSSetConstantBuffers(1u, 1u, mCB_PerFrame.GetAddressOf());
 }
 
 void Graphics::BindLightingPassResources()
 {
 	mCB_CSM.SetAndApplyData(mCSMData);
-	mDeviceContext->PSSetConstantBuffers(0u, 1u, mCB_CSM.GetAddressOf());
-
-	mPerFrameData.gEyePos = mTPCamera->GetPosition();
-	mPerFrameData.gView = XMMatrixTranspose(mTPCamera->GetViewMatrix());
-	// here should be view and proj matrices
 	mCB_PerFrame.SetAndApplyData(mPerFrameData);
 
+	mDeviceContext->VSSetConstantBuffers(1u, 1u, mCB_PerFrame.GetAddressOf());
+	mDeviceContext->PSSetConstantBuffers(0u, 1u, mCB_CSM.GetAddressOf());
 	mDeviceContext->PSSetConstantBuffers(1u, 1u, mCB_PerFrame.GetAddressOf());
-
 	mDeviceContext->PSSetShaderResources(3u, 1u, mCascadeShadowMap->GetAddressOf());
 }
 
@@ -203,8 +213,8 @@ void Graphics::RenderLighting()
 
 void Graphics::RenderDirectionalLight()
 {
-	UpdateDirLightConstantBuffer(mDirectionalLight);
-	mDeviceContext->VSSetConstantBuffers(1u, 1u, mCB_Light.GetAddressOf());
+	UpdateDirLightConstantBuffer(mDirectionalLight.get());
+	mDeviceContext->VSSetConstantBuffers(2u, 1u, mCB_Light.GetAddressOf());
 	mDeviceContext->PSSetConstantBuffers(2u, 1u, mCB_Light.GetAddressOf());
 
 	pRenderer->BindOutsideFrustum();
@@ -218,7 +228,7 @@ void Graphics::RenderOmniLights()
 
 	for (auto&& light : mLights)
 	{
-		UpdateOmniLightConstantBuffer(light);
+		UpdateOmniLightConstantBuffer(light.get());
 
 		const float sphereVolumeRadius = light->GetRange();
 		XMMATRIX world = XMMatrixScalingFromVector(XMVectorReplicate(sphereVolumeRadius)) * light->GetTransform()->mRotationMatrix * light->GetTransform()->mTranslationMatrix;
@@ -228,10 +238,8 @@ void Graphics::RenderOmniLights()
 
 		mLightVolumeData.gWorld = XMMatrixTranspose(world);
 		mLightVolumeData.gInvTransWorld = XMMatrixTranspose(invTransWorld);
-		mLightVolumeData.gView = XMMatrixTranspose(mTPCamera->GetViewMatrix());
-		mLightVolumeData.gProjection = XMMatrixTranspose(mTPCamera->GetPerspectiveProjectionMatrix());
-		mCB_LightVolume.SetAndApplyData(mLightVolumeData);
 
+		mCB_LightVolume.SetAndApplyData(mLightVolumeData);
 		mDeviceContext->VSSetConstantBuffers(0u, 1u, mCB_LightVolume.GetAddressOf());
 
 		light->DrawLightVolume(mDeviceContext.Get());
@@ -244,7 +252,7 @@ void Graphics::RenderSpotLights()
 
 	for (auto& light : mLights) // must be list only with spots
 	{
-		UpdateSpotLightConstantBuffer(light);
+		UpdateSpotLightConstantBuffer(light.get());
 	}
 }
 
@@ -287,8 +295,7 @@ void Graphics::UpdateOmniLightConstantBuffer(Light* pointLight)
 	mLightData.range = pointLight->GetRange(); // hard-coded value
 
 	mCB_Light.SetAndApplyData(mLightData);
-
-	mDeviceContext->VSSetConstantBuffers(1u, 1u, mCB_Light.GetAddressOf());
+	mDeviceContext->VSSetConstantBuffers(2u, 1u, mCB_Light.GetAddressOf());
 	mDeviceContext->PSSetConstantBuffers(2u, 1u, mCB_Light.GetAddressOf());
 }
 
@@ -305,8 +312,7 @@ void Graphics::UpdateSpotLightConstantBuffer(Light* spotLight)
 	mLightData.spot = 10.0f; // hard-coded value
 
 	mCB_Light.SetAndApplyData(mLightData);
-
-	mDeviceContext->VSSetConstantBuffers(1u, 1u, mCB_Light.GetAddressOf());
+	mDeviceContext->VSSetConstantBuffers(2u, 1u, mCB_Light.GetAddressOf());
 	mDeviceContext->PSSetConstantBuffers(2u, 1u, mCB_Light.GetAddressOf());
 }
 
