@@ -3,12 +3,12 @@
 #include "RenderWindow.h"
 #include "ScaldTimer.h"
 #include "Graphics/DXHelper.h"
-#include "Data/ModelData.h"
 
 class KatamariPlayer;
 class SceneGeometry;
 class PointLight;
 class DirectionalLight;
+class ModelData;
 
 class Engine
 {
