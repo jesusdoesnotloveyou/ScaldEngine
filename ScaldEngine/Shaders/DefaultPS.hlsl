@@ -143,6 +143,7 @@ float3 GetShadowCoords(int layer, float3 worldPos)
 float4 main(PS_IN input) : SV_Target
 {
     float4 sampleColor = objTexture.Sample(objSamplerState, input.inTexCoord);
+    input.inNormal = normalize(input.inNormal);
     float3 DnS = float3(0.0f, 0.0f, 0.0f);
     
     int layer = 3;
