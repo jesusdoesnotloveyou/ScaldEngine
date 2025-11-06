@@ -38,13 +38,12 @@ public:
 	{
 		static_assert(std::is_base_of<SceneComponent, T>::value, "Render object must be a scene component!");
 
-		const auto lightObject = dynamic_cast<Light*>(sceneObject.get());
+		const auto& lightObject = std::dynamic_pointer_cast<Light>(sceneObject);
 		if (lightObject)
 		{
 			if (lightObject->GetLightType() == ELightType::Directional)
 			{
-				const auto dirLight = static_cast<DirectionalLight*>(lightObject);
-				mDirectionalLight = dirLight;
+				mDirectionalLight = lightObject;
 			}
 			else if (lightObject->GetLightType() == ELightType::Point)
 			{
@@ -73,6 +72,7 @@ private:
 
 	void SetupShaders();
 
+	void BindGeometryPassResources();
 	void BindLightingPassResources();
 
 	void RenderDepthOnlyPass();
@@ -140,19 +140,21 @@ public:
 	std::shared_ptr<KatamariPlayer> mPlayer;
 	std::vector<std::shared_ptr<SceneGeometry>> mRenderObjects;
 
-	std::vector<Light*> mLights; // deferred rendering stuff
-	Light* mDirectionalLight = nullptr; // as well as this
+	std::vector<std::shared_ptr<Light>> mLights; // deferred rendering stuff
+	std::shared_ptr<Light> mDirectionalLight = nullptr; // as well as this
 private:
-
-	bool bIsPointLightEnabled = true;
-	bool bIsDirectionalLightEnabled = true;
-	bool bIsSpotLightEnabled = true;
 
 	std::unique_ptr<ThirdPersonCamera> mTPCamera = nullptr;
 	// should encapsulate in camera
 	float mCameraFarZ = 500.0f;
 	float mCameraNearZ = 0.1f;
 	float mFovDegrees = 90.0f;
+
+	bool bIsPointLightEnabled = true;
+	bool bIsDirectionalLightEnabled = true;
+	bool bIsSpotLightEnabled = true;
+
+	bool bIsDeferredRenderingTechniqueApplied = true;
 	
 	VertexShader mShadowVertexShader;
 	VertexShader mVertexShader;
@@ -160,8 +162,10 @@ private:
 	GeometryShader mCSMGeometryShader;
 
 #pragma region Light
-	ConstantBuffer<ConstBufferVS> mCB_LightVolume;
-	ConstBufferVS mLightVolumeData;
+	// like constant buffer per object, but for lights
+	// could be implemented due to encapsulation inside light class
+	ConstantBuffer<ConstBufferPerObject> mCB_LightVolume;
+	ConstBufferPerObject mLightVolumeData;
 
 	ConstantBuffer<ConstantBufferPerFrame> mCB_PerFrame;
 	ConstantBufferPerFrame mPerFrameData;
@@ -187,8 +191,4 @@ private:
 	std::unique_ptr<CascadeShadowMap> mCascadeShadowMap = nullptr;
 	ConstantBuffer<CascadeDataConstantBuffer> mCB_CSM;
 	CascadeDataConstantBuffer mCSMData;
-
-	bool bIsForwardRenderingTechniqueApplied = false;
-	bool bIsDeferredRenderingTechniqueApplied = true;
-	bool bIsForwardPlusRenderingTechniqueApplied = false;
 };
