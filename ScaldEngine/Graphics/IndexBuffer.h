@@ -13,7 +13,7 @@ public:
 	ID3D11Buffer* const* GetAddressOf() const { return mBuffer.GetAddressOf(); }
 	UINT GetBufferSize() const { return bufferSize; }
 
-	HRESULT Init(ID3D11Device* device, DWORD* data, UINT numIndeces)
+	HRESULT Init(ID3D11Device* device, const DWORD* data, UINT numIndeces)
 	{
 		bufferSize = numIndeces;
 

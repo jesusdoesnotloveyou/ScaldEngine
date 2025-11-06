@@ -182,8 +182,8 @@ void Graphics::RenderDepthOnlyPass()
 
 void Graphics::BindGeometryPassResources()
 {
-	const auto viewMat = mTPCamera->GetViewMatrix();
-	const auto projMat = mTPCamera->GetPerspectiveProjectionMatrix();
+	const auto& viewMat = mTPCamera->GetViewMatrix();
+	const auto& projMat = mTPCamera->GetPerspectiveProjectionMatrix();
 	mPerFrameData.gView = XMMatrixTranspose(viewMat);
 	mPerFrameData.gProjection = XMMatrixTranspose(projMat);
 	mPerFrameData.gViewProj = XMMatrixTranspose(viewMat * projMat);

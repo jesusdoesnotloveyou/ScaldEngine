@@ -115,7 +115,7 @@ private:
 		UINT stride = (UINT)sizeof(T);
 		UINT byteWidth = stride * (UINT)bufferData.size();
 
-		D3D11_BUFFER_DESC desc;
+		D3D11_BUFFER_DESC desc = {};
 		desc.ByteWidth = byteWidth;
 		desc.Usage = D3D11_USAGE_DYNAMIC;				// to use map/unmap to update
 		desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;	// from cpu
@@ -123,7 +123,7 @@ private:
 		desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
 		desc.StructureByteStride = stride;
 
-		D3D11_SUBRESOURCE_DATA data;
+		D3D11_SUBRESOURCE_DATA data = {};
 		data.pSysMem = bufferData.data();
 		data.SysMemPitch = 0u;
 		data.SysMemSlicePitch = 0u;
@@ -164,8 +164,8 @@ private:
 #pragma region Light
 	// like constant buffer per object, but for lights
 	// could be implemented due to encapsulation inside light class
-	ConstantBuffer<ConstBufferPerObject> mCB_LightVolume;
-	ConstBufferPerObject mLightVolumeData;
+	ConstantBuffer<ConstantBufferPerObject> mCB_LightVolume;
+	ConstantBufferPerObject mLightVolumeData;
 
 	ConstantBuffer<ConstantBufferPerFrame> mCB_PerFrame;
 	ConstantBufferPerFrame mPerFrameData;

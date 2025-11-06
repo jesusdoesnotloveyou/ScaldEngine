@@ -35,7 +35,7 @@ public:
     UINT GetOffset() const { return offset; }
     const UINT* GetOffsetPtr() const { return &offset; }
 
-	HRESULT Init(ID3D11Device* device, T* data, UINT numVertices)
+	HRESULT Init(ID3D11Device* device, const T* data, UINT numVertices)
 	{
         bufferSize = numVertices;
         stride = (UINT)sizeof(T);

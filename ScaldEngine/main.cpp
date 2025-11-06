@@ -1,12 +1,7 @@
 #include "stdafx.h"
 #include "ScaldCore/Engine/Engine.h"
 
-int CALLBACK WinMain(
-	HINSTANCE hInstance,
-	HINSTANCE hPrevInstance,
-	LPSTR lpCmdLine,
-	int nCmdShow
-	)
+int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine, int nCmdShow)
 {
 	ThrowIfFailed(CoInitialize(nullptr));
 

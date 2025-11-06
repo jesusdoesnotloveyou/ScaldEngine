@@ -40,12 +40,6 @@ public:
 	}
 
 public:
-
-	T* GetData() const
-	{
-		return &curr_data;
-	}
-
 	void SetData(const T& data)
 	{
 		curr_data = data;
