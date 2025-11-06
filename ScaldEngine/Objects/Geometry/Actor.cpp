@@ -14,7 +14,7 @@ Actor::Actor(ModelData* modelData) : Actor()
 
 Actor::~Actor() noexcept
 {
-	if (mModelData) delete mModelData;
+	mModelData = nullptr;
 }
 
 void Actor::Update(const ScaldTimer& st)
