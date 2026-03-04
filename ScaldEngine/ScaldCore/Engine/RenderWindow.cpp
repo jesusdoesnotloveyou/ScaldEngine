@@ -248,7 +248,7 @@ LRESULT RenderWindow::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
 	}
 	case WM_INPUT:
 	{
-		UINT dataSize;
+		UINT dataSize = 0u;
 		GetRawInputData(reinterpret_cast<HRAWINPUT>(lParam), RID_INPUT, NULL, &dataSize, sizeof(RAWINPUTHEADER)); //Need to populate data size first
 
 		if (dataSize > 0)

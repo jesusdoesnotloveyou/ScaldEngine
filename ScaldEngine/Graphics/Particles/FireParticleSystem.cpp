@@ -46,7 +46,7 @@ void FireParticleSystem::Emit(int numParticles)
 {
 	ParticleSystem::Emit(numParticles);
 	
-	ApplyChanges(mDeviceContext, injectionBuffer, injectionBufferSize, injectionParticleData);
+	ApplyChanges(mDeviceContext, injectionBuffer, injectionBufferSize, injectionParticleData.get());
 
 	mParticleData.maxNumParticles = maxParticles;
 	mParticleData.numEmitInThisFrame = numParticles;

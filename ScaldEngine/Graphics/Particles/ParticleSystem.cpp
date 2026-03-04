@@ -20,6 +20,8 @@ ParticleSystem::ParticleSystem(ID3D11Device* device, ID3D11DeviceContext* device
 	origin(origin),
     camera(camera)
 {
+    injectionParticleData = std::make_unique<Particle[]>(injectionBufferSize);
+
 	D3D11_SAMPLER_DESC sampleDesc = {};
 	sampleDesc.AddressU = D3D11_TEXTURE_ADDRESS_CLAMP;
 	sampleDesc.AddressV = D3D11_TEXTURE_ADDRESS_CLAMP;
