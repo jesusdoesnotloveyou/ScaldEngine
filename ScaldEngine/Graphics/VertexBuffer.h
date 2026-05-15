@@ -2,7 +2,7 @@
 
 #include "DXHelper.h"
 
-template<typename T>
+template <typename T>
 class VertexBuffer
 {
 public:
@@ -25,18 +25,18 @@ public:
         return *this;
     }
 
-	ID3D11Buffer* Get() const { return mBuffer.Get(); }
-	ID3D11Buffer* const* GetAddressOf() const { return mBuffer.GetAddressOf(); }
+    ID3D11Buffer* Get() const { return mBuffer.Get(); }
+    ID3D11Buffer* const* GetAddressOf() const { return mBuffer.GetAddressOf(); }
     UINT GetBufferSize() const { return bufferSize; }
-    
+
     UINT GetStride() const { return stride; }
     const UINT* GetStridePtr() const { return &stride; }
 
     UINT GetOffset() const { return offset; }
     const UINT* GetOffsetPtr() const { return &offset; }
 
-	HRESULT Init(ID3D11Device* device, const T* data, UINT numVertices)
-	{
+    HRESULT Init(ID3D11Device* device, const T* data, UINT numVertices)
+    {
         bufferSize = numVertices;
         stride = (UINT)sizeof(T);
 
@@ -59,9 +59,10 @@ public:
         vertexData.SysMemSlicePitch = 0;
 
         return device->CreateBuffer(&vertexBufDesc, &vertexData, mBuffer.GetAddressOf());
-	}
+    }
+
 private:
-	Microsoft::WRL::ComPtr<ID3D11Buffer> mBuffer;
+    Microsoft::WRL::ComPtr<ID3D11Buffer> mBuffer;
     UINT stride = 0;
     UINT offset = 0;
     UINT bufferSize = 0;

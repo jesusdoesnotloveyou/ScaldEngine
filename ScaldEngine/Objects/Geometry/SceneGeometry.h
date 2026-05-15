@@ -9,37 +9,39 @@
 #include <vector>
 #include <tuple>
 
-using std::vector;
 using std::tuple;
+using std::vector;
 
 class SceneGeometry : public SceneComponent
 {
 public:
-	SceneGeometry();
-	SceneGeometry(const tuple<vector<VertexTex>, vector<DWORD>>& vi);
-	// would be changed to normal constructor
-	virtual ~SceneGeometry() noexcept override;
+    SceneGeometry();
+    SceneGeometry(const tuple<vector<VertexTex>, vector<DWORD>>& vi);
+    // would be changed to normal constructor
+    virtual ~SceneGeometry() noexcept override;
 
-	virtual void Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, const std::string& filePath = "", const std::wstring& texturePath = L"") = 0;
-	virtual void Update(const ScaldTimer& st) = 0;
-	virtual void Draw();
+    virtual void Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, const std::string& filePath = "", const std::wstring& texturePath = L"") = 0;
+    virtual void Update(const ScaldTimer& st) = 0;
+    virtual void Draw();
+
 protected:
-	// @todo: From Luna's book
-	void UpdateObjectCBs(const ScaldTimer& st);
+    // @todo: From Luna's book
+    void UpdateObjectCBs(const ScaldTimer& st);
 
 public:
-	FORCEINLINE CollisionComponent* GetCollisionComponent()const	{ return mCollisionComponent; }
-	//FORCEINLINE RenderComponent*	GetRenderComponent()const		{ return mRenderComponent; }
-	//FORCEINLINE InputComponent*	GetInputComponent()const		{ return mInputComponent; }
+    FORCEINLINE CollisionComponent* GetCollisionComponent() const { return mCollisionComponent; }
+    // FORCEINLINE RenderComponent*	GetRenderComponent()const		{ return mRenderComponent; }
+    // FORCEINLINE InputComponent*	GetInputComponent()const		{ return mInputComponent; }
 public:
-	std::string ObjectName = "";
+    std::string ObjectName = "";
+
 protected:
-	Model model;
+    Model model;
 
-	/*std::vector<VertexTex> vertices;
-	std::vector<DWORD> indices;*/
+    /*std::vector<VertexTex> vertices;
+    std::vector<DWORD> indices;*/
 
-	CollisionComponent* mCollisionComponent = nullptr;
-	//RenderComponent*	mRenderComponent	= nullptr;
-	//InputComponent*	mInputComponent		= nullptr;
+    CollisionComponent* mCollisionComponent = nullptr;
+    // RenderComponent*	mRenderComponent	= nullptr;
+    // InputComponent*	mInputComponent		= nullptr;
 };

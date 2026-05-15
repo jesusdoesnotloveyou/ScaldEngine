@@ -3,56 +3,54 @@
 #include "ScaldException.h"
 #include "DXHelper.h"
 
-template<typename T>
+template <typename T>
 class ConstantBuffer
 {
 public:
-	ConstantBuffer() {}
-	ConstantBuffer(const ConstantBuffer& lhs) = delete;
-public:
-	ID3D11Buffer* Get() const { return mBuffer.Get(); }
-	ID3D11Buffer* const* GetAddressOf() const { return mBuffer.GetAddressOf(); }
-	
-	HRESULT Init(ID3D11Device* device, ID3D11DeviceContext* deviceContext)
-	{
-		pDeviceContext = deviceContext;
-
-		// Create Constant Buffer
-		D3D11_BUFFER_DESC constantBufDesc = {};
-		constantBufDesc.ByteWidth = UINT((sizeof(T) + 15) & ~15);
-		constantBufDesc.Usage = D3D11_USAGE_DYNAMIC;
-		constantBufDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-		constantBufDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-		constantBufDesc.MiscFlags = 0u;
-		constantBufDesc.StructureByteStride = 0u;
-
-		return device->CreateBuffer(&constantBufDesc, 0, mBuffer.GetAddressOf());
-	}
-
-	bool ApplyChanges()
-	{
-		D3D11_MAPPED_SUBRESOURCE mappedResource;
-		ThrowIfFailed(pDeviceContext->Map(mBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
-
-		CopyMemory(mappedResource.pData, &curr_data, sizeof(T));
-		pDeviceContext->Unmap(mBuffer.Get(), 0);
-		return true;
-	}
+    ConstantBuffer() {}
+    ConstantBuffer(const ConstantBuffer& lhs) = delete;
 
 public:
-	void SetData(const T& data)
-	{
-		curr_data = data;
-	}
+    ID3D11Buffer* Get() const { return mBuffer.Get(); }
+    ID3D11Buffer* const* GetAddressOf() const { return mBuffer.GetAddressOf(); }
 
-	void SetAndApplyData(const T& data)
-	{
-		curr_data = data;
-		ApplyChanges();
-	}
+    HRESULT Init(ID3D11Device* device, ID3D11DeviceContext* deviceContext)
+    {
+        pDeviceContext = deviceContext;
+
+        // Create Constant Buffer
+        D3D11_BUFFER_DESC constantBufDesc = {};
+        constantBufDesc.ByteWidth = UINT((sizeof(T) + 15) & ~15);
+        constantBufDesc.Usage = D3D11_USAGE_DYNAMIC;
+        constantBufDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+        constantBufDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+        constantBufDesc.MiscFlags = 0u;
+        constantBufDesc.StructureByteStride = 0u;
+
+        return device->CreateBuffer(&constantBufDesc, 0, mBuffer.GetAddressOf());
+    }
+
+    bool ApplyChanges()
+    {
+        D3D11_MAPPED_SUBRESOURCE mappedResource;
+        ThrowIfFailed(pDeviceContext->Map(mBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
+
+        CopyMemory(mappedResource.pData, &curr_data, sizeof(T));
+        pDeviceContext->Unmap(mBuffer.Get(), 0);
+        return true;
+    }
+
+public:
+    void SetData(const T& data) { curr_data = data; }
+
+    void SetAndApplyData(const T& data)
+    {
+        curr_data = data;
+        ApplyChanges();
+    }
 
 private:
-	T curr_data;
-	Microsoft::WRL::ComPtr<ID3D11Buffer> mBuffer;
-	ID3D11DeviceContext* pDeviceContext = nullptr;
+    T curr_data;
+    Microsoft::WRL::ComPtr<ID3D11Buffer> mBuffer;
+    ID3D11DeviceContext* pDeviceContext = nullptr;
 };

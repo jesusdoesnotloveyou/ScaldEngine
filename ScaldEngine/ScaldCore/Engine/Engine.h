@@ -13,27 +13,27 @@ class ModelData;
 class Engine
 {
 public:
-	Engine();
-	~Engine();
-	int Launch();
-	
-	// Katamari specific
-	std::shared_ptr<KatamariPlayer> m_player = nullptr;
-	std::unordered_map<std::string, std::unique_ptr<ModelData>> m_models;
+    Engine();
+    ~Engine();
+    int Launch();
+
+    // Katamari specific
+    std::shared_ptr<KatamariPlayer> m_player = nullptr;
+    std::unordered_map<std::string, std::unique_ptr<ModelData>> m_models;
 
 private:
-	void SetupScene();
-	void PollInput();
-	void UpdateScene(const ScaldTimer& st);
-	void RenderFrame(const ScaldTimer& st);
+    void SetupScene();
+    void PollInput();
+    void UpdateScene(const ScaldTimer& st);
+    void RenderFrame(const ScaldTimer& st);
 
-	void CalculateFrameStats();
-	float AspectRatio() const;
+    void CalculateFrameStats();
+    float AspectRatio() const;
 
 protected:
-	RenderWindow mRenderWindow;
-	ScaldTimer mTimer;
+    RenderWindow mRenderWindow;
+    ScaldTimer mTimer;
 
-	int mClientWidth = 1600;
-	int mClientHeight = 900;
+    int mClientWidth = 1600;
+    int mClientHeight = 900;
 };

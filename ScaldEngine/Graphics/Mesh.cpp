@@ -13,7 +13,8 @@ Mesh::Mesh(ID3D11Device* device, ID3D11DeviceContext* deviceContext, const std::
     ThrowIfFailed(mIB.Init(device, indices.data(), (UINT)indices.size()));
 }
 
-Mesh::Mesh(const Mesh& mesh) : Mesh(mesh.mDeviceContext)
+Mesh::Mesh(const Mesh& mesh)
+    : Mesh(mesh.mDeviceContext)
 {
     mIB = mesh.mIB;
     mVB = mesh.mVB;

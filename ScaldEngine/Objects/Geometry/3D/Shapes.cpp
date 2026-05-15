@@ -1,7 +1,7 @@
 #include "stdafx.h"
 #include "Shapes.h"
 
-//tuple<vector<VertexTex>, vector<DWORD>> Shapes::GetBoxShape(float width, float height, float depth, float u, float v)
+// tuple<vector<VertexTex>, vector<DWORD>> Shapes::GetBoxShape(float width, float height, float depth, float u, float v)
 //{
 //	float w = 0.5f * width;
 //	float h = 0.5f * height;
@@ -63,91 +63,91 @@
 //	};
 //
 //	return { boxVertices, boxIndices };
-//}
+// }
 
 pair<vector<VertexTex>, vector<DWORD>> Shapes::GetSphereShape(float radius, int stackCount, int sliceCount)
 {
-	vector<VertexTex> vertices{};
-	vector<DWORD> indices{};
+    vector<VertexTex> vertices{};
+    vector<DWORD> indices{};
 
-	for (int i = 0; i <= stackCount; ++i)
-	{
-		float theta = static_cast<float>(i) / stackCount * XM_PI;
-		float sinTheta = sinf(theta);
-		float cosTheta = cosf(theta);
+    for (int i = 0; i <= stackCount; ++i)
+    {
+        float theta = static_cast<float>(i) / stackCount * XM_PI;
+        float sinTheta = sinf(theta);
+        float cosTheta = cosf(theta);
 
-		for (int j = 0; j <= sliceCount; ++j)
-		{
-			float phi = static_cast<float>(j) / sliceCount * 2.0f * XM_PI;
-			float sinPhi = sinf(phi);
-			float cosPhi = cosf(phi);
+        for (int j = 0; j <= sliceCount; ++j)
+        {
+            float phi = static_cast<float>(j) / sliceCount * 2.0f * XM_PI;
+            float sinPhi = sinf(phi);
+            float cosPhi = cosf(phi);
 
-			VertexTex vertex;
-			vertex.position.x = radius * sinTheta * cosPhi;
-			vertex.position.y = radius * cosTheta;
-			vertex.position.z = radius * sinTheta * sinPhi;
+            VertexTex vertex;
+            vertex.position.x = radius * sinTheta * cosPhi;
+            vertex.position.y = radius * cosTheta;
+            vertex.position.z = radius * sinTheta * sinPhi;
 
-			vertices.push_back(vertex);
-		}
-	}
+            vertices.push_back(vertex);
+        }
+    }
 
-	for (int i = 0; i < stackCount; ++i)
-	{
-		for (int j = 0; j < sliceCount; ++j)
-		{
-			int first = (i * (sliceCount + 1)) + j;
-			int second = first + sliceCount + 1;
+    for (int i = 0; i < stackCount; ++i)
+    {
+        for (int j = 0; j < sliceCount; ++j)
+        {
+            int first = (i * (sliceCount + 1)) + j;
+            int second = first + sliceCount + 1;
 
-			indices.push_back(first);
-			indices.push_back(second);
-			indices.push_back(first + 1);
+            indices.push_back(first);
+            indices.push_back(second);
+            indices.push_back(first + 1);
 
-			indices.push_back(second);
-			indices.push_back(second + 1);
-			indices.push_back(first + 1);
-		}
-	}
+            indices.push_back(second);
+            indices.push_back(second + 1);
+            indices.push_back(first + 1);
+        }
+    }
 
-	return std::make_pair(vertices, indices);
+    return std::make_pair(vertices, indices);
 }
 
 void Shapes::GetSphereShape(std::vector<VertexTex>& outVertices, std::vector<DWORD>& outIndeces, float radius, int stackCount, int sliceCount)
 {
-	for (int i = 0; i <= stackCount; ++i)
-	{
-		float theta = static_cast<float>(i) / stackCount * XM_PI;
-		float sinTheta = sinf(theta);
-		float cosTheta = cosf(theta);
+    for (int i = 0; i <= stackCount; ++i)
+    {
+        float theta = static_cast<float>(i) / stackCount * XM_PI;
+        float sinTheta = sinf(theta);
+        float cosTheta = cosf(theta);
 
-		for (int j = 0; j <= sliceCount; ++j)
-		{
-			float phi = static_cast<float>(j) / sliceCount * 2.0f * XM_PI;
-			float sinPhi = sinf(phi);
-			float cosPhi = cosf(phi);
+        for (int j = 0; j <= sliceCount; ++j)
+        {
+            float phi = static_cast<float>(j) / sliceCount * 2.0f * XM_PI;
+            float sinPhi = sinf(phi);
+            float cosPhi = cosf(phi);
 
-			VertexTex vertex;
-			vertex.position.x = radius * sinTheta * cosPhi;
-			vertex.position.y = radius * cosTheta;
-			vertex.position.z = radius * sinTheta * sinPhi;
+            VertexTex vertex;
+            vertex.position.x = radius * sinTheta * cosPhi;
+            vertex.position.y = radius * cosTheta;
+            vertex.position.z = radius * sinTheta * sinPhi;
 
-			outVertices.push_back(vertex);
-		}
-	}
+            outVertices.push_back(vertex);
+        }
+    }
 
-	for (int i = 0; i < stackCount; ++i)
-	{
-		for (int j = 0; j < sliceCount; ++j)
-		{
-			int first = (i * (sliceCount + 1)) + j;
-			int second = first + sliceCount + 1;
+    for (int i = 0; i < stackCount; ++i)
+    {
+        for (int j = 0; j < sliceCount; ++j)
+        {
+            int first = (i * (sliceCount + 1)) + j;
+            int second = first + sliceCount + 1;
 
-			outIndeces.push_back(first);
-			outIndeces.push_back(second);
-			outIndeces.push_back(first + 1);
+            outIndeces.push_back(first);
+            outIndeces.push_back(second);
+            outIndeces.push_back(first + 1);
 
-			outIndeces.push_back(second);
-			outIndeces.push_back(second + 1);
-			outIndeces.push_back(first + 1);
-		}
-	}
+            outIndeces.push_back(second);
+            outIndeces.push_back(second + 1);
+            outIndeces.push_back(first + 1);
+        }
+    }
 }

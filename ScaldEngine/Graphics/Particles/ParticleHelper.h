@@ -6,43 +6,50 @@
 
 #include <random>
 
-#define SAFE_RELEASE(p) { if (p) { (p)->Release(); (p)=nullptr; } }
+#define SAFE_RELEASE(p)     \
+    {                       \
+        if (p)              \
+        {                   \
+            (p)->Release(); \
+            (p) = nullptr;  \
+        }                   \
+    }
 
 using namespace DirectX;
 
 struct Particle
 {
-    XMVECTOR pos            = XMVectorZero();
-    XMVECTOR prevPos        = XMVectorZero();
-    XMVECTOR velocity       = XMVectorZero();
-    XMVECTOR acceleration   = XMVectorZero();
-    XMVECTOR initialColor   = XMVectorZero();
-    XMVECTOR endColor       = XMVectorZero();
-    float maxLifeTime   = 1.0f;
-    float lifeTime      = 0.0f;
-    float initialSize   = 1.0f;
-    float endSize       = 1.0f; // or sizeDelta
+    XMVECTOR pos = XMVectorZero();
+    XMVECTOR prevPos = XMVectorZero();
+    XMVECTOR velocity = XMVectorZero();
+    XMVECTOR acceleration = XMVectorZero();
+    XMVECTOR initialColor = XMVectorZero();
+    XMVECTOR endColor = XMVectorZero();
+    float maxLifeTime = 1.0f;
+    float lifeTime = 0.0f;
+    float initialSize = 1.0f;
+    float endSize = 1.0f;  // or sizeDelta
     float initialWeight = 1.0f;
-    float endWeight     = 1.0f; // or weightDelta
+    float endWeight = 1.0f;  // or weightDelta
     float pad[2];
 };
 
 struct ParticleConstantBuffer
 {
-    float deltaTime         = 0.0f;
-    UINT maxNumParticles    = 0u;
+    float deltaTime = 0.0f;
+    UINT maxNumParticles = 0u;
     UINT numEmitInThisFrame = 0u;
-    UINT numAliveParticles  = 0u;
-    XMVECTOR gEmitPos       = XMVectorZero();
-    XMVECTOR gEyePos        = XMVectorZero();
+    UINT numAliveParticles = 0u;
+    XMVECTOR gEmitPos = XMVectorZero();
+    XMVECTOR gEyePos = XMVectorZero();
 };
 
 struct Camera—onstantBuffer
 {
-    XMMATRIX gView          = XMMatrixIdentity();
-    XMMATRIX gProjection    = XMMatrixIdentity();
-    XMVECTOR gForward       = XMVectorZero();
-    XMVECTOR gUp            = XMVectorZero();
+    XMMATRIX gView = XMMatrixIdentity();
+    XMMATRIX gProjection = XMMatrixIdentity();
+    XMVECTOR gForward = XMVectorZero();
+    XMVECTOR gUp = XMVectorZero();
 };
 
 struct SortList
@@ -59,7 +66,7 @@ struct SortConstantBuffer
     UINT g_iHeight;
 };
 
-template<typename T>
+template <typename T>
 T generateRandom(T min, T max)
 {
     std::random_device rd;

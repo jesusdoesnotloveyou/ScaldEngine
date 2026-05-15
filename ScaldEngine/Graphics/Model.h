@@ -12,25 +12,25 @@
 class Model
 {
 public:
-	Model() = default;
-	~Model() = default;
+    Model() = default;
+    ~Model() = default;
 
-	bool Init(ID3D11Device* device, ID3D11DeviceContext* deviceContext, const std::string& modelFilePath, const std::wstring& textureFilePath);
-	void SetTexture(ID3D11ShaderResourceView* texture);
-	void Draw();
+    bool Init(ID3D11Device* device, ID3D11DeviceContext* deviceContext, const std::string& modelFilePath, const std::wstring& textureFilePath);
+    void SetTexture(ID3D11ShaderResourceView* texture);
+    void Draw();
 
-	ConstantBuffer<ConstantBufferPerObject>& GetConstantBufferVS();
+    ConstantBuffer<ConstantBufferPerObject>& GetConstantBufferVS();
 
 private:
-	bool LoadModel(const std::string& filePath);
-	void ProcessNode(aiNode* node, const aiScene* scene);
-	Mesh ProcessMesh(aiMesh* mesh, const aiScene* scene);
+    bool LoadModel(const std::string& filePath);
+    void ProcessNode(aiNode* node, const aiScene* scene);
+    Mesh ProcessMesh(aiMesh* mesh, const aiScene* scene);
 
-	ConstantBuffer<ConstantBufferPerObject> mCBPerObject;
-	
-	std::vector<Mesh> mMeshes;
-	Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mTexture;
+    ConstantBuffer<ConstantBufferPerObject> mCBPerObject;
 
-	ID3D11Device* pDevice = nullptr;
-	ID3D11DeviceContext* pDeviceContext = nullptr;
+    std::vector<Mesh> mMeshes;
+    Microsoft::WRL::ComPtr<ID3D11ShaderResourceView> mTexture;
+
+    ID3D11Device* pDevice = nullptr;
+    ID3D11DeviceContext* pDeviceContext = nullptr;
 };

@@ -3,29 +3,26 @@
 #include "Objects/Geometry/3D/Shapes.h"
 
 Light::Light(const std::string& filePath)
-    :
-    mLookAt(0.0f, 0.0f, 0.0f),
-    mViewMatrix(XMMatrixIdentity()),
-    mPerspectiveProjectionMatrix(XMMatrixIdentity()),
-    mOrthographicProjectionMatrix(XMMatrixIdentity())
+    : mLookAt(0.0f, 0.0f, 0.0f),
+      mViewMatrix(XMMatrixIdentity()),
+      mPerspectiveProjectionMatrix(XMMatrixIdentity()),
+      mOrthographicProjectionMatrix(XMMatrixIdentity())
 {
     LightParams = std::make_unique<LIGHT_DESC>();
-	modelPath = filePath;
+    modelPath = filePath;
     mCollisionComponent->DisableCollision();
 }
 
-Light::~Light() noexcept
-{
-}
+Light::~Light() noexcept {}
 
 void Light::Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, const std::string& filePath, const std::wstring& texturePath)
 {
     UpdateLightParams();
-    //if (LightType == ELightType::Directional)
+    // if (LightType == ELightType::Directional)
     //{
-    //    // CreateScreenQuad
-    //}
-    
+    //     // CreateScreenQuad
+    // }
+
     if (LightType == ELightType::Point || LightType == ELightType::Spot)
     {
         std::vector<VertexTex> volumeVertices;
@@ -35,7 +32,7 @@ void Light::Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, con
         LightVolume = std::make_unique<Mesh>(pDevice, pDeviceContext, volumeVertices, volumeIndices);
     }
 
-	SceneGeometry::Init(pDevice, pDeviceContext, modelPath, texturePath);
+    SceneGeometry::Init(pDevice, pDeviceContext, modelPath, texturePath);
 
     GenerateViewMatrix();
     GenerateOrthographicProjectionMatrix(100.0f, 100.0f, 0.1f, 500.0f);
@@ -43,16 +40,16 @@ void Light::Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, con
 
 void Light::Update(const ScaldTimer& st)
 {
-	SceneGeometry::Update(st);
+    SceneGeometry::Update(st);
     UpdateLightParams();
     // if directional light is moving
-    //GenerateViewMatrix();
-    //GenerateOrthographicProjectionMatrix(100.0f, 100.0f, 0.1f, 100.0f);
+    // GenerateViewMatrix();
+    // GenerateOrthographicProjectionMatrix(100.0f, 100.0f, 0.1f, 100.0f);
 }
 
 void Light::Draw()
 {
-	SceneGeometry::Draw();
+    SceneGeometry::Draw();
 }
 
 void Light::DrawLightVolume(ID3D11DeviceContext* pDeviceContext)
@@ -67,10 +64,10 @@ void Light::DrawLightVolume(ID3D11DeviceContext* pDeviceContext)
     pDeviceContext->IASetIndexBuffer(lightIB.Get(), DXGI_FORMAT_R32_UINT, 0u);
     /*if (lightIB is empty)
     {
-        pDeviceContext->Draw(lightVB.GetBufferSize(), 0u);  
+        pDeviceContext->Draw(lightVB.GetBufferSize(), 0u);
     }
     else*/
-        pDeviceContext->DrawIndexed(lightIB.GetBufferSize(), 0u, 0);
+    pDeviceContext->DrawIndexed(lightIB.GetBufferSize(), 0u, 0);
 }
 
 void Light::SetAmbientColor(float x, float y, float z, float w)
@@ -79,7 +76,7 @@ void Light::SetAmbientColor(float x, float y, float z, float w)
     LightParams->ambient = XMFLOAT4(x, y, z, w);
 }
 
-XMFLOAT4 Light::GetAmbientColor()const
+XMFLOAT4 Light::GetAmbientColor() const
 {
     return LightParams ? LightParams->ambient : XMFLOAT4{};
 }
@@ -90,7 +87,7 @@ void Light::SetDiffuseColor(float x, float y, float z, float w)
     LightParams->diffuse = XMFLOAT4(x, y, z, w);
 }
 
-XMFLOAT4 Light::GetDiffuseColor()const
+XMFLOAT4 Light::GetDiffuseColor() const
 {
     return LightParams ? LightParams->diffuse : XMFLOAT4{};
 }
@@ -101,7 +98,7 @@ void Light::SetSpecularColor(float x, float y, float z, float w)
     LightParams->specular = XMFLOAT4(x, y, z, w);
 }
 
-XMFLOAT4 Light::GetSpecularColor()const
+XMFLOAT4 Light::GetSpecularColor() const
 {
     return LightParams ? LightParams->specular : XMFLOAT4{};
 }
@@ -117,7 +114,7 @@ void Light::SetDirection(float x, float y, float z)
     XMStoreFloat3(&LightParams->direction, XMVector3Normalize(XMVectorSet(x, y, z, 0.0f)));
 }
 
-XMFLOAT3 Light::GetDirection()const
+XMFLOAT3 Light::GetDirection() const
 {
     return LightParams ? LightParams->direction : XMFLOAT3{};
 }
@@ -139,17 +136,18 @@ void Light::SetAttenuation(float x, float y, float z)
     LightParams->attenuation = XMFLOAT3(x, y, z);
 }
 
-XMFLOAT3 Light::GetAttenuation()const
+XMFLOAT3 Light::GetAttenuation() const
 {
     return LightParams ? LightParams->attenuation : XMFLOAT3{};
 }
 
 void Light::GenerateViewMatrix()
 {
-    XMFLOAT3 up = { 0.0f, 1.0f, 0.0f };
+    XMFLOAT3 up = {0.0f, 1.0f, 0.0f};
     XMVECTOR lookAtVector, upVector;
-    XMVECTOR pos = GetPosition();;
-    
+    XMVECTOR pos = GetPosition();
+    ;
+
     // Load the XMFLOAT3 into XMVECTOR.
     lookAtVector = XMLoadFloat3(&mLookAt);
     upVector = XMLoadFloat3(&up);
@@ -158,9 +156,7 @@ void Light::GenerateViewMatrix()
     mViewMatrix = XMMatrixLookAtLH(pos, lookAtVector, upVector);
 }
 
-void Light::GeneratePerspectiveProjectionMatrix(float, float)
-{
-}
+void Light::GeneratePerspectiveProjectionMatrix(float, float) {}
 
 void Light::GenerateOrthographicProjectionMatrix(float ViewWidth, float ViewHeight, float NearZ, float FarZ)
 {
@@ -169,12 +165,12 @@ void Light::GenerateOrthographicProjectionMatrix(float ViewWidth, float ViewHeig
 
 const XMMATRIX& Light::GetViewMatrix() const
 {
-	return mViewMatrix;
+    return mViewMatrix;
 }
 
 const XMMATRIX& Light::GetPerspectiveProjectionMatrix() const
 {
-	return mPerspectiveProjectionMatrix;
+    return mPerspectiveProjectionMatrix;
 }
 
 const XMMATRIX& Light::GetOrthographicProjectionMatrix() const
@@ -182,23 +178,18 @@ const XMMATRIX& Light::GetOrthographicProjectionMatrix() const
     return mOrthographicProjectionMatrix;
 }
 
-void Light::UpdateLightParams()
-{
-
-}
+void Light::UpdateLightParams() {}
 
 /*
  * Directional Light
  */
-DirectionalLight::DirectionalLight(const std::string& filePath) : Light(filePath)
+DirectionalLight::DirectionalLight(const std::string& filePath)
+    : Light(filePath)
 {
     LightType = ELightType::Directional;
 }
 
-DirectionalLight::~DirectionalLight() noexcept
-{
-
-}
+DirectionalLight::~DirectionalLight() noexcept {}
 
 void DirectionalLight::Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, const std::string& filePath, const std::wstring& texturePath)
 {
@@ -220,14 +211,13 @@ void DirectionalLight::Draw()
 /*
  * Point Light
  */
-PointLight::PointLight(const std::string& filePath) : Light(filePath)
+PointLight::PointLight(const std::string& filePath)
+    : Light(filePath)
 {
     LightType = ELightType::Point;
 }
 
-PointLight::~PointLight() noexcept
-{
-}
+PointLight::~PointLight() noexcept {}
 
 void PointLight::Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, const std::string& filePath, const std::wstring& texturePath)
 {
@@ -269,14 +259,13 @@ float PointLight::CalcPointLightRange()
 /*
  * Spot Light
  */
-SpotLight::SpotLight(const std::string& filePath) : Light(filePath)
+SpotLight::SpotLight(const std::string& filePath)
+    : Light(filePath)
 {
     LightType = ELightType::Spot;
 }
 
-SpotLight::~SpotLight() noexcept
-{
-}
+SpotLight::~SpotLight() noexcept {}
 
 void SpotLight::Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, const std::string& filePath, const std::wstring& texturePath)
 {

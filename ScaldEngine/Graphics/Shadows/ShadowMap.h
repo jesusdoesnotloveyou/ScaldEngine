@@ -5,21 +5,22 @@
 class ShadowMap
 {
 public:
-	ShadowMap(ID3D11Device* device, UINT width, UINT height);
-	~ShadowMap() noexcept;
-	ID3D11ShaderResourceView* Get()const;
-	ID3D11ShaderResourceView* const* GetAddressOf()const;
-	void BindDsvAndSetNullRenderTarget(ID3D11DeviceContext* dc);
-private:
-	ShadowMap(const ShadowMap& lhs);
-	ShadowMap& operator=(const ShadowMap& lhs) = default;
+    ShadowMap(ID3D11Device* device, UINT width, UINT height);
+    ~ShadowMap() noexcept;
+    ID3D11ShaderResourceView* Get() const;
+    ID3D11ShaderResourceView* const* GetAddressOf() const;
+    void BindDsvAndSetNullRenderTarget(ID3D11DeviceContext* dc);
 
 private:
-	// square 512, 1024, 2048, 4096 
-	UINT mWidth = 2048;
-	UINT mHeight = 2048;
+    ShadowMap(const ShadowMap& lhs);
+    ShadowMap& operator=(const ShadowMap& lhs) = default;
 
-	ID3D11ShaderResourceView* mDepthMapSRV;
-	ID3D11DepthStencilView* mDepthMapDSV;
-	D3D11_VIEWPORT mViewport;
+private:
+    // square 512, 1024, 2048, 4096
+    UINT mWidth = 2048;
+    UINT mHeight = 2048;
+
+    ID3D11ShaderResourceView* mDepthMapSRV;
+    ID3D11DepthStencilView* mDepthMapDSV;
+    D3D11_VIEWPORT mViewport;
 };

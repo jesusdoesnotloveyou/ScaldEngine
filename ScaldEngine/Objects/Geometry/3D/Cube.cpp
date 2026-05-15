@@ -1,34 +1,34 @@
 #include "stdafx.h"
-//#include "Cube.h"
+// #include "Cube.h"
 //
-//Cube::Cube() : SceneGeometry()
+// Cube::Cube() : SceneGeometry()
 //{
 //	SetVertices();
 //	SetIndices();
-//}
+// }
 //
-//Cube::Cube(const tuple<vector<VertexTex>, vector<DWORD>>& vi) : SceneGeometry()
+// Cube::Cube(const tuple<vector<VertexTex>, vector<DWORD>>& vi) : SceneGeometry()
 //{
 //	vertices = std::get<0>(vi);
 //	indices = std::get<1>(vi);
-//}
+// }
 //
-//Cube::~Cube()
+// Cube::~Cube()
 //{
 //
-//}
+// }
 //
-//void Cube::Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, const std::string& filePath, const std::wstring& texturePath)
+// void Cube::Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, const std::string& filePath, const std::wstring& texturePath)
 //{
 //	SceneGeometry::Init(pDevice, pDeviceContext);
-//}
+// }
 //
-//void Cube::Update(const ScaldTimer& st)
+// void Cube::Update(const ScaldTimer& st)
 //{
 //	SceneGeometry::Update(st);
-//}
+// }
 //
-//void Cube::SetIndices()
+// void Cube::SetIndices()
 //{
 //	indices = {
 //		// front face
@@ -50,9 +50,9 @@
 //		4, 0, 3,
 //		4, 3, 7
 //	};
-//}
+// }
 //
-//void Cube::SetVertices()
+// void Cube::SetVertices()
 //{
 //	vertices = {
 //		VertexTex(-1.0f, -1.0f, -1.0f, 1.0f, 0.0f, 0.0f),
@@ -64,4 +64,4 @@
 //		VertexTex(+1.0f, +1.0f, +1.0f, 1.0f, 0.0f, 0.0f),
 //		VertexTex(+1.0f, -1.0f, +1.0f, 1.0f, 0.0f, 0.0f)
 //	};
-//}
+// }

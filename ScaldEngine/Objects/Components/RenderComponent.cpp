@@ -2,12 +2,6 @@
 #include "ScaldException.h"
 #include "RenderComponent.h"
 
-RenderComponent::RenderComponent()
-{
+RenderComponent::RenderComponent() {}
 
-}
-
-void RenderComponent::Update(const ScaldTimer& st)
-{
-
-}
+void RenderComponent::Update(const ScaldTimer& st) {}

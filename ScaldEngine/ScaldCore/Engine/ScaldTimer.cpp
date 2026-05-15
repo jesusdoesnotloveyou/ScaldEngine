@@ -3,15 +3,14 @@
 #include "ScaldTimer.h"
 
 ScaldTimer::ScaldTimer()
-    :
-    mSecondsPerCount(0.0),
-    mDeltaTime(-1.0),
-    mBaseTime(0),
-    mPausedTime(0),
-    mStopTime(0),
-    mPrevTime(0),
-    mCurrTime(0),
-    mStopped(false)
+    : mSecondsPerCount(0.0),
+      mDeltaTime(-1.0),
+      mBaseTime(0),
+      mPausedTime(0),
+      mStopTime(0),
+      mPrevTime(0),
+      mCurrTime(0),
+      mStopped(false)
 {
     __int64 countsPerSec;
     QueryPerformanceFrequency((LARGE_INTEGER*)&countsPerSec);
@@ -22,9 +21,9 @@ ScaldTimer::ScaldTimer()
 float ScaldTimer::TotalTime() const
 {
     // If we are stopped, do not count the time that has passed since we stopped.
-    // Moreover, if we previously already had a pause, the distance 
+    // Moreover, if we previously already had a pause, the distance
     // mStopTime - mBaseTime includes paused time, which we do not want to count.
-    // To correct this, we can subtract the paused time from mStopTime:  
+    // To correct this, we can subtract the paused time from mStopTime:
     //
     //                     |<--paused time-->|
     // ----*---------------*-----------------*------------*------------*------> time
@@ -35,14 +34,14 @@ float ScaldTimer::TotalTime() const
         return (float)(((mStopTime - mPausedTime) - mBaseTime) * mSecondsPerCount);
     }
     // The distance mCurrTime - mBaseTime includes paused time,
-     // which we do not want to count.  To correct this, we can subtract 
-     // the paused time from mCurrTime:  
-     //
-     //  (mCurrTime - mPausedTime) - mBaseTime 
-     //
-     //                     |<--paused time-->|
-     // ----*---------------*-----------------*------------*------> time
-     //  mBaseTime       mStopTime        startTime     mCurrTime
+    // which we do not want to count.  To correct this, we can subtract
+    // the paused time from mCurrTime:
+    //
+    //  (mCurrTime - mPausedTime) - mBaseTime
+    //
+    //                     |<--paused time-->|
+    // ----*---------------*-----------------*------------*------> time
+    //  mBaseTime       mStopTime        startTime     mCurrTime
 
     else
     {
@@ -75,7 +74,7 @@ void ScaldTimer::Start()
     //
     //                     |<-------d------->|
     // ----*---------------*-----------------*------------> time
-    //  mBaseTime       mStopTime        startTime     
+    //  mBaseTime       mStopTime        startTime
 
     if (mStopped)
     {
@@ -116,7 +115,7 @@ void ScaldTimer::Tick()
     // Prepare for next frame.
     mPrevTime = mCurrTime;
 
-    // Force nonnegative.  The DXSDK's CDXUTTimer mentions that if the 
+    // Force nonnegative.  The DXSDK's CDXUTTimer mentions that if the
     // processor goes into a power save mode or we get shuffled to another
     // processor, then mDeltaTime can be negative.
     if (mDeltaTime < 0.0)

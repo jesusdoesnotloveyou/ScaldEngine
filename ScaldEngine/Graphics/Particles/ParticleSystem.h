@@ -10,7 +10,7 @@ using namespace Microsoft::WRL;
 
 static constexpr uint32_t injectionBufferSize = 1024;
 
-class ParticleSystem 
+class ParticleSystem
 {
 public:
     ParticleSystem(ID3D11Device* device, ID3D11DeviceContext* deviceContext, int maxParticles, XMVECTOR origin, ThirdPersonCamera* camera);
@@ -20,6 +20,7 @@ public:
     virtual void Emit(int numParticles);
     virtual void InitializeSystem();
     virtual ~ParticleSystem() noexcept;
+
 private:
     void SetConstBuffer(UINT iLevel, UINT iLevelMask, UINT iWidth, UINT iHeight);
 
@@ -34,7 +35,7 @@ protected:
     virtual void InitializeParticle(int index) = 0;
     void SortParticles();
 
-    template<typename T>
+    template <typename T>
     HRESULT CreateRWStructuredBuffer(ID3D11Device* device, ID3D11Buffer** buffer, UINT numElements, T* bufferData = nullptr)
     {
         UINT stride = (UINT)sizeof(T);
@@ -42,7 +43,7 @@ protected:
 
         D3D11_BUFFER_DESC desc;
         desc.ByteWidth = byteWidth;
-        desc.Usage = D3D11_USAGE_DEFAULT; // without CPU write
+        desc.Usage = D3D11_USAGE_DEFAULT;  // without CPU write
         desc.BindFlags = D3D11_BIND_UNORDERED_ACCESS | D3D11_BIND_SHADER_RESOURCE;
         desc.CPUAccessFlags = 0u;
         desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
@@ -60,7 +61,7 @@ protected:
         return device->CreateBuffer(&desc, nullptr, buffer);
     }
 
-    template<typename T>
+    template <typename T>
     HRESULT CreateRWStructuredBufferCPUWrite(ID3D11Device* device, ID3D11Buffer** buffer, UINT numElements, T* bufferData = nullptr)
     {
         UINT stride = (UINT)sizeof(T);
@@ -86,7 +87,7 @@ protected:
         return device->CreateBuffer(&desc, nullptr, buffer);
     }
 
-    template<typename T>
+    template <typename T>
     bool ApplyChanges(ID3D11DeviceContext* deviceContext, ID3D11Buffer* buffer, UINT numElements, T* data)
     {
         D3D11_MAPPED_SUBRESOURCE mappedResource;
@@ -119,7 +120,7 @@ protected:
     ID3D11Buffer* deadListBuffer = nullptr;
     ComPtr<ID3D11UnorderedAccessView> mDeadListBufferUAV;
     ComPtr<ID3D11ShaderResourceView> mDeadListBufferSRV;
-    
+
     // indirect
     ID3D11Buffer* indirectArgsBuffer = nullptr;
 
@@ -127,7 +128,7 @@ protected:
     std::unique_ptr<Particle[]> injectionParticleData = nullptr;
     ID3D11Buffer* injectionBuffer = nullptr;
     ComPtr<ID3D11ShaderResourceView> mInjectionBufferSRV;
-     
+
     GeometryShader mBillboardGeometryShader;
     ComputeShader mBitonicSortShader;
     ComputeShader mBitonicTransposeShader;
@@ -146,9 +147,9 @@ protected:
     ComPtr<ID3D11SamplerState> mParticleSamplerClamp;
     ComPtr<ID3D11ShaderResourceView> mBillboardTexture;
 
-    UINT      maxParticles = 4096u;    // maximum number of particles in total
-    int       numParticles = 0;        // current number of particles
-    XMVECTOR  origin;                  // center of the particle system
-    float     accumulatedTime;         // track when was last particle emitted
-    XMVECTOR  force;                   // force (gravity, wind, etc.) acting on the system
+    UINT maxParticles = 4096u;  // maximum number of particles in total
+    int numParticles = 0;       // current number of particles
+    XMVECTOR origin;            // center of the particle system
+    float accumulatedTime;      // track when was last particle emitted
+    XMVECTOR force;             // force (gravity, wind, etc.) acting on the system
 };

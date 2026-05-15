@@ -6,16 +6,15 @@
 SceneGeometry::SceneGeometry()
 {
     mCollisionComponent = new CollisionComponent(this);
-    //mRenderComponent = new RenderComponent{};
+    // mRenderComponent = new RenderComponent{};
 }
 
-SceneGeometry::SceneGeometry(const tuple<vector<VertexTex>, vector<DWORD>>& vi)
-{}
+SceneGeometry::SceneGeometry(const tuple<vector<VertexTex>, vector<DWORD>>& vi) {}
 
 SceneGeometry::~SceneGeometry()
 {
     if (mCollisionComponent) delete mCollisionComponent;
-    //if (mRenderComponent) delete mRenderComponent;
+    // if (mRenderComponent) delete mRenderComponent;
 }
 
 void SceneGeometry::Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, const std::string& filePath, const std::wstring& texturePath)

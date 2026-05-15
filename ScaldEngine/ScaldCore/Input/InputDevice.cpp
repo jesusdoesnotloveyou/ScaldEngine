@@ -79,7 +79,7 @@ bool Keyboard::IsAutorepeatEnabled() const noexcept
 void Keyboard::OnKeyPressed(unsigned char keyCode) noexcept
 {
     keyStates[keyCode] = true;
-    keyBuffer.push(Keyboard::Event{ Keyboard::Event::Type::Press, keyCode });
+    keyBuffer.push(Keyboard::Event{Keyboard::Event::Type::Press, keyCode});
     // Too early for delegates
     OnKeyPressedEvent.Broadcast(keyCode);
     TrimBuffer(keyBuffer);
@@ -88,7 +88,7 @@ void Keyboard::OnKeyPressed(unsigned char keyCode) noexcept
 void Keyboard::OnKeyReleased(unsigned char keyCode) noexcept
 {
     keyStates[keyCode] = false;
-    keyBuffer.push(Keyboard::Event{ Keyboard::Event::Type::Release, keyCode });
+    keyBuffer.push(Keyboard::Event{Keyboard::Event::Type::Release, keyCode});
     // Too early for delegates
     OnKeyReleasedEvent.Broadcast(keyCode);
     TrimBuffer(keyBuffer);
@@ -112,7 +112,7 @@ void Keyboard::ClearState() noexcept
 
 std::pair<int, int> Mouse::GetPos() const noexcept
 {
-    return std::pair{ x, y };
+    return std::pair{x, y};
 }
 
 int Mouse::GetPosX() const noexcept

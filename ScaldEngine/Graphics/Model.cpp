@@ -8,7 +8,7 @@ bool Model::Init(ID3D11Device* device, ID3D11DeviceContext* deviceContext, const
     pDeviceContext = deviceContext;
 
     ThrowIfFailed(mCBPerObject.Init(pDevice, pDeviceContext));
-    
+
     if (!textureFilePath.empty())
     {
         ThrowIfFailed(CreateWICTextureFromFile(pDevice, textureFilePath.data(), nullptr, mTexture.GetAddressOf()));
@@ -25,7 +25,7 @@ void Model::SetTexture(ID3D11ShaderResourceView* texture)
 
 void Model::Draw()
 {
-                                                 // &mTexture will delete texture, since & clears memory
+    // &mTexture will delete texture, since & clears memory
     pDeviceContext->PSSetShaderResources(0u, 1u, mTexture.GetAddressOf());
     pDeviceContext->VSSetConstantBuffers(0u, 1u, mCBPerObject.GetAddressOf());
 
