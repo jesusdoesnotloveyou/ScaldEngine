@@ -1,44 +1,46 @@
 #include "stdafx.h"
 #include "Shapes.h"
 
-// tuple<vector<VertexTex>, vector<DWORD>> Shapes::GetBoxShape(float width, float height, float depth, float u, float v)
+using namespace Scald;
+
+// tuple<vector<VertexPositionNormalUV>, vector<DWORD>> Shapes::GetBoxShape(float width, float height, float depth, float u, float v)
 //{
 //	float w = 0.5f * width;
 //	float h = 0.5f * height;
 //	float d = 0.5f * depth;
 //
 //	// 24 so for normals, tangents
-//	vector<VertexTex> boxVertices
+//	vector<VertexPositionNormalUV> boxVertices
 //	{
-//		VertexTex(-w / 2, -h / 2, -d / 2, 1.0f, 0.0f, 1.0f),
-//		VertexTex(-w / 2, +h / 2, -d / 2, 1.0f, 0.0f, 0.0f),
-//		VertexTex(+w / 2, +h / 2, -d / 2, 1.0f, 1.0f, 0.0f),
-//		VertexTex(+w / 2, -h / 2, -d / 2, 1.0f, 1.0f, 1.0f),
+//		VertexPositionNormalUV(-w / 2, -h / 2, -d / 2, 1.0f, 0.0f, 1.0f),
+//		VertexPositionNormalUV(-w / 2, +h / 2, -d / 2, 1.0f, 0.0f, 0.0f),
+//		VertexPositionNormalUV(+w / 2, +h / 2, -d / 2, 1.0f, 1.0f, 0.0f),
+//		VertexPositionNormalUV(+w / 2, -h / 2, -d / 2, 1.0f, 1.0f, 1.0f),
 //
-//		VertexTex(+w / 2, +h / 2, +d / 2, 1.0f, 0.0f, 1.0f),
-//		VertexTex(-w / 2, +h / 2, +d / 2, 1.0f, 0.0f, 0.0f),
-//		VertexTex(-w / 2, -h / 2, +d / 2, 1.0f, 1.0f, 0.0f),
-//		VertexTex(+w / 2, -h / 2, +d / 2, 1.0f, 1.0f, 1.0f),
+//		VertexPositionNormalUV(+w / 2, +h / 2, +d / 2, 1.0f, 0.0f, 1.0f),
+//		VertexPositionNormalUV(-w / 2, +h / 2, +d / 2, 1.0f, 0.0f, 0.0f),
+//		VertexPositionNormalUV(-w / 2, -h / 2, +d / 2, 1.0f, 1.0f, 0.0f),
+//		VertexPositionNormalUV(+w / 2, -h / 2, +d / 2, 1.0f, 1.0f, 1.0f),
 //
-//		VertexTex(-w / 2, -h / 2, -d / 2, 1.0f, 0.0f, 1.0f),
-//		VertexTex(-w / 2, -h / 2, +d / 2, 1.0f, 0.0f, 0.0f),
-//		VertexTex(-w / 2, +h / 2, +d / 2, 1.0f, 1.0f, 0.0f),
-//		VertexTex(-w / 2, +h / 2, -d / 2, 1.0f, 1.0f, 1.0f),
+//		VertexPositionNormalUV(-w / 2, -h / 2, -d / 2, 1.0f, 0.0f, 1.0f),
+//		VertexPositionNormalUV(-w / 2, -h / 2, +d / 2, 1.0f, 0.0f, 0.0f),
+//		VertexPositionNormalUV(-w / 2, +h / 2, +d / 2, 1.0f, 1.0f, 0.0f),
+//		VertexPositionNormalUV(-w / 2, +h / 2, -d / 2, 1.0f, 1.0f, 1.0f),
 //
-//		VertexTex(+w / 2, +h / 2, -d / 2, 1.0f, 0.0f, 1.0f),
-//		VertexTex(+w / 2, -h / 2, -d / 2, 1.0f, 0.0f, 0.0f),
-//		VertexTex(+w / 2, -h / 2, +d / 2, 1.0f, 1.0f, 0.0f),
-//		VertexTex(+w / 2, +h / 2, +d / 2, 1.0f, 1.0f, 1.0f),
+//		VertexPositionNormalUV(+w / 2, +h / 2, -d / 2, 1.0f, 0.0f, 1.0f),
+//		VertexPositionNormalUV(+w / 2, -h / 2, -d / 2, 1.0f, 0.0f, 0.0f),
+//		VertexPositionNormalUV(+w / 2, -h / 2, +d / 2, 1.0f, 1.0f, 0.0f),
+//		VertexPositionNormalUV(+w / 2, +h / 2, +d / 2, 1.0f, 1.0f, 1.0f),
 //
-//		VertexTex(-w / 2, +h / 2, -d / 2, 1.0f, 0.0f, 1.0f),
-//		VertexTex(+w / 2, +h / 2, -d / 2, 1.0f, 0.0f, 0.0f),
-//		VertexTex(+w / 2, +h / 2, +d / 2, 1.0f, 1.0f, 0.0f),
-//		VertexTex(-w / 2, +h / 2, +d / 2, 1.0f, 1.0f, 1.0f),
+//		VertexPositionNormalUV(-w / 2, +h / 2, -d / 2, 1.0f, 0.0f, 1.0f),
+//		VertexPositionNormalUV(+w / 2, +h / 2, -d / 2, 1.0f, 0.0f, 0.0f),
+//		VertexPositionNormalUV(+w / 2, +h / 2, +d / 2, 1.0f, 1.0f, 0.0f),
+//		VertexPositionNormalUV(-w / 2, +h / 2, +d / 2, 1.0f, 1.0f, 1.0f),
 //
-//		VertexTex(-w / 2, -h / 2, -d / 2, 1.0f, 0.0f, 1.0f),
-//		VertexTex(+w / 2, -h / 2, -d / 2, 1.0f, 0.0f, 0.0f),
-//		VertexTex(+w / 2, -h / 2, +d / 2, 1.0f, 1.0f, 0.0f),
-//		VertexTex(-w / 2, -h / 2, +d / 2, 1.0f, 1.0f, 1.0f),
+//		VertexPositionNormalUV(-w / 2, -h / 2, -d / 2, 1.0f, 0.0f, 1.0f),
+//		VertexPositionNormalUV(+w / 2, -h / 2, -d / 2, 1.0f, 0.0f, 0.0f),
+//		VertexPositionNormalUV(+w / 2, -h / 2, +d / 2, 1.0f, 1.0f, 0.0f),
+//		VertexPositionNormalUV(-w / 2, -h / 2, +d / 2, 1.0f, 1.0f, 1.0f),
 //	};
 //
 //	vector<DWORD> boxIndices
@@ -65,10 +67,10 @@
 //	return { boxVertices, boxIndices };
 // }
 
-pair<vector<VertexTex>, vector<DWORD>> Shapes::GetSphereShape(float radius, int stackCount, int sliceCount)
+std::pair<std::vector<VertexPositionNormalUV>, std::vector<DWORD>> Shapes::GetSphereShape(float radius, int stackCount, int sliceCount)
 {
-    vector<VertexTex> vertices{};
-    vector<DWORD> indices{};
+    std::vector<VertexPositionNormalUV> vertices{};
+    std::vector<DWORD> indices{};
 
     for (int i = 0; i <= stackCount; ++i)
     {
@@ -82,7 +84,7 @@ pair<vector<VertexTex>, vector<DWORD>> Shapes::GetSphereShape(float radius, int 
             float sinPhi = sinf(phi);
             float cosPhi = cosf(phi);
 
-            VertexTex vertex;
+            VertexPositionNormalUV vertex;
             vertex.position.x = radius * sinTheta * cosPhi;
             vertex.position.y = radius * cosTheta;
             vertex.position.z = radius * sinTheta * sinPhi;
@@ -111,7 +113,7 @@ pair<vector<VertexTex>, vector<DWORD>> Shapes::GetSphereShape(float radius, int 
     return std::make_pair(vertices, indices);
 }
 
-void Shapes::GetSphereShape(std::vector<VertexTex>& outVertices, std::vector<DWORD>& outIndeces, float radius, int stackCount, int sliceCount)
+void Shapes::GetSphereShape(std::vector<VertexPositionNormalUV>& outVertices, std::vector<DWORD>& outIndeces, float radius, int stackCount, int sliceCount)
 {
     for (int i = 0; i <= stackCount; ++i)
     {
@@ -125,7 +127,7 @@ void Shapes::GetSphereShape(std::vector<VertexTex>& outVertices, std::vector<DWO
             float sinPhi = sinf(phi);
             float cosPhi = cosf(phi);
 
-            VertexTex vertex;
+            VertexPositionNormalUV vertex;
             vertex.position.x = radius * sinTheta * cosPhi;
             vertex.position.y = radius * cosTheta;
             vertex.position.z = radius * sinTheta * sinPhi;

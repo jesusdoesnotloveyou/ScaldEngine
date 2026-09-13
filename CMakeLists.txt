@@ -47,6 +47,7 @@ set(INCLUDES
     ScaldEngine/Graphics/IndexBuffer.h
     ScaldEngine/Graphics/Mesh.h
     ScaldEngine/Graphics/Model.h
+    ScaldEngine/Graphics/ScaldCoreDefines.h
     ScaldEngine/Graphics/ScaldCoreTypes.h
     ScaldEngine/Graphics/Shaders.h
     ScaldEngine/Graphics/VertexBuffer.h
@@ -58,9 +59,7 @@ set(INCLUDES
     ScaldEngine/Objects/Components/ScaldComponent.h
     ScaldEngine/Objects/Components/SceneComponent.h
     ScaldEngine/Objects/Components/TransformComponent.h
-    ScaldEngine/Objects/Geometry/3D/Cube.h
-    ScaldEngine/Objects/Geometry/3D/Shapes.h
-    ScaldEngine/Objects/Geometry/3D/Sphere.h
+    ScaldEngine/Objects/Geometry/Shapes.h
     ScaldEngine/Objects/Geometry/Actor.h
     ScaldEngine/Objects/Geometry/SceneGeometry.h
     ScaldEngine/Objects/ScaldObject.h
@@ -101,9 +100,7 @@ set(SOURCES
     ScaldEngine/Objects/Components/RenderComponent.cpp
     ScaldEngine/Objects/Components/SceneComponent.cpp
     ScaldEngine/Objects/Components/TransformComponent.cpp
-    ScaldEngine/Objects/Geometry/3D/Cube.cpp
-    ScaldEngine/Objects/Geometry/3D/Shapes.cpp
-    ScaldEngine/Objects/Geometry/3D/Sphere.cpp
+    ScaldEngine/Objects/Geometry/Shapes.cpp
     ScaldEngine/Objects/Geometry/Actor.cpp
     ScaldEngine/Objects/Geometry/SceneGeometry.cpp
     
