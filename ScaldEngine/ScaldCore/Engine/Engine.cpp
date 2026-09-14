@@ -4,9 +4,15 @@
 #include "Games/Katamari/KatamariPlayer.h"
 #include "Graphics/Camera/ThirdPersonCamera.h"
 #include "Graphics/Light/Light.h"
+#include "Objects/Components/TransformComponent.h"
+#include "Objects/Geometry/Actor.h"
+
+using namespace Scald;
 
 Engine::Engine()
-    : mRenderWindow(1600, 900, "Direct3DApp")
+    : m_clientWidth(1280u)
+    , m_clientHeight(720u)
+    , m_renderWindow(m_clientWidth, m_clientHeight, "Direct3DApp")
 {
 }
 
@@ -14,13 +20,14 @@ Engine::~Engine() {}
 
 int Engine::Launch()
 {
-    mRenderWindow.GetGfx().Setup();
+    m_renderWindow.GetGfx().Setup();
     SetupScene();
 
-    mTimer.Reset();
+    m_timer.Reset();
+
     while (true)
     {
-        mTimer.Tick();
+        m_timer.Tick();
         // process all messages pending, but to not block
         if (const auto eCode = RenderWindow::ProcessMessages())
         {
@@ -30,8 +37,8 @@ int Engine::Launch()
         // otherwise
         CalculateFrameStats();
         PollInput();
-        UpdateScene(mTimer);
-        RenderFrame(mTimer);
+        Update(m_timer);
+        RenderFrame(m_timer);
     }
 }
 
@@ -148,51 +155,51 @@ void Engine::SetupScene()
     rockFloor->ObjectName = std::string("rock");
     rockFloor->GetCollisionComponent()->DisableCollision();
 
-    mRenderWindow.GetGfx().AddPlayer(m_player);
-    mRenderWindow.GetGfx().AddToRenderPool(m_player);
-    mRenderWindow.GetGfx().AddToRenderPool(std::move(tony));
-    mRenderWindow.GetGfx().AddToRenderPool(std::move(box));
-    mRenderWindow.GetGfx().AddToRenderPool(std::move(alien));
-    mRenderWindow.GetGfx().AddToRenderPool(std::move(chair));
-    mRenderWindow.GetGfx().AddToRenderPool(std::move(pig));
-    mRenderWindow.GetGfx().AddToRenderPool(std::move(rockFloor));
+    m_renderWindow.GetGfx().AddPlayer(m_player);
+    m_renderWindow.GetGfx().AddToRenderPool(m_player);
+    m_renderWindow.GetGfx().AddToRenderPool(std::move(tony));
+    m_renderWindow.GetGfx().AddToRenderPool(std::move(box));
+    m_renderWindow.GetGfx().AddToRenderPool(std::move(alien));
+    m_renderWindow.GetGfx().AddToRenderPool(std::move(chair));
+    m_renderWindow.GetGfx().AddToRenderPool(std::move(pig));
+    m_renderWindow.GetGfx().AddToRenderPool(std::move(rockFloor));
 
 #pragma region LightPool
-    mRenderWindow.GetGfx().AddToRenderPool(directionalLight);
-    mRenderWindow.GetGfx().AddToRenderPool(pointLight1);
-    mRenderWindow.GetGfx().AddToRenderPool(pointLight2);
-    mRenderWindow.GetGfx().AddToRenderPool(pointLight3);
-    mRenderWindow.GetGfx().AddToRenderPool(pointLight4);
-    mRenderWindow.GetGfx().AddToRenderPool(pointLight5);
-    mRenderWindow.GetGfx().AddToRenderPool(pointLight6);
-    mRenderWindow.GetGfx().AddToRenderPool(pointLight7);
-    mRenderWindow.GetGfx().AddToRenderPool(pointLight8);
-    // mRenderWindow.GetGfx().AddToRenderPool(spotLight1);
+    m_renderWindow.GetGfx().AddToRenderPool(directionalLight);
+    m_renderWindow.GetGfx().AddToRenderPool(pointLight1);
+    m_renderWindow.GetGfx().AddToRenderPool(pointLight2);
+    m_renderWindow.GetGfx().AddToRenderPool(pointLight3);
+    m_renderWindow.GetGfx().AddToRenderPool(pointLight4);
+    m_renderWindow.GetGfx().AddToRenderPool(pointLight5);
+    m_renderWindow.GetGfx().AddToRenderPool(pointLight6);
+    m_renderWindow.GetGfx().AddToRenderPool(pointLight7);
+    m_renderWindow.GetGfx().AddToRenderPool(pointLight8);
+    // m_renderWindow.GetGfx().AddToRenderPool(spotLight1);
 #pragma endregion LightPool
 
-    mRenderWindow.GetGfx().InitSceneObjects();
+    m_renderWindow.GetGfx().InitSceneObjects();
 
 #pragma region PlayerInputDelegates
-    mRenderWindow.kbd.OnKeyPressedEvent.AddRaw(m_player->GetMovement(), &KatamariMovementComponent::OnKeyPressed);
-    mRenderWindow.kbd.OnKeyReleasedEvent.AddRaw(m_player->GetMovement(), &KatamariMovementComponent::OnKeyReleased);
+    m_renderWindow.kbd.OnKeyPressedEvent.AddRaw(m_player->GetMovement(), &KatamariMovementComponent::OnKeyPressed);
+    m_renderWindow.kbd.OnKeyReleasedEvent.AddRaw(m_player->GetMovement(), &KatamariMovementComponent::OnKeyReleased);
 #pragma endregion PlayerInputDelegates
 }
 
 void Engine::PollInput()
 {
-    while (!mRenderWindow.kbd.IsKeyEmpty())
+    while (!m_renderWindow.kbd.IsKeyEmpty())
     {
-        const auto keyEvent = mRenderWindow.kbd.ReadKey();
+        const auto keyEvent = m_renderWindow.kbd.ReadKey();
         unsigned char keyCode = keyEvent.GetCode();
     }
 
 #pragma region CameraRotation
-    const auto mouseEvent = mRenderWindow.mouse.Read();
-    if (mRenderWindow.mouse.IsRightPressed())
+    const auto mouseEvent = m_renderWindow.mouse.Read();
+    if (m_renderWindow.mouse.IsRightPressed())
     {
         if (mouseEvent.GetType() == Mouse::Event::Type::RawMove)
         {
-            mRenderWindow.GetGfx().GetCamera()->AdjustRotation((float)mouseEvent.GetPosY() * 0.01f, (float)mouseEvent.GetPosX() * 0.01f, 0.0f);
+            m_renderWindow.GetGfx().GetCamera()->AdjustRotation((float)mouseEvent.GetPosY() * 0.01f, (float)mouseEvent.GetPosX() * 0.01f, 0.0f);
         }
     }
 #pragma endregion CameraRotation
@@ -200,43 +207,45 @@ void Engine::PollInput()
 #pragma region PlayerMovement
     // @todo: refactoring
     // Camera forward without Y (XoZ)
-    auto forward = XMVectorSetY(mRenderWindow.GetGfx().GetCamera()->GetForwardVector(), 0.0f);
+    auto forward = XMVectorSetY(m_renderWindow.GetGfx().GetCamera()->GetForwardVector(), 0.0f);
     forward = XMVector3Normalize(forward);
     m_player->SetForwardVector(forward);
 
     // Camera right without Y (XoZ)
-    auto right = XMVectorSetY(mRenderWindow.GetGfx().GetCamera()->GetRightVector(), 0.0f);
+    auto right = XMVectorSetY(m_renderWindow.GetGfx().GetCamera()->GetRightVector(), 0.0f);
     right = XMVector3Normalize(right);
     m_player->SetRightVector(right);
 
-    if (mRenderWindow.kbd.IsKeyPressed(VK_SPACE) && !m_player->IsFalling())
+    if (m_renderWindow.kbd.IsKeyPressed(VK_SPACE) && !m_player->IsFalling())
     {
         m_player->Jump();
     }
     // deferred additional task specific
-    if (mRenderWindow.kbd.IsKeyPressed('1'))
+    if (m_renderWindow.kbd.IsKeyPressed('1'))
     {
-        mRenderWindow.GetGfx().SwitchGBufferLayer(0);
+        m_renderWindow.GetGfx().SwitchGBufferLayer(0);
     }
-    if (mRenderWindow.kbd.IsKeyPressed('2'))
+    if (m_renderWindow.kbd.IsKeyPressed('2'))
     {
-        mRenderWindow.GetGfx().SwitchGBufferLayer(1);
+        m_renderWindow.GetGfx().SwitchGBufferLayer(1);
     }
-    if (mRenderWindow.kbd.IsKeyPressed('3'))
+    if (m_renderWindow.kbd.IsKeyPressed('3'))
     {
-        mRenderWindow.GetGfx().SwitchGBufferLayer(2);
+        m_renderWindow.GetGfx().SwitchGBufferLayer(2);
     }
 
 #pragma endregion PlayerMovement
 }
 
-void Engine::UpdateScene(const ScaldTimer& st)
+void Engine::Update(const ScaldTimer& st)
 {
-    for (auto&& sceneObject : mRenderWindow.GetGfx().mRenderObjects)
+    for (auto&& sceneObject : m_renderWindow.GetGfx().mRenderObjects)
     {
         sceneObject->Update(st);
-        // Very inefficient code I suppose
+
+// Physics subsystem
 #pragma region Collision
+        // Very inefficient code
         if (sceneObject == m_player) continue;
         // checks for collision should be here...
         if (const auto playerPawnCollision = m_player->GetCollisionComponent())
@@ -246,21 +255,22 @@ void Engine::UpdateScene(const ScaldTimer& st)
                 if (!otherCollision->IsEnabled()) continue;
                 if (playerPawnCollision->Intersects(otherCollision))
                 {
-                    playerPawnCollision->OnCollisionOverlapSignature.Broadcast(otherCollision);
+                    playerPawnCollision->Notify(otherCollision);
                 }
             }
         }
 #pragma endregion Collision
     }
-    mRenderWindow.GetGfx().Update(st);
+
+    m_renderWindow.GetGfx().Update(st);
 }
 
 void Engine::RenderFrame(const ScaldTimer& st)
 {
-    // const float color = static_cast<float>(sin(mTimer.DeltaTime()) + 1.0f);
-    mRenderWindow.GetGfx().ClearBuffer(0.0f);
-    mRenderWindow.GetGfx().DrawScene(st);
-    mRenderWindow.GetGfx().EndFrame();
+    // const float color = static_cast<float>(sin(m_timer.DeltaTime()) + 1.0f);
+    m_renderWindow.GetGfx().ClearBuffer(0.0f);
+    m_renderWindow.GetGfx().DrawScene(st);
+    m_renderWindow.GetGfx().EndFrame();
 }
 
 void Engine::CalculateFrameStats()
@@ -272,7 +282,7 @@ void Engine::CalculateFrameStats()
     static float timeElapsed = 0.0f;
     frameCnt++;
     // Compute averages over one second period.
-    if ((mTimer.TotalTime() - timeElapsed) >= 1.0f)
+    if ((m_timer.TotalTime() - timeElapsed) >= 1.0f)
     {
         float fps = (float)frameCnt;  // fps = frameCnt / 1
         float mspf = 1000.0f / fps;
@@ -280,7 +290,7 @@ void Engine::CalculateFrameStats()
         outs.precision(6);
         outs << "FPS: " << fps << " "
              << "Frame Time: " << mspf << "(ms)\n";
-        mRenderWindow.SetTitle(outs.str());
+        m_renderWindow.SetTitle(outs.str());
         // Reset for next average.
         frameCnt = 0;
         timeElapsed += 1.0f;
@@ -289,5 +299,5 @@ void Engine::CalculateFrameStats()
 
 float Engine::AspectRatio() const
 {
-    return static_cast<float>(mClientWidth) / mClientHeight;
+    return static_cast<float>(m_clientWidth) / m_clientHeight;
 }

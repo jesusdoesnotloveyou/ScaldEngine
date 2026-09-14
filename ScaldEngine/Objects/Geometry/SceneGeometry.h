@@ -2,46 +2,40 @@
 
 #include "Graphics/Model.h"
 #include "Objects/Components/SceneComponent.h"
-#include "Objects/Components/Movement/MovementComponent.h"
 #include "Objects/Components/Collision/CollisionComponent.h"
 
-#include <cmath>
 #include <vector>
+#include <string>
 #include <tuple>
 
-using std::tuple;
-using std::vector;
-
-class SceneGeometry : public SceneComponent
+namespace Scald
 {
-public:
-    SceneGeometry();
-    SceneGeometry(const tuple<vector<VertexTex>, vector<DWORD>>& vi);
-    // would be changed to normal constructor
-    virtual ~SceneGeometry() noexcept override;
+    class SceneGeometry : public SceneComponent
+    {
+    public:
+        SceneGeometry();
+        SceneGeometry(const std::tuple<std::vector<Scald::VertexPositionNormalUV>, std::vector<DWORD>>& vi);
+        // would be changed to normal constructor
+        virtual ~SceneGeometry() noexcept override;
 
-    virtual void Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, const std::string& filePath = "", const std::wstring& texturePath = L"") = 0;
-    virtual void Update(const ScaldTimer& st) = 0;
-    virtual void Draw();
+        virtual void Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, const std::string& filePath = "", const std::wstring& texturePath = L"") = 0;
+        virtual void Update(const ScaldTimer& st) = 0;
+        virtual void Draw() const;
 
-protected:
-    // @todo: From Luna's book
-    void UpdateObjectCBs(const ScaldTimer& st);
+    protected:
+        // @todo: From Luna's book
+        void UpdateObjectCBs(const ScaldTimer& st);
 
-public:
-    FORCEINLINE CollisionComponent* GetCollisionComponent() const { return mCollisionComponent; }
-    // FORCEINLINE RenderComponent*	GetRenderComponent()const		{ return mRenderComponent; }
-    // FORCEINLINE InputComponent*	GetInputComponent()const		{ return mInputComponent; }
-public:
-    std::string ObjectName = "";
+    public:
+        FORCEINLINE CollisionComponent* GetCollisionComponent() const { return mCollisionComponent; }
+        // FORCEINLINE RenderComponent*	GetRenderComponent()const		{ return mRenderComponent; }
+    public:
+        std::string ObjectName = "";
 
-protected:
-    Model model;
+    protected:
+        Model model;
 
-    /*std::vector<VertexTex> vertices;
-    std::vector<DWORD> indices;*/
-
-    CollisionComponent* mCollisionComponent = nullptr;
-    // RenderComponent*	mRenderComponent	= nullptr;
-    // InputComponent*	mInputComponent		= nullptr;
-};
+        CollisionComponent* mCollisionComponent = nullptr;
+        // RenderComponent*	mRenderComponent	= nullptr;
+    };
+}

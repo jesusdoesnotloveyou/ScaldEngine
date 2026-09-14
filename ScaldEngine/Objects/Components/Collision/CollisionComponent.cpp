@@ -3,6 +3,9 @@
 #include "Objects/Geometry/Actor.h"
 #include "Objects/Components/TransformComponent.h"
 
+using namespace Scald;
+using namespace DirectX;
+
 CollisionComponent::CollisionComponent(SceneGeometry* Owner)
     : mOwnerObject(Owner),
       mCollisionTransform(Owner->GetTransform())
@@ -47,19 +50,23 @@ SceneGeometry* CollisionComponent::GetOwner() const
     return mOwnerObject ? mOwnerObject : nullptr;
 }
 
+void CollisionComponent::Notify(CollisionComponent* otherCollisionComp)
+{
+    OnCollisionOverlapSignature.Broadcast(otherCollisionComp);
+}
+
 void CollisionComponent::OnCollisionOverlap(CollisionComponent* otherComponent)
 {
     if (!otherComponent || !otherComponent->IsEnabled()) return;
 
-    const auto player = GetOwner();
-    // doesn't work properly
-    // if (player->GetCollisionComponent()->GetRadius() < otherComponent->GetRadius()) return;
-
-    if (auto actor = static_cast<Actor*>(otherComponent->GetOwner()))
+    if (const auto player = GetOwner())
     {
-        otherComponent->DisableCollision();
-        actor->AttachToParent(player);
-
-        // player->AdjustScale(0.001f, 0.001f, 0.001f);
+        if (auto otherActor = static_cast<Actor*>(otherComponent->GetOwner()))
+        {
+            otherComponent->DisableCollision();
+            otherActor->AttachToParent(player);
+            // Increase Katamari size (should be moved to Katamari collision component as Katamari game specific logic)
+            // player->AdjustScale(0.001f, 0.001f, 0.001f);
+        }
     }
 }

@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "KatamariPlayer.h"
 
+using namespace Scald;
+
 KatamariPlayer::KatamariPlayer(ModelData* modelData)
     : Actor(modelData)
 {

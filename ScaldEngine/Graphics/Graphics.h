@@ -6,6 +6,8 @@
 #include "ScaldCoreTypes.h"
 #include "Games/Katamari/KatamariPlayer.h"
 
+namespace Scald
+{
 class SceneGeometry;
 class Light;
 class DirectionalLight;
@@ -60,7 +62,7 @@ public:
     void EndFrame();
 
     void Update(const ScaldTimer& st);
-    FORCEINLINE ThirdPersonCamera* GetCamera() const { return mTPCamera.get(); }
+    FORCEINLINE ThirdPersonCamera* GetCamera() const { return m_camera.get(); }
 
 private:
     void CreateDepthStencilState();
@@ -142,7 +144,7 @@ public:
     std::vector<std::shared_ptr<Light>> mLights;         // deferred rendering stuff
     std::shared_ptr<Light> mDirectionalLight = nullptr;  // as well as this
 private:
-    std::unique_ptr<ThirdPersonCamera> mTPCamera = nullptr;
+    std::unique_ptr<ThirdPersonCamera> m_camera = nullptr;
     // should encapsulate in camera
     float mCameraFarZ = 500.0f;
     float mCameraNearZ = 0.1f;
@@ -169,9 +171,9 @@ private:
     ConstantBufferPerFrame mPerFrameData;
 #pragma endregion Light
 
-    Microsoft::WRL::ComPtr<IDXGISwapChain> mSwapChain;
-    Microsoft::WRL::ComPtr<ID3D11Device> mDevice;
-    Microsoft::WRL::ComPtr<ID3D11DeviceContext> mDeviceContext;
+    ComPtr<IDXGISwapChain> mSwapChain;
+    ComPtr<ID3D11Device> mDevice;
+    ComPtr<ID3D11DeviceContext> mDeviceContext;
 
     // Renderer
     // Deferred Rendering
@@ -190,3 +192,4 @@ private:
     ConstantBuffer<CascadeDataConstantBuffer> mCB_CSM;
     CascadeDataConstantBuffer mCSMData;
 };
+}

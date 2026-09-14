@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "Light.h"
-#include "Objects/Geometry/3D/Shapes.h"
+#include "Objects/Geometry/Shapes.h"
+
+using namespace Scald;
 
 Light::Light(const std::string& filePath)
     : mLookAt(0.0f, 0.0f, 0.0f),
@@ -25,14 +27,14 @@ void Light::Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, con
 
     if (LightType == ELightType::Point || LightType == ELightType::Spot)
     {
-        std::vector<VertexTex> volumeVertices;
+        std::vector<VertexPositionNormalUV> volumeVertices;
         std::vector<DWORD> volumeIndices;
         Shapes::GetSphereShape(volumeVertices, volumeIndices, 1.0f /*hard - coded value just for now*/, 8, 16);
 
         LightVolume = std::make_unique<Mesh>(pDevice, pDeviceContext, volumeVertices, volumeIndices);
     }
 
-    SceneGeometry::Init(pDevice, pDeviceContext, modelPath, texturePath);
+    Super::Init(pDevice, pDeviceContext, modelPath, texturePath);
 
     GenerateViewMatrix();
     GenerateOrthographicProjectionMatrix(100.0f, 100.0f, 0.1f, 500.0f);
@@ -40,16 +42,11 @@ void Light::Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, con
 
 void Light::Update(const ScaldTimer& st)
 {
-    SceneGeometry::Update(st);
+    Super::Update(st);
     UpdateLightParams();
     // if directional light is moving
     // GenerateViewMatrix();
     // GenerateOrthographicProjectionMatrix(100.0f, 100.0f, 0.1f, 100.0f);
-}
-
-void Light::Draw()
-{
-    SceneGeometry::Draw();
 }
 
 void Light::DrawLightVolume(ID3D11DeviceContext* pDeviceContext)
@@ -146,7 +143,6 @@ void Light::GenerateViewMatrix()
     XMFLOAT3 up = {0.0f, 1.0f, 0.0f};
     XMVECTOR lookAtVector, upVector;
     XMVECTOR pos = GetPosition();
-    ;
 
     // Load the XMFLOAT3 into XMVECTOR.
     lookAtVector = XMLoadFloat3(&mLookAt);
@@ -203,11 +199,6 @@ void DirectionalLight::Update(const ScaldTimer& st)
     SetLookAt(LightParams->direction.x, LightParams->direction.y, LightParams->direction.z);
 }
 
-void DirectionalLight::Draw()
-{
-    Light::Draw();
-}
-
 /*
  * Point Light
  */
@@ -227,11 +218,6 @@ void PointLight::Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext
 void PointLight::Update(const ScaldTimer& st)
 {
     Light::Update(st);
-}
-
-void PointLight::Draw()
-{
-    SceneGeometry::Draw();
 }
 
 void PointLight::UpdateLightParams()
@@ -275,9 +261,4 @@ void SpotLight::Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext,
 void SpotLight::Update(const ScaldTimer& st)
 {
     Light::Update(st);
-}
-
-void SpotLight::Draw()
-{
-    Light::Draw();
 }

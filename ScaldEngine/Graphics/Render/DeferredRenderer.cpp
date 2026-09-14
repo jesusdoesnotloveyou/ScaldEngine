@@ -3,6 +3,8 @@
 #include "Graphics/ScaldCoreTypes.h"
 #include "Graphics/Mesh.h"
 
+using namespace Scald;
+
 DeferredRenderer::DeferredRenderer(IDXGISwapChain* spawChain, ID3D11Device* device, ID3D11DeviceContext* deviceContext, UINT width, UINT height)
     : Renderer(spawChain, device, deviceContext, width, height)
 {
@@ -48,7 +50,7 @@ DeferredRenderer::DeferredRenderer(IDXGISwapChain* spawChain, ID3D11Device* devi
         ThrowIfFailed(device->CreateShaderResourceView(mGBuffer[i].texture, &shaderResourceViewDesc, &mGBuffer[i].srv));
     }
 
-    std::vector<VertexTex> quadVertices = {VertexTex(), VertexTex(), VertexTex(), VertexTex()};
+    std::vector<VertexPositionNormalUV> quadVertices = {VertexPositionNormalUV(), VertexPositionNormalUV(), VertexPositionNormalUV(), VertexPositionNormalUV()};
     std::vector<DWORD> quadIndeces = {0};  // at least one due to throwing exception in Init
     screenQuad = std::make_unique<Mesh>(device, deviceContext, quadVertices, quadIndeces);
     GBufferTexture = std::make_unique<Mesh>(device, deviceContext, quadVertices, quadIndeces);
@@ -68,14 +70,17 @@ void DeferredRenderer::SetupShaders()
 {
     Renderer::SetupShaders();
 
-    D3D11_INPUT_ELEMENT_DESC inputLayoutOpaqueDesc[] = {D3D11_INPUT_ELEMENT_DESC{"POSITION", 0u, DXGI_FORMAT_R32G32B32A32_FLOAT, 0u, 0u, D3D11_INPUT_PER_VERTEX_DATA, 0u},
-        D3D11_INPUT_ELEMENT_DESC{"TEXCOORD", 0u, DXGI_FORMAT_R32G32_FLOAT, 0u, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0u},
-        D3D11_INPUT_ELEMENT_DESC{"NORMAL", 0u, DXGI_FORMAT_R32G32B32_FLOAT, 0u, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0u}};
-
-    D3D11_INPUT_ELEMENT_DESC inputLayoutLightingDesc[] = {D3D11_INPUT_ELEMENT_DESC{"POSITION", 0u, DXGI_FORMAT_R32G32B32A32_FLOAT, 0u, 0u, D3D11_INPUT_PER_VERTEX_DATA, 0u},
+    D3D11_INPUT_ELEMENT_DESC inputLayoutOpaqueDesc[] = {
+        D3D11_INPUT_ELEMENT_DESC{"POSITION", 0u, DXGI_FORMAT_R32G32B32A32_FLOAT, 0u, 0u, D3D11_INPUT_PER_VERTEX_DATA, 0u},
+        D3D11_INPUT_ELEMENT_DESC{"NORMAL", 0u, DXGI_FORMAT_R32G32B32_FLOAT, 0u, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0u},
         D3D11_INPUT_ELEMENT_DESC{"TEXCOORD", 0u, DXGI_FORMAT_R32G32_FLOAT, 0u, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0u}};
 
-    D3D11_INPUT_ELEMENT_DESC inputLayoutGBufferDesc[] = {D3D11_INPUT_ELEMENT_DESC{"POSITION", 0u, DXGI_FORMAT_R32G32B32A32_FLOAT, 0u, 0u, D3D11_INPUT_PER_VERTEX_DATA, 0u},
+    D3D11_INPUT_ELEMENT_DESC inputLayoutLightingDesc[] = {
+        D3D11_INPUT_ELEMENT_DESC{"POSITION", 0u, DXGI_FORMAT_R32G32B32A32_FLOAT, 0u, 0u, D3D11_INPUT_PER_VERTEX_DATA, 0u},
+        D3D11_INPUT_ELEMENT_DESC{"TEXCOORD", 0u, DXGI_FORMAT_R32G32_FLOAT, 0u, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0u}};
+
+    D3D11_INPUT_ELEMENT_DESC inputLayoutGBufferDesc[] = {
+        D3D11_INPUT_ELEMENT_DESC{"POSITION", 0u, DXGI_FORMAT_R32G32B32A32_FLOAT, 0u, 0u, D3D11_INPUT_PER_VERTEX_DATA, 0u},
         D3D11_INPUT_ELEMENT_DESC{"TEXCOORD", 0u, DXGI_FORMAT_R32G32_FLOAT, 0u, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0u}};
 
     mGBufferVS.Init(mDevice, inputLayoutGBufferDesc, (UINT)std::size(inputLayoutGBufferDesc), L"./Shaders/GBufferVS.hlsl");

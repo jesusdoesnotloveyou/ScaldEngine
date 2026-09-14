@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "InputDevice.h"
 
+using namespace Scald;
 /////////////////////// KEYBOARD /////////////////////////
 bool Keyboard::IsKeyPressed(unsigned char keyCode) const noexcept
 {

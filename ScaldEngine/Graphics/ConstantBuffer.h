@@ -30,16 +30,6 @@ public:
         return device->CreateBuffer(&constantBufDesc, 0, mBuffer.GetAddressOf());
     }
 
-    bool ApplyChanges()
-    {
-        D3D11_MAPPED_SUBRESOURCE mappedResource;
-        ThrowIfFailed(pDeviceContext->Map(mBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
-
-        CopyMemory(mappedResource.pData, &curr_data, sizeof(T));
-        pDeviceContext->Unmap(mBuffer.Get(), 0);
-        return true;
-    }
-
 public:
     void SetData(const T& data) { curr_data = data; }
 
@@ -49,6 +39,16 @@ public:
         ApplyChanges();
     }
 
+private:
+    bool ApplyChanges()
+    {
+        D3D11_MAPPED_SUBRESOURCE mappedResource;
+        ThrowIfFailed(pDeviceContext->Map(mBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
+
+        CopyMemory(mappedResource.pData, &curr_data, sizeof(T));
+        pDeviceContext->Unmap(mBuffer.Get(), 0);
+        return true;
+    }
 private:
     T curr_data;
     Microsoft::WRL::ComPtr<ID3D11Buffer> mBuffer;

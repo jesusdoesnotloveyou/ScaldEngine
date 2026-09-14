@@ -5,12 +5,16 @@
 // The number of elements to sort is limited to an even power of 2
 // At minimum 8,192 elements - BITONIC_BLOCK_SIZE * TRANSPOSE_BLOCK_SIZE
 // At maximum 262,144 elements - BITONIC_BLOCK_SIZE * BITONIC_BLOCK_SIZE
+using namespace Scald;
 
-const UINT NUM_ELEMENTS = 512 * 512;
-const UINT BITONIC_BLOCK_SIZE = 512;
-const UINT TRANSPOSE_BLOCK_SIZE = 16;
-const UINT MATRIX_WIDTH = BITONIC_BLOCK_SIZE;
-const UINT MATRIX_HEIGHT = NUM_ELEMENTS / BITONIC_BLOCK_SIZE;
+namespace
+{
+    constexpr  UINT NUM_ELEMENTS = 512 * 512;
+    constexpr  UINT BITONIC_BLOCK_SIZE = 512;
+    constexpr  UINT TRANSPOSE_BLOCK_SIZE = 16;
+    constexpr  UINT MATRIX_WIDTH = BITONIC_BLOCK_SIZE;
+    constexpr  UINT MATRIX_HEIGHT = NUM_ELEMENTS / BITONIC_BLOCK_SIZE;
+}
 
 ParticleSystem::ParticleSystem(ID3D11Device* device, ID3D11DeviceContext* deviceContext, int maxParticles, XMVECTOR origin, ThirdPersonCamera* camera)
     : mDevice(device),

@@ -1,7 +1,9 @@
 #include "stdafx.h"
 #include "Renderer.h"
 #include "Graphics/ScaldCoreTypes.h"
-#include "Graphics/Shadows/CascadeShadowMap.h"
+#include "ScaldException.h"
+
+using namespace Scald;
 
 Renderer::Renderer(IDXGISwapChain* spawChain, ID3D11Device* device, ID3D11DeviceContext* deviceContext, int width, int height)
     : mDevice(device),

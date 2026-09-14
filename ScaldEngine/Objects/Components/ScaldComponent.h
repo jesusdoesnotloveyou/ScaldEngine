@@ -1,7 +1,9 @@
 #pragma once
 
+// For DirectX namespace and DirectXMath
 #include "Graphics/ScaldCoreTypes.h"
 #include "Objects/ScaldObject.h"
+#include "ScaldCore/Engine/ScaldTimer.h"
 
 class ScaldComponent : public ScaldObject
 {
@@ -10,5 +12,5 @@ public:
     ScaldComponent() {};
 
     virtual ~ScaldComponent() noexcept override {};
-    virtual void Update(const ScaldTimer& st) = 0;  //{};
+    virtual void Update(const ScaldTimer& st) = 0;
 };

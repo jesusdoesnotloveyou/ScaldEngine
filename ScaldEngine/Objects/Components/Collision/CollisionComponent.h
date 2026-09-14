@@ -1,41 +1,48 @@
 #pragma once
 
+#include "Graphics//DXHelper.h"
 #include "Objects/Components/ScaldComponent.h"
-#include "DirectXCollision.h"
 #include "Delegates/Delegates.h"
 
-class SceneGeometry;
-class TransformComponent;
-
-class CollisionComponent : public ScaldComponent
+namespace Scald
 {
-public:
-    MulticastDelegate<CollisionComponent*> OnCollisionOverlapSignature;
+    class SceneGeometry;
+    class TransformComponent;
 
-    CollisionComponent(SceneGeometry* Owner);
-    virtual ~CollisionComponent() noexcept override {}
-    virtual void Update(const ScaldTimer& st) override;
+    class CollisionComponent : public ScaldComponent
+    {
+    public:
+        CollisionComponent(SceneGeometry* Owner);
+        virtual ~CollisionComponent() noexcept override {}
+        virtual void Update(const ScaldTimer& st) override;
 
-    void SetCenter(const XMFLOAT3& center);
-    void SetCenter(const XMVECTOR& center);
-    FORCEINLINE XMFLOAT3 GetCenter() const { return mBoundingVolume.Center; }
+        void SetCenter(const XMFLOAT3& center);
+        void SetCenter(const XMVECTOR& center);
+        FORCEINLINE XMFLOAT3 GetCenter() const { return mBoundingVolume.Center; }
 
-    void SetRadius(const float radius);
-    FORCEINLINE float GetRadius() const { return mBoundingVolume.Radius; }
+        void SetRadius(const float radius);
+        FORCEINLINE float GetRadius() const { return mBoundingVolume.Radius; }
 
-    FORCEINLINE BoundingSphere& GetBoundingVolume() { return mBoundingVolume; }
+        FORCEINLINE BoundingSphere& GetBoundingVolume() { return mBoundingVolume; }
 
-    bool Intersects(CollisionComponent* otherComponent);
-    SceneGeometry* GetOwner() const;
+        bool Intersects(CollisionComponent* otherComponent);
+        SceneGeometry* GetOwner() const;
 
-    FORCEINLINE bool IsEnabled() const { return bIsEnabled; }
-    FORCEINLINE void DisableCollision() { bIsEnabled = false; }
+        FORCEINLINE bool IsEnabled() const { return bIsEnabled; }
+        FORCEINLINE void DisableCollision() { bIsEnabled = false; }
 
-private:
-    bool bIsEnabled = true;
-    void OnCollisionOverlap(CollisionComponent* otherComponent);
+        void Notify(CollisionComponent* otherCollisionComp);
 
-    BoundingSphere mBoundingVolume;
-    SceneGeometry* mOwnerObject = nullptr;
-    TransformComponent* mCollisionTransform = nullptr;
-};
+    protected:
+        void OnCollisionOverlap(CollisionComponent* otherComponent);
+
+    private:
+        MulticastDelegate<CollisionComponent*> OnCollisionOverlapSignature;
+
+        BoundingSphere mBoundingVolume;
+        SceneGeometry* mOwnerObject = nullptr;
+        TransformComponent* mCollisionTransform = nullptr;
+    
+        bool bIsEnabled = true;
+    };
+}

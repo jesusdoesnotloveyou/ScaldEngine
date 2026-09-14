@@ -1,10 +1,12 @@
 #pragma once
 
-#include <queue>
-#include <bitset>
+#include "Delegates/Delegates.h"
 #include "Keys.h"
-#include "../../Delegates/Delegates.h"
+#include <bitset>
+#include <queue>
 
+namespace Scald
+{
 // KEYBOARD INPUT
 class Keyboard
 {
@@ -192,3 +194,4 @@ private:
     int wheelDeltaCarry = 0;
     std::queue<Event> mouseBuffer;
 };
+}

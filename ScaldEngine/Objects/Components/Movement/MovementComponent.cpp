@@ -2,6 +2,8 @@
 #include "MovementComponent.h"
 #include "Objects/Geometry/SceneGeometry.h"
 
+using namespace Scald;
+
 MovementComponent::MovementComponent(SceneGeometry* CompOwner)
     : mSpeed(0.0f),
       mJumpZVelocity(0.0f),

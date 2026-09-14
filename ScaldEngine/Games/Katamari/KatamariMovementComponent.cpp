@@ -3,6 +3,9 @@
 #include "Graphics/ScaldCoreTypes.h"
 #include "Objects/Geometry/SceneGeometry.h"
 
+using namespace Scald;
+using namespace DirectX;
+
 KatamariMovementComponent::KatamariMovementComponent(SceneGeometry* OwnerPlayer)
     : MovementComponent(OwnerPlayer)
 {

@@ -1,24 +1,23 @@
 #include "stdafx.h"
 #include "TransformComponent.h"
+#include "SceneComponent.h"
+
+using namespace Scald;
 
 TransformComponent::TransformComponent()
 {
-    mScaleMatrix = XMMatrixIdentity();
-    mRotationMatrix = XMMatrixIdentity();
-    mOrientationQuat = XMQuaternionIdentity();
-    mTranslationMatrix = XMMatrixIdentity();
-    mLocalMatrix = mWorldMatrix = XMMatrixIdentity();
     mScale = XMFLOAT3(1.0f, 1.0f, 1.0f);
     mRot = XMFLOAT3(0.0f, 0.0f, 0.0f);
     mPos = XMFLOAT3(0.0f, 0.0f, 0.0f);
     mScaleVector = XMVectorSet(mScale.x, mScale.y, mScale.z, 0.0f);
     mRotVector = XMVectorSet(mRot.x, mRot.y, mRot.z, 0.0f);
     mPosVector = XMVectorSet(mPos.x, mPos.y, mPos.z, 0.0f);
+    mOrientationQuat = XMQuaternionIdentity();
 }
 
 void TransformComponent::Update(const ScaldTimer& st)
 {
-    /*if (mDirtyFlag)
+    /*if (m_bisDirty)
     {
         UpdateWorldMatrix();
     }*/
@@ -246,26 +245,17 @@ void TransformComponent::SetUpVector(const XMVECTOR& UpVector)
 void TransformComponent::SetParentTransform(TransformComponent* parentTransform)
 {
     mParentTransform = parentTransform;
-
-    XMVECTOR det /* = XMMatrixDeterminant(parentTransform->mWorldMatrix)*/;
-    mLocalMatrix = mWorldMatrix * XMMatrixInverse(&det, parentTransform->mRotationMatrix * parentTransform->mTranslationMatrix);
-
-    // UpdateWorldMatrix();
 }
 
 void TransformComponent::UpdateWorldMatrix()
 {
     // SRT - default order of matrix multiplication
     // (S)TR - orbit effect for Solar system could be used
-    mScaleMatrix = XMMatrixScalingFromVector(mScaleVector);
-    mRotationMatrix = XMMatrixRotationQuaternion(mOrientationQuat);
-    mTranslationMatrix = XMMatrixTranslationFromVector(mPosVector);
-
-    mWorldMatrix = mScaleMatrix * mRotationMatrix * mTranslationMatrix;
+    mWorldMatrix = XMMatrixScalingFromVector(mScaleVector) * XMMatrixRotationQuaternion(mOrientationQuat) * XMMatrixTranslationFromVector(mPosVector);
 
     if (mParentTransform)
     {
-        mWorldMatrix = mLocalMatrix * mParentTransform->mRotationMatrix * mParentTransform->mTranslationMatrix;
-        XMMatrixDecompose(&mScaleVector, &mOrientationQuat, &mPosVector, mWorldMatrix);
+        mWorldMatrix *= XMMatrixRotationQuaternion(mParentTransform->GetOrientation()) * 
+                        XMMatrixTranslationFromVector(mParentTransform->GetPositionVector());
     }
 }

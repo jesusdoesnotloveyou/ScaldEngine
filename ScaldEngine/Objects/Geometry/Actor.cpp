@@ -2,6 +2,8 @@
 #include "Actor.h"
 #include "Data/ModelData.h"
 
+using namespace Scald;
+
 Actor::Actor() {}
 
 Actor::Actor(ModelData* modelData)

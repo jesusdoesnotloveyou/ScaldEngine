@@ -2,61 +2,64 @@
 
 #include "Renderer.h"
 
-constexpr UINT BUFFER_COUNT = 3u;
-
-class Mesh;
-
-struct TextureRenderTarget
+namespace Scald
 {
-    ID3D11Texture2D* texture = nullptr;
-    ID3D11RenderTargetView* rtv = nullptr;
-    ID3D11ShaderResourceView* srv = nullptr;
-};
+    constexpr UINT BUFFER_COUNT = 3u;
 
-class DeferredRenderer final : public Renderer
-{
-public:
-    DeferredRenderer(IDXGISwapChain* spawChain, ID3D11Device* device, ID3D11DeviceContext* deviceContext, UINT width, UINT height);
-    virtual ~DeferredRenderer() noexcept override;
+    class Mesh;
 
-    // Begin of Renderer interface
-    virtual void SetupShaders() override;
-    virtual void CreateRasterizerState() override;
-    // End of Renderer interface
+    struct TextureRenderTarget
+    {
+        ID3D11Texture2D* texture = nullptr;
+        ID3D11RenderTargetView* rtv = nullptr;
+        ID3D11ShaderResourceView* srv = nullptr;
+    };
 
-public:
-    void BindGeometryPass();
-    void BindLightingPass();
-    void BindTransparentPass();
-    void BindParticlesPass();
+    class DeferredRenderer final : public Renderer
+    {
+    public:
+        DeferredRenderer(IDXGISwapChain* spawChain, ID3D11Device* device, ID3D11DeviceContext* deviceContext, UINT width, UINT height);
+        virtual ~DeferredRenderer() noexcept override;
 
-    void DrawScreenQuad();
-    // deferred additional task
-    void DrawGBuffer();
-    FORCEINLINE void ChangeGBufferLayer(int layer) { GBufferLayer = layer; }
+        // Begin of Renderer interface
+        virtual void SetupShaders() override;
+        virtual void CreateRasterizerState() override;
+        // End of Renderer interface
 
-    void BindWithinFrustum();
-    void BindIntersectsFarPlane();
-    void BindOutsideFrustum();
+    public:
+        void BindGeometryPass();
+        void BindLightingPass();
+        void BindTransparentPass();
+        void BindParticlesPass();
 
-private:
-    // Deferred Renderer specific
-    VertexShader mOpaqueVertexShader;
-    PixelShader mOpaquePixelShader;
-    VertexShader mLightingVertexShader;
-    PixelShader mLightingPixelShader;
+        void DrawScreenQuad();
+        // deferred additional task
+        void DrawGBuffer();
+        FORCEINLINE void ChangeGBufferLayer(int layer) { GBufferLayer = layer; }
 
-    // deferred additional task
-    VertexShader mGBufferVS;
-    PixelShader mGBufferPS;
+        void BindWithinFrustum();
+        void BindIntersectsFarPlane();
+        void BindOutsideFrustum();
 
-    TextureRenderTarget mGBuffer[BUFFER_COUNT];
+    private:
+        // Deferred Renderer specific
+        VertexShader mOpaqueVertexShader;
+        PixelShader mOpaquePixelShader;
+        VertexShader mLightingVertexShader;
+        PixelShader mLightingPixelShader;
 
-    std::unique_ptr<Mesh> screenQuad = nullptr;
+        // deferred additional task
+        VertexShader mGBufferVS;
+        PixelShader mGBufferPS;
 
-    // deferred additional task
-    std::unique_ptr<Mesh> GBufferTexture = nullptr;
-    int GBufferLayer = 0;
+        TextureRenderTarget mGBuffer[BUFFER_COUNT];
 
-    D3D11_VIEWPORT mGBufferViewport = {};
-};
+        std::unique_ptr<Mesh> screenQuad = nullptr;
+
+        // deferred additional task
+        std::unique_ptr<Mesh> GBufferTexture = nullptr;
+        int GBufferLayer = 0;
+
+        D3D11_VIEWPORT mGBufferViewport = {};
+    };
+}

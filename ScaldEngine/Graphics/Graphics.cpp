@@ -2,12 +2,15 @@
 #include "ScaldException.h"
 #include "Graphics.h"
 
-#include "Render/DeferredRenderer.h"
-#include "Particles/FireParticleSystem.h"
 #include "Camera/ThirdPersonCamera.h"
 #include "Objects/Geometry/Actor.h"
+#include "Objects/Components/TransformComponent.h"
 #include "Light/Light.h"
+#include "Render/DeferredRenderer.h"
 #include "Shadows/CascadeShadowMap.h"
+#include "Particles/FireParticleSystem.h"
+
+using namespace Scald;
 
 Graphics::Graphics(HWND hWnd, int width, int height)
     : hWnd(hWnd),
@@ -38,10 +41,10 @@ Graphics::Graphics(HWND hWnd, int width, int height)
     ThrowIfFailed(D3D11CreateDeviceAndSwapChain(
         nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, D3D11_CREATE_DEVICE_DEBUG, featureLevel, 1, D3D11_SDK_VERSION, &swapDesc, &mSwapChain, &mDevice, nullptr, &mDeviceContext));
 
-    mTPCamera = std::make_unique<ThirdPersonCamera>();
+    m_camera = std::make_unique<ThirdPersonCamera>();
     // RTV and BackBuffer are created down here in Renderer
     pRenderer = std::make_unique<DeferredRenderer>(mSwapChain.Get(), mDevice.Get(), mDeviceContext.Get(), width, height);
-    pFireParticleSystem = std::make_unique<FireParticleSystem>(mDevice.Get(), mDeviceContext.Get(), 4096, XMVectorSet(15.0f, 5.0f, 60.0f, 1.0f), mTPCamera.get());
+    pFireParticleSystem = std::make_unique<FireParticleSystem>(mDevice.Get(), mDeviceContext.Get(), 4096, XMVectorSet(15.0f, 5.0f, 60.0f, 1.0f), m_camera.get());
     // to renderer probably
     mCascadeShadowMap = std::make_unique<CascadeShadowMap>(mDevice.Get(), 2048u, 2048u);
 }
@@ -61,8 +64,7 @@ void Graphics::Setup()
     pFireParticleSystem->InitializeSystem();
 
     // Camera setup
-    mTPCamera->SetPerspectiveProjectionValues(mFovDegrees, static_cast<float>(mScreenWidth) / static_cast<float>(mScreenHeight), mCameraNearZ, mCameraFarZ);
-    mTPCamera->SetOrthographicProjectionValues(static_cast<float>(mScreenWidth), static_cast<float>(mScreenHeight), mCameraNearZ, mCameraFarZ);
+    m_camera->Reset(mFovDegrees, static_cast<float>(mScreenWidth)/static_cast<float>(mScreenHeight), mCameraNearZ, mCameraFarZ);
 
     // for cascade shadows
     mCascadeShadowMap->UpdateShadowCascadeSplits(mCameraNearZ, mCameraFarZ);
@@ -81,7 +83,7 @@ void Graphics::InitSceneObjects()
 {
     if (mRenderObjects.empty()) return;  // assert or smth
 
-    mTPCamera->SetTarget(mPlayer);
+    m_camera->SetTarget(mPlayer);
 
     for (auto&& sceneObject : mRenderObjects)
     {
@@ -167,12 +169,12 @@ void Graphics::RenderDepthOnlyPass()
 
 void Graphics::BindGeometryPassResources()
 {
-    const auto& viewMat = mTPCamera->GetViewMatrix();
-    const auto& projMat = mTPCamera->GetPerspectiveProjectionMatrix();
+    const auto& viewMat = m_camera->GetViewMatrix();
+    const auto& projMat = m_camera->GetPerspectiveProjectionMatrix();
     mPerFrameData.gView = XMMatrixTranspose(viewMat);
     mPerFrameData.gProjection = XMMatrixTranspose(projMat);
     mPerFrameData.gViewProj = XMMatrixTranspose(viewMat * projMat);
-    mPerFrameData.gEyePos = mTPCamera->GetPosition();
+    mPerFrameData.gEyePos = m_camera->GetPosition();
 
     mCB_PerFrame.SetAndApplyData(mPerFrameData);
     mDeviceContext->VSSetConstantBuffers(1u, 1u, mCB_PerFrame.GetAddressOf());
@@ -216,7 +218,10 @@ void Graphics::RenderOmniLights()
         UpdateOmniLightConstantBuffer(light.get());
 
         const float sphereVolumeRadius = light->GetRange();
-        XMMATRIX world = XMMatrixScalingFromVector(XMVectorReplicate(sphereVolumeRadius)) * light->GetTransform()->mRotationMatrix * light->GetTransform()->mTranslationMatrix;
+        XMMATRIX world = 
+            XMMatrixScalingFromVector(XMVectorReplicate(sphereVolumeRadius)) * 
+            XMMatrixRotationQuaternion(light->GetTransform()->GetOrientation()) *
+            XMMatrixTranslationFromVector(light->GetTransform()->GetPositionVector());
 
         auto det = XMMatrixDeterminant(world);
         XMMATRIX invTransWorld = XMMatrixInverse(&det, XMMatrixTranspose(world));
@@ -290,7 +295,6 @@ void Graphics::UpdateSpotLightConstantBuffer(Light* spotLight)
     mLightData.diffuse = spotLight->GetDiffuseColor();
     mLightData.specular = spotLight->GetSpecularColor();
     mLightData.lightType = spotLight->GetLightType();
-    ;
 
     mLightData.attenuation = spotLight->GetAttenuation();
     mLightData.position = spotLight->GetPositionFloat();
@@ -305,14 +309,13 @@ void Graphics::UpdateSpotLightConstantBuffer(Light* spotLight)
 
 void Graphics::EndFrame()
 {
-    // Step 15: At the End of While (!isExitRequested): Present the Result
     mDeviceContext->OMSetRenderTargets(0u, nullptr, nullptr);
     ThrowIfFailed(mSwapChain->Present(1u, /*DXGI_PRESENT_DO_NOT_WAIT*/ 0u));
 }
 
 void Graphics::Update(const ScaldTimer& st)
 {
-    mTPCamera->Update(st);
+    m_camera->Update(st);
 
     // pFireParticleSystem->Update(st.DeltaTime());
 }
@@ -386,8 +389,8 @@ void Graphics::GetLightSpaceMatrices(std::vector<XMMATRIX>& outMatrices)
 
 XMMATRIX Graphics::GetLightSpaceMatrix(const float nearPlane, const float farPlane)
 {
-    const auto cameraProjectionMatrix = XMMatrixPerspectiveFovLH(mTPCamera->GetFovRad(), static_cast<float>(mScreenWidth) / static_cast<float>(mScreenHeight), nearPlane, farPlane);
-    const auto frustumCorners = GetFrustumCornersWorldSpace(mTPCamera->GetViewMatrix() * cameraProjectionMatrix);
+    const auto cameraProjectionMatrix = XMMatrixPerspectiveFovLH(m_camera->GetFovRad(), static_cast<float>(mScreenWidth) / static_cast<float>(mScreenHeight), nearPlane, farPlane);
+    const auto frustumCorners = GetFrustumCornersWorldSpace(m_camera->GetViewMatrix() * cameraProjectionMatrix);
 
     XMVECTOR center = XMVectorZero();
     for (const auto& v : frustumCorners)

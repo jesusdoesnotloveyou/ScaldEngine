@@ -1,55 +1,60 @@
 #pragma once
 
-#include "ScaldException.h"
+#include "Graphics/DXHelper.h"
 #include "Graphics/Shaders.h"
-#include "Graphics/ConstantBuffer.h"
 
-class Renderer
+namespace Scald
 {
-public:
-    Renderer(IDXGISwapChain* spawChain, ID3D11Device* device, ID3D11DeviceContext* deviceContext, int width, int height);
-    virtual ~Renderer() noexcept = default;
+    using namespace Microsoft::WRL;
+    using namespace DirectX;
 
-    virtual void SetupShaders();
+    class Renderer
+    {
+    public:
+        Renderer(IDXGISwapChain* spawChain, ID3D11Device* device, ID3D11DeviceContext* deviceContext, int width, int height);
+        virtual ~Renderer() noexcept = default;
 
-    void CreateDepthStencilState();
-    virtual void CreateRasterizerState();
-    void CreateSamplerState();
-    void CreateBlendState();
+        virtual void SetupShaders();
 
-    void ClearBuffer(float r);
-    void BindDepthOnlyPass();
+        void CreateDepthStencilState();
+        virtual void CreateRasterizerState();
+        void CreateSamplerState();
+        void CreateBlendState();
 
-protected:
-    // Graphics context. Graphics object manages these resources.
-    ID3D11Device* mDevice = nullptr;
-    ID3D11DeviceContext* mDeviceContext = nullptr;
+        void ClearBuffer(float r);
+        void BindDepthOnlyPass();
 
-    int mScreenHeight;
-    int mScreenWidth;
+    protected:
+        // Graphics context. Graphics object manages these resources.
+        ID3D11Device* mDevice = nullptr;
+        ID3D11DeviceContext* mDeviceContext = nullptr;
 
-protected:
-    // Render Target
-    Microsoft::WRL::ComPtr<ID3D11RenderTargetView> mRTV;
-    // Depth Stencil
-    Microsoft::WRL::ComPtr<ID3D11DepthStencilView> mDSV;
+        int mScreenHeight;
+        int mScreenWidth;
 
-    // TODO: should probably be moved to DeferredRenderer
-    Microsoft::WRL::ComPtr<ID3D11DepthStencilState> mDSSLessEqual;
-    Microsoft::WRL::ComPtr<ID3D11DepthStencilState> mDSSGreater;
-    // Rast
-    Microsoft::WRL::ComPtr<ID3D11RasterizerState> mRasterizerStateCullBack;
-    Microsoft::WRL::ComPtr<ID3D11RasterizerState> mRasterizerStateCullFront;
-    Microsoft::WRL::ComPtr<ID3D11RasterizerState> mRasterizerStateCullNone;
-    // Sampler
-    Microsoft::WRL::ComPtr<ID3D11SamplerState> mSamplerState;
-    Microsoft::WRL::ComPtr<ID3D11SamplerState> mShadowSamplerState;
-    // Blend
-    Microsoft::WRL::ComPtr<ID3D11BlendState> mAdditiveBlendState;
+    protected:
+        // Render Target
+        ComPtr<ID3D11RenderTargetView> mRTV;
+        // Depth Stencil
+        ComPtr<ID3D11DepthStencilView> mDSV;
 
-    D3D11_VIEWPORT mViewport = {};
+        // TODO: should probably be moved to DeferredRenderer
+        ComPtr<ID3D11DepthStencilState> mDSSLessEqual;
+        ComPtr<ID3D11DepthStencilState> mDSSGreater;
+        // Rast
+        ComPtr<ID3D11RasterizerState> mRasterizerStateCullBack;
+        ComPtr<ID3D11RasterizerState> mRasterizerStateCullFront;
+        ComPtr<ID3D11RasterizerState> mRasterizerStateCullNone;
+        // Sampler
+        ComPtr<ID3D11SamplerState> mSamplerState;
+        ComPtr<ID3D11SamplerState> mShadowSamplerState;
+        // Blend
+        ComPtr<ID3D11BlendState> mAdditiveBlendState;
 
-protected:
-    VertexShader mShadowVertexShader;
-    GeometryShader mCSMGeometryShader;
-};
+        D3D11_VIEWPORT mViewport = {};
+
+    protected:
+        VertexShader mShadowVertexShader;
+        GeometryShader mCSMGeometryShader;
+    };
+}

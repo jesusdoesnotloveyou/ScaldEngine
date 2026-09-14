@@ -2,16 +2,19 @@
 
 #include <string>
 
-class ModelData
+namespace Scald
 {
-public:
-    ModelData(const std::string modelFilePath = "", const wchar_t* szTextureFileName = L"")
-        : modelPath(modelFilePath),
-          texturePath(szTextureFileName)
+    class ModelData
     {
-    }
+    public:
+        ModelData(const std::string modelFilePath = "", const wchar_t* szTextureFileName = L"")
+            : modelPath(modelFilePath),
+              texturePath(szTextureFileName)
+        {
+        }
 
-public:
-    std::string modelPath;
-    std::wstring texturePath;
-};
+    public:
+        std::string modelPath;
+        std::wstring texturePath;
+    };
+}

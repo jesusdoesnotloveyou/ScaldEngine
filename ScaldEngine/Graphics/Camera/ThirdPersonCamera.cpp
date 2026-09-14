@@ -18,14 +18,20 @@ void ThirdPersonCamera::Update(const ScaldTimer& st)
 {
     Super::Update(st);
 
+    UpdatePosition();
+}
+
+void ThirdPersonCamera::UpdatePosition()
+{
+    auto anchorPosition = m_target->GetPosition();
     // Update position: spherical coordinates to Cartesian
-    const float newX = XMVectorGetX(m_target->GetPosition()) + mArmLength * cosf(mPitch) * sinf(mYaw);
-    const float newY = XMVectorGetY(m_target->GetPosition()) + mArmLength * sinf(mPitch);
-    const float newZ = XMVectorGetZ(m_target->GetPosition()) + mArmLength * cosf(mPitch) * cosf(mYaw);
+    const float newX = XMVectorGetX(anchorPosition) + mArmLength * cosf(mPitch) * sinf(mYaw);
+    const float newY = XMVectorGetY(anchorPosition) + mArmLength * sinf(mPitch);
+    const float newZ = XMVectorGetZ(anchorPosition) + mArmLength * cosf(mPitch) * cosf(mYaw);
     SetPosition(XMVectorSet(newX, newY, newZ, 0.0f));
 
     // Update Rotation
-    SetLookAtPosition(m_target->GetPosition());
+    SetLookAtPosition(anchorPosition);
 }
 
 void ThirdPersonCamera::AdjustRotation(float x, float y, float z)

@@ -2,6 +2,8 @@
 #include "ScaldException.h"
 #include "CascadeShadowMap.h"
 
+using namespace Scald;
+
 CascadeShadowMap::CascadeShadowMap(ID3D11Device* device, UINT width, UINT height)
     : mWidth(width),
       mHeight(height),

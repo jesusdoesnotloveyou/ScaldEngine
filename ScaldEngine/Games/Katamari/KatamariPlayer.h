@@ -3,29 +3,32 @@
 #include "Objects/Geometry/Actor.h"
 #include "KatamariMovementComponent.h"
 
-class KatamariPlayer : public Actor
+namespace Scald
 {
-public:
-    KatamariPlayer() = default;
-    KatamariPlayer(ModelData* modelData);
-    virtual ~KatamariPlayer() noexcept override;
+    class KatamariPlayer : public Actor
+    {
+    public:
+        KatamariPlayer() = default;
+        KatamariPlayer(ModelData* modelData);
+        virtual ~KatamariPlayer() noexcept override;
 
-    virtual void Update(const ScaldTimer& st) override;
-    virtual bool IsPlayerPawn() const;
+        virtual void Update(const ScaldTimer& st) override;
+        virtual bool IsPlayerPawn() const;
 
-public:
-    void Jump();
-    void StopJumping();
-    void DoJump(const ScaldTimer& st);
+    public:
+        void Jump();
+        void StopJumping();
+        void DoJump(const ScaldTimer& st);
 
-    FORCEINLINE bool IsFalling() { return bIsFalling; }
+        FORCEINLINE bool IsFalling() { return bIsFalling; }
 
-    FORCEINLINE KatamariMovementComponent* GetMovement() const { return mMovementComponent; }
+        FORCEINLINE KatamariMovementComponent* GetMovement() const { return mMovementComponent; }
 
-protected:
-    KatamariMovementComponent* mMovementComponent = nullptr;
+    protected:
+        KatamariMovementComponent* mMovementComponent = nullptr;
 
-private:
-    bool bIsFalling = false;
-    float mJumpZ = 0.0f;
-};
+    private:
+        bool bIsFalling = false;
+        float mJumpZ = 0.0f;
+    };
+}

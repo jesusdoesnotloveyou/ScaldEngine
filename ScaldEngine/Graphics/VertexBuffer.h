@@ -2,68 +2,74 @@
 
 #include "DXHelper.h"
 
-template <typename T>
-class VertexBuffer
+namespace Scald
 {
-public:
-    VertexBuffer() {}
+    using namespace Microsoft::WRL;
+    using namespace DirectX;
 
-    VertexBuffer(const VertexBuffer<T>& lhs)
+    template <typename T>
+    class VertexBuffer
     {
-        mBuffer = lhs.mBuffer;
-        bufferSize = lhs.bufferSize;
-        stride = lhs.stride;
-        offset = lhs.offset;
-    }
+    public:
+        VertexBuffer() {}
 
-    VertexBuffer<T>& operator=(const VertexBuffer<T>& lhs)
-    {
-        mBuffer = lhs.mBuffer;
-        bufferSize = lhs.bufferSize;
-        stride = lhs.stride;
-        offset = lhs.offset;
-        return *this;
-    }
+        VertexBuffer(const VertexBuffer<T>& lhs)
+        {
+            mBuffer = lhs.mBuffer;
+            bufferSize = lhs.bufferSize;
+            stride = lhs.stride;
+            offset = lhs.offset;
+        }
 
-    ID3D11Buffer* Get() const { return mBuffer.Get(); }
-    ID3D11Buffer* const* GetAddressOf() const { return mBuffer.GetAddressOf(); }
-    UINT GetBufferSize() const { return bufferSize; }
+        VertexBuffer<T>& operator=(const VertexBuffer<T>& lhs)
+        {
+            mBuffer = lhs.mBuffer;
+            bufferSize = lhs.bufferSize;
+            stride = lhs.stride;
+            offset = lhs.offset;
+            return *this;
+        }
 
-    UINT GetStride() const { return stride; }
-    const UINT* GetStridePtr() const { return &stride; }
+        ID3D11Buffer* Get() const { return mBuffer.Get(); }
+        ID3D11Buffer* const* GetAddressOf() const { return mBuffer.GetAddressOf(); }
+        UINT GetBufferSize() const { return bufferSize; }
 
-    UINT GetOffset() const { return offset; }
-    const UINT* GetOffsetPtr() const { return &offset; }
+        UINT GetStride() const { return stride; }
+        const UINT* GetStridePtr() const { return &stride; }
 
-    HRESULT Init(ID3D11Device* device, const T* data, UINT numVertices)
-    {
-        bufferSize = numVertices;
-        stride = (UINT)sizeof(T);
+        UINT GetOffset() const { return offset; }
+        const UINT* GetOffsetPtr() const { return &offset; }
 
-        // Step 07: Create Vertex Buffer
-        D3D11_BUFFER_DESC vertexBufDesc = {};
-        ZeroMemory(&vertexBufDesc, sizeof(vertexBufDesc));
+        HRESULT Init(ID3D11Device* device, const T* data, UINT numVertices)
+        {
+            bufferSize = numVertices;
+            stride = (UINT)sizeof(T);
+            
+            // Step 07: Create Vertex Buffer
+            D3D11_BUFFER_DESC vertexBufDesc = {};
+            ZeroMemory(&vertexBufDesc, sizeof(vertexBufDesc));
+            
+            vertexBufDesc.ByteWidth = sizeof(T) * numVertices;
+            vertexBufDesc.Usage = D3D11_USAGE_DEFAULT;
+            vertexBufDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
+            vertexBufDesc.CPUAccessFlags = 0u;
+            vertexBufDesc.MiscFlags = 0u;
+            vertexBufDesc.StructureByteStride = sizeof(T);
+            
+            D3D11_SUBRESOURCE_DATA vertexData = {};
+            ZeroMemory(&vertexData, sizeof(vertexData));
+            
+            vertexData.pSysMem = data;
+            vertexData.SysMemPitch = 0;
+            vertexData.SysMemSlicePitch = 0;
+            
+            return device->CreateBuffer(&vertexBufDesc, &vertexData, mBuffer.GetAddressOf());
+        }
 
-        vertexBufDesc.ByteWidth = sizeof(T) * numVertices;
-        vertexBufDesc.Usage = D3D11_USAGE_DEFAULT;
-        vertexBufDesc.BindFlags = D3D11_BIND_VERTEX_BUFFER;
-        vertexBufDesc.CPUAccessFlags = 0u;
-        vertexBufDesc.MiscFlags = 0u;
-        vertexBufDesc.StructureByteStride = sizeof(T);
-
-        D3D11_SUBRESOURCE_DATA vertexData = {};
-        ZeroMemory(&vertexData, sizeof(vertexData));
-
-        vertexData.pSysMem = data;
-        vertexData.SysMemPitch = 0;
-        vertexData.SysMemSlicePitch = 0;
-
-        return device->CreateBuffer(&vertexBufDesc, &vertexData, mBuffer.GetAddressOf());
-    }
-
-private:
-    Microsoft::WRL::ComPtr<ID3D11Buffer> mBuffer;
-    UINT stride = 0;
-    UINT offset = 0;
-    UINT bufferSize = 0;
-};
+    private:
+        ComPtr<ID3D11Buffer> mBuffer;
+        UINT stride = 0;
+        UINT offset = 0;
+        UINT bufferSize = 0;
+    };
+}

@@ -1,72 +1,66 @@
 #pragma once
 
 #include "ScaldComponent.h"
-#include "TransformComponent.h"
 #include "Graphics/ScaldCoreTypes.h"
 
 #include <vector>
 
-class SceneComponent : public ScaldComponent
+namespace Scald
 {
-public:
-    SceneComponent();
-    virtual ~SceneComponent() override;
-    virtual void Update(const ScaldTimer& st) override;
+    class TransformComponent;
 
-public:
-    FORCEINLINE XMVECTOR GetPosition() const { return mTransformComponent->GetPositionVector(); }
-
-    FORCEINLINE XMFLOAT3 GetPositionFloat() const { return mTransformComponent->GetPositionFloat3(); }
-
-    FORCEINLINE XMVECTOR GetRotation() const { return mTransformComponent->GetRotationVector(); }
-
-    FORCEINLINE XMVECTOR GetOrientation() const { return mTransformComponent->GetOrientation(); }
-
-    FORCEINLINE XMVECTOR GetScale() const { return mTransformComponent->GetScaleVector(); }
-
-    virtual void SetPosition(const XMVECTOR& pos);
-    virtual void SetPosition(float x, float y, float z);
-    virtual void AdjustPosition(const XMVECTOR& pos);
-    virtual void AdjustPosition(float x, float y, float z);
-
-    virtual void SetOrientation(const XMVECTOR& newRotation);
-
-    virtual void SetRotation(const XMVECTOR& rot);
-    virtual void SetRotation(float x, float y, float z);
-    virtual void AdjustRotation(const XMVECTOR& rot);
-    virtual void AdjustRotation(float x, float y, float z);
-
-    void SetScale(const XMVECTOR& scale);
-    void SetScale(float x, float y, float z);
-    void AdjustScale(const XMVECTOR& scale);
-    void AdjustScale(float x, float y, float z);
-
-    FORCEINLINE XMVECTOR GetForwardVector() const { return mTransformComponent->GetForwardVector(); }
-
-    FORCEINLINE XMVECTOR GetRightVector() const { return mTransformComponent->GetRightVector(); }
-
-    FORCEINLINE XMVECTOR GetUpVector() const { return mTransformComponent->GetUpVector(); }
-
-    void SetForwardVector(const XMVECTOR& relativeForwardVector);
-    void SetRightVector(const XMVECTOR& relativeRightVector);
-    void SetUpVector(const XMVECTOR& relativeUpVector);
-
-    void AttachToParent(SceneComponent* Parent);
-    FORCEINLINE SceneComponent* GetParent() { return mParent; }
-
-    FORCEINLINE SceneComponent* GetRootObject()
+    class SceneComponent : public ScaldComponent
     {
-        if (mParent)
+    public:
+        SceneComponent();
+        virtual ~SceneComponent() override;
+        virtual void Update(const ScaldTimer& st) override;
+
+    public:
+        XMVECTOR GetPosition() const;
+        XMFLOAT3 GetPositionFloat() const;
+        XMVECTOR GetRotation() const;
+        XMVECTOR GetOrientation() const;
+        XMVECTOR GetScale() const;
+
+        virtual void SetPosition(const XMVECTOR& pos);
+        virtual void SetPosition(float x, float y, float z);
+        virtual void AdjustPosition(const XMVECTOR& pos);
+        virtual void AdjustPosition(float x, float y, float z);
+
+        virtual void SetOrientation(const XMVECTOR& newRotation);
+
+        virtual void SetRotation(const XMVECTOR& rot);
+        virtual void SetRotation(float x, float y, float z);
+        virtual void AdjustRotation(const XMVECTOR& rot);
+        virtual void AdjustRotation(float x, float y, float z);
+
+        void SetScale(const XMVECTOR& scale);
+        void SetScale(float x, float y, float z);
+        void AdjustScale(const XMVECTOR& scale);
+        void AdjustScale(float x, float y, float z);
+
+        XMVECTOR GetForwardVector() const;
+        XMVECTOR GetRightVector() const;
+        XMVECTOR GetUpVector() const;
+
+        void SetForwardVector(const XMVECTOR& relativeForwardVector);
+        void SetRightVector(const XMVECTOR& relativeRightVector);
+        void SetUpVector(const XMVECTOR& relativeUpVector);
+
+        void AttachToParent(SceneComponent* Parent);
+        FORCEINLINE SceneComponent* GetParent() { return mParent; }
+
+        FORCEINLINE SceneComponent* GetRootObject()
         {
-            return mParent->GetRootObject();
+            return mParent ? mParent->GetRootObject() : this;
         }
-        return this;
-    }
 
-    FORCEINLINE TransformComponent* GetTransform() const { return mTransformComponent; }
+        TransformComponent* GetTransform() const;
 
-private:
-    SceneComponent* mParent = nullptr;
-    TransformComponent* mTransformComponent = nullptr;
-    std::vector<SceneComponent*> mChildren{};
-};
+    private:
+        SceneComponent* mParent = nullptr;
+        TransformComponent* mTransformComponent = nullptr;
+        std::vector<SceneComponent*> mChildren{};
+    };
+}  // namespace Scald

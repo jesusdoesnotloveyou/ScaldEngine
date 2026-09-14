@@ -1,6 +1,5 @@
 #pragma once
 
-#include "ScaldCore/Engine/ScaldWindows.h"
 #include <exception>
 #include <string>
 

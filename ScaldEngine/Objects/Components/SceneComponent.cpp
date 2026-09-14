@@ -2,6 +2,8 @@
 #include "SceneComponent.h"
 #include "TransformComponent.h"
 
+using namespace Scald;
+
 SceneComponent::SceneComponent()
 {
     mTransformComponent = new TransformComponent();
@@ -14,8 +16,33 @@ SceneComponent::~SceneComponent()
 
 void SceneComponent::Update(const ScaldTimer& st)
 {
-    // ScaldComponent::Update(st);
+    //ScaldComponent::Update(st);
     mTransformComponent->Update(st);
+}
+
+XMVECTOR SceneComponent::GetPosition() const
+{
+    return mTransformComponent->GetPositionVector();
+}
+
+XMFLOAT3 SceneComponent::GetPositionFloat() const
+{
+    return mTransformComponent->GetPositionFloat3();
+}
+
+XMVECTOR SceneComponent::GetRotation() const
+{
+    return mTransformComponent->GetRotationVector();
+}
+
+XMVECTOR SceneComponent::GetOrientation() const
+{
+    return mTransformComponent->GetOrientation();
+}
+
+XMVECTOR SceneComponent::GetScale() const
+{
+    return mTransformComponent->GetScaleVector();
 }
 
 void SceneComponent::SetPosition(const XMVECTOR& pos)
@@ -108,6 +135,21 @@ void SceneComponent::AdjustScale(float x, float y, float z)
     mTransformComponent->AdjustScale(x, y, z);
 }
 
+XMVECTOR SceneComponent::GetForwardVector() const
+{
+    return mTransformComponent->GetForwardVector();
+}
+
+XMVECTOR SceneComponent::GetRightVector() const
+{
+    return mTransformComponent->GetRightVector();
+}
+
+XMVECTOR SceneComponent::GetUpVector() const
+{
+    return mTransformComponent->GetUpVector();
+}
+
 void SceneComponent::SetForwardVector(const XMVECTOR& relativeForwardVector)
 {
     mTransformComponent->SetForwardVector(relativeForwardVector);
@@ -123,10 +165,17 @@ void SceneComponent::SetUpVector(const XMVECTOR& relativeUpVector)
     mTransformComponent->SetUpVector(relativeUpVector);
 }
 
-void SceneComponent::AttachToParent(SceneComponent* Parent)
+void SceneComponent::AttachToParent(SceneComponent* parent)
 {
-    Parent->mChildren.push_back(this);
+    if (!parent) return;
 
-    mParent = Parent;
-    mTransformComponent->SetParentTransform(Parent->GetTransform());
+    parent->mChildren.push_back(this);
+
+    mParent = parent;
+    mTransformComponent->SetParentTransform(parent->GetTransform());
+}
+
+TransformComponent* SceneComponent::GetTransform() const
+{
+    return mTransformComponent;
 }

@@ -2,6 +2,8 @@
 #include "ScaldWindows.h"
 #include "RenderWindow.h"
 
+using namespace Scald;
+
 RenderWindow::WindowClass RenderWindow::WindowClass::wndClass;
 
 const char* RenderWindow::WindowClass::GetName() noexcept

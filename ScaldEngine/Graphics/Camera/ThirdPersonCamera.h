@@ -31,6 +31,9 @@ namespace Scald
         std::shared_ptr<SceneComponent> GetTarget() const;
 
     private:
+        void UpdatePosition();
+        
+    private:
         float mYaw;
         float mPitch;
         float mArmLength = 15.0f;

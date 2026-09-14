@@ -3,8 +3,11 @@
 #include "LightHelper.h"
 #include "Objects/Geometry/SceneGeometry.h"
 
+namespace Scald
+{
 class Light : public SceneGeometry
 {
+    using Super = SceneGeometry;
 public:
     Light(const std::string& filePath = "");
     virtual ~Light() noexcept override;
@@ -12,7 +15,6 @@ public:
     //~ Begin of SceneGeometry interface
     virtual void Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, const std::string& filePath = "", const std::wstring& texturePath = L"") override;
     virtual void Update(const ScaldTimer& st) override;
-    virtual void Draw() override;
     void DrawLightVolume(ID3D11DeviceContext* pDeviceContext);
     //~ End of SceneGeometry interface
 
@@ -69,7 +71,6 @@ public:
     //~ Begin of SceneGeometry interface
     virtual void Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, const std::string& filePath = "", const std::wstring& texturePath = L"") override;
     virtual void Update(const ScaldTimer& st) override;
-    virtual void Draw() override;
     //~ End of SceneGeometry interface
 
 public:
@@ -89,7 +90,6 @@ public:
     //~ Begin of SceneGeometry interface
     virtual void Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, const std::string& filePath = "", const std::wstring& texturePath = L"") override;
     virtual void Update(const ScaldTimer& st) override;
-    virtual void Draw() override;
     //~ End of SceneGeometry interface
 
     //~ Begin of Light interface
@@ -117,7 +117,6 @@ public:
     //~ Begin of SceneGeometry interface
     virtual void Init(ID3D11Device* pDevice, ID3D11DeviceContext* pDeviceContext, const std::string& filePath = "", const std::wstring& texturePath = L"") override;
     virtual void Update(const ScaldTimer& st) override;
-    virtual void Draw() override;
     //~ End of SceneGeometry interface
 
     //~ Begin of Light interface
@@ -126,3 +125,4 @@ private:
     virtual XMFLOAT4 GetAmbientColor() const override { return XMFLOAT4(); }
     //~ End of Light interface
 };
+}  // namespace Scald

@@ -1,6 +1,8 @@
 #include "stdafx.h"
 #include "FireParticleSystem.h"
 
+using namespace Scald;
+
 FireParticleSystem::FireParticleSystem(ID3D11Device* device, ID3D11DeviceContext* deviceContext, int maxParticles, XMVECTOR origin, ThirdPersonCamera* camera)
     : ParticleSystem(device, deviceContext, maxParticles, origin, camera)
 {
