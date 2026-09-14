@@ -2,95 +2,106 @@
 #include "Camera.h"
 #include "Objects/Components/TransformComponent.h"
 
-Camera::Camera()
-{
-    UpdateViewMatrix();
-}
+using namespace Scald;
+
+Camera::Camera() 
+    : m_viewMatrix(XMMatrixIdentity())
+    , m_perspectiveProjectionMatrix(XMMatrixIdentity())
+    , m_orthographicProjectionMatrix(XMMatrixIdentity())
+    , m_isDirty(false) // to update view matrix on the first update call
+{}
 
 void Camera::Update(const ScaldTimer& st)
 {
-    SceneComponent::Update(st);
+    Super::Update(st);
+
+    if (!m_isDirty) return;
+    UpdateView();
+    m_isDirty = false;
 }
 
-void Camera::SetPerspectiveProjectionValues(float fovDegrees, float aspectRatio, float nearZ, float farZ)
+void Camera::Reset(float fovDegrees, float aspectRatio, float nearZ, float farZ)
 {
-    mFovRadians = (fovDegrees / 360.0f) * XM_2PI;
-    mPerspectiveProjectionMatrix = XMMatrixPerspectiveFovLH(mFovRadians, aspectRatio, nearZ, farZ);
-}
+    m_fovYRadians = (fovDegrees / 360.0f) * XM_2PI;
+    m_aspectRatio = aspectRatio;
+    m_nearZ = nearZ;
+    m_farZ = farZ;
 
-void Camera::SetOrthographicProjectionValues(float width, float height, float nearZ, float farZ)
-{
-    mOrthographicProjectionMatrix = XMMatrixOrthographicLH(width, height, nearZ, farZ);
+    m_nearWindowHeight = 2.0f * tanf(0.5f * m_fovYRadians) * m_nearZ;
+    m_farWindowHeight = 2.0f * tanf(0.5f * m_fovYRadians) * m_farZ;
+
+    UpdatePerspectiveProjection();
+    UpdateOrthographicProjection();
 }
 
 const XMMATRIX& Camera::GetViewMatrix() const
 {
-    return mViewMatrix;
+    return m_viewMatrix;
 }
 
 const XMMATRIX& Camera::GetPerspectiveProjectionMatrix() const
 {
-    return mPerspectiveProjectionMatrix;
+    return m_perspectiveProjectionMatrix;
 }
 
 const XMMATRIX& Camera::GetOrthographicProjectionMatrix() const
 {
-    return mOrthographicProjectionMatrix;
+    return m_orthographicProjectionMatrix;
 }
 
 void Camera::SetPosition(const XMVECTOR& pos)
 {
-    SceneComponent::SetPosition(pos);
-    UpdateViewMatrix();
+    Super::SetPosition(pos);
+    m_isDirty = true;
 }
 
 void Camera::SetPosition(float x, float y, float z)
 {
-    SceneComponent::SetPosition(x, y, z);
-    UpdateViewMatrix();
+    Super::SetPosition(x, y, z);
+    m_isDirty = true;
 }
 
 void Camera::AdjustPosition(const XMVECTOR& pos)
 {
-    SceneComponent::AdjustPosition(pos);
-    UpdateViewMatrix();
+    Super::AdjustPosition(pos);
+    m_isDirty = true;
 }
 
 void Camera::AdjustPosition(float x, float y, float z)
 {
-    SceneComponent::AdjustPosition(x, y, z);
-    UpdateViewMatrix();
+    Super::AdjustPosition(x, y, z);
+    m_isDirty = true;
 }
 
 void Camera::SetRotation(const XMVECTOR& rot)
 {
-    SceneComponent::SetRotation(rot);
-    UpdateViewMatrix();
+    Super::SetRotation(rot);
+    m_isDirty = true;
 }
 
 void Camera::SetRotation(float x, float y, float z)
 {
-    SceneComponent::SetRotation(x, y, z);
-    UpdateViewMatrix();
+    Super::SetRotation(x, y, z);
+    m_isDirty = true;
 }
 
 void Camera::AdjustRotation(const XMVECTOR& rot)
 {
-    SceneComponent::AdjustRotation(rot);
-    UpdateViewMatrix();
+    Super::AdjustRotation(rot);
+    m_isDirty = true;
 }
 
 void Camera::AdjustRotation(float x, float y, float z)
 {
-    SceneComponent::AdjustRotation(x, y, z);
-    UpdateViewMatrix();
+    Super::AdjustRotation(x, y, z);
+    m_isDirty = true;
 }
 
 void Camera::SetLookAtPosition(XMFLOAT3 lookAtPosition)
 {
     auto Transform = GetTransform();
     const XMFLOAT3 posFloat = Transform->GetPositionFloat3();
-    // May be is would be enough to use GetPosition() from SceneComponent
+    // May be is would be enough to use GetPosition() from Super
     if (lookAtPosition.x == posFloat.x && lookAtPosition.y == posFloat.y && lookAtPosition.z == posFloat.z) return;
 
     lookAtPosition.x = posFloat.x - lookAtPosition.x;
@@ -124,16 +135,16 @@ void Camera::SetLookAtPosition(XMVECTOR lookAtPosition)
 void Camera::SetupAttachment(TransformComponent* transformToAttach)
 {
     GetTransform()->SetParentTransform(transformToAttach);
-    bIsAttached = true;
+    m_bIsAttached = true;
 }
 
 void Camera::ClearAttachment()
 {
     GetTransform()->SetParentTransform(nullptr);
-    bIsAttached = false;
+    m_bIsAttached = false;
 }
 
-void Camera::UpdateViewMatrix()
+void Camera::UpdateView()
 {
     const XMVECTOR rot = GetRotation();
     const XMVECTOR pos = GetPosition();
@@ -152,9 +163,19 @@ void Camera::UpdateViewMatrix()
     const XMVECTOR up = XMVector3TransformCoord(ScaldMath::UpVector, cameraRotationMatrix);
 
     // Rebuild view matrix
-    mViewMatrix = XMMatrixLookAtLH(pos, camTarget, up);
+    m_viewMatrix = XMMatrixLookAtLH(pos, camTarget, up);
 
     SetForwardVector(forward);
     SetRightVector(right);
     SetUpVector(up);
+}
+
+void Camera::UpdatePerspectiveProjection()
+{
+    m_perspectiveProjectionMatrix = XMMatrixPerspectiveFovLH(m_fovYRadians, m_aspectRatio, m_nearZ, m_farZ);
+}
+
+void Camera::UpdateOrthographicProjection()
+{
+    m_orthographicProjectionMatrix = XMMatrixOrthographicLH(GetNearWindowWidth(), GetNearWindowHeight(), m_nearZ, m_farZ);
 }
