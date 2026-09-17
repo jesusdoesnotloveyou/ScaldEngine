@@ -9,3 +9,7 @@
 #include "DirectXCollision.h"
 #include "DirectXMath.h"
 #include <DirectXColors.h>
+
+#ifndef D3D11_ALIGNMENT_SIZE
+    #define D3D11_ALIGNMENT_SIZE 16
+#endif

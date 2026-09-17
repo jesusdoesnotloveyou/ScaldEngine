@@ -1,19 +1,20 @@
 #include "stdafx.h"
 #include "Camera.h"
-#include "Objects/Components/TransformComponent.h"
+#include "GameFramework/Objects/Actor.h"
 
 using namespace Scald;
 
-Camera::Camera() 
-    : m_viewMatrix(XMMatrixIdentity())
+Camera::Camera(std::shared_ptr<Actor> owner) 
+    : Super(owner)
+    , m_viewMatrix(XMMatrixIdentity())
     , m_perspectiveProjectionMatrix(XMMatrixIdentity())
     , m_orthographicProjectionMatrix(XMMatrixIdentity())
     , m_isDirty(false) // to update view matrix on the first update call
 {}
 
-void Camera::Update(const ScaldTimer& st)
+void Camera::Tick(float deltaTime)
 {
-    Super::Update(st);
+    Super::Tick(deltaTime);
 
     if (!m_isDirty) return;
     UpdateView();
@@ -99,8 +100,8 @@ void Camera::AdjustRotation(float x, float y, float z)
 
 void Camera::SetLookAtPosition(XMFLOAT3 lookAtPosition)
 {
-    auto Transform = GetTransform();
-    const XMFLOAT3 posFloat = Transform->GetPositionFloat3();
+    auto& transform = GetTransform();
+    const XMFLOAT3 posFloat = transform.GetPositionFloat3();
     // May be is would be enough to use GetPosition() from Super
     if (lookAtPosition.x == posFloat.x && lookAtPosition.y == posFloat.y && lookAtPosition.z == posFloat.z) return;
 
@@ -132,15 +133,15 @@ void Camera::SetLookAtPosition(XMVECTOR lookAtPosition)
     SetLookAtPosition(tmp);
 }
 
-void Camera::SetupAttachment(TransformComponent* transformToAttach)
+void Camera::SetupAttachment(const Transform& transformToAttach)
 {
-    GetTransform()->SetParentTransform(transformToAttach);
+    GetTransform().SetParentTransform(transformToAttach);
     m_bIsAttached = true;
 }
 
 void Camera::ClearAttachment()
 {
-    GetTransform()->SetParentTransform(nullptr);
+    //GetTransform().SetParentTransform();
     m_bIsAttached = false;
 }
 

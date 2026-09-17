@@ -13,6 +13,7 @@ namespace Scald
         Mesh(ID3D11DeviceContext* deviceContext);
         
     public:
+        Mesh() = default;
         Mesh(ID3D11Device* device, ID3D11DeviceContext* deviceContext, const std::vector<VertexPositionNormalUV>& vertices, const std::vector<DWORD>& indices);
         Mesh(const Mesh& mesh);
         

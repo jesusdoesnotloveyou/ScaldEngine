@@ -34,6 +34,6 @@ namespace Scald
 
     private:
         float cascadeSplitLambda = 0.95f;  // idk (probably magic number from Nvidia algorithm
-        float shadowCascadeLevels[CASCADE_NUMBER] = {0.0f, 0.0f, 0.0f, 0.0f};
+        float shadowCascadeLevels[kCascadeNumber] = {0.0f, 0.0f, 0.0f, 0.0f};
     };
 }  // namespace Scald

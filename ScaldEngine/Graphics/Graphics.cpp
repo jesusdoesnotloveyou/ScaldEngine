@@ -1,31 +1,37 @@
 #include "stdafx.h"
 #include "ScaldException.h"
-#include "Graphics.h"
 
+#include "Graphics.h"
 #include "Camera/ThirdPersonCamera.h"
-#include "Objects/Geometry/Actor.h"
-#include "Objects/Components/TransformComponent.h"
-#include "Light/Light.h"
-#include "Render/DeferredRenderer.h"
+#include "Renderer/DeferredRenderer.h"
 #include "Shadows/CascadeShadowMap.h"
 #include "Particles/FireParticleSystem.h"
+#include "Scene/Scene.h"
+#include "Scene/PrimitiveSceneProxy.h"
+#include "Scene/LightSceneProxy.h"
 
 using namespace Scald;
 
+namespace RenderCommon
+{
+    constexpr uint32_t kSwapChainBufferCount = 2u;
+    constexpr DXGI_FORMAT kBackBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
+    constexpr DXGI_FORMAT kDepthStencilFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
+}
+
 Graphics::Graphics(HWND hWnd, int width, int height)
-    : hWnd(hWnd),
-      mScreenWidth(width),
-      mScreenHeight(height)
+    : m_screenWidth(width)
+    , m_screenHeight(height)
 {
     D3D_FEATURE_LEVEL featureLevel[] = {D3D_FEATURE_LEVEL_11_1};
 
     DXGI_SWAP_CHAIN_DESC swapDesc = {};
-    swapDesc.BufferCount = 2;
-    swapDesc.BufferDesc.Width = mScreenWidth;
-    swapDesc.BufferDesc.Height = mScreenHeight;
-    swapDesc.BufferDesc.Format = DXGI_FORMAT_R8G8B8A8_UNORM;
-    swapDesc.BufferDesc.RefreshRate.Numerator = 60;
-    swapDesc.BufferDesc.RefreshRate.Denominator = 1;
+    swapDesc.BufferCount = RenderCommon::kSwapChainBufferCount;
+    swapDesc.BufferDesc.Width = m_screenWidth;
+    swapDesc.BufferDesc.Height = m_screenHeight;
+    swapDesc.BufferDesc.Format = RenderCommon::kBackBufferFormat;
+    swapDesc.BufferDesc.RefreshRate.Numerator = 60u;
+    swapDesc.BufferDesc.RefreshRate.Denominator = 1u;
     swapDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
     swapDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
 
@@ -35,11 +41,13 @@ Graphics::Graphics(HWND hWnd, int width, int height)
     swapDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
     swapDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
 
-    swapDesc.SampleDesc.Count = 1;
-    swapDesc.SampleDesc.Quality = 0;
+    swapDesc.SampleDesc.Count = 1u;
+    swapDesc.SampleDesc.Quality = 0u;
 
     ThrowIfFailed(D3D11CreateDeviceAndSwapChain(
-        nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, D3D11_CREATE_DEVICE_DEBUG, featureLevel, 1, D3D11_SDK_VERSION, &swapDesc, &mSwapChain, &mDevice, nullptr, &mDeviceContext));
+        nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, D3D11_CREATE_DEVICE_DEBUG,
+        featureLevel, 1u, D3D11_SDK_VERSION, 
+        &swapDesc, &mSwapChain, &mDevice, nullptr, &mDeviceContext));
 
     m_camera = std::make_unique<ThirdPersonCamera>();
     // RTV and BackBuffer are created down here in Renderer
@@ -64,7 +72,7 @@ void Graphics::Setup()
     pFireParticleSystem->InitializeSystem();
 
     // Camera setup
-    m_camera->Reset(mFovDegrees, static_cast<float>(mScreenWidth)/static_cast<float>(mScreenHeight), mCameraNearZ, mCameraFarZ);
+    m_camera->Reset(mFovDegrees, static_cast<float>(m_screenWidth) / static_cast<float>(m_screenHeight), mCameraNearZ, mCameraFarZ);
 
     // for cascade shadows
     mCascadeShadowMap->UpdateShadowCascadeSplits(mCameraNearZ, mCameraFarZ);
@@ -76,19 +84,8 @@ void Graphics::Setup()
     ThrowIfFailed(mCB_LightVolume.Init(mDevice.Get(), mDeviceContext.Get()));
     ThrowIfFailed(mCB_PerFrame.Init(mDevice.Get(), mDeviceContext.Get()));
     ThrowIfFailed(mCB_CSM.Init(mDevice.Get(), mDeviceContext.Get()));
+    // Should be replaced with structured buffer for every light type or smth
     ThrowIfFailed(mCB_Light.Init(mDevice.Get(), mDeviceContext.Get()));
-}
-
-void Graphics::InitSceneObjects()
-{
-    if (mRenderObjects.empty()) return;  // assert or smth
-
-    m_camera->SetTarget(mPlayer);
-
-    for (auto&& sceneObject : mRenderObjects)
-    {
-        sceneObject->Init(mDevice.Get(), mDeviceContext.Get());
-    }
 }
 
 // Before rendering every frame we should clear render target view and depth stencil view
@@ -97,61 +94,50 @@ void Graphics::ClearBuffer(float r)
     pRenderer->ClearBuffer(r);
 }
 
-// Forward rendering
-// void Graphics::DrawScene()
-//{
-//	// @todo: Render->Draw(); // deferred|forward|forward+
-//	RenderDepthOnlyPass();
-//	mDeviceContext->ClearState();
-//	RenderColorPass();
-//}
-
 // Deferred rendering
-void Graphics::DrawScene(const ScaldTimer& st)
+void Graphics::DrawScene(Scene* scene)
 {
+    // TODO: assert
+    if (!scene) return;
+
     ID3D11ShaderResourceView* nullSrv[3] = {nullptr, nullptr, nullptr};
     mDeviceContext->PSSetShaderResources(0u, 3u, nullSrv);
 
-#pragma region ShadowMapping
+#pragma region ShadowMappingPass
     mCascadeShadowMap->BindDsvAndSetNullRenderTarget(mDeviceContext.Get());
     pRenderer->BindDepthOnlyPass();
-    RenderDepthOnlyPass();
-#pragma endregion ShadowMapping
+    RenderDepthOnlyPass(scene);
+#pragma endregion ShadowMappingPass
 
-    mDeviceContext->ClearState();
-
+#pragma region DeferredGeometryPass
     pRenderer->BindGeometryPass();
     BindGeometryPassResources();
-    for (auto&& actor : mRenderObjects)
-    {
-        actor->Draw();
-    }
+    RenderGeometry(scene);
+#pragma endregion DeferredGeometryPass
 
-    mDeviceContext->ClearState();
-
+#pragma region DeferredLightingPass
     pRenderer->BindLightingPass();
     BindLightingPassResources();
-    RenderLighting();
-    mDeviceContext->ClearState();
+    RenderLighting(scene);
     // additional task to deferred
     RenderGBuffer();
+#pragma endregion DeferredLightingPass
 
-    mDeviceContext->ClearState();
-
+#pragma region ForwardPasses
     /*pRenderer->BindTransparentPass();
-    mDeviceContext->ClearState();*/
+    RenderTransparent();*/
 
-    RenderParticles(st.DeltaTime());
-    mDeviceContext->ClearState();
+    RenderParticles();
+#pragma endregion ForwardPasses
 }
 
 // For both Forward and Deferred
-void Graphics::RenderDepthOnlyPass()
+void Graphics::RenderDepthOnlyPass(Scene* scene)
 {
-    std::vector<XMMATRIX> lightSpaceMatrices;
+    std::array<XMMATRIX, kCascadeNumber> lightSpaceMatrices;
     GetLightSpaceMatrices(lightSpaceMatrices);
 
-    for (UINT i = 0; i < CASCADE_NUMBER; i++)
+    for (UINT i = 0; i < kCascadeNumber; i++)
     {
         mCSMData.ViewProj[i] = XMMatrixTranspose(lightSpaceMatrices[i]);
         mCSMData.distances[i] = mCascadeShadowMap->GetCascadeLevel(i);  // not used on GPU in Geometry shader, but still filled
@@ -160,11 +146,13 @@ void Graphics::RenderDepthOnlyPass()
     mCB_CSM.SetAndApplyData(mCSMData);
     mDeviceContext->GSSetConstantBuffers(0u, 1u, mCB_CSM.GetAddressOf());
 
-    for (auto&& actor : mRenderObjects)
+    for (auto&& renderItem : scene->GetPrimitives())
     {
-        if (actor == mDirectionalLight) continue;
-        actor->Draw();
+        // skip lights
+        renderItem->Draw();
     }
+
+    mDeviceContext->ClearState();
 }
 
 void Graphics::BindGeometryPassResources()
@@ -180,6 +168,15 @@ void Graphics::BindGeometryPassResources()
     mDeviceContext->VSSetConstantBuffers(1u, 1u, mCB_PerFrame.GetAddressOf());
 }
 
+void Graphics::RenderGeometry(Scene* scene)
+{
+    for (auto&& renderItem : scene->GetPrimitives())
+    {
+        renderItem->Draw();
+    }
+    mDeviceContext->ClearState();
+}
+
 void Graphics::BindLightingPassResources()
 {
     mCB_CSM.SetAndApplyData(mCSMData);
@@ -191,16 +188,24 @@ void Graphics::BindLightingPassResources()
     mDeviceContext->PSSetShaderResources(3u, 1u, mCascadeShadowMap->GetAddressOf());
 }
 
-void Graphics::RenderLighting()
+void Graphics::RenderLighting(Scene* scene)
 {
-    RenderDirectionalLight();
-    RenderOmniLights();
-    // RenderSpotLights();
+    RenderDirectionalLight(scene);
+    RenderOmniLight(scene);
+    //RenderSpotLight(scene);
+
+    mDeviceContext->ClearState();
 }
 
-void Graphics::RenderDirectionalLight()
+void Graphics::RenderDirectionalLight(Scene* scene)
 {
-    UpdateDirLightConstantBuffer(mDirectionalLight.get());
+    UpdateDirectionalLights();
+
+    for (auto& light : scene->GetLights())  // must be list only with spots
+    {
+
+    }
+
     mDeviceContext->VSSetConstantBuffers(2u, 1u, mCB_Light.GetAddressOf());
     mDeviceContext->PSSetConstantBuffers(2u, 1u, mCB_Light.GetAddressOf());
 
@@ -208,54 +213,55 @@ void Graphics::RenderDirectionalLight()
     pRenderer->DrawScreenQuad();
 }
 
-void Graphics::RenderOmniLights()
+void Graphics::RenderOmniLight(Scene* scene)
 {
     pRenderer->BindIntersectsFarPlane();  // !!! HACK (TO DRAW EVEN IF FRUSTUM INTERSECTS LIGHT VOLUME)
     // pRenderer->BindWithinFrustum(); // SHOULD BE INSTEAD
 
-    for (auto&& light : mLights)
+    UpdateOmniLightParams();
+
+    for (auto& light : scene->GetLights())  // must be list only with spots
     {
-        UpdateOmniLightConstantBuffer(light.get());
 
-        const float sphereVolumeRadius = light->GetRange();
-        XMMATRIX world = 
-            XMMatrixScalingFromVector(XMVectorReplicate(sphereVolumeRadius)) * 
-            XMMatrixRotationQuaternion(light->GetTransform()->GetOrientation()) *
-            XMMatrixTranslationFromVector(light->GetTransform()->GetPositionVector());
-
-        auto det = XMMatrixDeterminant(world);
-        XMMATRIX invTransWorld = XMMatrixInverse(&det, XMMatrixTranspose(world));
-
-        mLightVolumeData.gWorld = XMMatrixTranspose(world);
-        mLightVolumeData.gInvTransWorld = XMMatrixTranspose(invTransWorld);
-
-        mCB_LightVolume.SetAndApplyData(mLightVolumeData);
-        mDeviceContext->VSSetConstantBuffers(0u, 1u, mCB_LightVolume.GetAddressOf());
-
-        light->DrawLightVolume(mDeviceContext.Get());
     }
+
+    /*const float sphereVolumeRadius = light->GetRange();
+    XMMATRIX world = XMMatrixScalingFromVector(XMVectorReplicate(sphereVolumeRadius)) * XMMatrixRotationQuaternion(light->GetTransform()->GetOrientation()) *
+                     XMMatrixTranslationFromVector(light->GetTransform()->GetPositionVector());
+
+    auto det = XMMatrixDeterminant(world);
+    XMMATRIX invTransWorld = XMMatrixInverse(&det, XMMatrixTranspose(world));
+
+    mLightVolumeData.gWorld = XMMatrixTranspose(world);
+    mLightVolumeData.gInvTransWorld = XMMatrixTranspose(invTransWorld);
+
+    mCB_LightVolume.SetAndApplyData(mLightVolumeData);
+    mDeviceContext->VSSetConstantBuffers(0u, 1u, mCB_LightVolume.GetAddressOf());
+
+    light->DrawLightVolume(mDeviceContext.Get());*/
 }
 
-void Graphics::RenderSpotLights()
+void Graphics::RenderSpotLight(Scene* scene)
 {
     pRenderer->BindWithinFrustum();
 
-    for (auto& light : mLights)  // must be list only with spots
+    UpdateSpotLightParams();
+    for (auto& light : scene->GetLights())  // must be list only with spots
     {
-        UpdateSpotLightConstantBuffer(light.get());
     }
 }
 
-void Graphics::RenderParticles(float deltaTime)
+void Graphics::RenderParticles()
 {
     pRenderer->BindParticlesPass();
-    pFireParticleSystem->Update(deltaTime);
     pFireParticleSystem->Render();
+    mDeviceContext->ClearState();
 }
 
 void Graphics::RenderGBuffer()
 {
     pRenderer->DrawGBuffer();
+    mDeviceContext->ClearState();
 }
 
 void Graphics::SwitchGBufferLayer(int layer)
@@ -263,44 +269,43 @@ void Graphics::SwitchGBufferLayer(int layer)
     pRenderer->ChangeGBufferLayer(layer);
 }
 
-void Graphics::UpdateDirLightConstantBuffer(Light* dirLight)
+void Graphics::UpdateDirectionalLights()
 {
-    mLightData.ambient = dirLight->GetAmbientColor();
+    /*mLightData.ambient = dirLight->GetAmbientColor();
     mLightData.diffuse = dirLight->GetDiffuseColor();
     mLightData.specular = dirLight->GetSpecularColor();
     mLightData.direction = dirLight->GetDirection();
-    mLightData.lightType = ELightType::Directional;
+    mLightData.lightType = ELightType::Directional;*/
     mCB_Light.SetAndApplyData(mLightData);
 }
 
-void Graphics::UpdateOmniLightConstantBuffer(Light* pointLight)
+void Graphics::UpdateOmniLightParams()
 {
-    mLightData.diffuse = pointLight->GetDiffuseColor();
-    mLightData.specular = pointLight->GetSpecularColor();
-    mLightData.lightType = pointLight->GetLightType();
-    ;
+    //mLightData.diffuse = pointLight->GetDiffuseColor();
+    //mLightData.specular = pointLight->GetSpecularColor();
+    //mLightData.lightType = pointLight->GetLightType();
 
-    mLightData.attenuation = pointLight->GetAttenuation();
-    mLightData.position = pointLight->GetPositionFloat();
+    //mLightData.attenuation = pointLight->GetAttenuation();
+    //mLightData.position = pointLight->GetPositionFloat();
 
-    mLightData.range = pointLight->GetRange();  // hard-coded value
+    //mLightData.range = pointLight->GetRange();  // hard-coded value
 
     mCB_Light.SetAndApplyData(mLightData);
     mDeviceContext->VSSetConstantBuffers(2u, 1u, mCB_Light.GetAddressOf());
     mDeviceContext->PSSetConstantBuffers(2u, 1u, mCB_Light.GetAddressOf());
 }
 
-void Graphics::UpdateSpotLightConstantBuffer(Light* spotLight)
+void Graphics::UpdateSpotLightParams()
 {
-    mLightData.diffuse = spotLight->GetDiffuseColor();
-    mLightData.specular = spotLight->GetSpecularColor();
-    mLightData.lightType = spotLight->GetLightType();
+    //mLightData.diffuse = spotLight->GetDiffuseColor();
+    //mLightData.specular = spotLight->GetSpecularColor();
+    //mLightData.lightType = spotLight->GetLightType();
 
-    mLightData.attenuation = spotLight->GetAttenuation();
-    mLightData.position = spotLight->GetPositionFloat();
+    //mLightData.attenuation = spotLight->GetAttenuation();
+    //mLightData.position = spotLight->GetPositionFloat();
 
-    mLightData.direction = spotLight->GetDirection();
-    mLightData.spot = 10.0f;  // hard-coded value
+    //mLightData.direction = spotLight->GetDirection();
+    //mLightData.spot = 10.0f;  // hard-coded value
 
     mCB_Light.SetAndApplyData(mLightData);
     mDeviceContext->VSSetConstantBuffers(2u, 1u, mCB_Light.GetAddressOf());
@@ -313,11 +318,10 @@ void Graphics::EndFrame()
     ThrowIfFailed(mSwapChain->Present(1u, /*DXGI_PRESENT_DO_NOT_WAIT*/ 0u));
 }
 
-void Graphics::Update(const ScaldTimer& st)
+void Graphics::Update(float deltaTime)
 {
-    m_camera->Update(st);
-
-    // pFireParticleSystem->Update(st.DeltaTime());
+    m_camera->Tick(deltaTime);
+    pFireParticleSystem->Update(deltaTime);
 }
 
 void Graphics::CreateDepthStencilState()
@@ -345,13 +349,12 @@ void Graphics::SetupShaders()
     pRenderer->SetupShaders();
 }
 
-std::vector<XMVECTOR> Graphics::GetFrustumCornersWorldSpace(const XMMATRIX& viewProjection)
+std::array<XMVECTOR, 8u> Graphics::GetFrustumCornersWorldSpace(const XMMATRIX& viewProjection)
 {
     XMVECTOR det;
     const auto inv = XMMatrixInverse(&det, viewProjection);
 
-    std::vector<XMVECTOR> frustumCorners;
-    frustumCorners.reserve(8);
+    std::array<XMVECTOR, 8u> frustumCorners;
 
     for (UINT x = 0; x < 2; ++x)
     {
@@ -360,36 +363,32 @@ std::vector<XMVECTOR> Graphics::GetFrustumCornersWorldSpace(const XMMATRIX& view
             for (UINT z = 0; z < 2; ++z)
             {
                 // translate NDC coords to world space
-                const XMVECTOR pt = XMVector4Transform(std::move(XMVectorSet(2.0f * x - 1.0f, 2.0f * y - 1.0f, (float)z, 1.0f)), inv);
-                frustumCorners.push_back(pt / XMVectorGetW(pt));
+                const XMVECTOR pt = XMVector4Transform(XMVectorSet(2.0f * x - 1.0f, 2.0f * y - 1.0f, (float)z, 1.0f), inv);
+                frustumCorners[x * 4 + y * 2 + z] = (pt / XMVectorGetW(pt));
             }
         }
     }
     return frustumCorners;
 }
 
-void Graphics::GetLightSpaceMatrices(std::vector<XMMATRIX>& outMatrices)
+void Graphics::GetLightSpaceMatrices(std::array<XMMATRIX, kCascadeNumber>& outMatrices)
 {
-    for (UINT i = 0; i < CASCADE_NUMBER; ++i)
+    for (UINT i = 0; i < kCascadeNumber; ++i)
     {
         if (i == 0)
         {
-            outMatrices.push_back(GetLightSpaceMatrix(mCameraNearZ, mCascadeShadowMap->GetCascadeLevel(i)));
-        }
-        else if (i < CASCADE_NUMBER - 1)
-        {
-            outMatrices.push_back(GetLightSpaceMatrix(mCascadeShadowMap->GetCascadeLevel(i - 1), mCascadeShadowMap->GetCascadeLevel(i)));
+            outMatrices[i] = GetLightSpaceMatrix(mCameraNearZ, mCascadeShadowMap->GetCascadeLevel(i));
         }
         else
         {
-            outMatrices.push_back(GetLightSpaceMatrix(mCascadeShadowMap->GetCascadeLevel(i - 1), mCascadeShadowMap->GetCascadeLevel(i)));
+            outMatrices[i] = GetLightSpaceMatrix(mCascadeShadowMap->GetCascadeLevel(i - 1), mCascadeShadowMap->GetCascadeLevel(i));
         }
     }
 }
 
 XMMATRIX Graphics::GetLightSpaceMatrix(const float nearPlane, const float farPlane)
 {
-    const auto cameraProjectionMatrix = XMMatrixPerspectiveFovLH(m_camera->GetFovRad(), static_cast<float>(mScreenWidth) / static_cast<float>(mScreenHeight), nearPlane, farPlane);
+    const auto cameraProjectionMatrix = XMMatrixPerspectiveFovLH(m_camera->GetFovRad(), static_cast<float>(m_screenWidth) / static_cast<float>(m_screenHeight), nearPlane, farPlane);
     const auto frustumCorners = GetFrustumCornersWorldSpace(m_camera->GetViewMatrix() * cameraProjectionMatrix);
 
     XMVECTOR center = XMVectorZero();
@@ -399,7 +398,8 @@ XMMATRIX Graphics::GetLightSpaceMatrix(const float nearPlane, const float farPla
     }
 
     center /= (float)frustumCorners.size();
-    const XMFLOAT3 lightDir = mDirectionalLight->GetDirection();
+    //const XMFLOAT3 lightDir = mDirectionalLight->GetDirection();
+    const XMFLOAT3 lightDir = { 1.0f, 1.0f, -1.0f }; // TODO: remove hard-coded value
     const auto lightView = XMMatrixLookAtLH(center, center + XMVectorSet(lightDir.x, lightDir.y, lightDir.z, 1.0f), ScaldMath::UpVector);
 
     // Measuring cascade

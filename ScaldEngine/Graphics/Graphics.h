@@ -1,195 +1,130 @@
 #pragma once
 
-#include "ScaldCore/Engine/ScaldTimer.h"
+#include "ScaldCoreTypes.h"
+#include "LightHelper.h"
 #include "Shaders.h"
 #include "ConstantBuffer.h"
-#include "ScaldCoreTypes.h"
-#include "Games/Katamari/KatamariPlayer.h"
+#include "StructuredBuffer.h"
+
+#include <array>
+#include <memory>
+#include <cstdint>
 
 namespace Scald
 {
-class SceneGeometry;
-class Light;
-class DirectionalLight;
-class PointLight;
-class SpotLight;
-class Camera;
-class ThirdPersonCamera;
-class CascadeShadowMap;
-class DeferredRenderer;
-class FireParticleSystem;
+    using namespace Microsoft::WRL;
+    using namespace DirectX;
 
-class Graphics
-{
-public:
-    Graphics(HWND hWnd, int width, int height);
-    ~Graphics();
+    class Camera;
+    class CascadeShadowMap;
+    class DeferredRenderer;
+    class FireParticleSystem;
+    class Light;
+    class PrimitiveComponent; // Renderable scene components
+    class Scene;              // Scene contains all renderables (lights, meshes)
 
-    Graphics(const Graphics&) = delete;
-    Graphics& operator=(const Graphics&) = delete;
-
-    void Setup();
-
-    void AddPlayer(std::shared_ptr<KatamariPlayer> player) { mPlayer = player; }
-
-    template <typename T>
-    void AddToRenderPool(std::shared_ptr<T> sceneObject)
+    class Graphics
     {
-        static_assert(std::is_base_of<SceneComponent, T>::value, "Render object must be a scene component!");
+    public:
+        Graphics(HWND hWnd, int width, int height);
+        ~Graphics();
 
-        const auto& lightObject = std::dynamic_pointer_cast<Light>(sceneObject);
-        if (lightObject)
-        {
-            if (lightObject->GetLightType() == ELightType::Directional)
-            {
-                mDirectionalLight = lightObject;
-            }
-            else if (lightObject->GetLightType() == ELightType::Point)
-            {
-                mLights.push_back(lightObject);
-            }
-            // else if (Spot)
-            //  ...
-        }
+        Graphics(const Graphics&) = delete;
+        Graphics& operator=(const Graphics&) = delete;
 
-        mRenderObjects.emplace_back(std::move(sceneObject));
-    }
+        void Setup();
 
-    void InitSceneObjects();
+        void ClearBuffer(float r);
+        void DrawScene(Scene* scene);
+        void EndFrame();
 
-    void ClearBuffer(float r);
-    void DrawScene(const ScaldTimer& st);
-    void EndFrame();
+        void Update(float deltaTime);
+    private:
+        void CreateDepthStencilState();
+        void CreateRasterizerState();
+        void CreateSamplerState();
+        void CreateBlendState();
 
-    void Update(const ScaldTimer& st);
-    FORCEINLINE ThirdPersonCamera* GetCamera() const { return m_camera.get(); }
+        void SetupShaders();
 
-private:
-    void CreateDepthStencilState();
-    void CreateRasterizerState();
-    void CreateSamplerState();
-    void CreateBlendState();
+        void BindGeometryPassResources();
+        void BindLightingPassResources();
 
-    void SetupShaders();
+        void RenderDepthOnlyPass(Scene* scene);
+        void RenderGeometry(Scene* scene);
+        void RenderLighting(Scene* scene);
+        void RenderParticles();
 
-    void BindGeometryPassResources();
-    void BindLightingPassResources();
+        void RenderDirectionalLight(Scene* scene);
+        void RenderOmniLight(Scene* scene);
+        void RenderSpotLight(Scene* scene);
 
-    void RenderDepthOnlyPass();
-    void RenderLighting();
-    void RenderParticles(float deltaTime);
+        // deferred additional task specific
+        void RenderGBuffer();
 
-    void RenderDirectionalLight();
-    void RenderOmniLights();
-    void RenderSpotLights();
+    public:
+        void SwitchGBufferLayer(int layer);
 
-    // deferred additional task specific
-    void RenderGBuffer();
+    private:
+        // Update structured buffer
+        void UpdateDirectionalLights();
+        // Update structured buffer
+        void UpdateOmniLightParams();
+        // Update structured buffer
+        void UpdateSpotLightParams();
 
-public:
-    void SwitchGBufferLayer(int layer);
+        // get all 8 vertices of frustrum
+        std::array<XMVECTOR, 8u> GetFrustumCornersWorldSpace(const XMMATRIX& viewProjection);
+        XMMATRIX GetLightSpaceMatrix(const float nearPlane, const float farPlane);
+        void GetLightSpaceMatrices(std::array<XMMATRIX, kCascadeNumber>& outMatrices);
 
-private:
-    void UpdateDirLightConstantBuffer(Light* dirLight);
-    void UpdateOmniLightConstantBuffer(Light* omniLight);
-    void UpdateSpotLightConstantBuffer(Light* spotLight);
+    private:
+        std::unique_ptr<Camera> m_camera = nullptr;
+        
+        uint32_t m_screenWidth;
+        uint32_t m_screenHeight;
+        // should encapsulate in camera
+        float mCameraFarZ = 500.0f;
+        float mCameraNearZ = 0.1f;
+        float mFovDegrees = 90.0f;
 
-    // get all 8 vertices of frustrum
-    std::vector<XMVECTOR> GetFrustumCornersWorldSpace(const XMMATRIX& viewProjection);
-    XMMATRIX GetLightSpaceMatrix(const float nearPlane, const float farPlane);
-    void GetLightSpaceMatrices(std::vector<XMMATRIX>& outMatrices);
+        bool m_bIsPointLightEnabled = true;
+        bool m_bIsDirectionalLightEnabled = true;
+        bool m_bIsSpotLightEnabled = true;
+        bool m_bIsDeferredRenderingApplied = true;
 
-    template <typename T>
-    bool ApplyChanges(ID3D11DeviceContext* deviceContext, ID3D11Buffer* buffer, const std::vector<T>& bufferData)
-    {
-        D3D11_MAPPED_SUBRESOURCE mappedResource;
-        ThrowIfFailed(deviceContext->Map(buffer, 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
+        VertexShader mShadowVertexShader;
+        VertexShader mVertexShader;
+        PixelShader mPixelShader;
+        GeometryShader mCSMGeometryShader;
 
-        CopyMemory(mappedResource.pData, bufferData.data(), sizeof(T) * bufferData.size());
-        deviceContext->Unmap(buffer, 0);
-        return true;
-    }
+    #pragma region Light
+        // like constant buffer per object, but for lights
+        // could be implemented due to encapsulation inside light class
+        ConstantBuffer<ConstantBufferPerObject> mCB_LightVolume;
+        ConstantBufferPerObject mLightVolumeData;
 
-    template <typename T>
-    HRESULT CreateStructuredBuffer(ID3D11Device* device, ID3D11Buffer** buffer, const std::vector<T>& bufferData)
-    {
-        UINT stride = (UINT)sizeof(T);
-        UINT byteWidth = stride * (UINT)bufferData.size();
+        ConstantBuffer<ConstantBufferPerFrame> mCB_PerFrame;
+        ConstantBufferPerFrame mPerFrameData;
+    #pragma endregion Light
 
-        D3D11_BUFFER_DESC desc = {};
-        desc.ByteWidth = byteWidth;
-        desc.Usage = D3D11_USAGE_DYNAMIC;              // to use map/unmap to update
-        desc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;  // from cpu
-        desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;   // to get from GPU
-        desc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
-        desc.StructureByteStride = stride;
+        ComPtr<IDXGISwapChain> mSwapChain;
+        ComPtr<ID3D11Device> mDevice;
+        ComPtr<ID3D11DeviceContext> mDeviceContext;
 
-        D3D11_SUBRESOURCE_DATA data = {};
-        data.pSysMem = bufferData.data();
-        data.SysMemPitch = 0u;
-        data.SysMemSlicePitch = 0u;
+        std::unique_ptr<DeferredRenderer> pRenderer;
+        std::unique_ptr<FireParticleSystem> pFireParticleSystem;
 
-        return device->CreateBuffer(&desc, &data, buffer);
-    }
+    #pragma region DeferredLightManagement
+        // Strcutured buffer based on light volumes (light objects) count in the scene
+        ConstantBuffer<LIGHT_DESC> mCB_Light;
+        LIGHT_DESC mLightData;
+    #pragma endregion DeferredLightManagement
 
-private:
-    HWND hWnd;
-    int mScreenWidth;
-    int mScreenHeight;
-
-public:
-    std::shared_ptr<KatamariPlayer> mPlayer;
-    std::vector<std::shared_ptr<SceneGeometry>> mRenderObjects;
-
-    std::vector<std::shared_ptr<Light>> mLights;         // deferred rendering stuff
-    std::shared_ptr<Light> mDirectionalLight = nullptr;  // as well as this
-private:
-    std::unique_ptr<ThirdPersonCamera> m_camera = nullptr;
-    // should encapsulate in camera
-    float mCameraFarZ = 500.0f;
-    float mCameraNearZ = 0.1f;
-    float mFovDegrees = 90.0f;
-
-    bool bIsPointLightEnabled = true;
-    bool bIsDirectionalLightEnabled = true;
-    bool bIsSpotLightEnabled = true;
-
-    bool bIsDeferredRenderingTechniqueApplied = true;
-
-    VertexShader mShadowVertexShader;
-    VertexShader mVertexShader;
-    PixelShader mPixelShader;
-    GeometryShader mCSMGeometryShader;
-
-#pragma region Light
-    // like constant buffer per object, but for lights
-    // could be implemented due to encapsulation inside light class
-    ConstantBuffer<ConstantBufferPerObject> mCB_LightVolume;
-    ConstantBufferPerObject mLightVolumeData;
-
-    ConstantBuffer<ConstantBufferPerFrame> mCB_PerFrame;
-    ConstantBufferPerFrame mPerFrameData;
-#pragma endregion Light
-
-    ComPtr<IDXGISwapChain> mSwapChain;
-    ComPtr<ID3D11Device> mDevice;
-    ComPtr<ID3D11DeviceContext> mDeviceContext;
-
-    // Renderer
-    // Deferred Rendering
-    std::unique_ptr<DeferredRenderer> pRenderer;
-    // Particles
-    std::unique_ptr<FireParticleSystem> pFireParticleSystem;
-
-#pragma region DeferredLightManagement
-    ConstantBuffer<LIGHT_DESC> mCB_Light;
-    LIGHT_DESC mLightData;
-#pragma endregion DeferredLightManagement
-
-    // Shadows
-    // TODO: should probably placed in light class
-    std::unique_ptr<CascadeShadowMap> mCascadeShadowMap = nullptr;
-    ConstantBuffer<CascadeDataConstantBuffer> mCB_CSM;
-    CascadeDataConstantBuffer mCSMData;
-};
+        // Shadows
+        // TODO: should probably placed in light class
+        std::unique_ptr<CascadeShadowMap> mCascadeShadowMap = nullptr;
+        ConstantBuffer<CascadeDataConstantBuffer> mCB_CSM;
+        CascadeDataConstantBuffer mCSMData;
+    };
 }

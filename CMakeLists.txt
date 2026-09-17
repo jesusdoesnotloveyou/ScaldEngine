@@ -27,42 +27,56 @@ set(INCLUDES
     ScaldEngine/Delegates/catch.hpp
     
     ScaldEngine/Games/Katamari/KatamariMovementComponent.h
-    ScaldEngine/Games/Katamari/KatamariPlayer.h
+    ScaldEngine/Games/Katamari/KatamariPlayerPawn.h
     
     ScaldEngine/Graphics/Camera/Camera.h
     ScaldEngine/Graphics/Camera/ThirdPersonCamera.h
-    ScaldEngine/Graphics/Light/Light.h
-    ScaldEngine/Graphics/Light/LightHelper.h
+
     ScaldEngine/Graphics/Particles/FireParticleSystem.h
     ScaldEngine/Graphics/Particles/ParticleHelper.h
     ScaldEngine/Graphics/Particles/ParticleSystem.h
-    ScaldEngine/Graphics/Render/DeferredRenderer.h
-    ScaldEngine/Graphics/Render/ForwardRenderer.h
-    ScaldEngine/Graphics/Render/Renderer.h
+
+    ScaldEngine/Graphics/Renderer/DeferredRenderer.h
+    ScaldEngine/Graphics/Renderer/ForwardRenderer.h
+    ScaldEngine/Graphics/Renderer/Renderer.h
+
     ScaldEngine/Graphics/Shadows/CascadeShadowMap.h
     ScaldEngine/Graphics/Shadows/ShadowMap.h
-    ScaldEngine/Graphics/ConstantBuffer.h
+
+    ScaldEngine/Graphics/Scene/Scene.h
+    ScaldEngine/Graphics/Scene/LightSceneProxy.h
+    ScaldEngine/Graphics/Scene/PrimitiveSceneProxy.h
+
     ScaldEngine/Graphics/DXHelper.h
     ScaldEngine/Graphics/Graphics.h
-    ScaldEngine/Graphics/IndexBuffer.h
     ScaldEngine/Graphics/Mesh.h
     ScaldEngine/Graphics/Model.h
+    ScaldEngine/Graphics/LightHelper.h
     ScaldEngine/Graphics/ScaldCoreDefines.h
     ScaldEngine/Graphics/ScaldCoreTypes.h
     ScaldEngine/Graphics/Shaders.h
     ScaldEngine/Graphics/VertexBuffer.h
+    ScaldEngine/Graphics/IndexBuffer.h
+    ScaldEngine/Graphics/ConstantBuffer.h
+    ScaldEngine/Graphics/StructuredBuffer.h
+    
+    ScaldEngine/GameFramework/Components/Collision/CollisionComponent.h
+    ScaldEngine/GameFramework/Components/Movement/MovementComponent.h
+    ScaldEngine/GameFramework/Components/Input/InputComponent.h
+    ScaldEngine/GameFramework/Components/Transform.h
 
-    ScaldEngine/Objects/Components/Collision/CollisionComponent.h
-    ScaldEngine/Objects/Components/Movement/MovementComponent.h
-    ScaldEngine/Objects/Components/InputComponent.h
-    ScaldEngine/Objects/Components/RenderComponent.h
-    ScaldEngine/Objects/Components/ScaldComponent.h
-    ScaldEngine/Objects/Components/SceneComponent.h
-    ScaldEngine/Objects/Components/TransformComponent.h
-    ScaldEngine/Objects/Geometry/Shapes.h
-    ScaldEngine/Objects/Geometry/Actor.h
-    ScaldEngine/Objects/Geometry/SceneGeometry.h
-    ScaldEngine/Objects/ScaldObject.h
+    ScaldEngine/GameFramework/Components/ScaldActorComponent.h
+    ScaldEngine/GameFramework/Components/SceneComponent.h
+    ScaldEngine/GameFramework/Components/LightComponentBase.h
+    ScaldEngine/GameFramework/Components/PrimitiveComponent.h
+    ScaldEngine/GameFramework/Components/MeshComponent.h
+    
+    ScaldEngine/GameFramework/ScaldObject.h
+    ScaldEngine/GameFramework/World.h
+    ScaldEngine/GameFramework/Objects/Actor.h
+    ScaldEngine/GameFramework/Objects/Pawn.h
+    
+    ScaldEngine/Utils/Shapes.h
 
     ScaldEngine/ScaldCore/Engine/Engine.h
     ScaldEngine/ScaldCore/Engine/RenderWindow.h
@@ -77,33 +91,48 @@ set(SOURCES
     ScaldEngine/Delegates/Delegates.cpp
     
     ScaldEngine/Games/Katamari/KatamariMovementComponent.cpp
-    ScaldEngine/Games/Katamari/KatamariPlayer.cpp
+    ScaldEngine/Games/Katamari/KatamariPlayerPawn.cpp
     
     ScaldEngine/Graphics/Camera/Camera.cpp
     ScaldEngine/Graphics/Camera/ThirdPersonCamera.cpp
-    ScaldEngine/Graphics/Light/Light.cpp
+    
     ScaldEngine/Graphics/Particles/FireParticleSystem.cpp
     ScaldEngine/Graphics/Particles/ParticleSystem.cpp
-    ScaldEngine/Graphics/Render/DeferredRenderer.cpp
-    ScaldEngine/Graphics/Render/ForwardRenderer.cpp
-    ScaldEngine/Graphics/Render/Renderer.cpp
+    
+    ScaldEngine/Graphics/Renderer/DeferredRenderer.cpp
+    ScaldEngine/Graphics/Renderer/ForwardRenderer.cpp
+    ScaldEngine/Graphics/Renderer/Renderer.cpp
+    
     ScaldEngine/Graphics/Shadows/CascadeShadowMap.cpp
     ScaldEngine/Graphics/Shadows/ShadowMap.cpp
+
+    ScaldEngine/Graphics/Scene/Scene.cpp
+    ScaldEngine/Graphics/Scene/LightSceneProxy.cpp
+    ScaldEngine/Graphics/Scene/PrimitiveSceneProxy.cpp
+
     ScaldEngine/Graphics/Graphics.cpp
     ScaldEngine/Graphics/Mesh.cpp
     ScaldEngine/Graphics/Model.cpp
     ScaldEngine/Graphics/Shaders.cpp
 
-    ScaldEngine/Objects/Components/Collision/CollisionComponent.cpp
-    ScaldEngine/Objects/Components/Movement/MovementComponent.cpp
-    ScaldEngine/Objects/Components/InputComponent.cpp
-    ScaldEngine/Objects/Components/RenderComponent.cpp
-    ScaldEngine/Objects/Components/SceneComponent.cpp
-    ScaldEngine/Objects/Components/TransformComponent.cpp
-    ScaldEngine/Objects/Geometry/Shapes.cpp
-    ScaldEngine/Objects/Geometry/Actor.cpp
-    ScaldEngine/Objects/Geometry/SceneGeometry.cpp
+    ScaldEngine/GameFramework/Components/Collision/CollisionComponent.cpp
+    ScaldEngine/GameFramework/Components/Movement/MovementComponent.cpp
+    ScaldEngine/GameFramework/Components/Input/InputComponent.cpp
+    ScaldEngine/GameFramework/Components/Transform.cpp
     
+    ScaldEngine/GameFramework/Components/ScaldActorComponent.cpp
+    ScaldEngine/GameFramework/Components/SceneComponent.cpp
+    ScaldEngine/GameFramework/Components/LightComponentBase.cpp
+    ScaldEngine/GameFramework/Components/PrimitiveComponent.cpp
+    ScaldEngine/GameFramework/Components/MeshComponent.cpp
+    
+    ScaldEngine/GameFramework/World.cpp
+    ScaldEngine/GameFramework/Objects/Actor.cpp
+    ScaldEngine/GameFramework/Objects/Pawn.cpp
+
+    
+    ScaldEngine/Utils/Shapes.cpp
+
     ScaldEngine/ScaldCore/Engine/Engine.cpp
     ScaldEngine/ScaldCore/Engine/RenderWindow.cpp
     ScaldEngine/ScaldCore/Engine/ScaldTimer.cpp
@@ -179,7 +208,7 @@ target_link_libraries(${PROJECT_NAME}
 # endif()
 
 ########### other actions
-set(ASSET_PATHS Shaders Data/Models Data/Textures)
+set(ASSET_PATHS Data/Shaders Data/Models Data/Textures)
 foreach(PATH IN LISTS ASSET_PATHS)
     add_custom_command(TARGET ${PROJECT_NAME} POST_BUILD
     COMMAND ${CMAKE_COMMAND} -E copy_directory

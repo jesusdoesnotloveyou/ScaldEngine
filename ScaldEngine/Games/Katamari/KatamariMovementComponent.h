@@ -1,18 +1,23 @@
 #pragma once
 
-#include "Objects/Components/Movement/MovementComponent.h"
+#include "GameFramework/Components/Movement/MovementComponent.h"
+#include "Graphics/ScaldCoreTypes.h"
+#include "ScaldCore/Engine/ScaldTimer.h"
+
+#include <memory>
 
 namespace Scald
 {
-    class SceneGeometry;
+    class Actor;
 
     class KatamariMovementComponent : public MovementComponent
     {
+        using Super = MovementComponent;
     public:
-        KatamariMovementComponent(SceneGeometry* OwnerPlayer);
+        KatamariMovementComponent(std::shared_ptr<Actor> owner);
         virtual ~KatamariMovementComponent() noexcept override = default;
 
-        virtual void Update(const ScaldTimer& st) override;
+        virtual void Tick(float deltaTime) override;
 
     private:
         KatamariMovementComponent(const KatamariMovementComponent&) = default;

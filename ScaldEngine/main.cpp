@@ -7,7 +7,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE hPrevInstance, LPSTR lpCmdLine
 {
     ThrowIfFailed(CoInitialize(nullptr));
 
-    Engine engine;
+    Engine engine {};
     engine.Launch();
 
     return 0;

@@ -19,8 +19,7 @@ HINSTANCE RenderWindow::WindowClass::GetInstance() noexcept
 RenderWindow::WindowClass::WindowClass() noexcept
     : hInst(GetModuleHandle(nullptr))
 {
-    // Step 01: Create a Window
-#pragma region Window init
+#pragma region WindowInit
     WNDCLASSEX wc = {};
 
     wc.cbSize = sizeof(wc);
@@ -45,8 +44,8 @@ RenderWindow::WindowClass::~WindowClass()
 }
 
 RenderWindow::RenderWindow(int width, int height, const char* windowTitle)
-    : width(width),
-      height(height)
+    : m_width(width)
+    , m_height(height)
 {
     RECT wr = {0, 0, static_cast<LONG>(width), static_cast<LONG>(height)};
     if (AdjustWindowRect(&wr, WS_OVERLAPPEDWINDOW, FALSE) == 0)
@@ -54,25 +53,23 @@ RenderWindow::RenderWindow(int width, int height, const char* windowTitle)
         throw SCALDWND_LAST_EXCEPT();
     }
 
-    hWnd = CreateWindowEx(WS_EX_APPWINDOW, WindowClass::GetName(), windowTitle, WS_SYSMENU | WS_CAPTION | WS_MINIMIZEBOX | WS_THICKFRAME, CW_USEDEFAULT, CW_USEDEFAULT, wr.right - wr.left,
+    m_hWnd = CreateWindowEx(WS_EX_APPWINDOW, WindowClass::GetName(), windowTitle, 
+        WS_SYSMENU | WS_CAPTION | WS_MINIMIZEBOX | WS_THICKFRAME, CW_USEDEFAULT, CW_USEDEFAULT,
+        wr.right - wr.left,
         wr.bottom - wr.top,
         nullptr,  // Handle to parent of this window. Since this is the first window, it has no parent
         nullptr, WindowClass::GetInstance(),
         this);  // param to create window
 
-    if (hWnd == nullptr)
-    {
-        throw SCALDWND_LAST_EXCEPT();
-    }
+    if (m_hWnd == nullptr) throw SCALDWND_LAST_EXCEPT();
 
-    ShowWindow(hWnd, SW_SHOW);
+    ShowWindow(m_hWnd, SW_SHOW);
     // SetForegroundWindow(hWnd);
-    SetFocus(hWnd);
-
+    SetFocus(m_hWnd);
     ShowCursor(true);
-#pragma endregion Window init
+#pragma endregion WindowInit
 
-    pGfx = std::make_unique<Graphics>(hWnd, width, height);
+    m_Gfx = std::make_unique<Graphics>(m_hWnd, width, height);
 
     static bool bIsRawInputInitialized = false;
     if (!bIsRawInputInitialized)
@@ -81,7 +78,7 @@ RenderWindow::RenderWindow(int width, int height, const char* windowTitle)
         rid.usUsagePage = 0x01;
         rid.usUsage = 0x02;
         rid.dwFlags = 0u;
-        rid.hwndTarget = hWnd;
+        rid.hwndTarget = m_hWnd;
 
         if (RegisterRawInputDevices(&rid, 1u, sizeof(rid)) == FALSE)
         {
@@ -93,12 +90,12 @@ RenderWindow::RenderWindow(int width, int height, const char* windowTitle)
 
 RenderWindow::~RenderWindow()
 {
-    DestroyWindow(hWnd);
+    DestroyWindow(m_hWnd);
 }
 
 void RenderWindow::SetTitle(const std::string& title)
 {
-    SetWindowText(hWnd, title.c_str());
+    SetWindowText(m_hWnd, title.c_str());
 }
 
 std::optional<int> RenderWindow::ProcessMessages() noexcept
@@ -106,7 +103,7 @@ std::optional<int> RenderWindow::ProcessMessages() noexcept
     MSG msg;
     ZeroMemory(&msg, sizeof(MSG));
 
-    while (PeekMessage(&msg, nullptr /*hWnd*/, 0u, 0u, PM_REMOVE))
+    while (PeekMessage(&msg, nullptr /*m_hWnd*/, 0u, 0u, PM_REMOVE))
     {
         if (msg.message == WM_QUIT)
         {
@@ -121,37 +118,41 @@ std::optional<int> RenderWindow::ProcessMessages() noexcept
 
 Graphics& RenderWindow::GetGfx()
 {
-    if (!pGfx)
+    if (!m_Gfx)
     {
         throw SCALDWND_LAST_EXCEPT();
     }
-    return *pGfx;
+    return *m_Gfx;
 }
 
-LRESULT WINAPI RenderWindow::HandleMsgSetup(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept
+LRESULT WINAPI RenderWindow::HandleMsgSetup(HWND m_hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept
 {
     if (msg == WM_NCCREATE)
     {
         const CREATESTRUCTW* const pCreate = reinterpret_cast<CREATESTRUCTW*>(lParam);
         RenderWindow* const pWnd = static_cast<RenderWindow*>(pCreate->lpCreateParams);
-        SetWindowLongPtr(hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pWnd));
-        SetWindowLongPtr(hWnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(&RenderWindow::HandleMsgThunk));
-        return pWnd->HandleMsg(hWnd, msg, wParam, lParam);
+        SetWindowLongPtr(m_hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(pWnd));
+        SetWindowLongPtr(m_hWnd, GWLP_WNDPROC, reinterpret_cast<LONG_PTR>(&RenderWindow::HandleMsgThunk));
+        return pWnd->HandleMsg(m_hWnd, msg, wParam, lParam);
     }
-    return DefWindowProc(hWnd, msg, wParam, lParam);
+    return DefWindowProc(m_hWnd, msg, wParam, lParam);
 }
 
-LRESULT WINAPI RenderWindow::HandleMsgThunk(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept
+LRESULT WINAPI RenderWindow::HandleMsgThunk(HWND m_hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept
 {
-    RenderWindow* const pWnd = reinterpret_cast<RenderWindow*>(GetWindowLongPtr(hWnd, GWLP_USERDATA));
-    return pWnd->HandleMsg(hWnd, msg, wParam, lParam);
+    RenderWindow* const pWnd = reinterpret_cast<RenderWindow*>(GetWindowLongPtr(m_hWnd, GWLP_USERDATA));
+    return pWnd->HandleMsg(m_hWnd, msg, wParam, lParam);
 }
 
-LRESULT RenderWindow::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept
+LRESULT RenderWindow::HandleMsg(HWND m_hWnd, UINT msg, WPARAM wParam, LPARAM lParam) noexcept
 {
     switch (msg)
     {
-        case WM_CLOSE: PostQuitMessage(69); return 0;
+        case WM_CLOSE: 
+        {
+            PostQuitMessage(69);
+            return 0;
+        }
 
         case WM_KILLFOCUS:
             kbd.ClearState();
@@ -167,7 +168,16 @@ LRESULT RenderWindow::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
             }
             break;
         case WM_KEYUP:
-        case WM_SYSKEYUP: kbd.OnKeyReleased(static_cast<unsigned char>(wParam)); break;
+        case WM_SYSKEYUP:
+        {
+            if (wParam == VK_ESCAPE)
+            {
+                PostQuitMessage(0);
+                return 0;
+            }
+            kbd.OnKeyReleased(static_cast<unsigned char>(wParam)); 
+            break;
+        }
 
         case WM_CHAR:
             kbd.OnChar(static_cast<unsigned char>(wParam));
@@ -180,12 +190,12 @@ LRESULT RenderWindow::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
             const POINTS pt = MAKEPOINTS(lParam);
             // or xPos = GET_X_LPARAM(lParam); yPos = GET_Y_LPARAM(lParam);
             // in client region -> log move, log enter + capture mouse
-            if (pt.x > 0 && pt.x < width && pt.y > 0 && pt.y < height)
+            if (pt.x > 0 && pt.x < m_width && pt.y > 0 && pt.y < m_height)
             {
                 mouse.OnMouseMove(pt.x, pt.y);
                 if (!mouse.IsInWindow())
                 {
-                    SetCapture(hWnd);
+                    SetCapture(m_hWnd);
                     mouse.OnMouseEnter();
                 }
             }
@@ -253,9 +263,9 @@ LRESULT RenderWindow::HandleMsg(HWND hWnd, UINT msg, WPARAM wParam, LPARAM lPara
                     }
                 }
             }
-            return DefWindowProc(hWnd, msg, wParam, lParam);  // Need to call DefWindowProc for WM_INPUT messages
+            return DefWindowProc(m_hWnd, msg, wParam, lParam);  // Need to call DefWindowProc for WM_INPUT messages
         }
             /****************** END MOUSE MESSAGES *******************/
     }
-    return DefWindowProc(hWnd, msg, wParam, lParam);
+    return DefWindowProc(m_hWnd, msg, wParam, lParam);
 }

@@ -8,7 +8,6 @@
 #include <string>
 #include <memory>
 
-
 namespace Scald
 {
     class RenderWindow
@@ -51,11 +50,11 @@ namespace Scald
         Keyboard kbd;
 
     private:
-        int width;
-        int height;
-        HWND hWnd;
+        int m_width;
+        int m_height;
+        HWND m_hWnd;
 
-        std::unique_ptr<Graphics> pGfx;
+        std::unique_ptr<Graphics> m_Gfx;
     };
 
     #define SCALDWND_LAST_EXCEPT() WindowException(__LINE__, __FILE__, GetLastError())

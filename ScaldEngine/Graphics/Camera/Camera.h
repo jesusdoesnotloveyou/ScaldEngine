@@ -1,17 +1,21 @@
 #pragma once
 
 #include "Graphics/ScaldCoreTypes.h"
-#include "Objects/Components/SceneComponent.h"
+#include "GameFramework/Components/SceneComponent.h"
+#include "GameFramework/Components/Transform.h"
 
 namespace Scald
 {
+    class Actor;
+
     class Camera : public SceneComponent
     {
         using Super = SceneComponent;
     public:
-        Camera();
-        virtual ~Camera() override = default;
-        virtual void Update(const ScaldTimer& st) override;
+        Camera() = default;
+        Camera(std::shared_ptr<Actor> owner);
+        virtual ~Camera() noexcept override = default;
+        virtual void Tick(float deltaTime) override;
 
         void SetPosition(const XMVECTOR& pos) override;
         void SetPosition(float x, float y, float z) override;
@@ -35,7 +39,7 @@ namespace Scald
     
     public:
         // camera orbital rotation specific
-        void SetupAttachment(TransformComponent* transformToAttach);
+        void SetupAttachment(const Transform& transformToAttach);
         void ClearAttachment();
         FORCEINLINE bool IsAttached() const { return m_bIsAttached; }
         //

@@ -22,7 +22,7 @@ CascadeShadowMap::CascadeShadowMap(ID3D11Device* device, UINT width, UINT height
     depthDescription.Width = width;
     depthDescription.Height = height;
     depthDescription.MipLevels = 1u;
-    depthDescription.ArraySize = CASCADE_NUMBER;
+    depthDescription.ArraySize = kCascadeNumber;
     depthDescription.Format = DXGI_FORMAT_R32_TYPELESS;
     depthDescription.SampleDesc.Count = 1u;
     depthDescription.SampleDesc.Quality = 0u;
@@ -41,7 +41,7 @@ CascadeShadowMap::CascadeShadowMap(ID3D11Device* device, UINT width, UINT height
     depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2DARRAY;
     depthStencilViewDesc.Texture2DArray.MipSlice = 0u;
     depthStencilViewDesc.Texture2DArray.FirstArraySlice = 0u;
-    depthStencilViewDesc.Texture2DArray.ArraySize = CASCADE_NUMBER;
+    depthStencilViewDesc.Texture2DArray.ArraySize = kCascadeNumber;
     ThrowIfFailed(device->CreateDepthStencilView(depthMapArray, &depthStencilViewDesc, &mDepthMapDSV));
 
     D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc = {};
@@ -51,7 +51,7 @@ CascadeShadowMap::CascadeShadowMap(ID3D11Device* device, UINT width, UINT height
     shaderResourceViewDesc.Texture2DArray.MostDetailedMip = 0u;
     shaderResourceViewDesc.Texture2DArray.MipLevels = 1u;
     shaderResourceViewDesc.Texture2DArray.FirstArraySlice = 0u;
-    shaderResourceViewDesc.Texture2DArray.ArraySize = CASCADE_NUMBER;
+    shaderResourceViewDesc.Texture2DArray.ArraySize = kCascadeNumber;
     ThrowIfFailed(device->CreateShaderResourceView(depthMapArray, &shaderResourceViewDesc, &mDepthMapSRV));
 
     depthMapArray->Release();
@@ -95,9 +95,9 @@ void CascadeShadowMap::UpdateShadowCascadeSplits(float cameraNearZ, float camera
     const float range = maxZ - minZ;
     const float ratio = maxZ / minZ;
 
-    for (int i = 0; i < CASCADE_NUMBER; i++)
+    for (int i = 0; i < kCascadeNumber; i++)
     {
-        float p = (i + 1) / (float)(CASCADE_NUMBER);
+        float p = (i + 1) / (float)(kCascadeNumber);
         float log = (float)(minZ * pow(ratio, p));
         float uniform = minZ + range * p;
         float d = cascadeSplitLambda * (log - uniform) + uniform;
