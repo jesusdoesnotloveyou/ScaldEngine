@@ -1,19 +1,21 @@
 #pragma once
 
 #include "Camera.h"
+#include <memory>
 
 namespace Scald
 {
-    class SceneGeometry;
+    class Actor;
 
     class ThirdPersonCamera final : public Camera
     {
         using Super = Camera;
     public:
         ThirdPersonCamera();
+        ThirdPersonCamera(std::shared_ptr<Actor> owner);
 
     public:
-        virtual void Update(const ScaldTimer& st) override;
+        virtual void Tick(float deltaTime) override;
         virtual void AdjustRotation(float x, float y, float z) override;
 
         template <typename T>

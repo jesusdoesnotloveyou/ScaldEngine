@@ -1,20 +1,25 @@
 #pragma once
 
-#include "ScaldException.h"
+#include "Graphics/DXHelper.h"
 #include "ParticleHelper.h"
-#include "Graphics/Shaders.h"
 #include "Graphics/ConstantBuffer.h"
-#include "Graphics/Camera/ThirdPersonCamera.h"
+#include "Graphics/StructuredBuffer.h"
+#include "Graphics/Shaders.h"
+
+#include <memory>
+#include <cstdint>
 
 namespace Scald
 {
     using namespace Microsoft::WRL;
     using namespace DirectX;
  
+    class Camera;
+
     class ParticleSystem
     {
     public:
-        ParticleSystem(ID3D11Device* device, ID3D11DeviceContext* deviceContext, int maxParticles, XMVECTOR origin, ThirdPersonCamera* camera);
+        ParticleSystem(ID3D11Device* device, ID3D11DeviceContext* deviceContext, int maxParticles, XMVECTOR origin, Camera* camera);
         virtual void Update(float elapsedTime) = 0;
         virtual void Simulate(float elapsedTime) = 0;
         virtual void Render();
@@ -68,7 +73,7 @@ namespace Scald
             UINT stride = (UINT)sizeof(T);
             UINT byteWidth = stride * numElements;
 
-            D3D11_BUFFER_DESC desc;
+            D3D11_BUFFER_DESC desc{};
             desc.ByteWidth = byteWidth;
             desc.Usage = D3D11_USAGE_DYNAMIC;
             desc.BindFlags = D3D11_BIND_SHADER_RESOURCE;
@@ -78,7 +83,7 @@ namespace Scald
 
             if (bufferData)
             {
-                D3D11_SUBRESOURCE_DATA data;
+                D3D11_SUBRESOURCE_DATA data{};
                 data.pSysMem = bufferData;
                 data.SysMemPitch = 0;
                 data.SysMemSlicePitch = 0;
@@ -143,7 +148,7 @@ namespace Scald
 
         ConstantBuffer<Camera—onstantBuffer> mCBCamera;
         Camera—onstantBuffer mCameraData;
-        ThirdPersonCamera* camera = nullptr;
+        Camera* camera = nullptr;
 
         ComPtr<ID3D11SamplerState> mParticleSamplerClamp;
         ComPtr<ID3D11ShaderResourceView> mBillboardTexture;

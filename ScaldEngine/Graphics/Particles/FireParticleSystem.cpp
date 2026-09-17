@@ -1,9 +1,10 @@
 #include "stdafx.h"
 #include "FireParticleSystem.h"
+#include "Graphics/Camera/Camera.h"
 
 using namespace Scald;
 
-FireParticleSystem::FireParticleSystem(ID3D11Device* device, ID3D11DeviceContext* deviceContext, int maxParticles, XMVECTOR origin, ThirdPersonCamera* camera)
+FireParticleSystem::FireParticleSystem(ID3D11Device* device, ID3D11DeviceContext* deviceContext, int maxParticles, XMVECTOR origin, Camera* camera)
     : ParticleSystem(device, deviceContext, maxParticles, origin, camera)
 {
 }
@@ -109,7 +110,7 @@ void FireParticleSystem::InitializeParticle(int index)
 {
     if (index < 0 || index >= injectionBufferSize) return;
 
-    Particle p;
+    Particle p{};
     p.acceleration = XMVectorSet(0.0f, 4.0f * -0.981f, 0.0f, 0.0f);
     p.initialColor = XMVectorSet(1.0f, 1.0f, 1.0f, 1.0f);
     p.endColor = XMVectorSet(1.0f, 1.0f, 0.8f, 1.0f);  // randColor();

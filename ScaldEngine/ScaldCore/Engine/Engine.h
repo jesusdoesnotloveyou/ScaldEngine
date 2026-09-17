@@ -5,35 +5,38 @@
 
 #include <unordered_map>
 #include <memory>
-
-class KatamariPlayer;
-class ModelData;
+#include <string>
 
 namespace Scald
 {
+    class ModelData;
+    class World;
+    // class Renderer;
+    // class AssetManager;
+
     class Engine
     {
     public:
-        Engine();
+        explicit Engine(uint32_t width = 1280u, uint32_t height = 720u);
         ~Engine();
         int Launch();
 
-        // Katamari specific
-        std::shared_ptr<KatamariPlayer> m_player = nullptr;
         std::unordered_map<std::string, std::unique_ptr<ModelData>> m_models;
 
     private:
-        void SetupScene();
+        void Initialize();
+        void SetupRenderer();
+        void SetupWorld();
+
         void PollInput();
-        void Update(const ScaldTimer& st);
-        void RenderFrame(const ScaldTimer& st);
+        void Update(float deltaTime);
+        void RenderFrame(float deltaTime);
 
         void CalculateFrameStats();
-        float AspectRatio() const;
-
     protected:
-        uint32_t m_clientWidth;
-        uint32_t m_clientHeight;
+        std::unique_ptr<World> m_world;
+        // std::unique_ptr<Renderer> m_renderer;
+        // std::unique_ptr<AssetManager> m_manager;
 
         RenderWindow m_renderWindow;
         ScaldTimer m_timer;

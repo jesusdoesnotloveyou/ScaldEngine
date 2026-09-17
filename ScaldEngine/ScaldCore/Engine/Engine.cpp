@@ -1,31 +1,23 @@
 #include "stdafx.h"
+
 #include "Engine.h"
+#include "GameFramework/World.h"
+#include "Graphics/Scene/Scene.h"
 #include "Data/ModelData.h"
-#include "Games/Katamari/KatamariPlayer.h"
-#include "Graphics/Camera/ThirdPersonCamera.h"
-#include "Graphics/Light/Light.h"
-#include "Objects/Components/TransformComponent.h"
-#include "Objects/Geometry/Actor.h"
 
 using namespace Scald;
 
-Engine::Engine()
-    : m_clientWidth(1280u)
-    , m_clientHeight(720u)
-    , m_renderWindow(m_clientWidth, m_clientHeight, "Direct3DApp")
-{
-}
+Engine::Engine(uint32_t width /*= 1280u*/, uint32_t height /*= 720u*/)
+    : m_renderWindow(width, height, "Scald Engine Direct3D11")
+{}
 
 Engine::~Engine() {}
 
 int Engine::Launch()
 {
-    m_renderWindow.GetGfx().Setup();
-    SetupScene();
-
-    m_timer.Reset();
-
-    while (true)
+    Initialize();
+    
+    while (true /*!renderWindow.ShouldClose()*/)
     {
         m_timer.Tick();
         // process all messages pending, but to not block
@@ -37,13 +29,34 @@ int Engine::Launch()
         // otherwise
         CalculateFrameStats();
         PollInput();
-        Update(m_timer);
-        RenderFrame(m_timer);
+        Update(m_timer.DeltaTime());
+        RenderFrame(m_timer.DeltaTime());
     }
 }
 
-void Engine::SetupScene()
+void Engine::Initialize()
 {
+    SetupRenderer();
+    //SetupInputSubsystem();
+    //SetupPhysicsSubsystem();
+
+    SetupWorld();
+
+    m_timer.Reset();
+}
+
+void Engine::SetupRenderer()
+{
+    // Some parameters or setting to choose between different renderers
+    // m_renderer = std::make_unique<DeferredRenderer>();
+    m_renderWindow.GetGfx().Setup(/*m_renderer*/);
+}
+
+void Engine::SetupWorld()
+{
+    m_world = std::make_unique<World>();
+
+    // TODO: AssetManager
     m_models["alien"] = std::make_unique<ModelData>("./Data/Models/AlienFemale/Alien_Female_Lores.obj", L"./Data/Textures/brick.png");
     m_models["angrybird"] = std::make_unique<ModelData>("./Data/Models/AngryBird/Angry_Bird.obj", L"./Data/Models/AngryBird/Angry_Bird.png");
     m_models["minion"] = std::make_unique<ModelData>("./Data/Models/MinionPig/MinionPig.obj", L"./Data/Models/MinionPig/AngryBirdsChancho.png");
@@ -52,141 +65,41 @@ void Engine::SetupScene()
     m_models["box"] = std::make_unique<ModelData>("./Data/Models/Box/box2.obj", L"./Data/Textures/brick.png");
     m_models["rock"] = std::make_unique<ModelData>("./Data/Models/Rock/rock.obj", L"./Data/Textures/planks.png");
 
-#pragma region Light
-#pragma region PointLight
-    auto pointLight1 = std::make_shared<PointLight>("./Data/Models/Light/light.obj");
-    pointLight1->GetTransform()->SetPosition(20.0f, 4.0f, 60.0f);
-    pointLight1->SetDiffuseColor(1.0f, 1.0f, 0.5f, 5.0f);
-    pointLight1->SetAttenuation(1.0f, 0.5f, 1.1f);
-    // pointLight1->SetRange(3.0f);
-
-    auto pointLight2 = std::make_shared<PointLight>("./Data/Models/Light/light.obj");
-    pointLight2->GetTransform()->SetPosition(60.0f, 4.0f, 60.0f);
-    pointLight2->SetDiffuseColor(0.0f, 1.0f, 1.0f, 5.0f);
-    pointLight2->SetAttenuation(1.0f, 0.7f, 1.8f);
-    // pointLight2->SetRange(2.0f);
-
-    auto pointLight3 = std::make_shared<PointLight>("./Data/Models/Light/light.obj");
-    pointLight3->GetTransform()->SetPosition(0.0f, 4.0f, 60.0f);
-    pointLight3->SetDiffuseColor(1.0f, 0.3f, 0.0f, 4.0f);
-    pointLight3->SetAttenuation(1.0f, 0.5f, 2.0f);
-
-    auto pointLight4 = std::make_shared<PointLight>("./Data/Models/Light/light.obj");
-    pointLight4->GetTransform()->SetPosition(20.0f, 4.0f, 10.0f);
-    pointLight4->SetDiffuseColor(0.5f, 1.0f, 0.5f, 5.0f);
-    pointLight4->SetAttenuation(1.0f, 0.7f, 2.0f);
-
-    auto pointLight5 = std::make_shared<PointLight>("./Data/Models/Light/light.obj");
-    pointLight5->GetTransform()->SetPosition(30.0f, 4.0f, 30.0f);
-    pointLight5->SetDiffuseColor(1.0f, 0.0f, 0.8f, 5.0f);
-    pointLight5->SetAttenuation(1.0f, 0.5f, 2.0f);
-
-    auto pointLight6 = std::make_shared<PointLight>("./Data/Models/Light/light.obj");
-    pointLight6->GetTransform()->SetPosition(50.0f, 4.0f, 40.0f);
-    pointLight6->SetDiffuseColor(0.2f, 1.0f, 0.8f, 5.0f);
-    pointLight6->SetAttenuation(1.0f, 0.5f, 2.0f);
-
-    auto pointLight7 = std::make_shared<PointLight>("./Data/Models/Light/light.obj");
-    pointLight7->GetTransform()->SetPosition(40.0f, 4.0f, 50.0f);
-    pointLight7->SetDiffuseColor(1.0f, 0.0f, 1.0f, 5.0f);
-    pointLight7->SetAttenuation(1.0f, 0.5f, 2.0f);
-
-    auto pointLight8 = std::make_shared<PointLight>("./Data/Models/Light/light.obj");
-    pointLight8->GetTransform()->SetPosition(30.0f, 4.0f, 0.0f);
-    pointLight8->SetDiffuseColor(0.2f, 0.2f, 1.0f, 4.0f);
-    pointLight8->SetAttenuation(1.0f, 0.5f, 2.0f);
-#pragma endregion PointLight
-#pragma region SpotLight
-    SpotLight* spotLight1 = new SpotLight("./Data/Models/Light/light.obj");
-    spotLight1->GetTransform()->SetPosition(50.0f, 4.0f, 55.0f);
-    spotLight1->SetDiffuseColor(0.0f, 1.0f, 0.0f, 1.0f);
-    spotLight1->SetAttenuation(1.0f, 0.7f, 1.8f);
-#pragma endregion SpotLight
-#pragma region DirectionalLight
-    auto directionalLight = std::make_shared<DirectionalLight>("./Data/Models/Light/light.obj");
-    directionalLight->GetTransform()->SetPosition(10.0f, 50.0f, 100.0f);
-    directionalLight->GetCollisionComponent()->DisableCollision();
-    directionalLight->SetAmbientColor(0.25f, 0.25f, 0.35f, 1.0f);
-    directionalLight->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
-    // opposite to dir light pos vector
-    directionalLight->SetDirection(-10.0f, -50.0f, -100.0f);
-#pragma endregion DirectionalLight
-#pragma endregion Light
-
-    auto alien = std::make_shared<Actor>(m_models["alien"].get());
-    alien->GetTransform()->SetScale(0.03f, 0.03f, 0.03f);
-    alien->GetTransform()->SetPosition(40.0f, 0.0f, 30.0f);
-    alien->ObjectName = std::string("alien");
-    alien->GetCollisionComponent()->SetRadius(2.0f);
-
-    auto box = std::make_shared<Actor>(m_models["box"].get());
-    box->GetTransform()->SetScale(3.0f, 3.0f, 3.0f);
-    box->GetTransform()->SetPosition(0.0f, 0.0f, 15.0f);
-    box->ObjectName = std::string("box");
-    box->GetCollisionComponent()->SetRadius(3.0f);
-
-    auto chair = std::make_shared<Actor>(m_models["chair"].get());
-    chair->GetTransform()->SetScale(1.0f, 1.0f, 1.0f);
-    chair->GetTransform()->SetPosition(50.0f, 2.3f, 60.0f);
-    chair->ObjectName = std::string("chair");
-    chair->GetCollisionComponent()->SetRadius(4.0f);
-
-    m_player = std::make_shared<KatamariPlayer>(m_models["angrybird"].get());
-    m_player->GetTransform()->SetScale(0.02f, 0.02f, 0.02f);
-    m_player->GetTransform()->SetPosition(10.0f, 1.9f, 20.0f);
-    m_player->ObjectName = std::string("Player");
-    m_player->GetCollisionComponent()->SetRadius(4.0f);
-
-    auto pig = std::make_shared<Actor>(m_models["minion"].get());
-    pig->GetTransform()->SetScale(0.02f, 0.02f, 0.02f);
-    pig->GetTransform()->SetPosition(30.0f, 0.3f, 35.0f);
-    pig->ObjectName = std::string("pig");
-    pig->GetCollisionComponent()->SetRadius(3.0f);
-
-    auto tony = std::make_shared<Actor>(m_models["tony"].get());
-    tony->GetTransform()->SetScale(0.02f, 0.02f, 0.02f);
-    tony->GetTransform()->SetPosition(10.0f, 0.0f, 40.0f);
-    tony->ObjectName = std::string("angryBird");
-    tony->GetCollisionComponent()->SetRadius(2.0f);
-
-    auto rockFloor = std::make_shared<Actor>(m_models["rock"].get());
-    rockFloor->GetTransform()->SetScale(10.0f, 0.1f, 10.0f);
-    rockFloor->GetTransform()->SetPosition(0.0f, -1.7f, 0.0f);
-    rockFloor->ObjectName = std::string("rock");
-    rockFloor->GetCollisionComponent()->DisableCollision();
-
-    m_renderWindow.GetGfx().AddPlayer(m_player);
-    m_renderWindow.GetGfx().AddToRenderPool(m_player);
-    m_renderWindow.GetGfx().AddToRenderPool(std::move(tony));
-    m_renderWindow.GetGfx().AddToRenderPool(std::move(box));
-    m_renderWindow.GetGfx().AddToRenderPool(std::move(alien));
-    m_renderWindow.GetGfx().AddToRenderPool(std::move(chair));
-    m_renderWindow.GetGfx().AddToRenderPool(std::move(pig));
-    m_renderWindow.GetGfx().AddToRenderPool(std::move(rockFloor));
-
-#pragma region LightPool
-    m_renderWindow.GetGfx().AddToRenderPool(directionalLight);
-    m_renderWindow.GetGfx().AddToRenderPool(pointLight1);
-    m_renderWindow.GetGfx().AddToRenderPool(pointLight2);
-    m_renderWindow.GetGfx().AddToRenderPool(pointLight3);
-    m_renderWindow.GetGfx().AddToRenderPool(pointLight4);
-    m_renderWindow.GetGfx().AddToRenderPool(pointLight5);
-    m_renderWindow.GetGfx().AddToRenderPool(pointLight6);
-    m_renderWindow.GetGfx().AddToRenderPool(pointLight7);
-    m_renderWindow.GetGfx().AddToRenderPool(pointLight8);
-    // m_renderWindow.GetGfx().AddToRenderPool(spotLight1);
-#pragma endregion LightPool
-
-    m_renderWindow.GetGfx().InitSceneObjects();
+//#pragma region Light
+//#pragma region PointLight
+//    auto pointLight1 = std::make_shared<PointLight>("./Data/Models/Light/light.obj");
+//    pointLight1->GetTransform()->SetPosition(20.0f, 4.0f, 60.0f);
+//    pointLight1->SetDiffuseColor(1.0f, 1.0f, 0.5f, 5.0f);
+//    pointLight1->SetAttenuation(1.0f, 0.5f, 1.1f);
+//    // pointLight1->SetRange(3.0f);
+//#pragma endregion PointLight
+//#pragma region DirectionalLight
+//    auto directionalLight = std::make_shared<DirectionalLight>("./Data/Models/Light/light.obj");
+//    directionalLight->GetTransform()->SetPosition(10.0f, 50.0f, 100.0f);
+//    directionalLight->GetCollisionComponent()->DisableCollision();
+//    directionalLight->SetAmbientColor(0.25f, 0.25f, 0.35f, 1.0f);
+//    directionalLight->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
+//    // opposite to dir light pos vector
+//    directionalLight->SetDirection(-10.0f, -50.0f, -100.0f);
+//#pragma endregion DirectionalLight
+//#pragma endregion Light
+//#pragma region Actors
+//    auto alien = std::make_shared<Actor>(m_models["alien"].get());
+//    alien->GetTransform()->SetScale(0.03f, 0.03f, 0.03f);
+//    alien->GetTransform()->SetPosition(40.0f, 0.0f, 30.0f);
+//    alien->m_actorName = std::string("alien");
+//    alien->GetCollisionComponent()->SetRadius(2.0f);
+//#pragma endregion Actors
 
 #pragma region PlayerInputDelegates
-    m_renderWindow.kbd.OnKeyPressedEvent.AddRaw(m_player->GetMovement(), &KatamariMovementComponent::OnKeyPressed);
-    m_renderWindow.kbd.OnKeyReleasedEvent.AddRaw(m_player->GetMovement(), &KatamariMovementComponent::OnKeyReleased);
+    //m_renderWindow.kbd.OnKeyPressedEvent.AddRaw(m_player->GetMovement(), &KatamariMovementComponent::OnKeyPressed);
+    //m_renderWindow.kbd.OnKeyReleasedEvent.AddRaw(m_player->GetMovement(), &KatamariMovementComponent::OnKeyReleased);
 #pragma endregion PlayerInputDelegates
 }
 
 void Engine::PollInput()
 {
+    // InputSubsystem::Poll();
     while (!m_renderWindow.kbd.IsKeyEmpty())
     {
         const auto keyEvent = m_renderWindow.kbd.ReadKey();
@@ -199,27 +112,27 @@ void Engine::PollInput()
     {
         if (mouseEvent.GetType() == Mouse::Event::Type::RawMove)
         {
-            m_renderWindow.GetGfx().GetCamera()->AdjustRotation((float)mouseEvent.GetPosY() * 0.01f, (float)mouseEvent.GetPosX() * 0.01f, 0.0f);
+            //m_renderWindow.GetGfx().GetCamera()->AdjustRotation((float)mouseEvent.GetPosY() * 0.01f, (float)mouseEvent.GetPosX() * 0.01f, 0.0f);
         }
     }
 #pragma endregion CameraRotation
 
 #pragma region PlayerMovement
-    // @todo: refactoring
-    // Camera forward without Y (XoZ)
-    auto forward = XMVectorSetY(m_renderWindow.GetGfx().GetCamera()->GetForwardVector(), 0.0f);
-    forward = XMVector3Normalize(forward);
-    m_player->SetForwardVector(forward);
+    //// TODO: refactoring
+    //// Camera forward without Y (XoZ)
+    //auto forward = XMVectorSetY(m_renderWindow.GetGfx().GetCamera()->GetForwardVector(), 0.0f);
+    //forward = XMVector3Normalize(forward);
+    //m_player->SetForwardVector(forward);
 
-    // Camera right without Y (XoZ)
-    auto right = XMVectorSetY(m_renderWindow.GetGfx().GetCamera()->GetRightVector(), 0.0f);
-    right = XMVector3Normalize(right);
-    m_player->SetRightVector(right);
+    //// Camera right without Y (XoZ)
+    //auto right = XMVectorSetY(m_renderWindow.GetGfx().GetCamera()->GetRightVector(), 0.0f);
+    //right = XMVector3Normalize(right);
+    //m_player->SetRightVector(right);
 
-    if (m_renderWindow.kbd.IsKeyPressed(VK_SPACE) && !m_player->IsFalling())
-    {
-        m_player->Jump();
-    }
+    //if (m_renderWindow.kbd.IsKeyPressed(VK_SPACE) && !m_player->IsFalling())
+    //{
+    //    m_player->Jump();
+    //}
     // deferred additional task specific
     if (m_renderWindow.kbd.IsKeyPressed('1'))
     {
@@ -237,39 +150,18 @@ void Engine::PollInput()
 #pragma endregion PlayerMovement
 }
 
-void Engine::Update(const ScaldTimer& st)
+void Engine::Update(float deltaTime)
 {
-    for (auto&& sceneObject : m_renderWindow.GetGfx().mRenderObjects)
-    {
-        sceneObject->Update(st);
+    m_world->Tick(deltaTime);
 
-// Physics subsystem
-#pragma region Collision
-        // Very inefficient code
-        if (sceneObject == m_player) continue;
-        // checks for collision should be here...
-        if (const auto playerPawnCollision = m_player->GetCollisionComponent())
-        {
-            if (const auto otherCollision = sceneObject->GetCollisionComponent())
-            {
-                if (!otherCollision->IsEnabled()) continue;
-                if (playerPawnCollision->Intersects(otherCollision))
-                {
-                    playerPawnCollision->Notify(otherCollision);
-                }
-            }
-        }
-#pragma endregion Collision
-    }
-
-    m_renderWindow.GetGfx().Update(st);
+    //Physics::Update(deltaTime);
+    m_renderWindow.GetGfx().Update(deltaTime);
 }
 
-void Engine::RenderFrame(const ScaldTimer& st)
+void Engine::RenderFrame(float deltaTime)
 {
-    // const float color = static_cast<float>(sin(m_timer.DeltaTime()) + 1.0f);
     m_renderWindow.GetGfx().ClearBuffer(0.0f);
-    m_renderWindow.GetGfx().DrawScene(st);
+    m_renderWindow.GetGfx().DrawScene(m_world->GetScene());
     m_renderWindow.GetGfx().EndFrame();
 }
 
@@ -295,9 +187,4 @@ void Engine::CalculateFrameStats()
         frameCnt = 0;
         timeElapsed += 1.0f;
     }
-}
-
-float Engine::AspectRatio() const
-{
-    return static_cast<float>(m_clientWidth) / m_clientHeight;
 }

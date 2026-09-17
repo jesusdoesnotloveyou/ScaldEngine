@@ -1,5 +1,6 @@
 #include "stdafx.h"
 #include "ThirdPersonCamera.h"
+#include "GameFramework/Objects/Actor.h"
 
 using namespace Scald;
 
@@ -9,16 +10,25 @@ ThirdPersonCamera::ThirdPersonCamera()
     mYaw = XM_PIDIV4;
 }
 
+ThirdPersonCamera::ThirdPersonCamera(std::shared_ptr<Actor> owner)
+    : Camera(owner)
+    , mPitch(0.0f)
+    , mYaw(0.0f)
+{
+
+}
+
 std::shared_ptr<SceneComponent> ThirdPersonCamera::GetTarget() const
 {
     return m_target;
 }
 
-void ThirdPersonCamera::Update(const ScaldTimer& st)
+void ThirdPersonCamera::Tick(float deltaTime)
 {
-    Super::Update(st);
+    Super::Tick(deltaTime);
 
-    UpdatePosition();
+    // TODO: uncomment when scene component will be finished
+    //UpdatePosition();
 }
 
 void ThirdPersonCamera::UpdatePosition()

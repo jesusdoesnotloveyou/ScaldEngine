@@ -1,7 +1,6 @@
 #pragma once
 
 #include "Graphics/DXHelper.h"
-#include "Light/LightHelper.h"
 #include "ScaldCoreDefines.h"
 
 namespace Scald
@@ -76,20 +75,20 @@ namespace Scald
 
     // Geometry Shader and Cascade Shadows specific
     // must be divisible by 4
-    constexpr UINT CASCADE_NUMBER = 4u;
+    constexpr UINT kCascadeNumber = 4u;
 
     struct CascadeDataConstantBuffer
     {
         CascadeDataConstantBuffer()
         {
-            for (UINT i = 0; i < CASCADE_NUMBER; i++)
+            for (UINT i = 0; i < kCascadeNumber; i++)
             {
                 ViewProj[i] = XMMatrixIdentity();
                 distances[i] = 0.0f;
             }
         }
         
-        XMMATRIX ViewProj[CASCADE_NUMBER];
-        float distances[CASCADE_NUMBER];
+        XMMATRIX ViewProj[kCascadeNumber];
+        float distances[kCascadeNumber];
     };
 }

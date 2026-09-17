@@ -1,6 +1,13 @@
 #include "stdafx.h"
 #include "ParticleSystem.h"
+#include "Graphics/Camera/Camera.h"
+#include <Graphics/ScaldCoreDefines.h>
+#include "ScaldException.h"
+
 #include <WICTextureLoader.h>
+
+#include <limits>
+#include <vector>
 
 // The number of elements to sort is limited to an even power of 2
 // At minimum 8,192 elements - BITONIC_BLOCK_SIZE * TRANSPOSE_BLOCK_SIZE
@@ -9,14 +16,14 @@ using namespace Scald;
 
 namespace
 {
-    constexpr  UINT NUM_ELEMENTS = 512 * 512;
-    constexpr  UINT BITONIC_BLOCK_SIZE = 512;
-    constexpr  UINT TRANSPOSE_BLOCK_SIZE = 16;
-    constexpr  UINT MATRIX_WIDTH = BITONIC_BLOCK_SIZE;
-    constexpr  UINT MATRIX_HEIGHT = NUM_ELEMENTS / BITONIC_BLOCK_SIZE;
+    constexpr UINT NUM_ELEMENTS = 512u * 512u;
+    constexpr UINT BITONIC_BLOCK_SIZE = 512u;
+    constexpr UINT TRANSPOSE_BLOCK_SIZE = 16u;
+    constexpr UINT MATRIX_WIDTH = BITONIC_BLOCK_SIZE;
+    constexpr UINT MATRIX_HEIGHT = NUM_ELEMENTS / BITONIC_BLOCK_SIZE;
 }
 
-ParticleSystem::ParticleSystem(ID3D11Device* device, ID3D11DeviceContext* deviceContext, int maxParticles, XMVECTOR origin, ThirdPersonCamera* camera)
+ParticleSystem::ParticleSystem(ID3D11Device* device, ID3D11DeviceContext* deviceContext, int maxParticles, XMVECTOR origin, Camera* camera)
     : mDevice(device),
       mDeviceContext(deviceContext),
       maxParticles(maxParticles),
@@ -97,7 +104,7 @@ void ParticleSystem::InitializeSystem()
     // Main particle pool
     ThrowIfFailed(CreateRWStructuredBuffer<Particle>(mDevice, &particleBuffer, maxParticles));
 
-    D3D11_UNORDERED_ACCESS_VIEW_DESC particleUAVDesc;
+    D3D11_UNORDERED_ACCESS_VIEW_DESC particleUAVDesc{};
     particleUAVDesc.Format = DXGI_FORMAT_UNKNOWN;
     particleUAVDesc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
     particleUAVDesc.Buffer.NumElements = maxParticles;
@@ -105,7 +112,7 @@ void ParticleSystem::InitializeSystem()
     particleUAVDesc.Buffer.Flags = D3D11_BUFFER_UAV_FLAG_COUNTER;
     ThrowIfFailed(mDevice->CreateUnorderedAccessView(particleBuffer, &particleUAVDesc, &mParticleBufferUAV));
 
-    D3D11_SHADER_RESOURCE_VIEW_DESC particleSRVDesc;
+    D3D11_SHADER_RESOURCE_VIEW_DESC particleSRVDesc{};
     particleSRVDesc.Format = DXGI_FORMAT_UNKNOWN;
     particleSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
     particleSRVDesc.Buffer.NumElements = maxParticles;
@@ -127,7 +134,7 @@ void ParticleSystem::InitializeSystem()
     ThrowIfFailed(CreateRWStructuredBuffer<SortList>(mDevice, &sortListBuffer, maxParticles, sort.data()));
     ThrowIfFailed(CreateRWStructuredBuffer<SortList>(mDevice, &sortListBuffer2, maxParticles, sort.data()));
 
-    D3D11_UNORDERED_ACCESS_VIEW_DESC sortListUAVDesc;
+    D3D11_UNORDERED_ACCESS_VIEW_DESC sortListUAVDesc{};
     sortListUAVDesc.Format = DXGI_FORMAT_UNKNOWN;
     sortListUAVDesc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
     sortListUAVDesc.Buffer.FirstElement = 0u;
@@ -136,7 +143,7 @@ void ParticleSystem::InitializeSystem()
     ThrowIfFailed(mDevice->CreateUnorderedAccessView(sortListBuffer, &sortListUAVDesc, &mSortListBufferUAV));
     ThrowIfFailed(mDevice->CreateUnorderedAccessView(sortListBuffer2, &sortListUAVDesc, &mSortListBufferUAV2));
 
-    D3D11_SHADER_RESOURCE_VIEW_DESC sortListSRVDesc;
+    D3D11_SHADER_RESOURCE_VIEW_DESC sortListSRVDesc{};
     sortListSRVDesc.Format = DXGI_FORMAT_UNKNOWN;
     sortListSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
     sortListSRVDesc.Buffer.FirstElement = 0u;
@@ -147,7 +154,7 @@ void ParticleSystem::InitializeSystem()
     // Dead list
     ThrowIfFailed(CreateRWStructuredBuffer<UINT>(mDevice, &deadListBuffer, maxParticles, deadIndeces.data()));
 
-    D3D11_UNORDERED_ACCESS_VIEW_DESC deadListUAVDesc;
+    D3D11_UNORDERED_ACCESS_VIEW_DESC deadListUAVDesc{};
     deadListUAVDesc.Format = DXGI_FORMAT_UNKNOWN;
     deadListUAVDesc.ViewDimension = D3D11_UAV_DIMENSION_BUFFER;
     deadListUAVDesc.Buffer.FirstElement = 0u;
@@ -155,7 +162,7 @@ void ParticleSystem::InitializeSystem()
     deadListUAVDesc.Buffer.Flags = D3D11_BUFFER_UAV_FLAG_APPEND;
     ThrowIfFailed(mDevice->CreateUnorderedAccessView(deadListBuffer, &deadListUAVDesc, &mDeadListBufferUAV));
 
-    D3D11_SHADER_RESOURCE_VIEW_DESC deadListSRVDesc;
+    D3D11_SHADER_RESOURCE_VIEW_DESC deadListSRVDesc{};
     deadListSRVDesc.Format = DXGI_FORMAT_UNKNOWN;
     deadListSRVDesc.ViewDimension = D3D11_SRV_DIMENSION_BUFFER;
     deadListSRVDesc.Buffer.FirstElement = 0u;
@@ -254,7 +261,7 @@ HRESULT ParticleSystem::CreateStructuredBuffer(ID3D11Device* pDevice, UINT uElem
 
     if (pInitData)
     {
-        D3D11_SUBRESOURCE_DATA InitData;
+        D3D11_SUBRESOURCE_DATA InitData{};
         InitData.pSysMem = pInitData;
         return pDevice->CreateBuffer(&desc, &InitData, ppBufOut);
     }
@@ -276,7 +283,7 @@ HRESULT ParticleSystem::CreateRawBuffer(ID3D11Device* pDevice, UINT uSize, void*
 
     if (pInitData)
     {
-        D3D11_SUBRESOURCE_DATA InitData;
+        D3D11_SUBRESOURCE_DATA InitData{};
         InitData.pSysMem = pInitData;
         return pDevice->CreateBuffer(&desc, &InitData, ppBufOut);
     }

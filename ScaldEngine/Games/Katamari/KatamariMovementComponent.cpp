@@ -1,25 +1,24 @@
 #include "stdafx.h"
 #include "KatamariMovementComponent.h"
-#include "Graphics/ScaldCoreTypes.h"
-#include "Objects/Geometry/SceneGeometry.h"
+#include "GameFramework/Objects/Actor.h"
 
 using namespace Scald;
 using namespace DirectX;
 
-KatamariMovementComponent::KatamariMovementComponent(SceneGeometry* OwnerPlayer)
-    : MovementComponent(OwnerPlayer)
+KatamariMovementComponent::KatamariMovementComponent(std::shared_ptr<Actor> m_owner)
+    : Super(m_owner)
 {
     mSpeed = 10.0f;
     mAngle = 2.0f;
     mJumpZVelocity = 20.0f;
 }
 
-void KatamariMovementComponent::Update(const ScaldTimer& st)
+void KatamariMovementComponent::Tick(float deltaTime)
 {
     if (XMVector3Equal(GetMovementDirection(), XMVectorZero())) return;
 
-    UpdateMovement(st.DeltaTime());
-    UpdateRotation(st.DeltaTime());
+    UpdateMovement(deltaTime);
+    UpdateRotation(deltaTime);
 }
 
 // not sure that "return's" is needed here
@@ -81,7 +80,7 @@ void KatamariMovementComponent::OnKeyReleased(unsigned char key)
 void KatamariMovementComponent::UpdateMovement(float deltaTime)
 {
     const auto currentDirection = GetMovementDirection();
-    Owner->AdjustPosition(currentDirection * mSpeed * deltaTime);
+    //m_owner->AdjustPosition(currentDirection * mSpeed * deltaTime);
 }
 
 void KatamariMovementComponent::UpdateRotation(float deltaTime)
@@ -89,19 +88,20 @@ void KatamariMovementComponent::UpdateRotation(float deltaTime)
     const auto perpCurrentDirection = GetPerpendicular(std::move(GetMovementDirection()));
 
     XMVECTOR newRotation = XMQuaternionRotationAxis(perpCurrentDirection, XMConvertToRadians(mAngle));
-    Owner->SetOrientation(newRotation);
+    //m_owner->SetOrientation(newRotation);
 }
 
 XMVECTOR KatamariMovementComponent::GetMovementDirection() const
 {
     // Normalized from PollInput in Engine.cpp
-    const auto forward = Owner->GetForwardVector();
-    const auto right = Owner->GetRightVector();
+    /*const auto forward = m_owner->GetForwardVector();
+    const auto right = m_owner->GetRightVector();
 
     XMVECTOR currentDirection = forward * XMVectorGetZ(mMovementDirection) + right * XMVectorGetX(mMovementDirection);
     currentDirection = XMVector3Normalize(currentDirection);
 
-    return currentDirection;
+    return currentDirection;*/
+    return XMVECTOR{};
 }
 
 // Only for XoZ plane!
