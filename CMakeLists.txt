@@ -59,6 +59,8 @@ set(INCLUDES
     ScaldEngine/Graphics/IndexBuffer.h
     ScaldEngine/Graphics/ConstantBuffer.h
     ScaldEngine/Graphics/StructuredBuffer.h
+
+    ScaldEngine/Math/ScaldMath.h
     
     ScaldEngine/GameFramework/Components/Collision/CollisionComponent.h
     ScaldEngine/GameFramework/Components/Movement/MovementComponent.h
@@ -114,6 +116,8 @@ set(SOURCES
     ScaldEngine/Graphics/Mesh.cpp
     ScaldEngine/Graphics/Model.cpp
     ScaldEngine/Graphics/Shaders.cpp
+    
+    ScaldEngine/Math/ScaldMath.cpp
 
     ScaldEngine/GameFramework/Components/Collision/CollisionComponent.cpp
     ScaldEngine/GameFramework/Components/Movement/MovementComponent.cpp
