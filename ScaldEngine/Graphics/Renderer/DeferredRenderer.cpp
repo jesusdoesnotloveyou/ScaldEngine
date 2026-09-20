@@ -2,11 +2,12 @@
 #include "DeferredRenderer.h"
 #include "Graphics/ScaldCoreTypes.h"
 #include "Graphics/Mesh.h"
+#include "ScaldException.h"
 
 using namespace Scald;
 
-DeferredRenderer::DeferredRenderer(IDXGISwapChain* spawChain, ID3D11Device* device, ID3D11DeviceContext* deviceContext, UINT width, UINT height)
-    : Renderer(spawChain, device, deviceContext, width, height)
+DeferredRenderer::DeferredRenderer(IDXGISwapChain* swapChain, ID3D11Device* device, ID3D11DeviceContext* deviceContext, UINT width, UINT height)
+    : Renderer(swapChain, device, deviceContext, width, height)
 {
     // See Step 03 in Graphics -> same logic, but in this case there is a number of rtvs
     D3D11_TEXTURE2D_DESC textureDesc = {};
@@ -26,7 +27,7 @@ DeferredRenderer::DeferredRenderer(IDXGISwapChain* spawChain, ID3D11Device* devi
     // back buffer I suppose
     for (UINT i = 0; i < BUFFER_COUNT; i++)
     {
-        ThrowIfFailed(device->CreateTexture2D(&textureDesc, nullptr, &mGBuffer[i].texture));
+        ThrowIfFailed(device->CreateTexture2D(&textureDesc, nullptr, &mGBuffer.texture[i]));
     }
 
     D3D11_RENDER_TARGET_VIEW_DESC renderTargetViewDesc = {};
@@ -36,7 +37,7 @@ DeferredRenderer::DeferredRenderer(IDXGISwapChain* spawChain, ID3D11Device* devi
 
     for (UINT i = 0; i < BUFFER_COUNT; i++)
     {
-        ThrowIfFailed(device->CreateRenderTargetView(mGBuffer[i].texture, &renderTargetViewDesc, &mGBuffer[i].rtv));
+        ThrowIfFailed(device->CreateRenderTargetView(mGBuffer.texture[i], &renderTargetViewDesc, &mGBuffer.rtv[i]));
     }
 
     D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc = {};
@@ -47,22 +48,22 @@ DeferredRenderer::DeferredRenderer(IDXGISwapChain* spawChain, ID3D11Device* devi
 
     for (UINT i = 0; i < BUFFER_COUNT; i++)
     {
-        ThrowIfFailed(device->CreateShaderResourceView(mGBuffer[i].texture, &shaderResourceViewDesc, &mGBuffer[i].srv));
+        ThrowIfFailed(device->CreateShaderResourceView(mGBuffer.texture[i], &shaderResourceViewDesc, &mGBuffer.srv[i]));
     }
 
     std::vector<VertexPositionNormalUV> quadVertices = {VertexPositionNormalUV(), VertexPositionNormalUV(), VertexPositionNormalUV(), VertexPositionNormalUV()};
     std::vector<DWORD> quadIndeces = {0};  // at least one due to throwing exception in Init
-    screenQuad = std::make_unique<Mesh>(device, deviceContext, quadVertices, quadIndeces);
-    GBufferTexture = std::make_unique<Mesh>(device, deviceContext, quadVertices, quadIndeces);
+    screenQuad = std::make_unique<Mesh>(/*device, quadVertices, quadIndeces*/);
+    GBufferTexture = std::make_unique<Mesh>(/*device, quadVertices, quadIndeces*/);
 }
 
 DeferredRenderer::~DeferredRenderer() noexcept
 {
     for (UINT i = 0; i < BUFFER_COUNT; i++)
     {
-        mGBuffer[i].texture->Release();
-        mGBuffer[i].rtv->Release();
-        mGBuffer[i].srv->Release();
+        mGBuffer.texture[i]->Release();
+        mGBuffer.rtv[i]->Release();
+        mGBuffer.srv[i]->Release();
     }
 }
 
@@ -112,17 +113,17 @@ void DeferredRenderer::BindGeometryPass()
     mDeviceContext->IASetInputLayout(mOpaqueVertexShader.GetInputLayout());
 
     ID3D11RenderTargetView* rtvs[] = {
-        mGBuffer[0].rtv,  // diffuse
-        mGBuffer[1].rtv,  // specular
-        mGBuffer[2].rtv,  // normals
+        mGBuffer.rtv[0],  // diffuse
+        mGBuffer.rtv[1],  // specular
+        mGBuffer.rtv[2],  // normals
     };
 
     // See Step 11
     mDeviceContext->OMSetRenderTargets(BUFFER_COUNT, rtvs, mDSV.Get());
     // See ClearBuffer
-    mDeviceContext->ClearRenderTargetView(mGBuffer[0].rtv, Colors::LightSteelBlue);
-    mDeviceContext->ClearRenderTargetView(mGBuffer[1].rtv, Colors::Black);
-    mDeviceContext->ClearRenderTargetView(mGBuffer[2].rtv, Colors::Black);
+    mDeviceContext->ClearRenderTargetView(mGBuffer.rtv[0], Colors::LightSteelBlue);
+    mDeviceContext->ClearRenderTargetView(mGBuffer.rtv[1], Colors::Black);
+    mDeviceContext->ClearRenderTargetView(mGBuffer.rtv[2], Colors::Black);
     // mDeviceContext->ClearDepthStencilView(mDSV.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0u);
 
     mDeviceContext->VSSetShader(mOpaqueVertexShader.Get(), nullptr, 0u);
@@ -152,9 +153,9 @@ void DeferredRenderer::BindLightingPass()
 
     mDeviceContext->PSSetShader(mLightingPixelShader.Get(), nullptr, 0u);
     // Bind GBuffer resources
-    mDeviceContext->PSSetShaderResources(0u, 1u, &mGBuffer[0].srv);
-    mDeviceContext->PSSetShaderResources(1u, 1u, &mGBuffer[1].srv);
-    mDeviceContext->PSSetShaderResources(2u, 1u, &mGBuffer[2].srv);
+    mDeviceContext->PSSetShaderResources(0u, 1u, &mGBuffer.srv[0]);
+    mDeviceContext->PSSetShaderResources(1u, 1u, &mGBuffer.srv[1]);
+    mDeviceContext->PSSetShaderResources(2u, 1u, &mGBuffer.srv[2]);
 
     mDeviceContext->PSSetSamplers(0u, 1u, mSamplerState.GetAddressOf());
     mDeviceContext->PSSetSamplers(1u, 1u, mShadowSamplerState.GetAddressOf());
@@ -201,7 +202,7 @@ void DeferredRenderer::DrawGBuffer()
 
     mDeviceContext->PSSetShader(mGBufferPS.Get(), nullptr, 0u);
 
-    mDeviceContext->PSSetShaderResources(0u, 1u, &mGBuffer[GBufferLayer % BUFFER_COUNT].srv);
+    mDeviceContext->PSSetShaderResources(0u, 1u, &mGBuffer.srv[GBufferLayer % BUFFER_COUNT]);
     mDeviceContext->PSSetSamplers(0u, 1u, mSamplerState.GetAddressOf());
 
     auto& GBufferVB = GBufferTexture->GetVertexBuffer();

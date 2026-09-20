@@ -71,18 +71,18 @@ void LightComponentBase::DrawLightVolume(ID3D11DeviceContext* pDeviceContext)
 {
     // might be good idea to encapsulate light mesh draw here whatever kind of light it is
     // light volume could be sphere, cone or quad
-    auto& lightVB = m_lightVolume.GetVertexBuffer();
-    auto& lightIB = m_lightVolume.GetIndexBuffer();
+    //auto& lightVB = m_lightVolume.GetVertexBuffer();
+    //auto& lightIB = m_lightVolume.GetIndexBuffer();
 
-    pDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
-    pDeviceContext->IASetVertexBuffers(0u, 1u, lightVB.GetAddressOf(), lightVB.GetStridePtr(), lightVB.GetOffsetPtr());
-    pDeviceContext->IASetIndexBuffer(lightIB.Get(), DXGI_FORMAT_R32_UINT, 0u);
-    /*if (lightIB is empty)
-    {
-        pDeviceContext->Draw(lightVB.GetBufferSize(), 0u);
-    }
-    else*/
-    pDeviceContext->DrawIndexed(lightIB.GetBufferSize(), 0u, 0);
+    //pDeviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST);
+    //pDeviceContext->IASetVertexBuffers(0u, 1u, lightVB.GetAddressOf(), lightVB.GetStridePtr(), lightVB.GetOffsetPtr());
+    //pDeviceContext->IASetIndexBuffer(lightIB.Get(), DXGI_FORMAT_R32_UINT, 0u);
+    ///*if (lightIB is empty)
+    //{
+    //    pDeviceContext->Draw(lightVB.GetBufferSize(), 0u);
+    //}
+    //else*/
+    //pDeviceContext->DrawIndexed(lightIB.GetBufferSize(), 0u, 0);
 }
 
 void LightComponentBase::SetAmbientColor(float x, float y, float z, float w)

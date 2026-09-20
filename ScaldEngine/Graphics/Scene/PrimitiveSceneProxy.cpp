@@ -12,23 +12,22 @@ PrimitiveSceneProxy::~PrimitiveSceneProxy()
 
 }
 
-void PrimitiveSceneProxy::Draw() const
+void PrimitiveSceneProxy::SetWorld(XMMATRIX world)
 {
-    m_model.Draw();
+    XMStoreFloat4x4(&m_world, world);
 }
 
-void PrimitiveSceneProxy::UpdateObjectCBs(float deltaTime)
+void PrimitiveSceneProxy::SetModel(const Model* model)
 {
-    // TODO: make void const and move const buffer logic to UpdateCB method
-    ConstantBufferPerObject bufferVS = {};
+    m_model = model;
+}
 
-    /*const XMMATRIX world = GetTransform()->mWorldMatrix;
-    auto det = XMMatrixDeterminant(world);
+const XMMATRIX PrimitiveSceneProxy::GetWorld() const
+{
+    return XMLoadFloat4x4(&m_world);
+}
 
-    const XMMATRIX invTransWorld = XMMatrixInverse(&det, XMMatrixTranspose(world));
-
-    bufferVS.gWorld = XMMatrixTranspose(world);
-    bufferVS.gInvTransWorld = XMMatrixTranspose(invTransWorld);*/
-
-    m_model.GetConstantBufferVS().SetAndApplyData(bufferVS);
+const Model* PrimitiveSceneProxy::GetModel() const
+{
+    return m_model;
 }

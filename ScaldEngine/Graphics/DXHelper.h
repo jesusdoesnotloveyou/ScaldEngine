@@ -6,9 +6,10 @@
 #include <dxgi.h>
 #include <d3d.h>
 
-#include "DirectXCollision.h"
-#include "DirectXMath.h"
+#include <DirectXCollision.h>
+#include <DirectXMath.h>
 #include <DirectXColors.h>
+#include <SimpleMath.h>
 
 #ifndef D3D11_ALIGNMENT_SIZE
     #define D3D11_ALIGNMENT_SIZE 16

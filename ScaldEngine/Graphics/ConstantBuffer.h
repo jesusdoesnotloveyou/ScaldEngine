@@ -1,56 +1,62 @@
 #pragma once
 
-#include "ScaldException.h"
 #include "DXHelper.h"
+#include "ScaldException.h"
 
-template <typename T>
-class ConstantBuffer
+namespace Scald
 {
-public:
-    ConstantBuffer() {}
-    ConstantBuffer(const ConstantBuffer& lhs) = delete;
+    using namespace DirectX;
+    using namespace Microsoft::WRL;
 
-public:
-    ID3D11Buffer* Get() const { return mBuffer.Get(); }
-    ID3D11Buffer* const* GetAddressOf() const { return mBuffer.GetAddressOf(); }
-
-    HRESULT Init(ID3D11Device* device, ID3D11DeviceContext* deviceContext)
+    template <typename T>
+    class ConstantBuffer
     {
-        pDeviceContext = deviceContext;
+    public:
+        ConstantBuffer() {}
+        ConstantBuffer(const ConstantBuffer& lhs) = delete;
 
-        // Create Constant Buffer
-        D3D11_BUFFER_DESC constantBufDesc = {};
-        constantBufDesc.ByteWidth = UINT((sizeof(T) + 15) & ~15);
-        constantBufDesc.Usage = D3D11_USAGE_DYNAMIC;
-        constantBufDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
-        constantBufDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-        constantBufDesc.MiscFlags = 0u;
-        constantBufDesc.StructureByteStride = 0u;
+    public:
+        ID3D11Buffer* Get() const { return m_resource.Get(); }
+        ID3D11Buffer* const* GetAddressOf() const { return m_resource.GetAddressOf(); }
 
-        return device->CreateBuffer(&constantBufDesc, 0, mBuffer.GetAddressOf());
-    }
+        HRESULT Init(ID3D11Device* device, ID3D11DeviceContext* deviceContext)
+        {
+            m_deviceContext = deviceContext;
 
-public:
-    void SetData(const T& data) { curr_data = data; }
+            // Create Constant Buffer
+            D3D11_BUFFER_DESC constantBufDesc = {};
+            constantBufDesc.ByteWidth = UINT((sizeof(T) + 15) & ~15);
+            constantBufDesc.Usage = D3D11_USAGE_DYNAMIC;
+            constantBufDesc.BindFlags = D3D11_BIND_CONSTANT_BUFFER;
+            constantBufDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
+            constantBufDesc.MiscFlags = 0u;
+            constantBufDesc.StructureByteStride = 0u;
 
-    void SetAndApplyData(const T& data)
-    {
-        curr_data = data;
-        ApplyChanges();
-    }
+            return device->CreateBuffer(&constantBufDesc, 0, m_resource.GetAddressOf());
+        }
 
-private:
-    bool ApplyChanges()
-    {
-        D3D11_MAPPED_SUBRESOURCE mappedResource;
-        ThrowIfFailed(pDeviceContext->Map(mBuffer.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
+    public:
+        void SetData(const T& data) { m_currData = data; }
 
-        CopyMemory(mappedResource.pData, &curr_data, sizeof(T));
-        pDeviceContext->Unmap(mBuffer.Get(), 0);
-        return true;
-    }
-private:
-    T curr_data;
-    Microsoft::WRL::ComPtr<ID3D11Buffer> mBuffer;
-    ID3D11DeviceContext* pDeviceContext = nullptr;
-};
+        void SetAndApplyData(const T& data)
+        {
+            m_currData = data;
+            ApplyChanges();
+        }
+
+    private:
+        bool ApplyChanges()
+        {
+            D3D11_MAPPED_SUBRESOURCE mappedResource;
+            ThrowIfFailed(m_deviceContext->Map(m_resource.Get(), 0, D3D11_MAP_WRITE_DISCARD, 0, &mappedResource));
+
+            CopyMemory(mappedResource.pData, &m_currData, sizeof(T));
+            m_deviceContext->Unmap(m_resource.Get(), 0);
+            return true;
+        }
+    private:
+        T m_currData;
+        ComPtr<ID3D11Buffer> m_resource;
+        ID3D11DeviceContext* m_deviceContext = nullptr;
+    };
+}

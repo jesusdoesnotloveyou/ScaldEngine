@@ -630,7 +630,7 @@ protected:
     IDelegateBase* GetDelegate() const { return static_cast<IDelegateBase*>(m_Allocator.GetAllocation()); }
 
     // Allocator for the delegate itself.
-    // Delegate gets allocated when its is smaller or equal than 64 bytes in size.
+    // Delegate gets allocated when it is smaller or equal than 64 bytes in size.
     // Can be changed by preference
     InlineAllocator<DELEGATE_INLINE_ALLOCATION_SIZE> m_Allocator;
 };
@@ -904,21 +904,20 @@ public:
     // Note: Only works on Raw and SP bindings
     void RemoveObject(void* pObject)
     {
-        if (pObject != nullptr)
+        if (!pObject) return;
+        
+        for (size_t i = 0; i < m_Events.size(); ++i)
         {
-            for (size_t i = 0; i < m_Events.size(); ++i)
+            if (m_Events[i].Callback.GetOwner() == pObject)
             {
-                if (m_Events[i].Callback.GetOwner() == pObject)
+                if (IsLocked())
                 {
-                    if (IsLocked())
-                    {
-                        m_Events[i].Callback.Clear();
-                    }
-                    else
-                    {
-                        std::swap(m_Events[i], m_Events[m_Events.size() - 1]);
-                        m_Events.pop_back();
-                    }
+                    m_Events[i].Callback.Clear();
+                }
+                else
+                {
+                    std::swap(m_Events[i], m_Events[m_Events.size() - 1]);
+                    m_Events.pop_back();
                 }
             }
         }
@@ -927,42 +926,38 @@ public:
     // Remove a function from the event list by the handle
     bool Remove(DelegateHandle& handle)
     {
-        if (handle.IsValid())
+        if (!handle.IsValid()) return false;
+
+        for (size_t i = 0; i < m_Events.size(); ++i)
         {
-            for (size_t i = 0; i < m_Events.size(); ++i)
+            if (m_Events[i].Handle == handle)
             {
-                if (m_Events[i].Handle == handle)
+                if (IsLocked())
                 {
-                    if (IsLocked())
-                    {
-                        m_Events[i].Callback.Clear();
-                    }
-                    else
-                    {
-                        std::swap(m_Events[i], m_Events[m_Events.size() - 1]);
-                        m_Events.pop_back();
-                    }
-                    handle.Reset();
-                    return true;
+                    m_Events[i].Callback.Clear();
                 }
+                else
+                {
+                    std::swap(m_Events[i], m_Events[m_Events.size() - 1]);
+                    m_Events.pop_back();
+                }
+                handle.Reset();
+                return true;
             }
         }
-        return false;
     }
 
     bool IsBoundTo(const DelegateHandle& handle) const
     {
-        if (handle.IsValid())
+        if (!handle.IsValid()) return false;
+
+        for (size_t i = 0; i < m_Events.size(); ++i)
         {
-            for (size_t i = 0; i < m_Events.size(); ++i)
+            if (m_Events[i].Handle == handle)
             {
-                if (m_Events[i].Handle == handle)
-                {
-                    return true;
-                }
+                return true;
             }
         }
-        return false;
     }
 
     // Remove all the functions bound to the delegate

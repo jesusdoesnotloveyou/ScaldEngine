@@ -5,39 +5,34 @@
 #include <string>
 #include <vector>
 
-struct aiNode;
-struct aiMesh;
-struct aiScene;
-
 namespace Scald
 {   
     using namespace Microsoft::WRL;
     using namespace DirectX;
 
-
     class Model
     {
     public:
         Model() = default;
+        
+        Model(const Model& lhs) = default;
+        Model(Model&& lhs) noexcept = default;
+
+        Model& operator=(const Model& lhs) = default;
+        Model& operator=(Model&& lhs) noexcept = default;
+
         ~Model() = default;
+                     
+        void SetMaterial(/*ID3D11ShaderResourceView* texture*/);
+        void AddMesh(Mesh&&);
         
-        bool Init(ID3D11Device* device, ID3D11DeviceContext* deviceContext, const std::string& modelFilePath, const std::wstring& textureFilePath);
-        void SetTexture(ID3D11ShaderResourceView* texture);
-        void Draw() const;
-        
-        ConstantBuffer<ConstantBufferPerObject>& GetConstantBufferVS();
+        const std::vector<Mesh>& GetMeshes() const;
+        // TODO: for now we assume that 1 model has only 1 texture
+        Texture* GetTexture() const;
         
     private:
-        bool LoadModel(const std::string& filePath);
-        void ProcessNode(aiNode* node, const aiScene* scene);
-        Mesh ProcessMesh(aiMesh* mesh, const aiScene* scene);
         
-        ConstantBuffer<ConstantBufferPerObject> mCBPerObject;
-        
-        std::vector<Mesh> mMeshes;
-        ComPtr<ID3D11ShaderResourceView> mTexture;
-        
-        ID3D11Device* pDevice = nullptr;
-        ID3D11DeviceContext* pDeviceContext = nullptr;
+        std::vector<Mesh> m_meshes;
+        Texture* m_texture;
     };
 }

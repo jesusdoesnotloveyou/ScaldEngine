@@ -9,16 +9,17 @@ Camera::Camera(std::shared_ptr<Actor> owner)
     , m_viewMatrix(XMMatrixIdentity())
     , m_perspectiveProjectionMatrix(XMMatrixIdentity())
     , m_orthographicProjectionMatrix(XMMatrixIdentity())
-    , m_isDirty(false) // to update view matrix on the first update call
-{}
+{
+    m_bIsDirty = true; // to update view matrix on the first update call
+}
 
 void Camera::Tick(float deltaTime)
 {
     Super::Tick(deltaTime);
 
-    if (!m_isDirty) return;
+    if (m_bIsDirty) return;
     UpdateView();
-    m_isDirty = false;
+    m_bIsDirty = false;
 }
 
 void Camera::Reset(float fovDegrees, float aspectRatio, float nearZ, float farZ)
@@ -50,58 +51,9 @@ const XMMATRIX& Camera::GetOrthographicProjectionMatrix() const
     return m_orthographicProjectionMatrix;
 }
 
-void Camera::SetPosition(const XMVECTOR& pos)
-{
-    Super::SetPosition(pos);
-    m_isDirty = true;
-}
-
-void Camera::SetPosition(float x, float y, float z)
-{
-    Super::SetPosition(x, y, z);
-    m_isDirty = true;
-}
-
-void Camera::AdjustPosition(const XMVECTOR& pos)
-{
-    Super::AdjustPosition(pos);
-    m_isDirty = true;
-}
-
-void Camera::AdjustPosition(float x, float y, float z)
-{
-    Super::AdjustPosition(x, y, z);
-    m_isDirty = true;
-}
-
-void Camera::SetRotation(const XMVECTOR& rot)
-{
-    Super::SetRotation(rot);
-    m_isDirty = true;
-}
-
-void Camera::SetRotation(float x, float y, float z)
-{
-    Super::SetRotation(x, y, z);
-    m_isDirty = true;
-}
-
-void Camera::AdjustRotation(const XMVECTOR& rot)
-{
-    Super::AdjustRotation(rot);
-    m_isDirty = true;
-}
-
-void Camera::AdjustRotation(float x, float y, float z)
-{
-    Super::AdjustRotation(x, y, z);
-    m_isDirty = true;
-}
-
 void Camera::SetLookAtPosition(XMFLOAT3 lookAtPosition)
 {
-    auto& transform = GetTransform();
-    const XMFLOAT3 posFloat = transform.GetPositionFloat3();
+    const XMFLOAT3 posFloat = GetPositionFloat();
     // May be is would be enough to use GetPosition() from Super
     if (lookAtPosition.x == posFloat.x && lookAtPosition.y == posFloat.y && lookAtPosition.z == posFloat.z) return;
 
@@ -133,18 +85,6 @@ void Camera::SetLookAtPosition(XMVECTOR lookAtPosition)
     SetLookAtPosition(tmp);
 }
 
-void Camera::SetupAttachment(const Transform& transformToAttach)
-{
-    GetTransform().SetParentTransform(transformToAttach);
-    m_bIsAttached = true;
-}
-
-void Camera::ClearAttachment()
-{
-    //GetTransform().SetParentTransform();
-    m_bIsAttached = false;
-}
-
 void Camera::UpdateView()
 {
     const XMVECTOR rot = GetRotation();
@@ -166,9 +106,10 @@ void Camera::UpdateView()
     // Rebuild view matrix
     m_viewMatrix = XMMatrixLookAtLH(pos, camTarget, up);
 
-    SetForwardVector(forward);
+    // TODO: something with camera basis
+    /*SetForwardVector(forward);
     SetRightVector(right);
-    SetUpVector(up);
+    SetUpVector(up);*/
 }
 
 void Camera::UpdatePerspectiveProjection()

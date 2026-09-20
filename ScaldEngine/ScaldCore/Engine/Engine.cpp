@@ -2,8 +2,11 @@
 
 #include "Engine.h"
 #include "GameFramework/World.h"
+#include "GameFramework/Components/StaticMeshComponent.h"
+
+#include "Graphics/AssetManager.h"
 #include "Graphics/Scene/Scene.h"
-#include "Data/ModelData.h"
+#include "Graphics/Camera/Camera.h"
 
 using namespace Scald;
 
@@ -39,6 +42,7 @@ void Engine::Initialize()
     SetupRenderer();
     //SetupInputSubsystem();
     //SetupPhysicsSubsystem();
+    SetupAssetManager();
 
     SetupWorld();
 
@@ -52,44 +56,30 @@ void Engine::SetupRenderer()
     m_renderWindow.GetGfx().Setup(/*m_renderer*/);
 }
 
+void Engine::SetupAssetManager()
+{
+    m_assetManager = std::make_unique<AssetManager>(m_renderWindow.GetGfx().GetDevice());
+}
+
 void Engine::SetupWorld()
 {
     m_world = std::make_unique<World>();
 
-    // TODO: AssetManager
-    m_models["alien"] = std::make_unique<ModelData>("./Data/Models/AlienFemale/Alien_Female_Lores.obj", L"./Data/Textures/brick.png");
-    m_models["angrybird"] = std::make_unique<ModelData>("./Data/Models/AngryBird/Angry_Bird.obj", L"./Data/Models/AngryBird/Angry_Bird.png");
-    m_models["minion"] = std::make_unique<ModelData>("./Data/Models/MinionPig/MinionPig.obj", L"./Data/Models/MinionPig/AngryBirdsChancho.png");
-    m_models["chair"] = std::make_unique<ModelData>("./Data/Models/Chair/monoblock_CHAIR.obj", L"./Data/Textures/planks.png");
-    m_models["tony"] = std::make_unique<ModelData>("./Data/Models/Tony/Tony.obj", L"./Data/Models/Tony/AngryBirdCeleste.png");
-    m_models["box"] = std::make_unique<ModelData>("./Data/Models/Box/box2.obj", L"./Data/Textures/brick.png");
-    m_models["rock"] = std::make_unique<ModelData>("./Data/Models/Rock/rock.obj", L"./Data/Textures/planks.png");
+    assert(m_assetManager->LoadModel("./Data/Models/AlienFemale/Alien_Female_Lores.obj") == true && "Model is failed to load");
 
-//#pragma region Light
-//#pragma region PointLight
-//    auto pointLight1 = std::make_shared<PointLight>("./Data/Models/Light/light.obj");
-//    pointLight1->GetTransform()->SetPosition(20.0f, 4.0f, 60.0f);
-//    pointLight1->SetDiffuseColor(1.0f, 1.0f, 0.5f, 5.0f);
-//    pointLight1->SetAttenuation(1.0f, 0.5f, 1.1f);
-//    // pointLight1->SetRange(3.0f);
-//#pragma endregion PointLight
-//#pragma region DirectionalLight
-//    auto directionalLight = std::make_shared<DirectionalLight>("./Data/Models/Light/light.obj");
-//    directionalLight->GetTransform()->SetPosition(10.0f, 50.0f, 100.0f);
-//    directionalLight->GetCollisionComponent()->DisableCollision();
-//    directionalLight->SetAmbientColor(0.25f, 0.25f, 0.35f, 1.0f);
-//    directionalLight->SetDiffuseColor(1.0f, 1.0f, 1.0f, 1.0f);
-//    // opposite to dir light pos vector
-//    directionalLight->SetDirection(-10.0f, -50.0f, -100.0f);
-//#pragma endregion DirectionalLight
-//#pragma endregion Light
-//#pragma region Actors
-//    auto alien = std::make_shared<Actor>(m_models["alien"].get());
-//    alien->GetTransform()->SetScale(0.03f, 0.03f, 0.03f);
-//    alien->GetTransform()->SetPosition(40.0f, 0.0f, 30.0f);
-//    alien->m_actorName = std::string("alien");
-//    alien->GetCollisionComponent()->SetRadius(2.0f);
-//#pragma endregion Actors
+    //// TODO: AssetManager
+    //m_models["alien"] = std::make_unique<ModelData>("./Data/Models/AlienFemale/Alien_Female_Lores.obj", L"./Data/Textures/brick.png");
+    //m_models["angrybird"] = std::make_unique<ModelData>("./Data/Models/AngryBird/Angry_Bird.obj", L"./Data/Models/AngryBird/Angry_Bird.png");
+    //m_models["minion"] = std::make_unique<ModelData>("./Data/Models/MinionPig/MinionPig.obj", L"./Data/Models/MinionPig/AngryBirdsChancho.png");
+    //m_models["chair"] = std::make_unique<ModelData>("./Data/Models/Chair/monoblock_CHAIR.obj", L"./Data/Textures/planks.png");
+    //m_models["tony"] = std::make_unique<ModelData>("./Data/Models/Tony/Tony.obj", L"./Data/Models/Tony/AngryBirdCeleste.png");
+    //m_models["box"] = std::make_unique<ModelData>("./Data/Models/Box/box2.obj", L"./Data/Textures/brick.png");
+    //m_models["rock"] = std::make_unique<ModelData>("./Data/Models/Rock/rock.obj", L"./Data/Textures/planks.png");
+
+    auto testActor = m_world->SpawnActor();
+    //auto testSceneComp = testActor->CreateComponent<PrimitiveComponent>();
+    auto testMeshComp = testActor->CreateComponent<StaticMeshComponent>();
+    testMeshComp->SetStaticMesh(m_assetManager->GetLoadedModel("./Data/Models/AlienFemale/Alien_Female_Lores.obj"));
 
 #pragma region PlayerInputDelegates
     //m_renderWindow.kbd.OnKeyPressedEvent.AddRaw(m_player->GetMovement(), &KatamariMovementComponent::OnKeyPressed);
@@ -112,19 +102,19 @@ void Engine::PollInput()
     {
         if (mouseEvent.GetType() == Mouse::Event::Type::RawMove)
         {
-            //m_renderWindow.GetGfx().GetCamera()->AdjustRotation((float)mouseEvent.GetPosY() * 0.01f, (float)mouseEvent.GetPosX() * 0.01f, 0.0f);
+            m_renderWindow.GetGfx().GetActiveCamera()->AdjustRotation((float)mouseEvent.GetPosY() * 0.01f, (float)mouseEvent.GetPosX() * 0.01f, 0.0f);
         }
     }
 #pragma endregion CameraRotation
 
 #pragma region PlayerMovement
-    //// TODO: refactoring
-    //// Camera forward without Y (XoZ)
+    // TODO: refactoring
+    // Camera forward without Y (XoZ)
     //auto forward = XMVectorSetY(m_renderWindow.GetGfx().GetCamera()->GetForwardVector(), 0.0f);
     //forward = XMVector3Normalize(forward);
     //m_player->SetForwardVector(forward);
 
-    //// Camera right without Y (XoZ)
+    // Camera right without Y (XoZ)
     //auto right = XMVectorSetY(m_renderWindow.GetGfx().GetCamera()->GetRightVector(), 0.0f);
     //right = XMVector3Normalize(right);
     //m_player->SetRightVector(right);

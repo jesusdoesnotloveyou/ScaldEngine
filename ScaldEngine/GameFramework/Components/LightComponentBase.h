@@ -61,6 +61,6 @@ namespace Scald
         
         XMFLOAT3 m_lookAt;
 
-        Mesh m_lightVolume;
+        //Mesh m_lightVolume;
     };
 } // namespace Scald

@@ -21,8 +21,6 @@ set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(INCLUDES
-    ScaldEngine/Data/ModelData.h
-
     ScaldEngine/Delegates/Delegates.h
     ScaldEngine/Delegates/catch.hpp
     
@@ -46,7 +44,9 @@ set(INCLUDES
     ScaldEngine/Graphics/Scene/Scene.h
     ScaldEngine/Graphics/Scene/LightSceneProxy.h
     ScaldEngine/Graphics/Scene/PrimitiveSceneProxy.h
+    ScaldEngine/Graphics/Scene/StaticMeshSceneProxy.h
 
+    ScaldEngine/Graphics/AssetManager.h
     ScaldEngine/Graphics/DXHelper.h
     ScaldEngine/Graphics/Graphics.h
     ScaldEngine/Graphics/Mesh.h
@@ -72,6 +72,7 @@ set(INCLUDES
     ScaldEngine/GameFramework/Components/LightComponentBase.h
     ScaldEngine/GameFramework/Components/PrimitiveComponent.h
     ScaldEngine/GameFramework/Components/MeshComponent.h
+    ScaldEngine/GameFramework/Components/StaticMeshComponent.h
     
     ScaldEngine/GameFramework/ScaldObject.h
     ScaldEngine/GameFramework/World.h
@@ -112,6 +113,7 @@ set(SOURCES
     ScaldEngine/Graphics/Scene/LightSceneProxy.cpp
     ScaldEngine/Graphics/Scene/PrimitiveSceneProxy.cpp
 
+    ScaldEngine/Graphics/AssetManager.cpp
     ScaldEngine/Graphics/Graphics.cpp
     ScaldEngine/Graphics/Mesh.cpp
     ScaldEngine/Graphics/Model.cpp
@@ -129,6 +131,7 @@ set(SOURCES
     ScaldEngine/GameFramework/Components/LightComponentBase.cpp
     ScaldEngine/GameFramework/Components/PrimitiveComponent.cpp
     ScaldEngine/GameFramework/Components/MeshComponent.cpp
+    ScaldEngine/GameFramework/Components/StaticMeshComponent.cpp
     
     ScaldEngine/GameFramework/World.cpp
     ScaldEngine/GameFramework/Objects/Actor.cpp

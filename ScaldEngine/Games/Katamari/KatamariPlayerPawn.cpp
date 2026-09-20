@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "KatamariPlayerPawn.h"
 #include "GameFramework/Components/SceneComponent.h"
+#include "Games/Katamari/KatamariMovementComponent.h"
 
 using namespace Scald;
 
@@ -49,6 +50,7 @@ void KatamariPlayerPawn::StopJumping()
 
 void KatamariPlayerPawn::DoJump(float deltaTime)
 {
-    m_rootComponent->AdjustPosition(XMVector3Cross(m_rootComponent->GetForwardVector(), m_rootComponent->GetRightVector()) * m_jumpZ * deltaTime);
+    // TODO: rewrite base jumping with ScaldMath library
+    //m_rootComponent->AdjustPosition(XMVector3Cross(m_rootComponent->GetForwardVector(), m_rootComponent->GetRightVector()) * m_jumpZ * deltaTime);
     m_jumpZ -= 0.9f;
 }

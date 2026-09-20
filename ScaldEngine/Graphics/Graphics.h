@@ -22,6 +22,7 @@ namespace Scald
     class Light;
     class PrimitiveComponent; // Renderable scene components
     class Scene;              // Scene contains all renderables (lights, meshes)
+    class Model;
 
     class Graphics
     {
@@ -59,11 +60,27 @@ namespace Scald
         void RenderOmniLight(Scene* scene);
         void RenderSpotLight(Scene* scene);
 
+        // @todo: From Luna's book
+        void UpdateObjectCB(const XMMATRIX& world/*, float deltaTime*/);
+        void UpdatePerFrameCB(/*float deltaTime*/);
         // deferred additional task specific
         void RenderGBuffer();
 
+        void DrawModel(const Model* modelToDraw);
     public:
         void SwitchGBufferLayer(int layer);
+
+        template <typename T = Camera>
+        T* GetActiveCamera() const
+        {
+            // Could be unsafe when downcasting: dynamic should be instead
+            return static_cast<T*>(m_camera.get());
+        }
+
+        ID3D11Device* GetDevice() const
+        { 
+            return m_device ? m_device.Get() : nullptr;
+        }
 
     private:
         // Update structured buffer
@@ -101,30 +118,24 @@ namespace Scald
     #pragma region Light
         // like constant buffer per object, but for lights
         // could be implemented due to encapsulation inside light class
+        // TODO: structured buffer instead
         ConstantBuffer<ConstantBufferPerObject> mCB_LightVolume;
-        ConstantBufferPerObject mLightVolumeData;
-
-        ConstantBuffer<ConstantBufferPerFrame> mCB_PerFrame;
-        ConstantBufferPerFrame mPerFrameData;
+        ConstantBuffer<LIGHT_DESC> mCB_Light;
     #pragma endregion Light
 
-        ComPtr<IDXGISwapChain> mSwapChain;
-        ComPtr<ID3D11Device> mDevice;
-        ComPtr<ID3D11DeviceContext> mDeviceContext;
+        ConstantBuffer<ConstantBufferPerObject> m_perObjectCB;
+        ConstantBuffer<ConstantBufferPerFrame> m_perFrameCB;
+
+        ComPtr<IDXGISwapChain> m_swapChain;
+        ComPtr<ID3D11Device> m_device;
+        ComPtr<ID3D11DeviceContext> m_deviceContext;
 
         std::unique_ptr<DeferredRenderer> pRenderer;
         std::unique_ptr<FireParticleSystem> pFireParticleSystem;
 
-    #pragma region DeferredLightManagement
-        // Strcutured buffer based on light volumes (light objects) count in the scene
-        ConstantBuffer<LIGHT_DESC> mCB_Light;
-        LIGHT_DESC mLightData;
-    #pragma endregion DeferredLightManagement
-
         // Shadows
         // TODO: should probably placed in light class
         std::unique_ptr<CascadeShadowMap> mCascadeShadowMap = nullptr;
-        ConstantBuffer<CascadeDataConstantBuffer> mCB_CSM;
-        CascadeDataConstantBuffer mCSMData;
+        ConstantBuffer<ConstantBufferCascadeShadows> mCB_CSM;
     };
 }

@@ -2,39 +2,87 @@
 
 #include "DXHelper.h"
 
-class IndexBuffer
+namespace Scald
 {
-public:
-    IndexBuffer() {}
+    using namespace Microsoft::WRL;
+    using namespace DirectX;
 
-    IndexBuffer(const IndexBuffer& rhs) = delete;
-
-    ID3D11Buffer* Get() const { return mBuffer.Get(); }
-    ID3D11Buffer* const* GetAddressOf() const { return mBuffer.GetAddressOf(); }
-    UINT GetBufferSize() const { return bufferSize; }
-
-    HRESULT Init(ID3D11Device* device, const DWORD* data, UINT numIndeces)
+    template <typename T = DWORD>
+    class IndexBuffer
     {
-        bufferSize = numIndeces;
+    public:
+        IndexBuffer()
+        {
+            m_size = 0u;
+        }
 
-        // Step 07: Create Index Buffer
-        D3D11_BUFFER_DESC indexBufDesc = {};
-        indexBufDesc.ByteWidth = sizeof(DWORD) * numIndeces;
-        indexBufDesc.Usage = D3D11_USAGE_DEFAULT;
-        indexBufDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
-        indexBufDesc.CPUAccessFlags = 0u;
-        indexBufDesc.MiscFlags = 0u;
-        indexBufDesc.StructureByteStride = sizeof(DWORD);
+        IndexBuffer(const IndexBuffer<T>& ib)
+        { 
+            m_resource = ib.m_resource;
+            m_size = ib.m_size;
+        }
 
-        D3D11_SUBRESOURCE_DATA indexData = {};
-        indexData.pSysMem = data;
-        indexData.SysMemPitch = 0u;
-        indexData.SysMemSlicePitch = 0u;
+        IndexBuffer(IndexBuffer<T>&& ib) noexcept
+        {
+            m_resource = std::move(ib.m_resource);
+            m_size = ib.m_size;
 
-        return device->CreateBuffer(&indexBufDesc, &indexData, mBuffer.GetAddressOf());
-    }
+            ib.Reset();
+        }
+        
+        IndexBuffer& operator=(const IndexBuffer<T>& ib)
+        {
+            m_resource = ib.m_resource;
+            m_size = ib.m_size;
+            return *this;
+        }
 
-private:
-    Microsoft::WRL::ComPtr<ID3D11Buffer> mBuffer;
-    UINT bufferSize = 0;
-};
+        IndexBuffer& operator=(IndexBuffer<T>&& ib) noexcept
+        {
+            m_resource = std::move(ib.m_resource);
+            m_size = ib.m_size;
+
+            ib.Reset();
+
+            return *this;
+        }
+
+        ID3D11Buffer* Get() const { return m_resource.Get(); }
+        ID3D11Buffer* const* GetAddressOf() const { return m_resource.GetAddressOf(); }
+        UINT GetBufferSize() const { return m_size; }
+
+        HRESULT Init(ID3D11Device* device, const T* data, UINT numIndices)
+        {
+            m_size = numIndices;
+            auto stride = sizeof(T);
+
+            // Step 07: Create Index Buffer
+            D3D11_BUFFER_DESC indexBufDesc = {};
+            indexBufDesc.ByteWidth = stride * numIndices;
+            indexBufDesc.Usage = D3D11_USAGE_DEFAULT;
+            indexBufDesc.BindFlags = D3D11_BIND_INDEX_BUFFER;
+            indexBufDesc.CPUAccessFlags = 0u;
+            indexBufDesc.MiscFlags = 0u;
+            indexBufDesc.StructureByteStride = stride;
+
+            D3D11_SUBRESOURCE_DATA indexData = {};
+            indexData.pSysMem = data;
+            indexData.SysMemPitch = 0u;
+            indexData.SysMemSlicePitch = 0u;
+
+            return device->CreateBuffer(&indexBufDesc, &indexData, m_resource.GetAddressOf());
+        }
+
+    private:
+
+        void Reset()
+        {   
+            m_resource.Reset();
+            m_size = 0u;
+        }
+
+    private:
+        ComPtr<ID3D11Buffer> m_resource;
+        UINT m_size = 0;
+    };
+}  // namespace Scald

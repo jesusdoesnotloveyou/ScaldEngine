@@ -13,6 +13,7 @@ MeshComponent::~MeshComponent()
 
 }
 
-void MeshComponent::Tick(float deltaTime) {
-    
+void MeshComponent::Tick(float deltaTime) 
+{
+    Super::Tick(deltaTime);
 }

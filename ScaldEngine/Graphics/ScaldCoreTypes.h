@@ -6,6 +6,7 @@
 namespace Scald
 {
     using namespace DirectX;
+    using Microsoft::WRL::ComPtr;
     // SCALD MATH
     namespace ScaldMath
     {
@@ -20,8 +21,8 @@ namespace Scald
     {
         VertexPositionColor() {}
         VertexPositionColor(float x, float y, float z, float w, float r, float g, float b, float a)
-        : position(x, y, z, w),
-        color(r, g, b, a)
+        : position(x, y, z, w)
+        , color(r, g, b, a)
         {
         }
         
@@ -36,7 +37,7 @@ namespace Scald
             XMFLOAT4 color = {1.0f, 1.0f, 1.0f, 1.0f};
     };
         
-    // position & texture
+    // position & normal & texture
     struct VertexPositionNormalUV
     {
         VertexPositionNormalUV() {}
@@ -55,11 +56,31 @@ namespace Scald
         XMFLOAT2 texCoord = {0.0f, 0.0f};
     };
 
+    enum class ETextureType : uint8_t
+    {
+        None = 0u,
+        Diffuse,
+        Albedo = Diffuse,
+        Specular,
+        Normal,
+        Roughness,
+        Metalness,
+        Ambient,
+        Max
+    };
+
+    struct Texture
+    {
+        uint32_t Id;
+        ETextureType Type;
+        ComPtr<ID3D11ShaderResourceView> Srv;
+    };
+
     // Constant buffer types
     struct ConstantBufferPerObject
     {
         XMMATRIX gWorld = XMMatrixIdentity();
-        XMMATRIX gInvTransWorld = XMMatrixIdentity();
+        XMMATRIX gInvTransposeWorld = XMMatrixIdentity();
     };
 
     // Light should be here 7.12.2 Luna
@@ -75,11 +96,11 @@ namespace Scald
 
     // Geometry Shader and Cascade Shadows specific
     // must be divisible by 4
-    constexpr UINT kCascadeNumber = 4u;
+    const UINT kCascadeNumber = 4u;
 
-    struct CascadeDataConstantBuffer
+    struct ConstantBufferCascadeShadows
     {
-        CascadeDataConstantBuffer()
+        ConstantBufferCascadeShadows()
         {
             for (UINT i = 0; i < kCascadeNumber; i++)
             {
