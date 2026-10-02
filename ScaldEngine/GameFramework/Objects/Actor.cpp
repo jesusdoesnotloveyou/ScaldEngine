@@ -3,8 +3,7 @@
 #include "Actor.h"
 
 #include "GameFramework/Components/Collision/CollisionComponent.h"
-#include "GameFramework/Components/Transform.h"
-#include "GameFramework/Components/SceneComponent.h"
+#include "GameFramework/World.h"
 
 using namespace Scald;
 
@@ -23,4 +22,17 @@ void Actor::Tick(float deltaTime)
     Super::Tick(deltaTime);
 }
 
-void Actor::OnSpawn(World* owner) {}
+void Actor::OnSpawn(World* owner)
+{
+    ownerWorld = owner;
+}
+
+void Actor::DestroyActor()
+{
+    // TODO: unregister all components
+}
+
+World* Actor::GetWorld() const
+{
+    return ownerWorld ? ownerWorld : nullptr;
+}

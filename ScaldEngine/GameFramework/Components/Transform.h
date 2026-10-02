@@ -1,24 +1,27 @@
 #pragma once
 
 #include "Graphics/ScaldCoreTypes.h"
+#include "Math/ScaldMath.h"
 
 namespace Scald
 {
-    struct Vector;
-    struct Quaternion;
-    struct Rotator;
-
     struct Transform
     {
     public:
         Transform();
-        Transform(const Transform& lhs);
-        Transform(const Vector& location, const Quaternion& rotation, const Vector& scale);
+        Transform(const Transform& t) = default;
+        Transform(Transform&& t) noexcept = default;
+        Transform& operator=(const Transform& t) = default;
+        Transform& operator=(Transform&& t) noexcept = default;
 
+        Transform(const XMFLOAT3& scale, const XMVECTOR& rotation, const XMFLOAT3& location)
+        {
+            mScale = scale;
+            mQuaternionRotation = rotation;
+            mPos = location;
+        }
         static const Transform Identity;
 
-        void SetWorldMatrix(const XMMATRIX& worldMat);
-        void Reset();
     public:
         XMVECTOR GetPositionVector() const;
         XMFLOAT3 GetPositionFloat3() const;
@@ -51,37 +54,20 @@ namespace Scald
         void AdjustPosition(const XMFLOAT3& pos);
         void AdjustPosition(float x, float y, float z);
 
+        // Placeholders
         XMVECTOR GetForwardVector() const;
         XMVECTOR GetRightVector() const;
         XMVECTOR GetUpVector() const;
 
-        void SetForwardVector(const XMVECTOR& ForwardVector);
-        void SetRightVector(const XMVECTOR& RightVector);
-        void SetUpVector(const XMVECTOR& UpVector);
-
-        void SetParentTransform(const Transform& parentTransform);
-        void UpdateWorldMatrix();
-
+        //void SetForwardVector(const XMVECTOR& ForwardVector);
+        //void SetRightVector(const XMVECTOR& RightVector);
+        //void SetUpVector(const XMVECTOR& UpVector);
     private:
-        Transform* m_parentTransform;
-
         // Need to init
-        XMFLOAT3 mScale = {1.0f, 1.0f, 1.0f};
-        XMFLOAT3 mRot = {0.0f, 0.0f, 0.0f};
-        XMFLOAT3 mPos = {0.0f, 0.0f, 0.0f};
-
-        XMVECTOR mScaleVector;
-        XMVECTOR mEulerRotation;
-        XMVECTOR mPosVector;
+        XMFLOAT3 mScale         = {1.0f, 1.0f, 1.0f};
+        XMFLOAT3 mEulerRotator  = {0.0f, 0.0f, 0.0f};
+        XMFLOAT3 mPos           = {0.0f, 0.0f, 0.0f};
+        // TODO: we can remove euler rotator and only use quaternion thereby saving 12 bytes
         XMVECTOR mQuaternionRotation;
-
-        // local object's orientation vectors
-        XMVECTOR mForwardVector = ScaldMath::ForwardVector;
-        XMVECTOR mRightVector = ScaldMath::RightVector;
-        XMVECTOR mUpVector = ScaldMath::UpVector;
-
-    public:
-        // TODO: Probably shouldn't be stored
-        XMMATRIX mWorldMatrix;
     };
 }

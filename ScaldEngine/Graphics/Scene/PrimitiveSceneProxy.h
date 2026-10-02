@@ -8,14 +8,18 @@ namespace Scald
     {
     public:
         PrimitiveSceneProxy();
-        ~PrimitiveSceneProxy() noexcept;
-        virtual void Draw() const;
+        virtual ~PrimitiveSceneProxy() noexcept;
 
-    protected:
-        // @todo: From Luna's book
-        virtual void UpdateObjectCBs(float deltaTime);
+        void SetWorld(XMMATRIX world);
+        void SetModel(const Model* model);
+        const XMMATRIX GetWorld() const;
+        const Model* GetModel() const;
         
     private:
-        Model m_model;
+        // Mesh -> StaticMesh
+        // Mesh -> SkinnedMesh
+        // Mesh -> AnimatedMesh
+        const Model* m_model = nullptr;
+        XMFLOAT4X4 m_world;
     };
 }

@@ -3,16 +3,13 @@
 #include "RenderWindow.h"
 #include "ScaldTimer.h"
 
-#include <unordered_map>
 #include <memory>
-#include <string>
 
 namespace Scald
 {
-    class ModelData;
+    class AssetManager;
     class World;
     // class Renderer;
-    // class AssetManager;
 
     class Engine
     {
@@ -21,11 +18,10 @@ namespace Scald
         ~Engine();
         int Launch();
 
-        std::unordered_map<std::string, std::unique_ptr<ModelData>> m_models;
-
     private:
         void Initialize();
         void SetupRenderer();
+        void SetupAssetManager();
         void SetupWorld();
 
         void PollInput();
@@ -40,5 +36,6 @@ namespace Scald
 
         RenderWindow m_renderWindow;
         ScaldTimer m_timer;
+        std::unique_ptr<AssetManager> m_assetManager;
     };
 }

@@ -1,6 +1,7 @@
 #pragma once
 
 #include "GameFramework/Components/SceneComponent.h"
+#include "Graphics/Scene/PrimitiveSceneProxy.h"
 #include <memory>
 
 namespace Scald
@@ -21,16 +22,17 @@ namespace Scald
         virtual void OnUnregister() override;
         virtual void Tick(float deltaTime) override;
 
+        PrimitiveSceneProxy* GetSceneProxy() const;
         // TODO: look at the class description
         void Collision() const;
-
-        FORCEINLINE void DisableShadowCasting() { m_bCastsShadow = false; }
+        
+        bool IsDirty() const { return m_bIsDirty; }
+        void ClearDirty() { m_bIsDirty = false; }
         
     protected:
+        // Subclasses provide proxies
         virtual std::unique_ptr<PrimitiveSceneProxy> CreateSceneProxy() = 0;
 
         std::unique_ptr<PrimitiveSceneProxy> m_sceneProxy;
-
-        bool m_bCastsShadow = false;
     };
 }

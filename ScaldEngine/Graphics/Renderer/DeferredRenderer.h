@@ -1,6 +1,7 @@
 #pragma once
 
 #include "Renderer.h"
+#include <memory>
 
 namespace Scald
 {
@@ -8,17 +9,17 @@ namespace Scald
 
     class Mesh;
 
-    struct TextureRenderTarget
+    struct GBuffer
     {
-        ID3D11Texture2D* texture = nullptr;
-        ID3D11RenderTargetView* rtv = nullptr;
-        ID3D11ShaderResourceView* srv = nullptr;
+        ID3D11Texture2D* texture[BUFFER_COUNT];
+        ID3D11RenderTargetView* rtv[BUFFER_COUNT];
+        ID3D11ShaderResourceView* srv[BUFFER_COUNT];
     };
 
     class DeferredRenderer final : public Renderer
     {
     public:
-        DeferredRenderer(IDXGISwapChain* spawChain, ID3D11Device* device, ID3D11DeviceContext* deviceContext, UINT width, UINT height);
+        DeferredRenderer(IDXGISwapChain* swapChain, ID3D11Device* device, ID3D11DeviceContext* deviceContext, UINT width, UINT height);
         virtual ~DeferredRenderer() noexcept override;
 
         // Begin of Renderer interface
@@ -52,7 +53,7 @@ namespace Scald
         VertexShader mGBufferVS;
         PixelShader mGBufferPS;
 
-        TextureRenderTarget mGBuffer[BUFFER_COUNT];
+        GBuffer mGBuffer;
 
         std::unique_ptr<Mesh> screenQuad = nullptr;
 

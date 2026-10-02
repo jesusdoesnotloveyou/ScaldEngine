@@ -1,7 +1,6 @@
 #pragma once
 
 #include "GameFramework/Objects/Pawn.h"
-#include "KatamariMovementComponent.h"
 
 namespace Scald
 {

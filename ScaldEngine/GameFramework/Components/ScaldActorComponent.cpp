@@ -1,6 +1,7 @@
 #include "stdafx.h"
 #include "ScaldActorComponent.h"
 #include "GameFramework/Objects/Actor.h"
+#include "GameFramework/World.h"
 
 using namespace Scald;
 
@@ -37,4 +38,9 @@ void ScaldActorComponent::OnUnregister()
 Actor* ScaldActorComponent::GetOwner() const
 {
     return m_owner.expired() ? nullptr : m_owner.lock().get();
+}
+
+World* ScaldActorComponent::GetWorld() const
+{
+    return GetOwner()->GetWorld();
 }

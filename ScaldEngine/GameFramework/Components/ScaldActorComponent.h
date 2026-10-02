@@ -6,6 +6,7 @@
 namespace Scald
 {
     class Actor;
+    class World;
 
     class ScaldActorComponent : public ScaldObject
     {
@@ -20,6 +21,7 @@ namespace Scald
         virtual void Tick(float deltaTime) override;
 
         Actor* GetOwner() const;
+        World* GetWorld() const;
 
     protected:
         std::weak_ptr<Actor> m_owner;
