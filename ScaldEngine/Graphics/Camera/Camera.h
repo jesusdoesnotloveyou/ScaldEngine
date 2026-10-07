@@ -29,7 +29,7 @@ namespace Scald
         void SetLookAtPosition(XMFLOAT3 lookAtPosition);
     
 
-    private:
+    protected:
         FORCEINLINE float GetNearWindowHeight() const { return m_nearWindowHeight; }
         FORCEINLINE float GetNearWindowWidth() const { return m_nearWindowHeight * m_aspectRatio; }
 
