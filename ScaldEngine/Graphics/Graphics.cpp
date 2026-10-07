@@ -50,12 +50,12 @@ Graphics::Graphics(HWND hWnd, int width, int height)
         featureLevel, 1u, D3D11_SDK_VERSION, 
         &swapDesc, &m_swapChain, &m_device, nullptr, &m_deviceContext));
 
-    m_camera = std::make_unique<ThirdPersonCamera>();
+    m_camera = std::make_unique</*ThirdPerson*/Camera>();
     // RTV and BackBuffer are created down here in Renderer
-    pRenderer = std::make_unique<DeferredRenderer>(m_swapChain.Get(), m_device.Get(), m_deviceContext.Get(), width, height);
-    pFireParticleSystem = std::make_unique<FireParticleSystem>(m_device.Get(), m_deviceContext.Get(), 4096, XMVectorSet(15.0f, 5.0f, 60.0f, 1.0f), m_camera.get());
+    m_renderer = std::make_unique<DeferredRenderer>(m_swapChain.Get(), m_device.Get(), m_deviceContext.Get(), width, height);
+    m_fireParticleSystem = std::make_unique<FireParticleSystem>(m_device.Get(), m_deviceContext.Get(), 4096, XMVectorSet(15.0f, 5.0f, 60.0f, 1.0f), m_camera.get());
     // to renderer probably
-    mCascadeShadowMap = std::make_unique<CascadeShadowMap>(m_device.Get(), 2048u, 2048u);
+    m_cascadeShadowMap = std::make_unique<CascadeShadowMap>(m_device.Get(), 2048u, 2048u);
 }
 
 Graphics::~Graphics() {}
@@ -70,30 +70,30 @@ void Graphics::Setup()
     CreateBlendState();
 
     // Particles
-    pFireParticleSystem->InitializeSystem();
+    m_fireParticleSystem->InitializeSystem();
 
     // Camera setup
-    m_camera->Reset(mFovDegrees, static_cast<float>(m_screenWidth) / static_cast<float>(m_screenHeight), mCameraNearZ, mCameraFarZ);
+    m_camera->Reset(m_fovDegrees, static_cast<float>(m_screenWidth) / static_cast<float>(m_screenHeight), m_cameraNearZ, m_cameraFarZ);
 
     // for cascade shadows
-    mCascadeShadowMap->UpdateShadowCascadeSplits(mCameraNearZ, mCameraFarZ);
+    m_cascadeShadowMap->UpdateShadowCascadeSplits(m_cameraNearZ, m_cameraFarZ);
 
     // constant buffers setup (Forward)
     // ThrowIfFailed(mCBVSPerFrame.Init(m_device.Get(), m_deviceContext.Get()));
 
     // constant buffers setup for deferred rendering
-    ThrowIfFailed(mCB_LightVolume.Init(m_device.Get(), m_deviceContext.Get()));
+    ThrowIfFailed(m_lightVolumeCB.Init(m_device.Get(), m_deviceContext.Get()));
     ThrowIfFailed(m_perObjectCB.Init(m_device.Get(), m_deviceContext.Get()));
     ThrowIfFailed(m_perFrameCB.Init(m_device.Get(), m_deviceContext.Get()));
-    ThrowIfFailed(mCB_CSM.Init(m_device.Get(), m_deviceContext.Get()));
+    ThrowIfFailed(m_csmCB.Init(m_device.Get(), m_deviceContext.Get()));
     // Should be replaced with structured buffer for every light type or smth
-    ThrowIfFailed(mCB_Light.Init(m_device.Get(), m_deviceContext.Get()));
+    ThrowIfFailed(m_lightCB.Init(m_device.Get(), m_deviceContext.Get()));
 }
 
 // Before rendering every frame we should clear render target view and depth stencil view
 void Graphics::ClearBuffer(float r)
 {
-    pRenderer->ClearBuffer(r);
+    m_renderer->ClearBuffer(r);
 }
 
 // Deferred rendering
@@ -105,19 +105,19 @@ void Graphics::DrawScene(Scene* scene)
     m_deviceContext->PSSetShaderResources(0u, 3u, nullSrv);
 
 #pragma region ShadowMappingPass
-    mCascadeShadowMap->BindDsvAndSetNullRenderTarget(m_deviceContext.Get());
-    pRenderer->BindDepthOnlyPass();
+    m_cascadeShadowMap->BindDsvAndSetNullRenderTarget(m_deviceContext.Get());
+    m_renderer->BindDepthOnlyPass();
     RenderDepthOnlyPass(scene);
 #pragma endregion ShadowMappingPass
 
 #pragma region DeferredGeometryPass
-    pRenderer->BindGeometryPass();
+    m_renderer->BindGeometryPass();
     BindGeometryPassResources();
     RenderGeometry(scene);
 #pragma endregion DeferredGeometryPass
 
 #pragma region DeferredLightingPass
-    pRenderer->BindLightingPass();
+    m_renderer->BindLightingPass();
     BindLightingPassResources();
     RenderLighting(scene);
     // additional task to deferred
@@ -125,9 +125,8 @@ void Graphics::DrawScene(Scene* scene)
 #pragma endregion DeferredLightingPass
 
 #pragma region ForwardPasses
-    /*pRenderer->BindTransparentPass();
+    /*m_renderer->BindTransparentPass();
     RenderTransparent();*/
-
     RenderParticles();
 #pragma endregion ForwardPasses
 }
@@ -143,11 +142,11 @@ void Graphics::RenderDepthOnlyPass(Scene* scene)
     for (UINT i = 0; i < kCascadeNumber; i++)
     {
         csmCB.ViewProj[i] = XMMatrixTranspose(lightSpaceMatrices[i]);
-        csmCB.distances[i] = mCascadeShadowMap->GetCascadeLevel(i);  // not used on GPU in Geometry shader, but still filled
+        csmCB.Distance[i] = m_cascadeShadowMap->GetCascadeLevel(i);  // not used on GPU in Geometry shader, but still filled
     }
 
-    mCB_CSM.SetAndApplyData(csmCB);
-    m_deviceContext->GSSetConstantBuffers(0u, 1u, mCB_CSM.GetAddressOf());
+    m_csmCB.SetAndApplyData(csmCB);
+    m_deviceContext->GSSetConstantBuffers(0u, 1u, m_csmCB.GetAddressOf());
 
     RenderGeometry(scene);
 }
@@ -170,7 +169,7 @@ void Graphics::BindGeometryPassResources()
 
 void Graphics::RenderGeometry(Scene* scene)
 {
-    for (auto&& renderItem : scene->GetPrimitives())
+    for (const auto& renderItem : scene->GetPrimitives())
     {
         UpdateObjectCB(renderItem->GetWorld());
         DrawModel(renderItem->GetModel());
@@ -181,13 +180,13 @@ void Graphics::RenderGeometry(Scene* scene)
 void Graphics::BindLightingPassResources()
 {
     // TODO: check are there constant buffers from previous subpasses or we should set them again
-    //mCB_CSM.SetAndApplyData(mCSMData);
+    //m_csmCB.SetAndApplyData(mCSMData);
     //m_perFrameCB.SetAndApplyData(mPerFrameData);
 
     m_deviceContext->VSSetConstantBuffers(1u, 1u, m_perFrameCB.GetAddressOf());
-    m_deviceContext->PSSetConstantBuffers(0u, 1u, mCB_CSM.GetAddressOf());
+    m_deviceContext->PSSetConstantBuffers(0u, 1u, m_csmCB.GetAddressOf());
     m_deviceContext->PSSetConstantBuffers(1u, 1u, m_perFrameCB.GetAddressOf());
-    m_deviceContext->PSSetShaderResources(3u, 1u, mCascadeShadowMap->GetAddressOf());
+    m_deviceContext->PSSetShaderResources(3u, 1u, m_cascadeShadowMap->GetAddressOf());
 }
 
 void Graphics::RenderLighting(Scene* scene)
@@ -208,17 +207,17 @@ void Graphics::RenderDirectionalLight(Scene* scene)
 
     }
 
-    m_deviceContext->VSSetConstantBuffers(2u, 1u, mCB_Light.GetAddressOf());
-    m_deviceContext->PSSetConstantBuffers(2u, 1u, mCB_Light.GetAddressOf());
+    m_deviceContext->VSSetConstantBuffers(2u, 1u, m_lightCB.GetAddressOf());
+    m_deviceContext->PSSetConstantBuffers(2u, 1u, m_lightCB.GetAddressOf());
 
-    pRenderer->BindOutsideFrustum();
-    pRenderer->DrawScreenQuad();
+    m_renderer->BindOutsideFrustum();
+    m_renderer->DrawScreenQuad();
 }
 
 void Graphics::RenderOmniLight(Scene* scene)
 {
-    pRenderer->BindIntersectsFarPlane();  // !!! HACK (TO DRAW EVEN IF FRUSTUM INTERSECTS LIGHT VOLUME)
-    // pRenderer->BindWithinFrustum(); // SHOULD BE INSTEAD
+    m_renderer->BindIntersectsFarPlane();  // !!! HACK (TO DRAW EVEN IF FRUSTUM INTERSECTS LIGHT VOLUME)
+    // m_renderer->BindWithinFrustum(); // SHOULD BE INSTEAD
 
     UpdateOmniLightParams();
 
@@ -237,15 +236,15 @@ void Graphics::RenderOmniLight(Scene* scene)
     mLightVolumeData.gWorld = XMMatrixTranspose(world);
     mLightVolumeData.gInvTransposeWorld = XMMatrixTranspose(invTransWorld);
 
-    mCB_LightVolume.SetAndApplyData(mLightVolumeData);
-    m_deviceContext->VSSetConstantBuffers(0u, 1u, mCB_LightVolume.GetAddressOf());
+    m_lightVolumeCB.SetAndApplyData(mLightVolumeData);
+    m_deviceContext->VSSetConstantBuffers(0u, 1u, m_lightVolumeCB.GetAddressOf());
 
     light->DrawLightVolume(m_deviceContext.Get());*/
 }
 
 void Graphics::RenderSpotLight(Scene* scene)
 {
-    pRenderer->BindWithinFrustum();
+    m_renderer->BindWithinFrustum();
 
     UpdateSpotLightParams();
     for (auto& light : scene->GetLights())  // must be list only with spots
@@ -274,14 +273,14 @@ void Graphics::UpdatePerFrameCB()
 
 void Graphics::RenderParticles()
 {
-    pRenderer->BindParticlesPass();
-    pFireParticleSystem->Render();
+    m_renderer->BindParticlesPass();
+    m_fireParticleSystem->Render();
     m_deviceContext->ClearState();
 }
 
 void Graphics::RenderGBuffer()
 {
-    pRenderer->DrawGBuffer();
+    m_renderer->DrawGBuffer();
     m_deviceContext->ClearState();
 }
 
@@ -316,7 +315,7 @@ void Graphics::DrawModel(const Model* modelToDraw)
 
 void Graphics::SwitchGBufferLayer(int layer)
 {
-    pRenderer->ChangeGBufferLayer(layer);
+    m_renderer->ChangeGBufferLayer(layer);
 }
 
 void Graphics::UpdateDirectionalLights()
@@ -327,7 +326,7 @@ void Graphics::UpdateDirectionalLights()
     mLightData.specular = dirLight->GetSpecularColor();
     mLightData.direction = dirLight->GetDirection();
     mLightData.lightType = ELightType::Directional;*/
-    mCB_Light.SetAndApplyData(dirLightCB);
+    m_lightCB.SetAndApplyData(dirLightCB);
 }
 
 void Graphics::UpdateOmniLightParams()
@@ -342,9 +341,9 @@ void Graphics::UpdateOmniLightParams()
 
     //mLightData.range = pointLight->GetRange();  // hard-coded value
 
-    mCB_Light.SetAndApplyData(omniLightCB);
-    m_deviceContext->VSSetConstantBuffers(2u, 1u, mCB_Light.GetAddressOf());
-    m_deviceContext->PSSetConstantBuffers(2u, 1u, mCB_Light.GetAddressOf());
+    m_lightCB.SetAndApplyData(omniLightCB);
+    m_deviceContext->VSSetConstantBuffers(2u, 1u, m_lightCB.GetAddressOf());
+    m_deviceContext->PSSetConstantBuffers(2u, 1u, m_lightCB.GetAddressOf());
 }
 
 void Graphics::UpdateSpotLightParams()
@@ -360,9 +359,9 @@ void Graphics::UpdateSpotLightParams()
     //mLightData.direction = spotLight->GetDirection();
     //mLightData.spot = 10.0f;  // hard-coded value
 
-    mCB_Light.SetAndApplyData(spotLightCB);
-    m_deviceContext->VSSetConstantBuffers(2u, 1u, mCB_Light.GetAddressOf());
-    m_deviceContext->PSSetConstantBuffers(2u, 1u, mCB_Light.GetAddressOf());
+    m_lightCB.SetAndApplyData(spotLightCB);
+    m_deviceContext->VSSetConstantBuffers(2u, 1u, m_lightCB.GetAddressOf());
+    m_deviceContext->PSSetConstantBuffers(2u, 1u, m_lightCB.GetAddressOf());
 }
 
 void Graphics::EndFrame()
@@ -374,32 +373,32 @@ void Graphics::EndFrame()
 void Graphics::Update(float deltaTime)
 {
     m_camera->Tick(deltaTime);
-    pFireParticleSystem->Update(deltaTime);
+    m_fireParticleSystem->Update(deltaTime);
 }
 
 void Graphics::CreateDepthStencilState()
 {
-    pRenderer->CreateDepthStencilState();
+    m_renderer->CreateDepthStencilState();
 }
 
 void Graphics::CreateRasterizerState()
 {
-    pRenderer->CreateRasterizerState();
+    m_renderer->CreateRasterizerState();
 }
 
 void Graphics::CreateSamplerState()
 {
-    pRenderer->CreateSamplerState();
+    m_renderer->CreateSamplerState();
 }
 
 void Graphics::CreateBlendState()
 {
-    pRenderer->CreateBlendState();
+    m_renderer->CreateBlendState();
 }
 
 void Graphics::SetupShaders()
 {
-    pRenderer->SetupShaders();
+    m_renderer->SetupShaders();
 }
 
 std::array<XMVECTOR, 8u> Graphics::GetFrustumCornersWorldSpace(const XMMATRIX& viewProjection)
@@ -430,11 +429,11 @@ void Graphics::GetLightSpaceMatrices(std::array<XMMATRIX, kCascadeNumber>& outMa
     {
         if (i == 0)
         {
-            outMatrices[i] = GetLightSpaceMatrix(mCameraNearZ, mCascadeShadowMap->GetCascadeLevel(i));
+            outMatrices[i] = GetLightSpaceMatrix(m_cameraNearZ, m_cascadeShadowMap->GetCascadeLevel(i));
         }
         else
         {
-            outMatrices[i] = GetLightSpaceMatrix(mCascadeShadowMap->GetCascadeLevel(i - 1), mCascadeShadowMap->GetCascadeLevel(i));
+            outMatrices[i] = GetLightSpaceMatrix(m_cascadeShadowMap->GetCascadeLevel(i - 1), m_cascadeShadowMap->GetCascadeLevel(i));
         }
     }
 }

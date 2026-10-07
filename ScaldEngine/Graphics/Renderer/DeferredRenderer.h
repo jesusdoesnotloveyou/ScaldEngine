@@ -5,15 +5,15 @@
 
 namespace Scald
 {
-    constexpr UINT BUFFER_COUNT = 3u;
+    const UINT kGBufferTexturesCount = 3u;
 
     class Mesh;
 
     struct GBuffer
     {
-        ID3D11Texture2D* texture[BUFFER_COUNT];
-        ID3D11RenderTargetView* rtv[BUFFER_COUNT];
-        ID3D11ShaderResourceView* srv[BUFFER_COUNT];
+        ID3D11Texture2D* texture[kGBufferTexturesCount];
+        ID3D11RenderTargetView* rtv[kGBufferTexturesCount];
+        ID3D11ShaderResourceView* srv[kGBufferTexturesCount];
     };
 
     class DeferredRenderer final : public Renderer
