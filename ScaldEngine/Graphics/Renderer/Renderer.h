@@ -16,23 +16,21 @@ namespace Scald
 
         virtual void SetupShaders();
 
-        void CreateDepthStencilState();
+        virtual void CreateDepthStencilState();
         virtual void CreateRasterizerState();
-        void CreateSamplerState();
-        void CreateBlendState();
+        virtual void CreateSamplerState();
+        virtual void CreateBlendState();
 
         void ClearBuffer(float r);
         void BindDepthOnlyPass();
-
     protected:
         // Graphics context. Graphics object manages these resources.
-        ID3D11Device* mDevice = nullptr;
-        ID3D11DeviceContext* mDeviceContext = nullptr;
+        ID3D11Device* m_device = nullptr;
+        ID3D11DeviceContext* m_deviceContext = nullptr;
 
         int mScreenHeight;
         int mScreenWidth;
 
-    protected:
         // Render Target
         ComPtr<ID3D11RenderTargetView> mRTV;
         // Depth Stencil

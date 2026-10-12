@@ -11,6 +11,7 @@ namespace Scald
 
     class FireParticleSystem final : ParticleSystem
     {
+        using Super = ParticleSystem;
     public:
         FireParticleSystem(ID3D11Device* device, ID3D11DeviceContext* deviceContext, int maxParticles, XMVECTOR origin, Camera* camera);
         virtual void Update(float elapsedTime) override;

@@ -4,10 +4,16 @@
 
 using namespace Scald;
 
-FireParticleSystem::FireParticleSystem(ID3D11Device* device, ID3D11DeviceContext* deviceContext, int maxParticles, XMVECTOR origin, Camera* camera)
-    : ParticleSystem(device, deviceContext, maxParticles, origin, camera)
+namespace
 {
+    const wchar_t* kFireParticlesVertexShaderPath           = L"./Data/Shaders/particles/fire/ParticlesVS.hlsl";
+    const wchar_t* kFireParticlesPixelShaderPath            = L"./Data/Shaders/particles/fire/ParticlesPS.hlsl";
+    const wchar_t* kFireParticlesSimulateComputeShaderPath  = L"./Data/Shaders/particles/fire/SimulateCS.hlsl";
+    const wchar_t* kFireParticlesEmitComputeShaderPath      = L"./Data/Shaders/particles/fire/EmitCS.hlsl";
 }
+
+FireParticleSystem::FireParticleSystem(ID3D11Device* device, ID3D11DeviceContext* deviceContext, int maxParticles, XMVECTOR origin, Camera* camera)
+    : Super(device, deviceContext, maxParticles, origin, camera) {}
 
 void FireParticleSystem::Update(float elapsedTime)
 {
@@ -18,7 +24,7 @@ void FireParticleSystem::Update(float elapsedTime)
 
 void FireParticleSystem::Render()
 {
-    ParticleSystem::Render();
+    Super::Render();
 
     mCameraData.gView = XMMatrixTranspose(camera->GetViewMatrix());
     mCameraData.gProjection = XMMatrixTranspose(camera->GetPerspectiveProjectionMatrix());
@@ -26,33 +32,33 @@ void FireParticleSystem::Render()
     mCameraData.gUp = camera->GetUpVector();
     mCBCamera.SetAndApplyData(mCameraData);
 
-    mDeviceContext->CopyStructureCount(indirectArgsBuffer, 0u, mSortListBufferUAV.Get());
+    m_deviceContext->CopyStructureCount(indirectArgsBuffer, 0u, mSortListBufferUAV.Get());
 
-    mDeviceContext->IASetInputLayout(mFireVertexShader.GetInputLayout());
-    mDeviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
+    m_deviceContext->IASetInputLayout(mFireVertexShader.GetInputLayout());
+    m_deviceContext->IASetPrimitiveTopology(D3D11_PRIMITIVE_TOPOLOGY_POINTLIST);
 
-    mDeviceContext->VSSetShaderResources(0u, 1u, mSortListBufferSRV.GetAddressOf());
-    mDeviceContext->VSSetShader(mFireVertexShader.Get(), nullptr, 0u);
+    m_deviceContext->VSSetShaderResources(0u, 1u, mSortListBufferSRV.GetAddressOf());
+    m_deviceContext->VSSetShader(mFireVertexShader.Get(), nullptr, 0u);
 
-    mDeviceContext->GSSetShaderResources(0u, 1u, mParticleBufferSRV.GetAddressOf());
-    mDeviceContext->GSSetShader(mBillboardGeometryShader.Get(), nullptr, 0u);
-    mDeviceContext->GSSetConstantBuffers(0u, 1u, mCBCamera.GetAddressOf());
+    m_deviceContext->GSSetShaderResources(0u, 1u, mParticleBufferSRV.GetAddressOf());
+    m_deviceContext->GSSetShader(mBillboardGeometryShader.Get(), nullptr, 0u);
+    m_deviceContext->GSSetConstantBuffers(0u, 1u, mCBCamera.GetAddressOf());
 
-    mDeviceContext->PSSetShader(mFirePixelShader.Get(), nullptr, 0u);
+    m_deviceContext->PSSetShader(mFirePixelShader.Get(), nullptr, 0u);
 
-    mDeviceContext->DrawInstancedIndirect(indirectArgsBuffer, 0u);
+    m_deviceContext->DrawInstancedIndirect(indirectArgsBuffer, 0u);
 }
 
 static bool firstEmit = true;
 void FireParticleSystem::Emit(int numParticles)
 {
-    ParticleSystem::Emit(numParticles);
+    Super::Emit(numParticles);
 
-    ApplyChanges(mDeviceContext, injectionBuffer, injectionBufferSize, injectionParticleData.get());
+    ApplyChanges(m_deviceContext, injectionBuffer, injectionBufferSize, injectionParticleData.get());
 
-    mParticleData.maxNumParticles = maxParticles;
+    mParticleData.maxNumParticles = m_maxParticles;
     mParticleData.numEmitInThisFrame = numParticles;
-    mParticleData.gEmitPos = origin;
+    mParticleData.gEmitPos = m_emitterOrigin;
     mParticleData.gEyePos = camera->GetPosition();
 
     if (firstEmit) mParticleData.numAliveParticles = 0u;
@@ -60,48 +66,48 @@ void FireParticleSystem::Emit(int numParticles)
 
     if (!firstEmit)
     {
-        mDeviceContext->CopyStructureCount(mCBParticle.Get(), 12, mSortListBufferUAV.Get());
+        m_deviceContext->CopyStructureCount(mCBParticle.Get(), 12, mSortListBufferUAV.Get());
     }
 
     UINT minOne = (UINT)-1;
     UINT zero = 0u;
 
-    mDeviceContext->CSSetShader(mFireEmitShader.Get(), nullptr, 0u);
-    mDeviceContext->CSSetUnorderedAccessViews(0u, 1u, mParticleBufferUAV.GetAddressOf(), nullptr);
+    m_deviceContext->CSSetShader(mFireEmitShader.Get(), nullptr, 0u);
+    m_deviceContext->CSSetUnorderedAccessViews(0u, 1u, mParticleBufferUAV.GetAddressOf(), nullptr);
 
     if (firstEmit)
     {
-        mDeviceContext->CSSetUnorderedAccessViews(1u, 1u, mSortListBufferUAV.GetAddressOf(), &zero);
-        mDeviceContext->CSSetUnorderedAccessViews(2u, 1u, mDeadListBufferUAV.GetAddressOf(), &maxParticles);
+        m_deviceContext->CSSetUnorderedAccessViews(1u, 1u, mSortListBufferUAV.GetAddressOf(), &zero);
+        m_deviceContext->CSSetUnorderedAccessViews(2u, 1u, mDeadListBufferUAV.GetAddressOf(), &m_maxParticles);
         firstEmit = false;
     }
     else
     {
-        mDeviceContext->CSSetUnorderedAccessViews(1u, 1u, mSortListBufferUAV.GetAddressOf(), &minOne);
-        mDeviceContext->CSSetUnorderedAccessViews(2u, 1u, mDeadListBufferUAV.GetAddressOf(), &minOne);
+        m_deviceContext->CSSetUnorderedAccessViews(1u, 1u, mSortListBufferUAV.GetAddressOf(), &minOne);
+        m_deviceContext->CSSetUnorderedAccessViews(2u, 1u, mDeadListBufferUAV.GetAddressOf(), &minOne);
     }
 
-    mDeviceContext->CSSetConstantBuffers(0u, 1u, mCBParticle.GetAddressOf());
-    mDeviceContext->CSSetShaderResources(0u, 1u, mInjectionBufferSRV.GetAddressOf());
-    mDeviceContext->Dispatch(1u, 1u, 1u);
+    m_deviceContext->CSSetConstantBuffers(0u, 1u, mCBParticle.GetAddressOf());
+    m_deviceContext->CSSetShaderResources(0u, 1u, mInjectionBufferSRV.GetAddressOf());
+    m_deviceContext->Dispatch(1u, 1u, 1u);
 
     ID3D11UnorderedAccessView* nullUAV = nullptr;
-    mDeviceContext->CSSetUnorderedAccessViews(0u, 1u, &nullUAV, nullptr);
-    mDeviceContext->CSSetUnorderedAccessViews(1u, 1u, &nullUAV, nullptr);
-    mDeviceContext->CSSetUnorderedAccessViews(2u, 1u, &nullUAV, nullptr);
+    m_deviceContext->CSSetUnorderedAccessViews(0u, 1u, &nullUAV, nullptr);
+    m_deviceContext->CSSetUnorderedAccessViews(1u, 1u, &nullUAV, nullptr);
+    m_deviceContext->CSSetUnorderedAccessViews(2u, 1u, &nullUAV, nullptr);
     mParticleData.numEmitInThisFrame = 0u;
 }
 
 void FireParticleSystem::InitializeSystem()
 {
-    ParticleSystem::InitializeSystem();
+    Super::InitializeSystem();
 
     D3D11_INPUT_ELEMENT_DESC inputLayoutParticlesDesc[] = {D3D11_INPUT_ELEMENT_DESC{"SV_VertexID", 0u, DXGI_FORMAT_R32_UINT, 0u, 0u, D3D11_INPUT_PER_VERTEX_DATA, 0u}};
 
-    ThrowIfFailed(mFireVertexShader.Init(mDevice, inputLayoutParticlesDesc, (UINT)std::size(inputLayoutParticlesDesc), L"./Shaders/particles/fire/ParticlesVS.hlsl"));
-    ThrowIfFailed(mFirePixelShader.Init(mDevice, L"./Shaders/particles/fire/ParticlesPS.hlsl"));
-    ThrowIfFailed(mFireSimulateShader.Init(mDevice, L"./Shaders/particles/fire/SimulateCS.hlsl"));
-    ThrowIfFailed(mFireEmitShader.Init(mDevice, L"./Shaders/particles/fire/EmitCS.hlsl"));
+    ThrowIfFailed(mFireVertexShader.Init(m_device, inputLayoutParticlesDesc, (UINT)std::size(inputLayoutParticlesDesc), kFireParticlesVertexShaderPath));
+    ThrowIfFailed(mFirePixelShader.Init(m_device, kFireParticlesPixelShaderPath));
+    ThrowIfFailed(mFireSimulateShader.Init(m_device, kFireParticlesSimulateComputeShaderPath));
+    ThrowIfFailed(mFireEmitShader.Init(m_device, kFireParticlesEmitComputeShaderPath));
 }
 
 FireParticleSystem::~FireParticleSystem() noexcept {}
@@ -120,8 +126,8 @@ void FireParticleSystem::InitializeParticle(int index)
     p.endWeight = 1.0f;
     p.lifeTime = 0.0f;
     p.maxLifeTime = 3.0f;
-    p.pos = origin;
-    p.prevPos = origin;
+    p.pos = m_emitterOrigin;
+    p.prevPos = m_emitterOrigin;
 
     float rf = generateRandom(0.0f, 1.0f * XM_2PI);
     p.velocity = generateRandom(0.3f, 2.0f) * XMVectorSet(std::sin(rf), generateRandom(0.0f, 1.0f), std::cos(rf), 0.0f);
@@ -132,26 +138,26 @@ void FireParticleSystem::InitializeParticle(int index)
 void FireParticleSystem::Simulate(float elapsedTime)
 {
     mParticleData.deltaTime = elapsedTime;
-    mParticleData.maxNumParticles = maxParticles;
+    mParticleData.maxNumParticles = m_maxParticles;
     mParticleData.gEyePos = camera->GetPosition();
     mCBParticle.SetAndApplyData(mParticleData);
 
     // numAliveParticles starts from 12th byte
-    mDeviceContext->CopyStructureCount(mCBParticle.Get(), 12u, mSortListBufferUAV.Get());
+    m_deviceContext->CopyStructureCount(mCBParticle.Get(), 12u, mSortListBufferUAV.Get());
 
     UINT minOne = (UINT)-1;
     UINT zero = 0;
 
-    mDeviceContext->CSSetUnorderedAccessViews(0u, 1u, mParticleBufferUAV.GetAddressOf(), nullptr);
-    mDeviceContext->CSSetUnorderedAccessViews(1u, 1u, mSortListBufferUAV.GetAddressOf(), &minOne);
-    mDeviceContext->CSSetUnorderedAccessViews(2u, 1u, mDeadListBufferUAV.GetAddressOf(), &minOne);
+    m_deviceContext->CSSetUnorderedAccessViews(0u, 1u, mParticleBufferUAV.GetAddressOf(), nullptr);
+    m_deviceContext->CSSetUnorderedAccessViews(1u, 1u, mSortListBufferUAV.GetAddressOf(), &minOne);
+    m_deviceContext->CSSetUnorderedAccessViews(2u, 1u, mDeadListBufferUAV.GetAddressOf(), &minOne);
 
-    mDeviceContext->CSSetShader(mFireSimulateShader.Get(), nullptr, 0u);
-    mDeviceContext->CSSetConstantBuffers(0u, 1u, mCBParticle.GetAddressOf());
-    mDeviceContext->Dispatch(32u, 32u, 1u);
+    m_deviceContext->CSSetShader(mFireSimulateShader.Get(), nullptr, 0u);
+    m_deviceContext->CSSetConstantBuffers(0u, 1u, mCBParticle.GetAddressOf());
+    m_deviceContext->Dispatch(32u, 32u, 1u);
 
     ID3D11UnorderedAccessView* nullUAV = nullptr;
-    mDeviceContext->CSSetUnorderedAccessViews(0u, 1u, &nullUAV, nullptr);
-    mDeviceContext->CSSetUnorderedAccessViews(1u, 1u, &nullUAV, nullptr);
-    mDeviceContext->CSSetUnorderedAccessViews(2u, 1u, &nullUAV, nullptr);
+    m_deviceContext->CSSetUnorderedAccessViews(0u, 1u, &nullUAV, nullptr);
+    m_deviceContext->CSSetUnorderedAccessViews(1u, 1u, &nullUAV, nullptr);
+    m_deviceContext->CSSetUnorderedAccessViews(2u, 1u, &nullUAV, nullptr);
 }
