@@ -105,11 +105,11 @@ namespace Scald
             for (UINT i = 0; i < kCascadeNumber; i++)
             {
                 ViewProj[i] = XMMatrixIdentity();
-                distances[i] = 0.0f;
+                Distance[i] = 0.0f;
             }
         }
         
         XMMATRIX ViewProj[kCascadeNumber];
-        float distances[kCascadeNumber];
+        float Distance[kCascadeNumber];
     };
 }

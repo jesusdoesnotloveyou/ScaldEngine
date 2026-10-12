@@ -25,14 +25,17 @@ std::shared_ptr<SceneComponent> ThirdPersonCamera::GetTarget() const
 
 void ThirdPersonCamera::Tick(float deltaTime)
 {
-    Super::Tick(deltaTime);
+    //Super::Tick(deltaTime);
 
-    // TODO: uncomment when scene component will be finished
-    //UpdatePosition();
+    if (!m_bIsDirty) return;
+    UpdatePosition();
+    UpdateView();
 }
 
 void ThirdPersonCamera::UpdatePosition()
 {
+    if (!m_target) return;
+
     auto anchorPosition = m_target->GetPosition();
     // Update position: spherical coordinates to Cartesian
     const float newX = XMVectorGetX(anchorPosition) + mArmLength * cosf(mPitch) * sinf(mYaw);

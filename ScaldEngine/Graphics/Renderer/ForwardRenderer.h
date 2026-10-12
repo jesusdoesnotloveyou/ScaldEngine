@@ -6,6 +6,7 @@ namespace Scald
 {
     class ForwardRenderer final : public Renderer
     {
+        using Super = Renderer;
     public:
         ForwardRenderer(IDXGISwapChain* spawChain, ID3D11Device* device, ID3D11DeviceContext* deviceContext, UINT width, UINT height);
         virtual ~ForwardRenderer() noexcept override = default;

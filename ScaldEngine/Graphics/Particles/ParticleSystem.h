@@ -11,9 +11,6 @@
 
 namespace Scald
 {
-    using namespace Microsoft::WRL;
-    using namespace DirectX;
- 
     class Camera;
 
     class ParticleSystem
@@ -105,8 +102,8 @@ namespace Scald
         }
 
         // Graphics context. Graphics object manages these resources.
-        ID3D11Device* mDevice = nullptr;
-        ID3D11DeviceContext* mDeviceContext = nullptr;
+        ID3D11Device* m_device = nullptr;
+        ID3D11DeviceContext* m_deviceContext = nullptr;
 
         // main particle pool
         ID3D11Buffer* particleBuffer = nullptr;
@@ -153,11 +150,11 @@ namespace Scald
         ComPtr<ID3D11SamplerState> mParticleSamplerClamp;
         ComPtr<ID3D11ShaderResourceView> mBillboardTexture;
 
-        UINT maxParticles = 4096u;  // maximum number of particles in total
-        int numParticles = 0;       // current number of particles
-        XMVECTOR origin;            // center of the particle system
-        float accumulatedTime;      // track when was last particle emitted
-        XMVECTOR force;             // force (gravity, wind, etc.) acting on the system
+        UINT m_maxParticles = 4096u;  // maximum number of particles in total
+        int m_currentParticlesCount = 0;       // current number of particles
+        XMVECTOR m_emitterOrigin;            // center of the particle system
+        float m_accumulatedTime;      // track when was last particle emitted
+        XMVECTOR m_force;             // force (gravity, wind, etc.) acting on the system
 
         const uint32_t injectionBufferSize = 1024u;
     };

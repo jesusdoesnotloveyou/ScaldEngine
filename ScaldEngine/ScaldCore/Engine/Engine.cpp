@@ -65,22 +65,20 @@ void Engine::SetupWorld()
 {
     m_world = std::make_unique<World>();
 
-    assert(m_assetManager->LoadModel("./Data/Models/AlienFemale/Alien_Female_Lores.obj") == true && "Model is failed to load");
-
-    //// TODO: AssetManager
-    //m_models["alien"] = std::make_unique<ModelData>("./Data/Models/AlienFemale/Alien_Female_Lores.obj", L"./Data/Textures/brick.png");
-    //m_models["angrybird"] = std::make_unique<ModelData>("./Data/Models/AngryBird/Angry_Bird.obj", L"./Data/Models/AngryBird/Angry_Bird.png");
-    //m_models["minion"] = std::make_unique<ModelData>("./Data/Models/MinionPig/MinionPig.obj", L"./Data/Models/MinionPig/AngryBirdsChancho.png");
-    //m_models["chair"] = std::make_unique<ModelData>("./Data/Models/Chair/monoblock_CHAIR.obj", L"./Data/Textures/planks.png");
-    //m_models["tony"] = std::make_unique<ModelData>("./Data/Models/Tony/Tony.obj", L"./Data/Models/Tony/AngryBirdCeleste.png");
-    //m_models["box"] = std::make_unique<ModelData>("./Data/Models/Box/box2.obj", L"./Data/Textures/brick.png");
-    //m_models["rock"] = std::make_unique<ModelData>("./Data/Models/Rock/rock.obj", L"./Data/Textures/planks.png");
+    assert(m_assetManager->LoadModel("./Data/Models/Alien_Female_Lores.obj") == true && "Model is failed to load");
+    assert(m_assetManager->LoadModel("./Data/Models/Alien_Female_Lores.obj") == true && "Model is failed to load");
+    assert(m_assetManager->LoadModel("./Data/Models/Angry_Bird.obj") == true && "Model is failed to load");
+    assert(m_assetManager->LoadModel("./Data/Models/MinionPig.obj") == true && "Model is failed to load");
+    assert(m_assetManager->LoadModel("./Data/Models/monoblock_CHAIR.obj") == true && "Model is failed to load");
+    assert(m_assetManager->LoadModel("./Data/Models/Tony.obj") == true && "Model is failed to load");
+    assert(m_assetManager->LoadModel("./Data/Models/box2.obj") == true && "Model is failed to load");
+    assert(m_assetManager->LoadModel("./Data/Models/rock.obj") == true && "Model is failed to load");
 
     auto testActor = m_world->SpawnActor();
     //auto testSceneComp = testActor->CreateComponent<PrimitiveComponent>();
     auto testMeshComp = testActor->CreateComponent<StaticMeshComponent>();
     testMeshComp->SetStaticMesh(m_assetManager->GetLoadedModel("./Data/Models/AlienFemale/Alien_Female_Lores.obj"));
-
+    testMeshComp->SetPosition(15.0f, -5.0f, 60.0f);
 #pragma region PlayerInputDelegates
     //m_renderWindow.kbd.OnKeyPressedEvent.AddRaw(m_player->GetMovement(), &KatamariMovementComponent::OnKeyPressed);
     //m_renderWindow.kbd.OnKeyReleasedEvent.AddRaw(m_player->GetMovement(), &KatamariMovementComponent::OnKeyReleased);

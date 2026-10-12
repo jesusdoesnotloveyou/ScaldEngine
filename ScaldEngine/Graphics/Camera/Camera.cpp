@@ -15,11 +15,10 @@ Camera::Camera(std::shared_ptr<Actor> owner)
 
 void Camera::Tick(float deltaTime)
 {
-    Super::Tick(deltaTime);
+    // Super::Tick(deltaTime);
 
-    if (m_bIsDirty) return;
+    if (!m_bIsDirty) return;
     UpdateView();
-    m_bIsDirty = false;
 }
 
 void Camera::Reset(float fovDegrees, float aspectRatio, float nearZ, float farZ)
@@ -110,6 +109,7 @@ void Camera::UpdateView()
     /*SetForwardVector(forward);
     SetRightVector(right);
     SetUpVector(up);*/
+    m_bIsDirty = false;
 }
 
 void Camera::UpdatePerspectiveProjection()

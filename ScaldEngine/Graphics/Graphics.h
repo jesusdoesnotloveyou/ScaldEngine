@@ -101,26 +101,26 @@ namespace Scald
         uint32_t m_screenWidth;
         uint32_t m_screenHeight;
         // should encapsulate in camera
-        float mCameraFarZ = 500.0f;
-        float mCameraNearZ = 0.1f;
-        float mFovDegrees = 90.0f;
+        float m_cameraFarZ = 500.0f;
+        float m_cameraNearZ = 0.1f;
+        float m_fovDegrees = 90.0f;
 
         bool m_bIsPointLightEnabled = true;
         bool m_bIsDirectionalLightEnabled = true;
         bool m_bIsSpotLightEnabled = true;
         bool m_bIsDeferredRenderingApplied = true;
 
-        VertexShader mShadowVertexShader;
-        VertexShader mVertexShader;
-        PixelShader mPixelShader;
-        GeometryShader mCSMGeometryShader;
+        //VertexShader m_shadowVertexShader;
+        //VertexShader m_vertexShader;
+        //PixelShader m_pixelShader;
+        //GeometryShader m_csmGeometryShader;
 
     #pragma region Light
         // like constant buffer per object, but for lights
         // could be implemented due to encapsulation inside light class
         // TODO: structured buffer instead
-        ConstantBuffer<ConstantBufferPerObject> mCB_LightVolume;
-        ConstantBuffer<LIGHT_DESC> mCB_Light;
+        ConstantBuffer<ConstantBufferPerObject> m_lightVolumeCB;
+        ConstantBuffer<LIGHT_DESC> m_lightCB;
     #pragma endregion Light
 
         ConstantBuffer<ConstantBufferPerObject> m_perObjectCB;
@@ -130,12 +130,12 @@ namespace Scald
         ComPtr<ID3D11Device> m_device;
         ComPtr<ID3D11DeviceContext> m_deviceContext;
 
-        std::unique_ptr<DeferredRenderer> pRenderer;
-        std::unique_ptr<FireParticleSystem> pFireParticleSystem;
+        std::unique_ptr<DeferredRenderer> m_renderer;
+        std::unique_ptr<FireParticleSystem> m_fireParticleSystem;
 
         // Shadows
         // TODO: should probably placed in light class
-        std::unique_ptr<CascadeShadowMap> mCascadeShadowMap = nullptr;
-        ConstantBuffer<ConstantBufferCascadeShadows> mCB_CSM;
+        std::unique_ptr<CascadeShadowMap> m_cascadeShadowMap = nullptr;
+        ConstantBuffer<ConstantBufferCascadeShadows> m_csmCB;
     };
 }
