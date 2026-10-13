@@ -3,153 +3,425 @@
 
 using namespace Scald;
 
-// tuple<vector<VertexPositionNormalUV>, vector<DWORD>> Shapes::GetBoxShape(float width, float height, float depth, float u, float v)
-//{
-//	float w = 0.5f * width;
-//	float h = 0.5f * height;
-//	float d = 0.5f * depth;
-//
-//	// 24 so for normals, tangents
-//	vector<VertexPositionNormalUV> boxVertices
-//	{
-//		VertexPositionNormalUV(-w / 2, -h / 2, -d / 2, 1.0f, 0.0f, 1.0f),
-//		VertexPositionNormalUV(-w / 2, +h / 2, -d / 2, 1.0f, 0.0f, 0.0f),
-//		VertexPositionNormalUV(+w / 2, +h / 2, -d / 2, 1.0f, 1.0f, 0.0f),
-//		VertexPositionNormalUV(+w / 2, -h / 2, -d / 2, 1.0f, 1.0f, 1.0f),
-//
-//		VertexPositionNormalUV(+w / 2, +h / 2, +d / 2, 1.0f, 0.0f, 1.0f),
-//		VertexPositionNormalUV(-w / 2, +h / 2, +d / 2, 1.0f, 0.0f, 0.0f),
-//		VertexPositionNormalUV(-w / 2, -h / 2, +d / 2, 1.0f, 1.0f, 0.0f),
-//		VertexPositionNormalUV(+w / 2, -h / 2, +d / 2, 1.0f, 1.0f, 1.0f),
-//
-//		VertexPositionNormalUV(-w / 2, -h / 2, -d / 2, 1.0f, 0.0f, 1.0f),
-//		VertexPositionNormalUV(-w / 2, -h / 2, +d / 2, 1.0f, 0.0f, 0.0f),
-//		VertexPositionNormalUV(-w / 2, +h / 2, +d / 2, 1.0f, 1.0f, 0.0f),
-//		VertexPositionNormalUV(-w / 2, +h / 2, -d / 2, 1.0f, 1.0f, 1.0f),
-//
-//		VertexPositionNormalUV(+w / 2, +h / 2, -d / 2, 1.0f, 0.0f, 1.0f),
-//		VertexPositionNormalUV(+w / 2, -h / 2, -d / 2, 1.0f, 0.0f, 0.0f),
-//		VertexPositionNormalUV(+w / 2, -h / 2, +d / 2, 1.0f, 1.0f, 0.0f),
-//		VertexPositionNormalUV(+w / 2, +h / 2, +d / 2, 1.0f, 1.0f, 1.0f),
-//
-//		VertexPositionNormalUV(-w / 2, +h / 2, -d / 2, 1.0f, 0.0f, 1.0f),
-//		VertexPositionNormalUV(+w / 2, +h / 2, -d / 2, 1.0f, 0.0f, 0.0f),
-//		VertexPositionNormalUV(+w / 2, +h / 2, +d / 2, 1.0f, 1.0f, 0.0f),
-//		VertexPositionNormalUV(-w / 2, +h / 2, +d / 2, 1.0f, 1.0f, 1.0f),
-//
-//		VertexPositionNormalUV(-w / 2, -h / 2, -d / 2, 1.0f, 0.0f, 1.0f),
-//		VertexPositionNormalUV(+w / 2, -h / 2, -d / 2, 1.0f, 0.0f, 0.0f),
-//		VertexPositionNormalUV(+w / 2, -h / 2, +d / 2, 1.0f, 1.0f, 0.0f),
-//		VertexPositionNormalUV(-w / 2, -h / 2, +d / 2, 1.0f, 1.0f, 1.0f),
-//	};
-//
-//	vector<DWORD> boxIndices
-//	{
-//		0, 1, 2,
-//		0, 2, 3,
-//
-//		4, 5, 6,
-//		4, 6, 7,
-//
-//		8, 9, 10,
-//		8, 10, 11,
-//
-//		14, 13, 12,
-//		15, 14, 12,
-//
-//		19, 18, 17,
-//		19, 17, 16,
-//
-//		20, 21, 22,
-//		20, 22, 23
-//	};
-//
-//	return { boxVertices, boxIndices };
-// }
-
-std::pair<std::vector<VertexPositionNormalUV>, std::vector<DWORD>> Shapes::GetSphereShape(float radius, int stackCount, int sliceCount)
+MeshData<VertexPositionNormalUV, DWORD> Shapes::CreateBox(float width, float height, float depth)
 {
-    std::vector<VertexPositionNormalUV> vertices{};
-    std::vector<DWORD> indices{};
+    MeshData<VertexPositionNormalUV, DWORD> meshData;
 
-    for (int i = 0; i <= stackCount; ++i)
+    VertexPositionNormalUV v[24];
+
+    float w2 = 0.5f * width;
+    float h2 = 0.5f * height;
+    float d2 = 0.5f * depth;
+
+    // Fill in the front face vertex data.
+    v[0] = VertexPositionNormalUV(-w2, -h2, -d2, 1.0f, 0.0f, 0.0f, -1.0f, /*1.0f, 0.0f, 0.0f,*/ 0.0f, 1.0f);
+    v[1] = VertexPositionNormalUV(-w2, +h2, -d2, 1.0f, 0.0f, 0.0f, -1.0f, /*1.0f, 0.0f, 0.0f,*/ 0.0f, 0.0f);
+    v[2] = VertexPositionNormalUV(+w2, +h2, -d2, 1.0f, 0.0f, 0.0f, -1.0f, /*1.0f, 0.0f, 0.0f,*/ 1.0f, 0.0f);
+    v[3] = VertexPositionNormalUV(+w2, -h2, -d2, 1.0f, 0.0f, 0.0f, -1.0f, /*1.0f, 0.0f, 0.0f,*/ 1.0f, 1.0f);
+
+    // Fill in the back face vertex data.
+    v[4] = VertexPositionNormalUV(-w2, -h2, +d2, 1.0f, 0.0f, 0.0f, 1.0f, /*-1.0f, 0.0f, 0.0f,*/ 1.0f, 1.0f);
+    v[5] = VertexPositionNormalUV(+w2, -h2, +d2, 1.0f, 0.0f, 0.0f, 1.0f, /*-1.0f, 0.0f, 0.0f,*/ 0.0f, 1.0f);
+    v[6] = VertexPositionNormalUV(+w2, +h2, +d2, 1.0f, 0.0f, 0.0f, 1.0f, /*-1.0f, 0.0f, 0.0f,*/ 0.0f, 0.0f);
+    v[7] = VertexPositionNormalUV(-w2, +h2, +d2, 1.0f, 0.0f, 0.0f, 1.0f, /*-1.0f, 0.0f, 0.0f,*/ 1.0f, 0.0f);
+
+    // Fill in the top face vertex data.
+    v[8] = VertexPositionNormalUV(-w2, +h2,  -d2, 1.0f, 0.0f, 1.0f, 0.0f, /*1.0f, 0.0f, 0.0f,*/ 0.0f, 1.0f);
+    v[9] = VertexPositionNormalUV(-w2, +h2,  +d2, 1.0f, 0.0f, 1.0f, 0.0f, /*1.0f, 0.0f, 0.0f,*/ 0.0f, 0.0f);
+    v[10] = VertexPositionNormalUV(+w2, +h2, +d2, 1.0f, 0.0f, 1.0f, 0.0f, /*1.0f, 0.0f, 0.0f,*/ 1.0f, 0.0f);
+    v[11] = VertexPositionNormalUV(+w2, +h2, -d2, 1.0f, 0.0f, 1.0f, 0.0f, /*1.0f, 0.0f, 0.0f,*/ 1.0f, 1.0f);
+
+    // Fill in the bottom face vertex data.
+    v[12] = VertexPositionNormalUV(-w2, -h2, -d2, 1.0f, 0.0f, -1.0f, 0.0f, /*-1.0f, 0.0f, 0.0f,*/ 1.0f, 1.0f);
+    v[13] = VertexPositionNormalUV(+w2, -h2, -d2, 1.0f, 0.0f, -1.0f, 0.0f, /*-1.0f, 0.0f, 0.0f,*/ 0.0f, 1.0f);
+    v[14] = VertexPositionNormalUV(+w2, -h2, +d2, 1.0f, 0.0f, -1.0f, 0.0f, /*-1.0f, 0.0f, 0.0f,*/ 0.0f, 0.0f);
+    v[15] = VertexPositionNormalUV(-w2, -h2, +d2, 1.0f, 0.0f, -1.0f, 0.0f, /*-1.0f, 0.0f, 0.0f,*/ 1.0f, 0.0f);
+
+    // Fill in the left face vertex data.
+    v[16] = VertexPositionNormalUV(-w2, -h2, +d2, 1.0f, -1.0f, 0.0f, 0.0f, /*0.0f, 0.0f, -1.0f,*/ 0.0f, 1.0f);
+    v[17] = VertexPositionNormalUV(-w2, +h2, +d2, 1.0f, -1.0f, 0.0f, 0.0f, /*0.0f, 0.0f, -1.0f,*/ 0.0f, 0.0f);
+    v[18] = VertexPositionNormalUV(-w2, +h2, -d2, 1.0f, -1.0f, 0.0f, 0.0f, /*0.0f, 0.0f, -1.0f,*/ 1.0f, 0.0f);
+    v[19] = VertexPositionNormalUV(-w2, -h2, -d2, 1.0f, -1.0f, 0.0f, 0.0f, /*0.0f, 0.0f, -1.0f,*/ 1.0f, 1.0f);
+
+    // Fill in the right face vertex data.
+    v[20] = VertexPositionNormalUV(+w2, -h2, -d2, 1.0f, 1.0f, 0.0f, 0.0f, /*0.0f, 0.0f, 1.0f,*/ 0.0f, 1.0f);
+    v[21] = VertexPositionNormalUV(+w2, +h2, -d2, 1.0f, 1.0f, 0.0f, 0.0f, /*0.0f, 0.0f, 1.0f,*/ 0.0f, 0.0f);
+    v[22] = VertexPositionNormalUV(+w2, +h2, +d2, 1.0f, 1.0f, 0.0f, 0.0f, /*0.0f, 0.0f, 1.0f,*/ 1.0f, 0.0f);
+    v[23] = VertexPositionNormalUV(+w2, -h2, +d2, 1.0f, 1.0f, 0.0f, 0.0f, /*0.0f, 0.0f, 1.0f,*/ 1.0f, 1.0f);
+
+    meshData.Vertices.assign(&v[0], &v[24]);
+
+    DWORD i[36];
+
+    // Fill in the front face index data
+    i[0] = 0;
+    i[1] = 1;
+    i[2] = 2;
+    i[3] = 0;
+    i[4] = 2;
+    i[5] = 3;
+
+    // Fill in the back face index data
+    i[6] = 4;
+    i[7] = 5;
+    i[8] = 6;
+    i[9] = 4;
+    i[10] = 6;
+    i[11] = 7;
+
+    // Fill in the top face index data
+    i[12] = 8;
+    i[13] = 9;
+    i[14] = 10;
+    i[15] = 8;
+    i[16] = 10;
+    i[17] = 11;
+
+    // Fill in the bottom face index data
+    i[18] = 12;
+    i[19] = 13;
+    i[20] = 14;
+    i[21] = 12;
+    i[22] = 14;
+    i[23] = 15;
+
+    // Fill in the left face index data
+    i[24] = 16;
+    i[25] = 17;
+    i[26] = 18;
+    i[27] = 16;
+    i[28] = 18;
+    i[29] = 19;
+
+    // Fill in the right face index data
+    i[30] = 20;
+    i[31] = 21;
+    i[32] = 22;
+    i[33] = 20;
+    i[34] = 22;
+    i[35] = 23;
+
+    meshData.Indices.assign(&i[0], &i[36]);
+
+    /*for (UINT i = 0; i < meshData.NumLODs; ++i)
     {
-        float theta = static_cast<float>(i) / stackCount * XM_PI;
-        float sinTheta = sinf(theta);
-        float cosTheta = cosf(theta);
+        BoundingBox::CreateFromPoints(meshData.LODBounds[i], meshData.Vertices[i].size(), &meshData.Vertices[i][0].position, sizeof(VertexPositionNormalUV));
+    }*/
 
-        for (int j = 0; j <= sliceCount; ++j)
-        {
-            float phi = static_cast<float>(j) / sliceCount * 2.0f * XM_PI;
-            float sinPhi = sinf(phi);
-            float cosPhi = cosf(phi);
-
-            VertexPositionNormalUV vertex;
-            vertex.position.x = radius * sinTheta * cosPhi;
-            vertex.position.y = radius * cosTheta;
-            vertex.position.z = radius * sinTheta * sinPhi;
-
-            vertices.push_back(vertex);
-        }
-    }
-
-    for (int i = 0; i < stackCount; ++i)
-    {
-        for (int j = 0; j < sliceCount; ++j)
-        {
-            int first = (i * (sliceCount + 1)) + j;
-            int second = first + sliceCount + 1;
-
-            indices.push_back(first);
-            indices.push_back(second);
-            indices.push_back(first + 1);
-
-            indices.push_back(second);
-            indices.push_back(second + 1);
-            indices.push_back(first + 1);
-        }
-    }
-
-    return std::make_pair(vertices, indices);
+    return meshData;
 }
 
-void Shapes::GetSphereShape(std::vector<VertexPositionNormalUV>& outVertices, std::vector<DWORD>& outIndeces, float radius, int stackCount, int sliceCount)
+MeshData<VertexPositionNormalUV, DWORD> Shapes::CreateSphere(float radius, UINT sliceCount, UINT stackCount)
 {
-    for (int i = 0; i <= stackCount; ++i)
+    MeshData<VertexPositionNormalUV, DWORD> meshData;
+
+    VertexPositionNormalUV topVertex(0.0f, +radius, 0.0f, 1.0f, 0.0f, +1.0f, 0.0f, /*1.0f, 0.0f, 0.0f,*/ 0.0f, 0.0f);
+    VertexPositionNormalUV bottomVertex(0.0f, -radius, 0.0f, 1.0f, 0.0f, -1.0f, 0.0f, /*1.0f, 0.0f, 0.0f,*/ 0.0f, 1.0f);
+
+    meshData.Vertices.push_back(topVertex);
+
+    float phiStep = XM_PI / stackCount;
+    float thetaStep = 2.0f * XM_PI / sliceCount;
+
+    // Compute vertices for each stack ring (do not count the poles as rings).
+    for (UINT i = 1; i <= stackCount - 1; ++i)
     {
-        float theta = static_cast<float>(i) / stackCount * XM_PI;
-        float sinTheta = sinf(theta);
-        float cosTheta = cosf(theta);
+        float phi = i * phiStep;
 
-        for (int j = 0; j <= sliceCount; ++j)
+        // Vertices of ring.
+        for (UINT j = 0; j <= sliceCount; ++j)
         {
-            float phi = static_cast<float>(j) / sliceCount * 2.0f * XM_PI;
-            float sinPhi = sinf(phi);
-            float cosPhi = cosf(phi);
+            float theta = j * thetaStep;
 
-            VertexPositionNormalUV vertex;
-            vertex.position.x = radius * sinTheta * cosPhi;
-            vertex.position.y = radius * cosTheta;
-            vertex.position.z = radius * sinTheta * sinPhi;
+            VertexPositionNormalUV v;
 
-            outVertices.push_back(vertex);
+            // spherical to cartesian
+            v.position.x = radius * sinf(phi) * cosf(theta);
+            v.position.y = radius * cosf(phi);
+            v.position.z = radius * sinf(phi) * sinf(theta);
+
+            // Partial derivative of P with respect to theta
+            //v.tangent.x = -radius * sinf(phi) * sinf(theta);
+            //v.tangent.y = 0.0f;
+            //v.tangent.z = +radius * sinf(phi) * cosf(theta);
+
+            //XMVECTOR T = XMLoadFloat3(&v.tangent);
+            //XMStoreFloat3(&v.tangent, XMVector3Normalize(T));
+
+            XMVECTOR p = XMLoadFloat4(&v.position);
+            XMStoreFloat3(&v.normal, XMVector3Normalize(p));
+
+            v.texCoord.x = theta / XM_2PI;
+            v.texCoord.y = phi / XM_PI;
+
+            meshData.Vertices.push_back(v);
         }
     }
 
-    for (int i = 0; i < stackCount; ++i)
+    meshData.Vertices.push_back(bottomVertex);
+
+    for (UINT i = 1; i <= sliceCount; ++i)
     {
-        for (int j = 0; j < sliceCount; ++j)
+        meshData.Indices.push_back(0);
+        meshData.Indices.push_back(i + 1);
+        meshData.Indices.push_back(i);
+    }
+
+    // Offset the indices to the index of the first vertex in the first ring.
+    // This is just skipping the top pole vertex.
+    UINT baseIndex = 1;
+    UINT ringVertexCount = sliceCount + 1;
+    for (UINT i = 0; i < stackCount - 2; ++i)
+    {
+        for (UINT j = 0; j < sliceCount; ++j)
         {
-            int first = (i * (sliceCount + 1)) + j;
-            int second = first + sliceCount + 1;
+            meshData.Indices.push_back(baseIndex + i * ringVertexCount + j);
+            meshData.Indices.push_back(baseIndex + i * ringVertexCount + j + 1);
+            meshData.Indices.push_back(baseIndex + (i + 1) * ringVertexCount + j);
 
-            outIndeces.push_back(first);
-            outIndeces.push_back(second);
-            outIndeces.push_back(first + 1);
-
-            outIndeces.push_back(second);
-            outIndeces.push_back(second + 1);
-            outIndeces.push_back(first + 1);
+            meshData.Indices.push_back(baseIndex + (i + 1) * ringVertexCount + j);
+            meshData.Indices.push_back(baseIndex + i * ringVertexCount + j + 1);
+            meshData.Indices.push_back(baseIndex + (i + 1) * ringVertexCount + j + 1);
         }
     }
+
+    // South pole vertex was added last.
+    UINT southPoleIndex = (UINT)meshData.Vertices.size() - 1;
+
+    // Offset the indices to the index of the first vertex in the last ring.
+    baseIndex = southPoleIndex - ringVertexCount;
+
+    for (UINT i = 0; i < sliceCount; ++i)
+    {
+        meshData.Indices.push_back(southPoleIndex);
+        meshData.Indices.push_back(baseIndex + i);
+        meshData.Indices.push_back(baseIndex + i + 1);
+    }
+
+    /*for (UINT i = 0; i < meshData.NumLODs; ++i)
+    {
+        BoundingBox::CreateFromPoints(meshData.LODBounds[i], meshData.Vertices[i].size(), &meshData.Vertices[i][0].position, sizeof(VertexPositionNormalUV));
+    }*/
+
+    return meshData;
+}
+
+MeshData<VertexPositionNormalUV, DWORD> Shapes::CreateGrid(float width, float depth, UINT m, UINT n)
+{
+    MeshData<VertexPositionNormalUV, DWORD> meshData;
+
+    UINT vertexCount = m * n;
+    UINT faceCount = (m - 1) * (n - 1) * 2;
+
+    //
+    // Create the vertices.
+    //
+
+    float halfWidth = 0.5f * width;
+    float halfDepth = 0.5f * depth;
+
+    float dx = width / (n - 1);
+    float dz = depth / (m - 1);
+
+    float du = 1.0f / (n - 1);
+    float dv = 1.0f / (m - 1);
+
+    meshData.Vertices.resize(vertexCount);
+    for (UINT i = 0; i < m; ++i)
+    {
+        float z = halfDepth - i * dz;
+        for (UINT j = 0; j < n; ++j)
+        {
+            float x = -halfWidth + j * dx;
+
+            meshData.Vertices[i * n + j].position = XMFLOAT4(x, 0.0f, z, 1.0f);
+            meshData.Vertices[i * n + j].normal = XMFLOAT3(0.0f, 1.0f, 0.0f);
+            //meshData.Vertices[i * n + j].tangent = XMFLOAT3(1.0f, 0.0f, 0.0f);
+
+            // Stretch texture over grid.
+            meshData.Vertices[i * n + j].texCoord.x = j * du;
+            meshData.Vertices[i * n + j].texCoord.y = i * dv;
+        }
+    }
+
+    //
+    // Create the indices.
+    //
+    meshData.Indices.resize(faceCount * 3);  // 3 indices per face
+
+    // Iterate over each quad and compute indices.
+    UINT k = 0;
+    for (UINT i = 0; i < m - 1; ++i)
+    {
+        for (UINT j = 0; j < n - 1; ++j)
+        {
+            meshData.Indices[k] = i * n + j;
+            meshData.Indices[k + 1] = i * n + j + 1;
+            meshData.Indices[k + 2] = (i + 1) * n + j;
+
+            meshData.Indices[k + 3] = (i + 1) * n + j;
+            meshData.Indices[k + 4] = i * n + j + 1;
+            meshData.Indices[k + 5] = (i + 1) * n + j + 1;
+
+            k += 6;  // next quad
+        }
+    }
+
+    return meshData;
+}
+
+MeshData<VertexPositionNormalUV, DWORD> Shapes::CreateGeosphere(float radius, UINT numSubdivisions)
+{
+    MeshData<VertexPositionNormalUV, DWORD> meshData;
+
+    numSubdivisions = std::min<UINT>(numSubdivisions, 6u);
+
+    // Approximate a sphere by tessellating an icosahedron.
+    const float X = 0.525731f;
+    const float Z = 0.850651f;
+
+    XMFLOAT4 pos[12] = {
+        XMFLOAT4(-X, 0.0f, Z, 1.0f), XMFLOAT4(X, 0.0f, Z, 1.0f), XMFLOAT4(-X, 0.0f, -Z, 1.0f),
+        XMFLOAT4(X, 0.0f, -Z, 1.0f), XMFLOAT4(0.0f, Z, X, 1.0f), XMFLOAT4(0.0f, Z, -X, 1.0f),
+        XMFLOAT4(0.0f, -Z, X, 1.0f), XMFLOAT4(0.0f, -Z, -X, 1.0f), XMFLOAT4(Z, X, 0.0f, 1.0f),
+        XMFLOAT4(-Z, X, 0.0f, 1.0f), XMFLOAT4(Z, -X, 0.0f, 1.0f), XMFLOAT4(-Z, -X, 0.0f, 1.0f)
+    };
+
+    UINT k[60] = {1, 4, 0, 4, 9, 0, 4, 5, 9, 8, 5, 4, 1, 8, 4, 1, 10, 8, 10, 3, 8, 8, 3, 5, 3, 2, 5, 3, 7, 2, 3, 10, 7, 10, 6, 7, 6, 11, 7, 6, 0, 11, 6, 1, 0, 10, 1, 6, 11, 0, 9, 2, 11, 9,
+        5, 2, 9, 11, 2, 7};
+
+    meshData.Vertices.resize(12);
+    meshData.Indices.assign(&k[0], &k[60]);
+
+    for (UINT i = 0; i < 12; ++i)
+        meshData.Vertices[i].position = pos[i];
+
+    for (UINT i = 0; i < numSubdivisions; ++i)
+        Subdivide(meshData);
+
+    // Project vertices onto sphere and scale.
+    for (UINT i = 0; i < meshData.Vertices.size(); ++i)
+    {
+        // Project onto unit sphere.
+        XMVECTOR n = XMVector3Normalize(XMLoadFloat4(&meshData.Vertices[i].position));
+
+        // Project onto sphere.
+        XMVECTOR p = radius * n;
+
+        XMStoreFloat4(&meshData.Vertices[i].position, p);
+        XMStoreFloat3(&meshData.Vertices[i].normal, n);
+
+        // Derive texture coordinates from spherical coordinates.
+        float theta = atan2f(meshData.Vertices[i].position.z, meshData.Vertices[i].position.x);
+
+        // Put in [0, 2pi].
+        if (theta < 0.0f) theta += XM_2PI;
+
+        float phi = acosf(meshData.Vertices[i].position.y / radius);
+
+        meshData.Vertices[i].texCoord.x = theta / XM_2PI;
+        meshData.Vertices[i].texCoord.y = phi / XM_PI;
+
+        // Partial derivative of P with respect to theta
+        //meshData.Vertices[i].tangent.x = -radius * sinf(phi) * sinf(theta);
+        //meshData.Vertices[i].tangent.y = 0.0f;
+        //meshData.Vertices[i].tangent.z = +radius * sinf(phi) * cosf(theta);
+
+        //XMVECTOR T = XMLoadFloat3(&meshData.Vertices[0][i].tangent);
+        //XMStoreFloat3(&meshData.Vertices[i].tangent, XMVector3Normalize(T));
+    }
+
+    return meshData;
+}
+
+void Shapes::Subdivide(MeshData<VertexPositionNormalUV, DWORD>& meshData)
+{
+    // Save a copy of the input geometry.
+    MeshData<> inputCopy = meshData;
+
+    meshData.Vertices.resize(0);
+    meshData.Indices.resize(0);
+
+    //       v1
+    //       *
+    //      / \
+	//     /   \
+	//  m0*-----*m1
+    //   / \   / \
+	//  /   \ /   \
+	// *-----*-----*
+    // v0    m2     v2
+
+    UINT numTris = (UINT)inputCopy.Indices.size() / 3;
+    for (UINT i = 0; i < numTris; ++i)
+    {
+        VertexPositionNormalUV v0 = inputCopy.Vertices[inputCopy.Indices[i * 3 + 0]];
+        VertexPositionNormalUV v1 = inputCopy.Vertices[inputCopy.Indices[i * 3 + 1]];
+        VertexPositionNormalUV v2 = inputCopy.Vertices[inputCopy.Indices[i * 3 + 2]];
+
+        //
+        // Generate the midpoints.
+        //
+
+        VertexPositionNormalUV m0 = MidPoint(v0, v1);
+        VertexPositionNormalUV m1 = MidPoint(v1, v2);
+        VertexPositionNormalUV m2 = MidPoint(v0, v2);
+
+        //
+        // Add new geometry.
+        //
+
+        meshData.Vertices.push_back(v0);  // 0
+        meshData.Vertices.push_back(v1);  // 1
+        meshData.Vertices.push_back(v2);  // 2
+        meshData.Vertices.push_back(m0);  // 3
+        meshData.Vertices.push_back(m1);  // 4
+        meshData.Vertices.push_back(m2);  // 5
+
+        meshData.Indices.push_back(i * 6 + 0);
+        meshData.Indices.push_back(i * 6 + 3);
+        meshData.Indices.push_back(i * 6 + 5);
+
+        meshData.Indices.push_back(i * 6 + 3);
+        meshData.Indices.push_back(i * 6 + 4);
+        meshData.Indices.push_back(i * 6 + 5);
+
+        meshData.Indices.push_back(i * 6 + 5);
+        meshData.Indices.push_back(i * 6 + 4);
+        meshData.Indices.push_back(i * 6 + 2);
+
+        meshData.Indices.push_back(i * 6 + 3);
+        meshData.Indices.push_back(i * 6 + 1);
+        meshData.Indices.push_back(i * 6 + 4);
+    }
+}
+
+VertexPositionNormalUV Shapes::MidPoint(const VertexPositionNormalUV& v0, const VertexPositionNormalUV& v1)
+{
+    XMVECTOR p0 = XMLoadFloat4(&v0.position);
+    XMVECTOR p1 = XMLoadFloat4(&v1.position);
+
+    XMVECTOR n0 = XMLoadFloat3(&v0.normal);
+    XMVECTOR n1 = XMLoadFloat3(&v1.normal);
+
+    //XMVECTOR tan0 = XMLoadFloat3(&v0.tangent);
+    //XMVECTOR tan1 = XMLoadFloat3(&v1.tangent);
+
+    XMVECTOR tex0 = XMLoadFloat2(&v0.texCoord);
+    XMVECTOR tex1 = XMLoadFloat2(&v1.texCoord);
+
+    // Compute the midpoints of all the attributes.  Vectors need to be normalized
+    // since linear interpolating can make them not unit length.
+    XMVECTOR pos = 0.5f * (p0 + p1);
+    XMVECTOR normal = XMVector3Normalize(0.5f * (n0 + n1));
+    //XMVECTOR tangent = XMVector3Normalize(0.5f * (tan0 + tan1));
+    XMVECTOR tex = 0.5f * (tex0 + tex1);
+
+    VertexPositionNormalUV v;
+    XMStoreFloat4(&v.position, pos);
+    XMStoreFloat3(&v.normal, normal);
+    //XMStoreFloat3(&v.tangent, tangent);
+    XMStoreFloat2(&v.texCoord, tex);
+
+    return v;
 }

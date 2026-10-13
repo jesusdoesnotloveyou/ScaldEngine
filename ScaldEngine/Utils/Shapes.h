@@ -1,19 +1,26 @@
 #pragma once
 
-#include "Graphics/DXHelper.h"
 #include "Graphics/ScaldCoreTypes.h"
-
-#include <tuple>
-#include <vector>
+#include "Graphics/Mesh.h"
 
 namespace Scald
 {
     class Shapes
     {
     public:
-        // vertexTex
-        static std::tuple<std::vector<VertexPositionNormalUV>, std::vector<DWORD>> GetBoxShape(float width = 1.0f, float height = 1.0f, float depth = 1.0f, float u = 0.0f, float v = 0.0f);
-        static std::pair<std::vector<VertexPositionNormalUV>, std::vector<DWORD>> GetSphereShape(float radius = 1.0f, int stackCount = 16, int sliceCount = 16);
-        static void GetSphereShape(std::vector<VertexPositionNormalUV>& outVertices, std::vector<DWORD>& outIndeces, float radius = 1.0f, int stackCount = 16, int sliceCount = 16);
+        static MeshData<VertexPositionNormalUV, DWORD> CreateBox(float width, float height, float depth);
+
+        static MeshData<VertexPositionNormalUV, DWORD> CreateSphere(float radius, UINT sliceCount, UINT stackCount);
+
+        ///< summary>
+        /// Creates an mxn grid in the xz-plane with m rows and n columns, centered
+        /// at the origin with the specified width and depth.
+        ///</summary>
+        static MeshData<VertexPositionNormalUV, DWORD> CreateGrid(float width, float depth, UINT m, UINT n);
+
+        static MeshData<VertexPositionNormalUV, DWORD> CreateGeosphere(float radius, UINT numSubdivisions);
+    private:
+        static void Subdivide(MeshData<VertexPositionNormalUV, DWORD>& meshData);
+        static VertexPositionNormalUV MidPoint(const VertexPositionNormalUV& v0, const VertexPositionNormalUV& v1);
     };
 }
