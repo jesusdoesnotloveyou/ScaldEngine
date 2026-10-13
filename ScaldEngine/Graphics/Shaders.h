@@ -2,64 +2,64 @@
 
 #include "DXHelper.h"
 
-class VertexShader
+namespace Scald
 {
-public:
-    VertexShader() = default;
+    using namespace Microsoft::WRL;
 
-    HRESULT Init(ID3D11Device* mDevice, D3D11_INPUT_ELEMENT_DESC* layoutDesc, UINT numElements, LPCWSTR pFileName);
+    template <typename T>
+    class Shader
+    {
+    public:
+        Shader() = default;
+        virtual ~Shader() = default;
+        virtual HRESULT Init(ID3D11Device* pDevice, LPCWSTR pFileName) = 0;
 
-    ID3D11VertexShader* Get();
-    ID3DBlob* GetBuffer();
-    ID3D11InputLayout* GetInputLayout();
+        T* Get() const { return m_shader.Get(); }
+        ID3DBlob* GetBuffer() const { return m_shaderBuffer.Get(); }
 
-private:
-    Microsoft::WRL::ComPtr<ID3D11VertexShader> mShader;
-    Microsoft::WRL::ComPtr<ID3DBlob> mShaderBuffer;
-    Microsoft::WRL::ComPtr<ID3D11InputLayout> mInputLayout;
-};
+    protected:
+        ComPtr<T> m_shader;
+        ComPtr<ID3DBlob> m_shaderBuffer;
+    };
 
-class PixelShader
-{
-public:
-    PixelShader() = default;
+    class VertexShader final : public Shader<ID3D11VertexShader>
+    {
+    public:
+        VertexShader() = default;
+        virtual ~VertexShader() override = default;
 
-    HRESULT Init(ID3D11Device* mDevice, LPCWSTR pFileName);
+        HRESULT Init(ID3D11Device* mDevice, D3D11_INPUT_ELEMENT_DESC* layoutDesc, UINT numElements, LPCWSTR pFileName);
+        ID3D11InputLayout* GetInputLayout() const;
+        
+    private:
+        virtual HRESULT Init(ID3D11Device* pDevice, LPCWSTR pFileName) override;
 
-    ID3D11PixelShader* Get();
-    ID3DBlob* GetBuffer();
+    private:
+        ComPtr<ID3D11InputLayout> m_inputLayout;
+    };
 
-private:
-    Microsoft::WRL::ComPtr<ID3D11PixelShader> mShader;
-    Microsoft::WRL::ComPtr<ID3DBlob> mShaderBuffer;
-};
+    class PixelShader final : public Shader<ID3D11PixelShader>
+    {
+    public:
+        PixelShader() = default;
+        virtual ~PixelShader() override = default;
+        virtual HRESULT Init(ID3D11Device* pDevice, LPCWSTR pFileName) override;
+    };
 
-class GeometryShader
-{
-public:
-    GeometryShader() = default;
+    class GeometryShader final : public Shader<ID3D11GeometryShader>
+    {
+    public:
+        GeometryShader() = default;
+        virtual ~GeometryShader() override = default;
+        virtual HRESULT Init(ID3D11Device* pDevice, LPCWSTR pFileName) override;
 
-    HRESULT Init(ID3D11Device* mDevice, LPCWSTR pFileName);
+    };
 
-    ID3D11GeometryShader* Get();
-    ID3DBlob* GetBuffer();
-
-private:
-    Microsoft::WRL::ComPtr<ID3D11GeometryShader> mShader;
-    Microsoft::WRL::ComPtr<ID3DBlob> mShaderBuffer;
-};
-
-class ComputeShader
-{
-public:
-    ComputeShader() = default;
-
-    HRESULT Init(ID3D11Device* mDevice, LPCWSTR pFileName);
-
-    ID3D11ComputeShader* Get();
-    ID3DBlob* GetBuffer();
-
-private:
-    Microsoft::WRL::ComPtr<ID3D11ComputeShader> mShader;
-    Microsoft::WRL::ComPtr<ID3DBlob> mShaderBuffer;
-};
+    class ComputeShader final : public Shader<ID3D11ComputeShader>
+    {
+    public:
+        ComputeShader() = default;
+        virtual ~ComputeShader() override = default;
+        virtual HRESULT Init(ID3D11Device* pDevice, LPCWSTR pFileName) override;
+    };
+}
