@@ -1,22 +1,10 @@
-cbuffer cbPerObject : register(b0)
-{
-    float4x4 gWorld;
-    float4x4 gInvTransposeWorld;
-};
+#include "Common.hlsl"
 
 // forward rendering and simple shadows stuff
 // won't work, because there is no such structure on the cpu side as well as code that bins it to the shader
-cbuffer cbLightViewProj : register(b1)
+cbuffer cbLightViewProj : register(b2)
 {
     matrix gLightViewProj;
-}
-
-cbuffer cbPerFrame : register(b2)
-{
-    float4x4 gView;
-    float4x4 gProjection;
-    float4x4 gViewProj;
-    float4 gEyePos;
 }
 
 struct VS_IN
