@@ -57,8 +57,8 @@ void Renderer::SetupShaders()
 {
     D3D11_INPUT_ELEMENT_DESC inputLayoutShadowDesc[] = {D3D11_INPUT_ELEMENT_DESC{"POSITION", 0u, DXGI_FORMAT_R32G32B32A32_FLOAT, 0u, 0u, D3D11_INPUT_PER_VERTEX_DATA, 0u}};
 
-    ThrowIfFailed(mShadowVertexShader.Init(m_device, inputLayoutShadowDesc, (UINT)std::size(inputLayoutShadowDesc), kShadowsVertexShaderPath));
-    ThrowIfFailed(mCSMGeometryShader.Init(m_device, kCSMPixelShaderPath));
+    mShadowVertexShader.Init(m_device, kShadowsVertexShaderPath, inputLayoutShadowDesc, (UINT)std::size(inputLayoutShadowDesc));
+    mCSMGeometryShader.Init(m_device, kCSMPixelShaderPath);
 }
 
 void Renderer::CreateDepthStencilState()

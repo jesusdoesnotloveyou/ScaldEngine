@@ -104,10 +104,10 @@ void FireParticleSystem::InitializeSystem()
 
     D3D11_INPUT_ELEMENT_DESC inputLayoutParticlesDesc[] = {D3D11_INPUT_ELEMENT_DESC{"SV_VertexID", 0u, DXGI_FORMAT_R32_UINT, 0u, 0u, D3D11_INPUT_PER_VERTEX_DATA, 0u}};
 
-    ThrowIfFailed(mFireVertexShader.Init(m_device, inputLayoutParticlesDesc, (UINT)std::size(inputLayoutParticlesDesc), kFireParticlesVertexShaderPath));
-    ThrowIfFailed(mFirePixelShader.Init(m_device, kFireParticlesPixelShaderPath));
-    ThrowIfFailed(mFireSimulateShader.Init(m_device, kFireParticlesSimulateComputeShaderPath));
-    ThrowIfFailed(mFireEmitShader.Init(m_device, kFireParticlesEmitComputeShaderPath));
+    mFireVertexShader.Init(m_device, kFireParticlesVertexShaderPath, inputLayoutParticlesDesc, (UINT)std::size(inputLayoutParticlesDesc));
+    mFirePixelShader.Init(m_device, kFireParticlesPixelShaderPath);
+    mFireSimulateShader.Init(m_device, kFireParticlesSimulateComputeShaderPath);
+    mFireEmitShader.Init(m_device, kFireParticlesEmitComputeShaderPath);
 }
 
 FireParticleSystem::~FireParticleSystem() noexcept {}
