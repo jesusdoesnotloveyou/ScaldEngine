@@ -94,13 +94,13 @@ void DeferredRenderer::SetupShaders()
         D3D11_INPUT_ELEMENT_DESC{"POSITION", 0u, DXGI_FORMAT_R32G32B32A32_FLOAT, 0u, 0u, D3D11_INPUT_PER_VERTEX_DATA, 0u},
         D3D11_INPUT_ELEMENT_DESC{"TEXCOORD", 0u, DXGI_FORMAT_R32G32_FLOAT, 0u, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0u}};
 
-    mGBufferVS.Init(m_device, inputLayoutGBufferDesc, (UINT)std::size(inputLayoutGBufferDesc), kDrawGBufferVertexShaderPath);
+    mGBufferVS.Init(m_device, kDrawGBufferVertexShaderPath, inputLayoutGBufferDesc, (UINT)std::size(inputLayoutGBufferDesc));
     mGBufferPS.Init(m_device, kDrawGBufferPixelShaderPath);
 
-    m_opaqueVertexShader.Init(m_device, inputLayoutOpaqueDesc, (UINT)std::size(inputLayoutOpaqueDesc), kOpaqueVertexShaderPath);
+    m_opaqueVertexShader.Init(m_device, kOpaqueVertexShaderPath, inputLayoutOpaqueDesc, (UINT)std::size(inputLayoutOpaqueDesc));
     m_opaquePixelShader.Init(m_device, kOpaquePixelShaderPath);
 
-    m_lightingVertexShader.Init(m_device, inputLayoutLightingDesc, (UINT)std::size(inputLayoutLightingDesc), kDeferredLightingVertexShaderPath);
+    m_lightingVertexShader.Init(m_device, kDeferredLightingVertexShaderPath, inputLayoutLightingDesc, (UINT)std::size(inputLayoutLightingDesc));
     m_lightingPixelShader.Init(m_device, kDeferredLightingPixelShaderPath);
 }
 

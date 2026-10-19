@@ -71,13 +71,12 @@ void ParticleSystem::Emit(int numParticles)
 
 void ParticleSystem::InitializeSystem()
 {
-    ThrowIfFailed(mBillboardGeometryShader.Init(m_device, kBillboardGeometryShaderPath));
-    ThrowIfFailed(mBitonicSortShader.Init(m_device, kSortParticlesComputeShaderPath));
-    ThrowIfFailed(mBitonicTransposeShader.Init(m_device, kSortParticlesTransposeComputeShaderPath));
-
-    ThrowIfFailed(mCBSort.Init(m_device, m_deviceContext));
-    ThrowIfFailed(mCBParticle.Init(m_device, m_deviceContext));
-    ThrowIfFailed(mCBCamera.Init(m_device, m_deviceContext));
+    mBillboardGeometryShader.Init(m_device, kBillboardGeometryShaderPath);
+    mBitonicSortShader.Init(m_device, kSortParticlesComputeShaderPath);
+    mBitonicTransposeShader.Init(m_device, kSortParticlesTransposeComputeShaderPath);
+    mCBSort.Init(m_device, m_deviceContext);
+    mCBParticle.Init(m_device, m_deviceContext);
+    mCBCamera.Init(m_device, m_deviceContext);
 
     // Injection buffer
     ThrowIfFailed(CreateRWStructuredBufferCPUWrite<Particle>(m_device, &injectionBuffer, (UINT)injectionBufferSize));

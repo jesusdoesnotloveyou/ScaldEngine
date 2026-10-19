@@ -6,7 +6,7 @@ using namespace Scald;
 
 namespace
 {
-    const wchar_t* kDefaultVertexShaderPath = L"./Data/Shaders/VertexShader.hlsl";
+    const wchar_t* kDefaultVertexShaderPath = L"./Data/Shaders/DefaultVS.hlsl";
     const wchar_t* kDefaultPixelShaderPath  = L"./Data/Shaders/DefaultPS.hlsl";
 }  // namespace
 
@@ -24,6 +24,6 @@ void ForwardRenderer::SetupShaders()
         D3D11_INPUT_ELEMENT_DESC{"NORMAL", 0u, DXGI_FORMAT_R32G32B32_FLOAT, 0u, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0u},
         D3D11_INPUT_ELEMENT_DESC{"TEXCOORD", 0u, DXGI_FORMAT_R32G32_FLOAT, 0u, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0u}};
 
-    ThrowIfFailed(mVertexShader.Init(m_device, inputLayoutDefaultDesc, (UINT)std::size(inputLayoutDefaultDesc), kDefaultVertexShaderPath));
-    ThrowIfFailed(mPixelShader.Init(m_device, kDefaultPixelShaderPath));
+    mVertexShader.Init(m_device, kDefaultVertexShaderPath, inputLayoutDefaultDesc, (UINT)std::size(inputLayoutDefaultDesc));
+    mPixelShader.Init(m_device, kDefaultPixelShaderPath);
 }

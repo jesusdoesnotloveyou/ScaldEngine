@@ -1,8 +1,4 @@
-cbuffer cbPerObject : register(b0)
-{
-    float4x4 gWorld;
-    float4x4 gInvTransposeWorld;
-}
+#include "Common.hlsl"
 
 struct VS_IN
 {

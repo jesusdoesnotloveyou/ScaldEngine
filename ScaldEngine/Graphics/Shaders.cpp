@@ -1,103 +1,46 @@
 #include "stdafx.h"
 #include "Shaders.h"
 
+using namespace Scald;
+using namespace Microsoft::WRL;
+
 /////////////////// VERTEX SHADER ///////////////////
-HRESULT VertexShader::Init(ID3D11Device* mDevice, D3D11_INPUT_ELEMENT_DESC* layoutDesc, UINT numElements, LPCWSTR pFileName)
+void VertexShader::Init(ID3D11Device* mDevice, LPCWSTR pFileName, D3D11_INPUT_ELEMENT_DESC* layoutDesc, UINT numElements, const D3D_SHADER_MACRO* pDefines, ID3DInclude* pInclude, LPCSTR pEntryPoint)
 {
-    // Step 04: Compile the Shaders
-    Microsoft::WRL::ComPtr<ID3DBlob> mErrorVertexCode = nullptr;
-    HRESULT hr = D3DCompileFromFile(pFileName, nullptr /*macros*/, nullptr /*include*/, "main", "vs_5_0",
-        D3DCOMPILE_DEBUG,  //| D3DCOMPILE_SKIP_OPTIMIZATION,
-        0u, mShaderBuffer.GetAddressOf(), &mErrorVertexCode);
+    Super::Compile(mDevice, pFileName, pDefines, pInclude, pEntryPoint);
+    
+    CreateInputLayout(mDevice, layoutDesc, numElements);
+    Create(mDevice);
 
-    if (FAILED(hr)) return hr;
-
-    hr = mDevice->CreateVertexShader(mShaderBuffer->GetBufferPointer(), mShaderBuffer->GetBufferSize(), nullptr, &mShader);
-    if (FAILED(hr)) return hr;
-
-    return mDevice->CreateInputLayout(layoutDesc, numElements, mShaderBuffer->GetBufferPointer(), mShaderBuffer->GetBufferSize(), &mInputLayout);
+    m_shaderBuffer.Reset();
 }
 
-ID3D11VertexShader* VertexShader::Get()
+void VertexShader::CreateInputLayout(ID3D11Device* pDevice, D3D11_INPUT_ELEMENT_DESC* layoutDesc, UINT numElements)
 {
-    return mShader.Get();
+    ThrowIfFailed(pDevice->CreateInputLayout(layoutDesc, numElements, m_shaderBuffer->GetBufferPointer(), m_shaderBuffer->GetBufferSize(), &m_inputLayout));
 }
 
-ID3DBlob* VertexShader::GetBuffer()
+void VertexShader::Create(ID3D11Device* pDevice)
 {
-    return mShaderBuffer.Get();
+    ThrowIfFailed(pDevice->CreateVertexShader(m_shaderBuffer->GetBufferPointer(), m_shaderBuffer->GetBufferSize(), nullptr, &m_shader));
 }
 
-ID3D11InputLayout* VertexShader::GetInputLayout()
+ID3D11InputLayout* VertexShader::GetInputLayout() const
 {
-    return mInputLayout.Get();
+    return m_inputLayout.Get();
 }
 
-/////////////////// PIXEL SHADER ///////////////////
-HRESULT PixelShader::Init(ID3D11Device* mDevice, LPCWSTR pFileName)
+void PixelShader::Create(ID3D11Device* pDevice)
 {
-    Microsoft::WRL::ComPtr<ID3DBlob> mErrorPixelCode = nullptr;
-    HRESULT hr = D3DCompileFromFile(pFileName, nullptr /*macros*/, nullptr /*include*/, "main", "ps_5_0" /*pixel shader*/,
-        D3DCOMPILE_DEBUG,  //| D3DCOMPILE_SKIP_OPTIMIZATION,
-        0u, mShaderBuffer.GetAddressOf(), &mErrorPixelCode);
-
-    if (FAILED(hr)) return hr;
-
-    return mDevice->CreatePixelShader(mShaderBuffer->GetBufferPointer(), mShaderBuffer->GetBufferSize(), nullptr, &mShader);
+    ThrowIfFailed(pDevice->CreatePixelShader(m_shaderBuffer->GetBufferPointer(), m_shaderBuffer->GetBufferSize(), nullptr, &m_shader));
 }
 
-ID3D11PixelShader* PixelShader::Get()
+void GeometryShader::Create(ID3D11Device* pDevice)
 {
-    return mShader.Get();
+    ThrowIfFailed(pDevice->CreateGeometryShader(m_shaderBuffer->GetBufferPointer(), m_shaderBuffer->GetBufferSize(), nullptr, &m_shader));
 }
 
-ID3DBlob* PixelShader::GetBuffer()
+void ComputeShader::Create(ID3D11Device* pDevice)
 {
-    return mShaderBuffer.Get();
-}
-
-/////////////////// GEOMETRY SHADER ///////////////////
-HRESULT GeometryShader::Init(ID3D11Device* mDevice, LPCWSTR pFileName)
-{
-    Microsoft::WRL::ComPtr<ID3DBlob> mErrorGeometryCode = nullptr;
-    HRESULT hr = D3DCompileFromFile(pFileName, nullptr /*macros*/, nullptr /*include*/, "main", "gs_5_0" /*geometry shader*/,
-        D3DCOMPILE_DEBUG,  //| D3DCOMPILE_SKIP_OPTIMIZATION,
-        0u, mShaderBuffer.GetAddressOf(), &mErrorGeometryCode);
-
-    if (FAILED(hr)) return hr;
-
-    return mDevice->CreateGeometryShader(mShaderBuffer->GetBufferPointer(), mShaderBuffer->GetBufferSize(), nullptr, &mShader);
-}
-
-ID3D11GeometryShader* GeometryShader::Get()
-{
-    return mShader.Get();
-}
-
-ID3DBlob* GeometryShader::GetBuffer()
-{
-    return mShaderBuffer.Get();
-}
-
-/////////////////// COMPUTE SHADER ///////////////////
-HRESULT ComputeShader::Init(ID3D11Device* mDevice, LPCWSTR pFileName)
-{
-    Microsoft::WRL::ComPtr<ID3DBlob> mErrorComputeCode = nullptr;
-    HRESULT hr = D3DCompileFromFile(pFileName, nullptr /*macros*/, nullptr /*include*/, "main", "cs_5_0" /*compute shader*/,
-        D3DCOMPILE_DEBUG,  //| D3DCOMPILE_SKIP_OPTIMIZATION,
-        0u, mShaderBuffer.GetAddressOf(), &mErrorComputeCode);
-
-    if (FAILED(hr)) return hr;
-
-    return mDevice->CreateComputeShader(mShaderBuffer->GetBufferPointer(), mShaderBuffer->GetBufferSize(), nullptr, &mShader);
-}
-
-ID3D11ComputeShader* ComputeShader::Get()
-{
-    return mShader.Get();
-}
-
-ID3DBlob* ComputeShader::GetBuffer()
-{
-    return mShaderBuffer.Get();
+    ThrowIfFailed(pDevice->CreateComputeShader(m_shaderBuffer->GetBufferPointer(), m_shaderBuffer->GetBufferSize(), nullptr, &m_shader));
 }

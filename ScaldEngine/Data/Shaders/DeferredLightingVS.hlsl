@@ -1,31 +1,5 @@
-cbuffer cbPerObject : register(b0)
-{
-    float4x4 gWorld;
-    float4x4 gInvTransWorld;
-};
-
-cbuffer cbPerFrame : register(b1)
-{
-    float4x4 gView;
-    float4x4 gProjection;
-    float4x4 gViewProj;
-    float4 gEyePos;
-};
-
-struct UniLight
-{
-    float4 ambient;
-    float4 diffuse;
-    float4 specular;
-    float3 direction;
-    float spot;
-    float3 attenuation;
-    float range;
-    float3 position;
-    float pad;
-    int lightType;
-    float3 pad2;
-};
+#include "Common.hlsl"
+#include "LightCommon.hlsl"
 
 cbuffer LightCB : register(b2)
 {

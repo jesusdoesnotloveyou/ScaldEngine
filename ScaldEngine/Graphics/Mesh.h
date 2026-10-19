@@ -6,9 +6,11 @@
 
 namespace Scald
 {    
-    template<typename V = VertexPositionNormalUV, typename I = DWORD, typename T =  Texture>
+    template<typename V = VertexPositionNormalUV, typename I = DWORD, typename T = Texture>
     struct MeshData
     {
+        MeshData() = default;
+
         // TODO: think about efficient way to pass data
         MeshData(const std::vector<V> vertices,
             const std::vector<I> indices = std::vector<I>(0),
@@ -20,7 +22,9 @@ namespace Scald
         }
 
         MeshData(const MeshData& mesh) = default;
+        MeshData& operator=(const MeshData& mesh) = default;
         MeshData(MeshData&& mesh) noexcept = default;
+        MeshData& operator=(MeshData&& mesh) noexcept = default;
         
         std::vector<V> Vertices;
         std::vector<I> Indices;
