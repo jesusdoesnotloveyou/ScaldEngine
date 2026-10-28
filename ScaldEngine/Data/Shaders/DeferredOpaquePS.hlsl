@@ -1,4 +1,3 @@
-
 Texture2D objTexture : TEXTURE : register(t0);
 SamplerState objSamplerState : SAMPLER : register(s0);
 

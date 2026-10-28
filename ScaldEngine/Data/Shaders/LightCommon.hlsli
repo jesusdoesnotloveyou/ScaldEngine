@@ -1,6 +1,5 @@
-
 // Structure for representing every type of light in deferred shading
-// TODO: consider using different (dx12 renderer)
+// TODO: consider using different (dx12 renderer) structs that are below
 struct UniLight
 {
     float4 ambient;
@@ -12,6 +11,39 @@ struct UniLight
     float range;
     float3 position;
     int lightType;
+};
+
+struct DirectionalLight
+{
+    float4 ambient;
+    float4 diffuse;
+    float4 specular;
+    float3 direction;
+    float pad;
+};
+
+struct PointLight
+{
+    float4 ambient;
+    float4 diffuse;
+    float4 specular;
+    float3 position;
+    float range;
+    float3 attenuation;
+    float pad;
+};
+
+struct SpotLight
+{
+    float4 ambient;
+    float4 diffuse;
+    float4 specular;
+    float3 position;
+    float range;
+    float3 direction;
+    float spot;
+    float3 attenuation;
+    float pad;
 };
 
 float3 CalcDirectionalLight(UniLight light, uniform float3 posW, uniform float3 normal, uniform float4 toEye)

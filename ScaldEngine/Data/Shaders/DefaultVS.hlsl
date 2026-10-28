@@ -1,12 +1,7 @@
-#include "Common.hlsl"
+#include "Common.hlsli"
 
-// forward rendering and simple shadows stuff
-// won't work, because there is no such structure on the cpu side as well as code that bins it to the shader
-cbuffer cbLightViewProj : register(b2)
-{
-    matrix gLightViewProj;
-}
-
+// Shader doesn't work. Ensure that light sources' info are passed (from CPU) to constant buffers (GPU).
+// PerObjectConstants (Mesh info) and PerFrameConstants (View, Proj, Camera info).
 struct VS_IN
 {
     float4 inPosition : POSITION0;
@@ -24,23 +19,22 @@ struct VS_OUT
     float4 outLightSpacePos : TEXCOORD1;
 };
 
-
 VS_OUT main(VS_IN input)
 {
     VS_OUT output = (VS_OUT) 0;
 	
-    float4 modelPos = mul(float4(input.inPosition.xyz, 1.0f), gWorld);
-    output.outWorldView = mul(modelPos, gView);
-    output.outPosition = mul(output.outWorldView, gProjection);
+    float4 modelPos = mul(float4(input.inPosition.xyz, 1.0f), gPerObject.World);
+    output.outWorldView = mul(modelPos, gPerFrame.View);
+    output.outPosition = mul(output.outWorldView, gPerFrame.Proj);
     
     output.outTexCoord = input.inTexCoord;
     
     // has to be normalized in pixel shader
-    output.outNormal = mul(input.inNormal, (float3x3) gInvTransposeWorld);
+    output.outNormal = mul(input.inNormal, (float3x3) gPerObject.InvTransposeWorld);
     
     output.outWorldPos = modelPos.xyz;
 
-    float4 lightSpacePos = mul(modelPos, gLightViewProj);
+    float4 lightSpacePos = mul(modelPos, gPerFrame.ViewProj);
     output.outLightSpacePos = lightSpacePos;
 
     return output;

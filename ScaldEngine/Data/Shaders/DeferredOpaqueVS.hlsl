@@ -1,4 +1,4 @@
-#include "Common.hlsl"
+#include "Common.hlsli"
 
 struct VS_IN
 {
@@ -22,13 +22,13 @@ VS_OUT main(VS_IN input)
     // Change the position vector to be 4 units for proper matrix calculations.
     input.inPosition.w = 1.0f;
 
-    float4 model = mul(input.inPosition, gWorld);
+    float4 model = mul(input.inPosition, gPerObject.World);
     output.outWorld = model.xyz;
-    output.outPosition = mul(model, gViewProj);
+    output.outPosition = mul(model, gPerFrame.ViewProj);
     
     output.outTexCoord = input.inTexCoord;
     
-    output.outNormal = mul(input.inNormal, (float3x3) gInvTransposeWorld);
+    output.outNormal = mul(input.inNormal, (float3x3) gPerObject.InvTransposeWorld);
     output.outNormal = normalize(output.outNormal);
 
     return output;

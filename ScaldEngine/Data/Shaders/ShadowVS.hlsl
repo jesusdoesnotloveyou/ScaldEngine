@@ -1,4 +1,4 @@
-#include "Common.hlsl"
+#include "Common.hlsli"
 
 struct VS_IN
 {
@@ -13,6 +13,6 @@ struct VS_OUT
 VS_OUT main(VS_IN input)
 {
     VS_OUT output = (VS_OUT) 0;
-    output.outPosition = mul(float4(input.inPosition), gWorld);
+    output.outPosition = mul(float4(input.inPosition), gPerObject.World);
     return output;
 }

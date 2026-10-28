@@ -60,6 +60,13 @@ namespace Scald
         void RenderOmniLight(Scene* scene);
         void RenderSpotLight(Scene* scene);
 
+        /*
+         * This sets all input/output resource slots, shaders, input layouts, predications, scissor rectangles,
+         * depth-stencil state, rasterizer state, blend state, sampler state, and viewports to NULL.
+         * The primitive topology is set to UNDEFINED.
+         */
+        void ClearContext();
+
         // @todo: From Luna's book
         void UpdateObjectCB(const XMMATRIX& world/*, float deltaTime*/);
         void UpdatePerFrameCB(/*float deltaTime*/);
@@ -109,22 +116,16 @@ namespace Scald
         bool m_bIsDirectionalLightEnabled = true;
         bool m_bIsSpotLightEnabled = true;
         bool m_bIsDeferredRenderingApplied = true;
-
-        //VertexShader m_shadowVertexShader;
-        //VertexShader m_vertexShader;
-        //PixelShader m_pixelShader;
-        //GeometryShader m_csmGeometryShader;
-
     #pragma region Light
         // like constant buffer per object, but for lights
         // could be implemented due to encapsulation inside light class
         // TODO: structured buffer instead
-        ConstantBuffer<ConstantBufferPerObject> m_lightVolumeCB;
+        ConstantBuffer<PerObjectConstants> m_lightVolumeCB;
         ConstantBuffer<LIGHT_DESC> m_lightCB;
     #pragma endregion Light
 
-        ConstantBuffer<ConstantBufferPerObject> m_perObjectCB;
-        ConstantBuffer<ConstantBufferPerFrame> m_perFrameCB;
+        ConstantBuffer<PerObjectConstants> m_perObjectCB;
+        ConstantBuffer<PerFrameConstants> m_perFrameCB;
 
         ComPtr<IDXGISwapChain> m_swapChain;
         ComPtr<ID3D11Device> m_device;

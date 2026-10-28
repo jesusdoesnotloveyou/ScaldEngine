@@ -45,9 +45,11 @@ Graphics::Graphics(HWND hWnd, int width, int height)
     swapDesc.SampleDesc.Count = 1u;
     swapDesc.SampleDesc.Quality = 0u;
 
+    UINT creationFlags = D3D11_CREATE_DEVICE_DEBUG;
+
     ThrowIfFailed(D3D11CreateDeviceAndSwapChain(
-        nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, D3D11_CREATE_DEVICE_DEBUG,
-        featureLevel, 1u, D3D11_SDK_VERSION, 
+        nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, creationFlags,
+        featureLevel, ARRAYSIZE(featureLevel), D3D11_SDK_VERSION, 
         &swapDesc, &m_swapChain, &m_device, nullptr, &m_deviceContext));
 
     m_camera = std::make_unique</*ThirdPerson*/Camera>();
@@ -154,14 +156,14 @@ void Graphics::RenderDepthOnlyPass(Scene* scene)
 void Graphics::BindGeometryPassResources()
 {
     // TODO: UpdatePerFrameCB() call
-    ConstantBufferPerFrame perFrameCB = {};
+    PerFrameConstants perFrameCB = {};
 
     const auto& viewMat = m_camera->GetViewMatrix();
     const auto& projMat = m_camera->GetPerspectiveProjectionMatrix();
-    perFrameCB.gView = XMMatrixTranspose(viewMat);
-    perFrameCB.gProjection = XMMatrixTranspose(projMat);
-    perFrameCB.gViewProj = XMMatrixTranspose(viewMat * projMat);
-    perFrameCB.gEyePos = m_camera->GetPosition();
+    perFrameCB.View = XMMatrixTranspose(viewMat);
+    perFrameCB.Proj = XMMatrixTranspose(projMat);
+    perFrameCB.ViewProj = XMMatrixTranspose(viewMat * projMat);
+    perFrameCB.EyePos = m_camera->GetPositionFloat();
 
     m_perFrameCB.SetAndApplyData(perFrameCB);
     m_deviceContext->VSSetConstantBuffers(1u, 1u, m_perFrameCB.GetAddressOf());
@@ -174,7 +176,7 @@ void Graphics::RenderGeometry(Scene* scene)
         UpdateObjectCB(renderItem->GetWorld());
         DrawModel(renderItem->GetModel());
     }
-    m_deviceContext->ClearState();
+    ClearContext();
 }
 
 void Graphics::BindLightingPassResources()
@@ -195,7 +197,7 @@ void Graphics::RenderLighting(Scene* scene)
     RenderOmniLight(scene);
     //RenderSpotLight(scene);
 
-    m_deviceContext->ClearState();
+    ClearContext();
 }
 
 void Graphics::RenderDirectionalLight(Scene* scene)
@@ -253,15 +255,20 @@ void Graphics::RenderSpotLight(Scene* scene)
     }
 }
 
+void Graphics::ClearContext()
+{
+    m_deviceContext->ClearState();
+}
+
 void Graphics::UpdateObjectCB(const XMMATRIX& world)
 {
-    ConstantBufferPerObject perObjectVertexShaderCB = {};
+    PerObjectConstants perObjectVertexShaderCB = {};
 
     auto det = XMMatrixDeterminant(world);
     const XMMATRIX invTransWorld = XMMatrixInverse(&det, XMMatrixTranspose(world));
 
-    perObjectVertexShaderCB.gWorld = XMMatrixTranspose(world);
-    perObjectVertexShaderCB.gInvTransposeWorld = XMMatrixTranspose(invTransWorld);
+    perObjectVertexShaderCB.World = XMMatrixTranspose(world);
+    perObjectVertexShaderCB.InvTransposeWorld = XMMatrixTranspose(invTransWorld);
 
     m_perObjectCB.SetAndApplyData(perObjectVertexShaderCB);
 }
@@ -275,13 +282,13 @@ void Graphics::RenderParticles()
 {
     m_renderer->BindParticlesPass();
     m_fireParticleSystem->Render();
-    m_deviceContext->ClearState();
+    ClearContext();
 }
 
 void Graphics::RenderGBuffer()
 {
     m_renderer->DrawGBuffer();
-    m_deviceContext->ClearState();
+    ClearContext();
 }
 
 void Graphics::DrawModel(const Model* modelToDraw)
@@ -324,8 +331,8 @@ void Graphics::UpdateDirectionalLights()
     dirLightCB.ambient = XMFLOAT4{1.0f, 1.0f, 1.0f, 1.0f};
     /*mLightData.diffuse = dirLight->GetDiffuseColor();
     mLightData.specular = dirLight->GetSpecularColor();
-    mLightData.direction = dirLight->GetDirection();
-    mLightData.lightType = ELightType::Directional;*/
+    mLightData.direction = dirLight->GetDirection();*/
+    dirLightCB.lightType = ELightType::Directional;
     m_lightCB.SetAndApplyData(dirLightCB);
 }
 
@@ -334,7 +341,7 @@ void Graphics::UpdateOmniLightParams()
     LIGHT_DESC omniLightCB = {};
     //mLightData.diffuse = pointLight->GetDiffuseColor();
     //mLightData.specular = pointLight->GetSpecularColor();
-    //mLightData.lightType = pointLight->GetLightType();
+    omniLightCB.lightType = ELightType::Point;
 
     //mLightData.attenuation = pointLight->GetAttenuation();
     //mLightData.position = pointLight->GetPositionFloat();
@@ -351,7 +358,7 @@ void Graphics::UpdateSpotLightParams()
     LIGHT_DESC spotLightCB = {};
     //mLightData.diffuse = spotLight->GetDiffuseColor();
     //mLightData.specular = spotLight->GetSpecularColor();
-    //mLightData.lightType = spotLight->GetLightType();
+    spotLightCB.lightType = ELightType::Spot;
 
     //mLightData.attenuation = spotLight->GetAttenuation();
     //mLightData.position = spotLight->GetPositionFloat();

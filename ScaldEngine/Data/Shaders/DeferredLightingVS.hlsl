@@ -1,5 +1,5 @@
-#include "Common.hlsl"
-#include "LightCommon.hlsl"
+#include "Common.hlsli"
+#include "LightCommon.hlsli"
 
 cbuffer LightCB : register(b2)
 {
@@ -32,9 +32,9 @@ VS_OUT main(VS_IN input, uint id : SV_VertexID)
     }
     else
     {
-        output.outPosition = mul(input.inPosition, gWorld);
-        output.outPosition = mul(output.outPosition, gView);
-        output.outPosition = mul(output.outPosition, gProjection);
+        output.outPosition = mul(input.inPosition, gPerObject.World);
+        output.outPosition = mul(output.outPosition, gPerFrame.View);
+        output.outPosition = mul(output.outPosition, gPerFrame.Proj);
     }
 
     return output;

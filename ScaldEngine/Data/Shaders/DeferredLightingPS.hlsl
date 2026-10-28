@@ -1,4 +1,4 @@
-#include "LightCommon.hlsl"
+#include "LightCommon.hlsli"
 
 Texture2D<float4> diffuseTexture : register(t0);
 Texture2D<float3> normalTexture : register(t1);

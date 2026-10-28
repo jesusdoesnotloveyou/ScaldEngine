@@ -14,7 +14,8 @@ namespace
     const wchar_t* kDeferredLightingPixelShaderPath  = L"./Data/Shaders/DeferredLightingPS.hlsl";
     const wchar_t* kDrawGBufferVertexShaderPath      = L"./Data/Shaders/GBufferVS.hlsl";
     const wchar_t* kDrawGBufferPixelShaderPath       = L"./Data/Shaders/GBufferPS.hlsl";
-}  // namespace
+    const wchar_t* kPBRUberPixelShaderPath           = L"./Data/Shaders/PBRUberPS.hlsl";
+    }  // namespace
 
 DeferredRenderer::DeferredRenderer(IDXGISwapChain* swapChain, ID3D11Device* device, ID3D11DeviceContext* deviceContext, UINT width, UINT height)
     : Super(swapChain, device, deviceContext, width, height)
@@ -81,17 +82,14 @@ void DeferredRenderer::SetupShaders()
 {
     Super::SetupShaders();
 
-    D3D11_INPUT_ELEMENT_DESC inputLayoutOpaqueDesc[] = {
-        D3D11_INPUT_ELEMENT_DESC{"POSITION", 0u, DXGI_FORMAT_R32G32B32A32_FLOAT, 0u, 0u, D3D11_INPUT_PER_VERTEX_DATA, 0u},
+    D3D11_INPUT_ELEMENT_DESC inputLayoutOpaqueDesc[] = {D3D11_INPUT_ELEMENT_DESC{"POSITION", 0u, DXGI_FORMAT_R32G32B32A32_FLOAT, 0u, 0u, D3D11_INPUT_PER_VERTEX_DATA, 0u},
         D3D11_INPUT_ELEMENT_DESC{"NORMAL", 0u, DXGI_FORMAT_R32G32B32_FLOAT, 0u, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0u},
         D3D11_INPUT_ELEMENT_DESC{"TEXCOORD", 0u, DXGI_FORMAT_R32G32_FLOAT, 0u, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0u}};
 
-    D3D11_INPUT_ELEMENT_DESC inputLayoutLightingDesc[] = {
-        D3D11_INPUT_ELEMENT_DESC{"POSITION", 0u, DXGI_FORMAT_R32G32B32A32_FLOAT, 0u, 0u, D3D11_INPUT_PER_VERTEX_DATA, 0u},
+    D3D11_INPUT_ELEMENT_DESC inputLayoutLightingDesc[] = {D3D11_INPUT_ELEMENT_DESC{"POSITION", 0u, DXGI_FORMAT_R32G32B32A32_FLOAT, 0u, 0u, D3D11_INPUT_PER_VERTEX_DATA, 0u},
         D3D11_INPUT_ELEMENT_DESC{"TEXCOORD", 0u, DXGI_FORMAT_R32G32_FLOAT, 0u, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0u}};
 
-    D3D11_INPUT_ELEMENT_DESC inputLayoutGBufferDesc[] = {
-        D3D11_INPUT_ELEMENT_DESC{"POSITION", 0u, DXGI_FORMAT_R32G32B32A32_FLOAT, 0u, 0u, D3D11_INPUT_PER_VERTEX_DATA, 0u},
+    D3D11_INPUT_ELEMENT_DESC inputLayoutGBufferDesc[] = {D3D11_INPUT_ELEMENT_DESC{"POSITION", 0u, DXGI_FORMAT_R32G32B32A32_FLOAT, 0u, 0u, D3D11_INPUT_PER_VERTEX_DATA, 0u},
         D3D11_INPUT_ELEMENT_DESC{"TEXCOORD", 0u, DXGI_FORMAT_R32G32_FLOAT, 0u, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0u}};
 
     mGBufferVS.Init(m_device, kDrawGBufferVertexShaderPath, inputLayoutGBufferDesc, (UINT)std::size(inputLayoutGBufferDesc));
@@ -102,6 +100,17 @@ void DeferredRenderer::SetupShaders()
 
     m_lightingVertexShader.Init(m_device, kDeferredLightingVertexShaderPath, inputLayoutLightingDesc, (UINT)std::size(inputLayoutLightingDesc));
     m_lightingPixelShader.Init(m_device, kDeferredLightingPixelShaderPath);
+
+    const D3D_SHADER_MACRO pPBRDefines[] = {
+        //{ "IBL", "1"},
+        { "USE_NORMAL_MAP", "1"},
+        { "USE_METALLIC_MAP", "1"},
+        { "USE_ROUGHNESS_MAP", "1"},
+        { "USE_AO_MAP", "1"},
+        { nullptr, nullptr } // sentinel
+    };
+
+    m_PBRUberPixelShader.Init(m_device, kPBRUberPixelShaderPath, pPBRDefines);
 }
 
 void DeferredRenderer::CreateRasterizerState()

@@ -77,22 +77,7 @@ namespace Scald
     };
 
     // Constant buffer types
-    struct ConstantBufferPerObject
-    {
-        XMMATRIX gWorld = XMMatrixIdentity();
-        XMMATRIX gInvTransposeWorld = XMMatrixIdentity();
-    };
-
-    // Light should be here 7.12.2 Luna
-    // But I am using structured buffer in Graphics.cpp for lighting
-    // It is even much better approach
-    struct ConstantBufferPerFrame
-    {
-        XMMATRIX gView = XMMatrixIdentity();
-        XMMATRIX gProjection = XMMatrixIdentity();
-        XMMATRIX gViewProj = XMMatrixIdentity();
-        XMVECTOR gEyePos = XMVectorZero();
-    };
+    #include "Data/Shaders/CommonTypes.hlsli"
 
     // Geometry Shader and Cascade Shadows specific
     // must be divisible by 4

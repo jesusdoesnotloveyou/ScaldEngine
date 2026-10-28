@@ -50,6 +50,8 @@ namespace Scald
         VertexShader m_lightingVertexShader;
         PixelShader m_lightingPixelShader;
 
+        PixelShader m_PBRUberPixelShader;
+
         // deferred additional task
         VertexShader mGBufferVS;
         PixelShader mGBufferPS;
