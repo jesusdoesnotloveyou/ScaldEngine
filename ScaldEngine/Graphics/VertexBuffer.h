@@ -1,6 +1,7 @@
 #pragma once
 
 #include "DXHelper.h"
+#include "VertexTypes.h"
 
 namespace Scald
 {

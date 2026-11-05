@@ -2,13 +2,11 @@
 
 #include "Mesh.h"
 
-#include <string>
 #include <vector>
 
 namespace Scald
 {   
-    using namespace Microsoft::WRL;
-    using namespace DirectX;
+    using Microsoft::WRL::ComPtr;
 
     class Model
     {

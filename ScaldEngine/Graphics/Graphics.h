@@ -2,8 +2,8 @@
 
 #include "ScaldCoreTypes.h"
 #include "LightHelper.h"
-#include "Shaders.h"
 #include "ConstantBuffer.h"
+// For light and particles
 #include "StructuredBuffer.h"
 
 #include <array>
@@ -103,7 +103,7 @@ namespace Scald
         void GetLightSpaceMatrices(std::array<XMMATRIX, kCascadeNumber>& outMatrices);
 
     private:
-        std::unique_ptr<Camera> m_camera = nullptr;
+        std::unique_ptr<Camera> m_camera;
         
         uint32_t m_screenWidth;
         uint32_t m_screenHeight;
@@ -136,7 +136,7 @@ namespace Scald
 
         // Shadows
         // TODO: should probably placed in light class
-        std::unique_ptr<CascadeShadowMap> m_cascadeShadowMap = nullptr;
+        std::unique_ptr<CascadeShadowMap> m_cascadeShadowMap;
         ConstantBuffer<ConstantBufferCascadeShadows> m_csmCB;
     };
 }

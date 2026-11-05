@@ -5,6 +5,10 @@
 
 namespace Scald
 {
+    using XMFLOAT3 = DirectX::XMFLOAT3;
+    using XMFLOAT3 = DirectX::XMFLOAT3;
+    using XMMATRIX = DirectX::XMMATRIX;
+
     class Actor;
 
     class Camera : public SceneComponent

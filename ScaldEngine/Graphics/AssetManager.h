@@ -1,8 +1,10 @@
 #pragma once
 
 #include "Mesh.h"
-#include "ScaldCoreTypes.h"
+#include "Model.h"
+
 #include <filesystem>
+#include <vector>
 
 using Path = std::filesystem::path;
 
@@ -30,7 +32,7 @@ namespace Scald
     private:
         void ProcessNode(aiNode* node, const aiScene* scene, std::vector<MeshData<>>& meshData);
         MeshData<> ProcessMesh(aiMesh* mesh, const aiScene* scene);
-        std::vector<Texture> LoadMaterialTextures(aiMaterial* mat, aiTextureType type, ETextureType typeName);
+        std::vector<Texture> LoadMaterialTextures(aiMaterial* mat, aiTextureType type);
 
     public:
         Mesh UploadMesh(const MeshData<>& cpuMeshData);

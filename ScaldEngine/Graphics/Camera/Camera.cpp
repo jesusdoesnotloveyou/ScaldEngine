@@ -3,6 +3,7 @@
 #include "GameFramework/Objects/Actor.h"
 
 using namespace Scald;
+using namespace DirectX;
 
 Camera::Camera(std::shared_ptr<Actor> owner) 
     : Super(owner)
@@ -31,6 +32,7 @@ void Camera::Reset(float fovDegrees, float aspectRatio, float nearZ, float farZ)
     m_nearWindowHeight = 2.0f * tanf(0.5f * m_fovYRadians) * m_nearZ;
     m_farWindowHeight = 2.0f * tanf(0.5f * m_fovYRadians) * m_farZ;
 
+    UpdateView();
     UpdatePerspectiveProjection();
     UpdateOrthographicProjection();
 }
