@@ -22,9 +22,9 @@ namespace Scald
     // must be divisible by 4
     const UINT kCascadeNumber = 4u;
 
-    struct ConstantBufferCascadeShadows
+    struct CascadeShadowsConstants
     {
-        ConstantBufferCascadeShadows()
+        CascadeShadowsConstants()
         {
             for (UINT i = 0; i < kCascadeNumber; i++)
             {

@@ -140,12 +140,12 @@ namespace Scald
         ConstantBuffer<SortConstantBuffer> mCBSort;
         SortConstantBuffer mSortData;
 
-        ConstantBuffer<ParticleConstantBuffer> mCBParticle;
-        ParticleConstantBuffer mParticleData;
+        ConstantBuffer<ParticleConstantBuffer> m_particleEmitterCB;
+        ParticleConstantBuffer m_particleEmitterData;
 
         ConstantBuffer<Camera—onstantBuffer> mCBCamera;
         Camera—onstantBuffer mCameraData;
-        Camera* camera = nullptr;
+        Camera* camera;
 
         ComPtr<ID3D11SamplerState> mParticleSamplerClamp;
         ComPtr<ID3D11ShaderResourceView> mBillboardTexture;
