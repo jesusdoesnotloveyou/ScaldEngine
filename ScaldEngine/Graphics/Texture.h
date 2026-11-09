@@ -22,9 +22,21 @@ namespace Scald
 
     struct Texture
     {
+    public:
+        Texture()
+            : Srv(nullptr)
+            , Id(-1u)
+        {}
+
+        Texture(const Texture& texture) = default;
+        Texture(Texture&& texture) noexcept = default;
+        Texture& operator=(const Texture& texture) = default;
+        Texture& operator=(Texture&& texture) noexcept = default;
+
+    public:
         ComPtr<ID3D11ShaderResourceView> Srv;
         std::filesystem::path Path;
         uint32_t Id;
-        ETextureType Type;
+        //ETextureType Type;
     };
 }
