@@ -18,78 +18,154 @@ namespace RenderCommon
     constexpr uint32_t kSwapChainBufferCount = 2u;
     constexpr DXGI_FORMAT kBackBufferFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
     constexpr DXGI_FORMAT kDepthStencilFormat = DXGI_FORMAT_D24_UNORM_S8_UINT;
-}
+    constexpr uint32_t kCascadesShadowMapResolution = 2048u;
+    }
 
 Graphics::Graphics(HWND hWnd, int width, int height)
     : m_screenWidth(width)
     , m_screenHeight(height)
 {
-    D3D_FEATURE_LEVEL featureLevel[] = {D3D_FEATURE_LEVEL_11_1};
+    D3D_FEATURE_LEVEL featureLevels[] = {
+        D3D_FEATURE_LEVEL_11_1,
+        D3D_FEATURE_LEVEL_11_0,
+        D3D_FEATURE_LEVEL_10_1,
+        D3D_FEATURE_LEVEL_10_0
+    };
+    UINT numFeatureLevels = ARRAYSIZE(featureLevels);
 
-    DXGI_SWAP_CHAIN_DESC swapDesc = {};
-    swapDesc.BufferCount = RenderCommon::kSwapChainBufferCount;
-    swapDesc.BufferDesc.Width = m_screenWidth;
-    swapDesc.BufferDesc.Height = m_screenHeight;
-    swapDesc.BufferDesc.Format = RenderCommon::kBackBufferFormat;
-    swapDesc.BufferDesc.RefreshRate.Numerator = 60u;
-    swapDesc.BufferDesc.RefreshRate.Denominator = 1u;
-    swapDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
-    swapDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
+    D3D_DRIVER_TYPE driverTypes[] = {
+        D3D_DRIVER_TYPE_HARDWARE,  // GPU
+        D3D_DRIVER_TYPE_WARP,      // Software rasterizer on CPU?  
+        D3D_DRIVER_TYPE_REFERENCE, // Cucumber
+    };
+    UINT numDriverTypes = ARRAYSIZE(driverTypes);
 
-    swapDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
-    swapDesc.OutputWindow = hWnd;
-    swapDesc.Windowed = true;
-    swapDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
-    swapDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+    UINT creationFlags = 0u;
 
-    swapDesc.SampleDesc.Count = 1u;
-    swapDesc.SampleDesc.Quality = 0u;
+#if defined(_DEBUG) || defined(DEBUG)
+    creationFlags |= D3D11_CREATE_DEVICE_DEBUG;
+#endif
 
-    UINT creationFlags = D3D11_CREATE_DEVICE_DEBUG;
+    HRESULT hr = S_OK;
 
-    ThrowIfFailed(D3D11CreateDeviceAndSwapChain(
-        nullptr, D3D_DRIVER_TYPE_HARDWARE, nullptr, creationFlags,
-        featureLevel, ARRAYSIZE(featureLevel), D3D11_SDK_VERSION, 
-        &swapDesc, &m_swapChain, &m_device, nullptr, &m_deviceContext));
+    // Create device and swapchain separately since it is modern and flexible approach
+    for (UINT driverIndex = 0u; driverIndex < numDriverTypes; driverIndex++)
+    {
+        m_driverType = driverTypes[driverIndex];
 
-    m_camera = std::make_unique</*ThirdPerson*/Camera>();
+        hr = D3D11CreateDevice(nullptr, m_driverType, nullptr, creationFlags, 
+            featureLevels, numFeatureLevels, D3D11_SDK_VERSION, &m_device,
+            &m_featureLevel, &m_immediateContext);
+
+        if (hr == E_INVALIDARG)
+        {
+            // DirectX 11.0 platforms will not recognize D3D_FEATURE_LEVEL_11_1 so we need to retry without it
+            hr = D3D11CreateDevice(nullptr, m_driverType, nullptr, creationFlags, 
+                &featureLevels[1], numFeatureLevels - 1, D3D11_SDK_VERSION, &m_device,
+                &m_featureLevel, &m_immediateContext);
+        }
+
+        if (SUCCEEDED(hr)) break;
+    }
+
+    ComPtr<IDXGIFactory1> dxgiFactory;
+
+    ComPtr<IDXGIDevice> dxgiDevice;
+    hr = m_device->QueryInterface(__uuidof(IDXGIDevice), reinterpret_cast<void**>(dxgiDevice.GetAddressOf()));
+    if (SUCCEEDED(hr))
+    {
+        ComPtr<IDXGIAdapter> adapter;
+        if (hr = dxgiDevice->GetAdapter(adapter.GetAddressOf()); SUCCEEDED(hr))
+        {
+            hr = adapter->GetParent(__uuidof(IDXGIFactory1), reinterpret_cast<void**>(dxgiFactory.GetAddressOf()));
+        }
+    }
+    // TODO: remove all throws in ctor
+    ThrowIfFailed(hr);
+
+    ComPtr<IDXGIFactory2> dxgiFactory2;
+    hr = dxgiFactory->QueryInterface(__uuidof(IDXGIFactory2), reinterpret_cast<void**>(dxgiFactory2.GetAddressOf()));
+    if (SUCCEEDED(hr) && dxgiFactory2)
+    {
+        // DirectX 11.1 or later
+        hr = m_device->QueryInterface(__uuidof(ID3D11Device1), reinterpret_cast<void**>(m_device1.GetAddressOf()));
+        if (SUCCEEDED(hr))
+        {
+            (void)m_immediateContext->QueryInterface(__uuidof(ID3D11DeviceContext1), reinterpret_cast<void**>(m_immediateContext1.GetAddressOf()));
+        }
+
+        DXGI_SWAP_CHAIN_DESC1 swapChainDesc1 = {};
+        swapChainDesc1.Width = width;
+        swapChainDesc1.Height = height;
+        swapChainDesc1.Format = RenderCommon::kBackBufferFormat;
+        swapChainDesc1.SampleDesc.Count = 1u;
+        swapChainDesc1.SampleDesc.Quality = 0u;
+        swapChainDesc1.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+        swapChainDesc1.BufferCount = 1u;
+
+        if (SUCCEEDED(dxgiFactory2->CreateSwapChainForHwnd(m_device.Get(), hWnd, &swapChainDesc1, nullptr, nullptr, &m_swapChain1)))
+        {
+            hr = m_swapChain1->QueryInterface(__uuidof(IDXGISwapChain), reinterpret_cast<void**>(m_swapChain.GetAddressOf()));
+            // TODO: check hr
+        }
+    }
+    else
+    {
+        // DirectX 11.0 systems
+        DXGI_SWAP_CHAIN_DESC swapChainDesc = {};
+        swapChainDesc.BufferDesc.Width = m_screenWidth;
+        swapChainDesc.BufferDesc.Height = m_screenHeight;
+        swapChainDesc.BufferDesc.Format = RenderCommon::kBackBufferFormat;
+        swapChainDesc.BufferDesc.RefreshRate.Numerator = 60u;
+        swapChainDesc.BufferDesc.RefreshRate.Denominator = 1u;
+        swapChainDesc.BufferDesc.ScanlineOrdering = DXGI_MODE_SCANLINE_ORDER_UNSPECIFIED;
+        swapChainDesc.BufferDesc.Scaling = DXGI_MODE_SCALING_UNSPECIFIED;
+        swapChainDesc.SampleDesc.Count = 1u;
+        swapChainDesc.SampleDesc.Quality = 0u;
+        swapChainDesc.BufferUsage = DXGI_USAGE_RENDER_TARGET_OUTPUT;
+        swapChainDesc.BufferCount = RenderCommon::kSwapChainBufferCount;
+        swapChainDesc.OutputWindow = hWnd;
+        swapChainDesc.Windowed = TRUE;
+        swapChainDesc.SwapEffect = DXGI_SWAP_EFFECT_FLIP_DISCARD;
+        swapChainDesc.Flags = DXGI_SWAP_CHAIN_FLAG_ALLOW_MODE_SWITCH;
+
+        hr = dxgiFactory->CreateSwapChain(m_device.Get(), &swapChainDesc, &m_swapChain);
+    }
+
+    m_camera = std::make_unique<Camera>();
     // RTV and BackBuffer are created down here in Renderer
-    m_renderer = std::make_unique<DeferredRenderer>(m_swapChain.Get(), m_device.Get(), m_deviceContext.Get(), width, height);
-    m_fireParticleSystem = std::make_unique<FireParticleSystem>(m_device.Get(), m_deviceContext.Get(), 4096, XMVectorSet(15.0f, 5.0f, 60.0f, 1.0f), m_camera.get());
+    m_renderer = std::make_unique<DeferredRenderer>(m_swapChain.Get(), m_device.Get(), m_immediateContext.Get(), width, height);
+    m_fireParticleSystem = std::make_unique<FireParticleSystem>(m_device.Get(), m_immediateContext.Get(), 4096, XMVectorSet(15.0f, 5.0f, 60.0f, 1.0f), m_camera.get());
     // to renderer probably
-    m_cascadeShadowMap = std::make_unique<CascadeShadowMap>(m_device.Get(), 2048u, 2048u);
+    m_cascadeShadowMap = std::make_unique<CascadeShadowMap>(m_device.Get(), RenderCommon::kCascadesShadowMapResolution, RenderCommon::kCascadesShadowMapResolution);
 }
 
 Graphics::~Graphics() {}
 
 void Graphics::Setup()
 {
-    SetupShaders();
-
-    CreateDepthStencilState();
-    CreateRasterizerState();
-    CreateSamplerState();
-    CreateBlendState();
-
-    // Particles
-    m_fireParticleSystem->InitializeSystem();
+    m_renderer->SetupShaders();
+    m_renderer->CreateDepthStencilState();
+    m_renderer->CreateRasterizerState();
+    m_renderer->CreateSamplerState();
+    m_renderer->CreateBlendState();
 
     // Camera setup
     m_camera->Reset(m_fovDegrees, static_cast<float>(m_screenWidth) / static_cast<float>(m_screenHeight), m_cameraNearZ, m_cameraFarZ);
 
-    // for cascade shadows
+    // Particles
+    m_fireParticleSystem->InitializeSystem();
+
+    // Cascade shadows
     m_cascadeShadowMap->UpdateShadowCascadeSplits(m_cameraNearZ, m_cameraFarZ);
 
-    // constant buffers setup (Forward)
-    // ThrowIfFailed(mCBVSPerFrame.Init(m_device.Get(), m_deviceContext.Get()));
-
-    // constant buffers setup for deferred rendering
-    ThrowIfFailed(m_lightVolumeCB.Init(m_device.Get(), m_deviceContext.Get()));
-    ThrowIfFailed(m_perObjectCB.Init(m_device.Get(), m_deviceContext.Get()));
-    ThrowIfFailed(m_perFrameCB.Init(m_device.Get(), m_deviceContext.Get()));
-    ThrowIfFailed(m_csmCB.Init(m_device.Get(), m_deviceContext.Get()));
+    // Constant buffers setup for deferred rendering
+    ThrowIfFailed(m_lightVolumeCB.Init(m_device.Get(), m_immediateContext.Get()));
+    ThrowIfFailed(m_perObjectCB.Init(m_device.Get(), m_immediateContext.Get()));
+    ThrowIfFailed(m_perFrameCB.Init(m_device.Get(), m_immediateContext.Get()));
+    ThrowIfFailed(m_csmCB.Init(m_device.Get(), m_immediateContext.Get()));
     // Should be replaced with structured buffer for every light type or smth
-    ThrowIfFailed(m_lightCB.Init(m_device.Get(), m_deviceContext.Get()));
+    ThrowIfFailed(m_lightCB.Init(m_device.Get(), m_immediateContext.Get()));
 }
 
 // Before rendering every frame we should clear render target view and depth stencil view
@@ -104,17 +180,17 @@ void Graphics::DrawScene(Scene* scene)
     assert(scene != nullptr && "Scene is not valid");
 
     ID3D11ShaderResourceView* nullSrv[3] = {nullptr, nullptr, nullptr};
-    m_deviceContext->PSSetShaderResources(0u, 3u, nullSrv);
+    m_immediateContext->PSSetShaderResources(0u, 3u, nullSrv);
 
 #pragma region ShadowMappingPass
-    m_cascadeShadowMap->BindDsvAndSetNullRenderTarget(m_deviceContext.Get());
+    m_cascadeShadowMap->BindDsvAndSetNullRenderTarget(m_immediateContext.Get());
     m_renderer->BindDepthOnlyPass();
     RenderDepthOnlyPass(scene);
 #pragma endregion ShadowMappingPass
 
 #pragma region DeferredGeometryPass
     m_renderer->BindGeometryPass();
-    BindGeometryPassResources();
+    BindPerFrameResources();
     RenderGeometry(scene);
 #pragma endregion DeferredGeometryPass
 
@@ -139,7 +215,7 @@ void Graphics::RenderDepthOnlyPass(Scene* scene)
     std::array<XMMATRIX, kCascadeNumber> lightSpaceMatrices;
     GetLightSpaceMatrices(lightSpaceMatrices);
 
-    ConstantBufferCascadeShadows csmCB = {};
+    CascadeShadowsConstants csmCB = {};
 
     for (UINT i = 0; i < kCascadeNumber; i++)
     {
@@ -148,12 +224,12 @@ void Graphics::RenderDepthOnlyPass(Scene* scene)
     }
 
     m_csmCB.SetAndApplyData(csmCB);
-    m_deviceContext->GSSetConstantBuffers(0u, 1u, m_csmCB.GetAddressOf());
+    m_immediateContext->GSSetConstantBuffers(0u, 1u, m_csmCB.GetAddressOf());
 
     RenderGeometry(scene);
 }
 
-void Graphics::BindGeometryPassResources()
+void Graphics::BindPerFrameResources()
 {
     // TODO: UpdatePerFrameCB() call
     PerFrameConstants perFrameCB = {};
@@ -166,7 +242,7 @@ void Graphics::BindGeometryPassResources()
     perFrameCB.EyePos = m_camera->GetPositionFloat();
 
     m_perFrameCB.SetAndApplyData(perFrameCB);
-    m_deviceContext->VSSetConstantBuffers(1u, 1u, m_perFrameCB.GetAddressOf());
+    m_immediateContext->VSSetConstantBuffers(1u, 1u, m_perFrameCB.GetAddressOf());
 }
 
 void Graphics::RenderGeometry(Scene* scene)
@@ -175,6 +251,7 @@ void Graphics::RenderGeometry(Scene* scene)
     {
         UpdateObjectCB(renderItem->GetWorld());
         DrawModel(renderItem->GetModel());
+        DrawTexture(renderItem->GetTexture());
     }
     ClearContext();
 }
@@ -182,13 +259,13 @@ void Graphics::RenderGeometry(Scene* scene)
 void Graphics::BindLightingPassResources()
 {
     // TODO: check are there constant buffers from previous subpasses or we should set them again
-    //m_csmCB.SetAndApplyData(mCSMData);
-    //m_perFrameCB.SetAndApplyData(mPerFrameData);
+    //m_csmCB.SetAndApplyData(csmData);
+    //m_perFrameCB.SetAndApplyData(perFrameData);
 
-    m_deviceContext->VSSetConstantBuffers(1u, 1u, m_perFrameCB.GetAddressOf());
-    m_deviceContext->PSSetConstantBuffers(0u, 1u, m_csmCB.GetAddressOf());
-    m_deviceContext->PSSetConstantBuffers(1u, 1u, m_perFrameCB.GetAddressOf());
-    m_deviceContext->PSSetShaderResources(3u, 1u, m_cascadeShadowMap->GetAddressOf());
+    m_immediateContext->VSSetConstantBuffers(1u, 1u, m_perFrameCB.GetAddressOf());
+    m_immediateContext->PSSetConstantBuffers(0u, 1u, m_csmCB.GetAddressOf());
+    m_immediateContext->PSSetConstantBuffers(1u, 1u, m_perFrameCB.GetAddressOf());
+    m_immediateContext->PSSetShaderResources(3u, 1u, m_cascadeShadowMap->GetAddressOf());
 }
 
 void Graphics::RenderLighting(Scene* scene)
@@ -209,8 +286,8 @@ void Graphics::RenderDirectionalLight(Scene* scene)
 
     }
 
-    m_deviceContext->VSSetConstantBuffers(2u, 1u, m_lightCB.GetAddressOf());
-    m_deviceContext->PSSetConstantBuffers(2u, 1u, m_lightCB.GetAddressOf());
+    m_immediateContext->VSSetConstantBuffers(2u, 1u, m_lightCB.GetAddressOf());
+    m_immediateContext->PSSetConstantBuffers(2u, 1u, m_lightCB.GetAddressOf());
 
     m_renderer->BindOutsideFrustum();
     m_renderer->DrawScreenQuad();
@@ -239,9 +316,9 @@ void Graphics::RenderOmniLight(Scene* scene)
     mLightVolumeData.gInvTransposeWorld = XMMatrixTranspose(invTransWorld);
 
     m_lightVolumeCB.SetAndApplyData(mLightVolumeData);
-    m_deviceContext->VSSetConstantBuffers(0u, 1u, m_lightVolumeCB.GetAddressOf());
+    m_immediateContext->VSSetConstantBuffers(0u, 1u, m_lightVolumeCB.GetAddressOf());
 
-    light->DrawLightVolume(m_deviceContext.Get());*/
+    light->DrawLightVolume(m_immediateContext.Get());*/
 }
 
 void Graphics::RenderSpotLight(Scene* scene)
@@ -257,7 +334,7 @@ void Graphics::RenderSpotLight(Scene* scene)
 
 void Graphics::ClearContext()
 {
-    m_deviceContext->ClearState();
+    m_immediateContext->ClearState();
 }
 
 void Graphics::UpdateObjectCB(const XMMATRIX& world)
@@ -295,29 +372,30 @@ void Graphics::DrawModel(const Model* modelToDraw)
 {
     assert(modelToDraw && "Static mesh is invalid");
 
-    auto texture = modelToDraw->GetTexture();
-
-    // &texture will delete texture, since & clears memory
-    m_deviceContext->VSSetConstantBuffers(0u, 1u, m_perObjectCB.GetAddressOf());
-    //m_deviceContext->PSSetShaderResources(0u, 1u, texture->Srv.GetAddressOf());
-    
+    m_immediateContext->VSSetConstantBuffers(0u, 1u, m_perObjectCB.GetAddressOf());
+        
     for (const auto& mesh : modelToDraw->GetMeshes())
     {
         const auto& vertexBuffer = mesh.GetVertexBuffer();
         const auto& indexBuffer = mesh.GetIndexBuffer();
 
-        m_deviceContext->IASetVertexBuffers(0u, 1u, vertexBuffer.GetAddressOf(), vertexBuffer.GetStridePtr(), vertexBuffer.GetOffsetPtr());
-        m_deviceContext->IASetIndexBuffer(indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0u);
-        //[[likely]]
+        m_immediateContext->IASetVertexBuffers(0u, 1u, vertexBuffer.GetAddressOf(), vertexBuffer.GetStridePtr(), vertexBuffer.GetOffsetPtr());
+        m_immediateContext->IASetIndexBuffer(indexBuffer.Get(), DXGI_FORMAT_R32_UINT, 0u);
+        [[likely]]
         if (indexBuffer.GetBufferSize())
         {
-            m_deviceContext->DrawIndexed(indexBuffer.GetBufferSize(), 0u, 0);
+            m_immediateContext->DrawIndexed(indexBuffer.GetBufferSize(), 0u, 0);
         }
         else
         {
-            m_deviceContext->Draw(vertexBuffer.GetBufferSize(), 0u);
+            m_immediateContext->Draw(vertexBuffer.GetBufferSize(), 0u);
         }
     }
+}
+
+void Graphics::DrawTexture(const Texture* textureView)
+{
+    m_immediateContext->PSSetShaderResources(0u, 1u, textureView->Srv.GetAddressOf());
 }
 
 void Graphics::SwitchGBufferLayer(int layer)
@@ -349,8 +427,8 @@ void Graphics::UpdateOmniLightParams()
     //mLightData.range = pointLight->GetRange();  // hard-coded value
 
     m_lightCB.SetAndApplyData(omniLightCB);
-    m_deviceContext->VSSetConstantBuffers(2u, 1u, m_lightCB.GetAddressOf());
-    m_deviceContext->PSSetConstantBuffers(2u, 1u, m_lightCB.GetAddressOf());
+    m_immediateContext->VSSetConstantBuffers(2u, 1u, m_lightCB.GetAddressOf());
+    m_immediateContext->PSSetConstantBuffers(2u, 1u, m_lightCB.GetAddressOf());
 }
 
 void Graphics::UpdateSpotLightParams()
@@ -367,13 +445,13 @@ void Graphics::UpdateSpotLightParams()
     //mLightData.spot = 10.0f;  // hard-coded value
 
     m_lightCB.SetAndApplyData(spotLightCB);
-    m_deviceContext->VSSetConstantBuffers(2u, 1u, m_lightCB.GetAddressOf());
-    m_deviceContext->PSSetConstantBuffers(2u, 1u, m_lightCB.GetAddressOf());
+    m_immediateContext->VSSetConstantBuffers(2u, 1u, m_lightCB.GetAddressOf());
+    m_immediateContext->PSSetConstantBuffers(2u, 1u, m_lightCB.GetAddressOf());
 }
 
 void Graphics::EndFrame()
 {
-    m_deviceContext->OMSetRenderTargets(0u, nullptr, nullptr);
+    m_immediateContext->OMSetRenderTargets(0u, nullptr, nullptr);
     ThrowIfFailed(m_swapChain->Present(1u, /*DXGI_PRESENT_DO_NOT_WAIT*/ 0u));
 }
 
@@ -381,31 +459,6 @@ void Graphics::Update(float deltaTime)
 {
     m_camera->Tick(deltaTime);
     m_fireParticleSystem->Update(deltaTime);
-}
-
-void Graphics::CreateDepthStencilState()
-{
-    m_renderer->CreateDepthStencilState();
-}
-
-void Graphics::CreateRasterizerState()
-{
-    m_renderer->CreateRasterizerState();
-}
-
-void Graphics::CreateSamplerState()
-{
-    m_renderer->CreateSamplerState();
-}
-
-void Graphics::CreateBlendState()
-{
-    m_renderer->CreateBlendState();
-}
-
-void Graphics::SetupShaders()
-{
-    m_renderer->SetupShaders();
 }
 
 std::array<XMVECTOR, 8u> Graphics::GetFrustumCornersWorldSpace(const XMMATRIX& viewProjection)

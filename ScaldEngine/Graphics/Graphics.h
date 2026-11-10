@@ -12,8 +12,7 @@
 
 namespace Scald
 {
-    using namespace Microsoft::WRL;
-    using namespace DirectX;
+    using Microsoft::WRL::ComPtr;
 
     class Camera;
     class CascadeShadowMap;
@@ -23,6 +22,7 @@ namespace Scald
     class PrimitiveComponent; // Renderable scene components
     class Scene;              // Scene contains all renderables (lights, meshes)
     class Model;
+    struct Texture;
 
     class Graphics
     {
@@ -41,14 +41,7 @@ namespace Scald
 
         void Update(float deltaTime);
     private:
-        void CreateDepthStencilState();
-        void CreateRasterizerState();
-        void CreateSamplerState();
-        void CreateBlendState();
-
-        void SetupShaders();
-
-        void BindGeometryPassResources();
+        void BindPerFrameResources();
         void BindLightingPassResources();
 
         void RenderDepthOnlyPass(Scene* scene);
@@ -67,13 +60,14 @@ namespace Scald
          */
         void ClearContext();
 
-        // @todo: From Luna's book
+        // From Luna's book
         void UpdateObjectCB(const XMMATRIX& world/*, float deltaTime*/);
         void UpdatePerFrameCB(/*float deltaTime*/);
         // deferred additional task specific
         void RenderGBuffer();
 
         void DrawModel(const Model* modelToDraw);
+        void DrawTexture(const Texture* textureView);
     public:
         void SwitchGBufferLayer(int layer);
 
@@ -105,6 +99,9 @@ namespace Scald
     private:
         std::unique_ptr<Camera> m_camera;
         
+        D3D_DRIVER_TYPE m_driverType = D3D_DRIVER_TYPE_UNKNOWN;
+        D3D_FEATURE_LEVEL m_featureLevel;
+
         uint32_t m_screenWidth;
         uint32_t m_screenHeight;
         // should encapsulate in camera
@@ -128,8 +125,11 @@ namespace Scald
         ConstantBuffer<PerFrameConstants> m_perFrameCB;
 
         ComPtr<IDXGISwapChain> m_swapChain;
+        ComPtr<IDXGISwapChain1> m_swapChain1;
         ComPtr<ID3D11Device> m_device;
-        ComPtr<ID3D11DeviceContext> m_deviceContext;
+        ComPtr<ID3D11Device1> m_device1;
+        ComPtr<ID3D11DeviceContext> m_immediateContext;
+        ComPtr<ID3D11DeviceContext1> m_immediateContext1;
 
         std::unique_ptr<DeferredRenderer> m_renderer;
         std::unique_ptr<FireParticleSystem> m_fireParticleSystem;
@@ -137,6 +137,6 @@ namespace Scald
         // Shadows
         // TODO: should probably placed in light class
         std::unique_ptr<CascadeShadowMap> m_cascadeShadowMap;
-        ConstantBuffer<ConstantBufferCascadeShadows> m_csmCB;
+        ConstantBuffer<CascadeShadowsConstants> m_csmCB;
     };
 }
