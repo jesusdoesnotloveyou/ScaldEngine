@@ -17,7 +17,7 @@ namespace
     const wchar_t* kPBRUberPixelShaderPath           = L"./Data/Shaders/PBRUberPS.hlsl";
     }  // namespace
 
-DeferredRenderer::DeferredRenderer(IDXGISwapChain* swapChain, ID3D11Device* device, ID3D11DeviceContext* deviceContext, UINT width, UINT height)
+DeferredRenderer::DeferredRenderer(IDXGISwapChain1* swapChain, ID3D11Device1* device, ID3D11DeviceContext1* deviceContext, UINT width, UINT height)
     : Super(swapChain, device, deviceContext, width, height)
 {
     // See Step 03 in Graphics -> same logic, but in this case there is a number of rtvs

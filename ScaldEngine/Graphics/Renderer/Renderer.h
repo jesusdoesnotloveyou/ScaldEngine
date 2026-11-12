@@ -5,13 +5,12 @@
 
 namespace Scald
 {
-    using namespace Microsoft::WRL;
-    using namespace DirectX;
+    using Microsoft::WRL::ComPtr;
 
     class Renderer
     {
     public:
-        Renderer(IDXGISwapChain* spawChain, ID3D11Device* device, ID3D11DeviceContext* deviceContext, int width, int height);
+        Renderer(IDXGISwapChain1* spawChain, ID3D11Device1* device, ID3D11DeviceContext1* deviceContext, int width, int height);
         virtual ~Renderer() noexcept = default;
 
         virtual void SetupShaders();
@@ -25,8 +24,8 @@ namespace Scald
         void BindDepthOnlyPass();
     protected:
         // Graphics context. Graphics object manages these resources.
-        ID3D11Device* m_device = nullptr;
-        ID3D11DeviceContext* m_deviceContext = nullptr;
+        ID3D11Device1* m_device = nullptr;
+        ID3D11DeviceContext1* m_deviceContext = nullptr;
 
         int mScreenHeight;
         int mScreenWidth;

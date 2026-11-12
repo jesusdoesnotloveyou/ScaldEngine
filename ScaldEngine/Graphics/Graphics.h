@@ -80,7 +80,7 @@ namespace Scald
 
         ID3D11Device* GetDevice() const
         { 
-            return m_device ? m_device.Get() : nullptr;
+            return m_device1 ? m_device1.Get() : nullptr;
         }
 
     private:
@@ -97,10 +97,14 @@ namespace Scald
         void GetLightSpaceMatrices(std::array<XMMATRIX, kCascadeNumber>& outMatrices);
 
     private:
+        ComPtr<IDXGIAdapter1> GetHighPerformanceAdapter(IDXGIFactory1* factory);
+        void LogDeviceAdapter(const DXGI_ADAPTER_DESC1& desc) const;
+
+    private:
         std::unique_ptr<Camera> m_camera;
         
         D3D_DRIVER_TYPE m_driverType = D3D_DRIVER_TYPE_UNKNOWN;
-        D3D_FEATURE_LEVEL m_featureLevel;
+        D3D_FEATURE_LEVEL m_featureLevel = D3D_FEATURE_LEVEL_11_0;
 
         uint32_t m_screenWidth;
         uint32_t m_screenHeight;
@@ -124,11 +128,8 @@ namespace Scald
         ConstantBuffer<PerObjectConstants> m_perObjectCB;
         ConstantBuffer<PerFrameConstants> m_perFrameCB;
 
-        ComPtr<IDXGISwapChain> m_swapChain;
         ComPtr<IDXGISwapChain1> m_swapChain1;
-        ComPtr<ID3D11Device> m_device;
         ComPtr<ID3D11Device1> m_device1;
-        ComPtr<ID3D11DeviceContext> m_immediateContext;
         ComPtr<ID3D11DeviceContext1> m_immediateContext1;
 
         std::unique_ptr<DeferredRenderer> m_renderer;

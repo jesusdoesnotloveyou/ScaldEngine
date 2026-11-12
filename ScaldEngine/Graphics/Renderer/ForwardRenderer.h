@@ -8,7 +8,7 @@ namespace Scald
     {
         using Super = Renderer;
     public:
-        ForwardRenderer(IDXGISwapChain* spawChain, ID3D11Device* device, ID3D11DeviceContext* deviceContext, UINT width, UINT height);
+        ForwardRenderer(IDXGISwapChain1* swapChain, ID3D11Device1* device, ID3D11DeviceContext1* deviceContext, UINT width, UINT height);
         virtual ~ForwardRenderer() noexcept override = default;
 
         // Begin of Renderer interface
