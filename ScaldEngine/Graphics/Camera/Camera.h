@@ -6,7 +6,7 @@
 namespace Scald
 {
     using XMFLOAT3 = DirectX::XMFLOAT3;
-    using XMFLOAT3 = DirectX::XMFLOAT3;
+    using XMFLOAT4X4 = DirectX::XMFLOAT4X4;
     using XMMATRIX = DirectX::XMMATRIX;
 
     class Actor;
@@ -22,9 +22,9 @@ namespace Scald
 
         void Reset(float fovDegrees, float aspectRatio, float nearZ, float farZ);
 
-        const XMMATRIX& GetViewMatrix() const;
-        const XMMATRIX& GetPerspectiveProjectionMatrix() const;
-        const XMMATRIX& GetOrthographicProjectionMatrix() const;
+        const XMMATRIX GetViewMatrix() const;
+        const XMMATRIX GetPerspectiveProjectionMatrix() const;
+        const XMMATRIX GetOrthographicProjectionMatrix() const;
 
         FORCEINLINE float GetFovRad() const { return m_fovYRadians; }
 
@@ -44,9 +44,9 @@ namespace Scald
         void UpdateOrthographicProjection();
 
     private:
-        XMMATRIX m_viewMatrix;
-        XMMATRIX m_perspectiveProjectionMatrix;
-        XMMATRIX m_orthographicProjectionMatrix;
+        XMFLOAT4X4 m_viewMatrix;
+        XMFLOAT4X4 m_perspectiveProjectionMatrix;
+        XMFLOAT4X4 m_orthographicProjectionMatrix;
 
         float m_fovYRadians;
         float m_aspectRatio;
