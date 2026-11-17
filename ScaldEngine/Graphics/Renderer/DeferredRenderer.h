@@ -5,15 +5,17 @@
 
 namespace Scald
 {
+    using Microsoft::WRL::ComPtr;
+
     const UINT kGBufferTexturesCount = 3u;
 
     class Mesh;
 
     struct GBuffer
     {
-        ID3D11Texture2D* texture[kGBufferTexturesCount];
-        ID3D11RenderTargetView* rtv[kGBufferTexturesCount];
-        ID3D11ShaderResourceView* srv[kGBufferTexturesCount];
+        ComPtr<ID3D11Texture2D> texture[kGBufferTexturesCount];
+        ComPtr<ID3D11RenderTargetView> rtv[kGBufferTexturesCount];
+        ComPtr<ID3D11ShaderResourceView> srv[kGBufferTexturesCount];
     };
 
     class DeferredRenderer final : public Renderer
@@ -57,13 +59,6 @@ namespace Scald
         PixelShader mGBufferPS;
 
         GBuffer mGBuffer;
-
-        std::unique_ptr<Mesh> m_screenQuad = nullptr;
-
-        // deferred additional task
-        std::unique_ptr<Mesh> m_GBufferQuad = nullptr;
         int m_GBufferLayer = 0;
-
-        D3D11_VIEWPORT m_GBufferViewport = {};
     };
 }

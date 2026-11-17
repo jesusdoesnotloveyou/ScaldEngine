@@ -183,12 +183,13 @@ void Graphics::Setup()
     m_cascadeShadowMap->UpdateShadowCascadeSplits(m_cameraNearZ, m_cameraFarZ);
 
     // Constant buffers setup for deferred rendering
-    ThrowIfFailed(m_lightVolumeCB.Init(m_device1.Get(), m_immediateContext1.Get()));
     ThrowIfFailed(m_perObjectCB.Init(m_device1.Get(), m_immediateContext1.Get()));
     ThrowIfFailed(m_perFrameCB.Init(m_device1.Get(), m_immediateContext1.Get()));
     ThrowIfFailed(m_csmCB.Init(m_device1.Get(), m_immediateContext1.Get()));
-    // Should be replaced with structured buffer for every light type or smth
-    ThrowIfFailed(m_lightCB.Init(m_device1.Get(), m_immediateContext1.Get()));
+    
+    // Structured buffers of every light type for deferred rendering
+    ThrowIfFailed(m_pointLightsSB.Init(m_device1.Get(), m_immediateContext1.Get(), MAX_POINT_LIGHTS));
+    ThrowIfFailed(m_spotLightsSB.Init(m_device1.Get(), m_immediateContext1.Get(), MAX_SPOT_LIGHTS));
 }
 
 // Before rendering every frame we should clear render target view and depth stencil view
@@ -205,7 +206,10 @@ void Graphics::DrawScene(Scene* scene)
     ID3D11ShaderResourceView* nullSrv[3] = {nullptr, nullptr, nullptr};
     m_immediateContext1->PSSetShaderResources(0u, 3u, nullSrv);
 
+    UpdatePerFrameCB();
+
 #pragma region ShadowMappingPass
+    UpdateShadowCB();
     m_cascadeShadowMap->BindDsvAndSetNullRenderTarget(m_immediateContext1.Get());
     m_renderer->BindDepthOnlyPass();
     RenderDepthOnlyPass(scene);
@@ -221,9 +225,9 @@ void Graphics::DrawScene(Scene* scene)
     m_renderer->BindLightingPass();
     BindLightingPassResources();
     RenderLighting(scene);
+#pragma endregion DeferredLightingPass
     // additional task to deferred
     RenderGBuffer();
-#pragma endregion DeferredLightingPass
 
 #pragma region ForwardPasses
     /*m_renderer->BindTransparentPass();
@@ -235,37 +239,19 @@ void Graphics::DrawScene(Scene* scene)
 // For both Forward and Deferred
 void Graphics::RenderDepthOnlyPass(Scene* scene)
 {
-    std::array<XMMATRIX, kCascadeNumber> lightSpaceMatrices;
-    GetLightSpaceMatrices(lightSpaceMatrices);
+    m_immediateContext1->GSSetConstantBuffers(SHADER_SLOT(0u), NUM_RESOURCES(1u), m_csmCB.GetAddressOf());
 
-    CascadeShadowsConstants csmCB = {};
-
-    for (UINT i = 0; i < kCascadeNumber; i++)
+    for (const auto& renderItem : scene->GetPrimitives())
     {
-        csmCB.ViewProj[i] = XMMatrixTranspose(lightSpaceMatrices[i]);
-        csmCB.Distance[i] = m_cascadeShadowMap->GetCascadeLevel(i);  // not used on GPU in Geometry shader, but still filled
+        UpdateObjectCB(renderItem->GetWorld());
+        DrawModel(renderItem->GetModel());
     }
-
-    m_csmCB.SetAndApplyData(csmCB);
-    m_immediateContext1->GSSetConstantBuffers(0u, 1u, m_csmCB.GetAddressOf());
-
-    RenderGeometry(scene);
+    ClearContext();
 }
 
 void Graphics::BindPerFrameResources()
 {
-    // TODO: UpdatePerFrameCB() call
-    PerFrameConstants perFrameCB = {};
-
-    const auto& viewMat = m_camera->GetViewMatrix();
-    const auto& projMat = m_camera->GetPerspectiveProjectionMatrix();
-    perFrameCB.View = XMMatrixTranspose(viewMat);
-    perFrameCB.Proj = XMMatrixTranspose(projMat);
-    perFrameCB.ViewProj = XMMatrixTranspose(viewMat * projMat);
-    perFrameCB.EyePos = m_camera->GetPositionFloat();
-
-    m_perFrameCB.SetAndApplyData(perFrameCB);
-    m_immediateContext1->VSSetConstantBuffers(1u, 1u, m_perFrameCB.GetAddressOf());
+    m_immediateContext1->VSSetConstantBuffers(SHADER_SLOT(1u), NUM_RESOURCES(1u), m_perFrameCB.GetAddressOf());
 }
 
 void Graphics::RenderGeometry(Scene* scene)
@@ -282,20 +268,18 @@ void Graphics::RenderGeometry(Scene* scene)
 
 void Graphics::BindLightingPassResources()
 {
-    // TODO: check are there constant buffers from previous subpasses or we should set them again
-    //m_csmCB.SetAndApplyData(csmData);
-    //m_perFrameCB.SetAndApplyData(perFrameData);
-
-    m_immediateContext1->VSSetConstantBuffers(1u, 1u, m_perFrameCB.GetAddressOf());
-    m_immediateContext1->PSSetConstantBuffers(0u, 1u, m_csmCB.GetAddressOf());
-    m_immediateContext1->PSSetConstantBuffers(1u, 1u, m_perFrameCB.GetAddressOf());
-    m_immediateContext1->PSSetShaderResources(3u, 1u, m_cascadeShadowMap->GetAddressOf());
+    m_immediateContext1->VSSetConstantBuffers(SHADER_SLOT(1u), NUM_RESOURCES(1u), m_perFrameCB.GetAddressOf());
+    
+    m_immediateContext1->PSSetConstantBuffers(SHADER_SLOT(0u), NUM_RESOURCES(1u), m_csmCB.GetAddressOf());
+    m_immediateContext1->PSSetConstantBuffers(SHADER_SLOT(1u), NUM_RESOURCES(1u), m_perFrameCB.GetAddressOf());
+    
+    m_immediateContext1->PSSetShaderResources(SHADER_SLOT(3u), NUM_RESOURCES(1u), m_cascadeShadowMap->GetAddressOf());
 }
 
 void Graphics::RenderLighting(Scene* scene)
 {
     RenderDirectionalLight(scene);
-    RenderOmniLight(scene);
+    //RenderOmniLight(scene);
     //RenderSpotLight(scene);
 
     ClearContext();
@@ -305,13 +289,13 @@ void Graphics::RenderDirectionalLight(Scene* scene)
 {
     UpdateDirectionalLights();
 
-    for (auto& light : scene->GetLights())  // must be list only with spots
+    // Shadows and directional light
+    m_immediateContext1->PSSetConstantBuffers(SHADER_SLOT(0u), NUM_RESOURCES(1u), m_csmCB.GetAddressOf());
+
+    for (auto& light : scene->GetLights())
     {
-
+        // directional light
     }
-
-    m_immediateContext1->VSSetConstantBuffers(2u, 1u, m_lightCB.GetAddressOf());
-    m_immediateContext1->PSSetConstantBuffers(2u, 1u, m_lightCB.GetAddressOf());
 
     m_renderer->BindOutsideFrustum();
     m_renderer->DrawScreenQuad();
@@ -323,6 +307,9 @@ void Graphics::RenderOmniLight(Scene* scene)
     // m_renderer->BindWithinFrustum(); // SHOULD BE INSTEAD
 
     UpdateOmniLightParams();
+
+    //m_immediateContext1->VSSetConstantBuffers(SHADER_SLOT(2u), NUM_RESOURCES(1u), m_lightCB.GetAddressOf());
+    //m_immediateContext1->PSSetConstantBuffers(SHADER_SLOT(2u), NUM_RESOURCES(1u), m_lightCB.GetAddressOf());
 
     for (auto& light : scene->GetLights())  // must be list only with spots
     {
@@ -340,7 +327,7 @@ void Graphics::RenderOmniLight(Scene* scene)
     mLightVolumeData.gInvTransposeWorld = XMMatrixTranspose(invTransWorld);
 
     m_lightVolumeCB.SetAndApplyData(mLightVolumeData);
-    m_immediateContext1->VSSetConstantBuffers(0u, 1u, m_lightVolumeCB.GetAddressOf());
+    m_immediateContext1->VSSetConstantBuffers(SHADER_SLOT(0u), NUM_RESOURCES(1u), m_lightVolumeCB.GetAddressOf());
 
     light->DrawLightVolume(m_immediateContext1.Get());*/
 }
@@ -350,6 +337,10 @@ void Graphics::RenderSpotLight(Scene* scene)
     m_renderer->BindWithinFrustum();
 
     UpdateSpotLightParams();
+
+    //m_immediateContext1->VSSetConstantBuffers(SHADER_SLOT(2u), NUM_RESOURCES(1u), m_lightCB.GetAddressOf());
+    //m_immediateContext1->PSSetConstantBuffers(SHADER_SLOT(2u), NUM_RESOURCES(1u), m_lightCB.GetAddressOf());
+
     for (auto& light : scene->GetLights())  // must be list only with spots
     {
 
@@ -376,7 +367,34 @@ void Graphics::UpdateObjectCB(const XMMATRIX& world)
 
 void Graphics::UpdatePerFrameCB()
 {
+    PerFrameConstants perFrameCB = {};
 
+    const auto viewMat = m_camera->GetViewMatrix();
+    const auto projMat = m_camera->GetPerspectiveProjectionMatrix();
+    perFrameCB.View = XMMatrixTranspose(viewMat);
+    perFrameCB.Proj = XMMatrixTranspose(projMat);
+    perFrameCB.ViewProj = XMMatrixTranspose(viewMat * projMat);
+    perFrameCB.EyePos = m_camera->GetPositionFloat();
+
+    m_perFrameCB.SetAndApplyData(perFrameCB);
+}
+
+void Graphics::UpdateShadowCB()
+{
+    //m_cascadeShadowMap->UpdateShadowCascadeSplits(m_cameraNearZ, m_cameraFarZ);
+
+    std::array<XMMATRIX, kCascadeNumber> lightSpaceMatrices;
+    GetLightSpaceMatrices(lightSpaceMatrices);
+
+    CascadeShadowsConstants csmCB = {};
+
+    for (UINT i = 0; i < kCascadeNumber; i++)
+    {
+        csmCB.ViewProj[i] = XMMatrixTranspose(lightSpaceMatrices[i]);
+        csmCB.Distance[i] = m_cascadeShadowMap->GetCascadeLevel(i);  // not used on GPU in Geometry shader, but still filled
+    }
+
+    m_csmCB.SetAndApplyData(csmCB);
 }
 
 void Graphics::RenderParticles()
@@ -396,7 +414,7 @@ void Graphics::DrawModel(const Model* modelToDraw)
 {
     assert(modelToDraw && "Static mesh is invalid");
 
-    m_immediateContext1->VSSetConstantBuffers(0u, 1u, m_perObjectCB.GetAddressOf());
+    m_immediateContext1->VSSetConstantBuffers(SHADER_SLOT(0u), NUM_RESOURCES(1u), m_perObjectCB.GetAddressOf());
         
     for (const auto& mesh : modelToDraw->GetMeshes())
     {
@@ -419,7 +437,7 @@ void Graphics::DrawModel(const Model* modelToDraw)
 
 void Graphics::DrawTexture(const Texture* textureView)
 {
-    m_immediateContext1->PSSetShaderResources(0u, 1u, textureView->Srv.GetAddressOf());
+    m_immediateContext1->PSSetShaderResources(SHADER_SLOT(0u), NUM_RESOURCES(1u), textureView->Srv.GetAddressOf());
 }
 
 void Graphics::SwitchGBufferLayer(int layer)
@@ -429,48 +447,43 @@ void Graphics::SwitchGBufferLayer(int layer)
 
 void Graphics::UpdateDirectionalLights()
 {
-    LIGHT_DESC dirLightCB = {};
-    dirLightCB.ambient = XMFLOAT4{1.0f, 1.0f, 1.0f, 1.0f};
-    /*mLightData.diffuse = dirLight->GetDiffuseColor();
-    mLightData.specular = dirLight->GetSpecularColor();
-    mLightData.direction = dirLight->GetDirection();*/
-    dirLightCB.lightType = ELightType::Directional;
-    m_lightCB.SetAndApplyData(dirLightCB);
+    CascadeShadowsConstants csmCB = {};
+    DirectionalLight light = {};
+    light.ambient = XMFLOAT4{1.0f, 1.0f, 1.0f, 1.0f};
+    /*light.diffuse = dirLight->GetDiffuseColor();
+    light.specular = dirLight->GetSpecularColor();*/
+    light.direction = XMFLOAT3(3.0f, 1.0f, 4.0f);
+    // TODO: Update shadows!!!
+    csmCB.Light = light;
+
+    m_csmCB.SetAndApplyData(csmCB);
 }
 
 void Graphics::UpdateOmniLightParams()
 {
-    LIGHT_DESC omniLightCB = {};
-    //mLightData.diffuse = pointLight->GetDiffuseColor();
-    //mLightData.specular = pointLight->GetSpecularColor();
-    omniLightCB.lightType = ELightType::Point;
+    PointLight omniLightCB = {};
+    //omniLightCB.diffuse = pointLight->GetDiffuseColor();
+    //omniLightCB.specular = pointLight->GetSpecularColor();
+    //omniLightCB.attenuation = pointLight->GetAttenuation();
+    //omniLightCB.position = pointLight->GetPositionFloat();
+    //omniLightCB.range = pointLight->GetRange();  // hard-coded value
 
-    //mLightData.attenuation = pointLight->GetAttenuation();
-    //mLightData.position = pointLight->GetPositionFloat();
-
-    //mLightData.range = pointLight->GetRange();  // hard-coded value
-
-    m_lightCB.SetAndApplyData(omniLightCB);
-    m_immediateContext1->VSSetConstantBuffers(2u, 1u, m_lightCB.GetAddressOf());
-    m_immediateContext1->PSSetConstantBuffers(2u, 1u, m_lightCB.GetAddressOf());
+    // TODO: temporary set all point light the same properties
+    m_pointLightsSB.SetAndApplyData(std::vector<PointLight>(MAX_POINT_LIGHTS, omniLightCB));
 }
 
 void Graphics::UpdateSpotLightParams()
 {
-    LIGHT_DESC spotLightCB = {};
-    //mLightData.diffuse = spotLight->GetDiffuseColor();
-    //mLightData.specular = spotLight->GetSpecularColor();
-    spotLightCB.lightType = ELightType::Spot;
+    SpotLight spotLight = {};
+    //spotLight.diffuse = spotLight->GetDiffuseColor();
+    //spotLight.specular = spotLight->GetSpecularColor();
+    //spotLight.attenuation = spotLight->GetAttenuation();
+    //spotLight.position = spotLight->GetPositionFloat();
+    //spotLight.direction = spotLight->GetDirection();
+    //spotLight.spot = 10.0f;  // hard-coded value
 
-    //mLightData.attenuation = spotLight->GetAttenuation();
-    //mLightData.position = spotLight->GetPositionFloat();
-
-    //mLightData.direction = spotLight->GetDirection();
-    //mLightData.spot = 10.0f;  // hard-coded value
-
-    m_lightCB.SetAndApplyData(spotLightCB);
-    m_immediateContext1->VSSetConstantBuffers(2u, 1u, m_lightCB.GetAddressOf());
-    m_immediateContext1->PSSetConstantBuffers(2u, 1u, m_lightCB.GetAddressOf());
+    // TODO: temporary set all spot light the same properties
+    m_spotLightsSB.SetAndApplyData(std::vector<SpotLight>(MAX_SPOT_LIGHTS, spotLight));
 }
 
 void Graphics::EndFrame()
@@ -485,7 +498,7 @@ void Graphics::Update(float deltaTime)
     m_fireParticleSystem->Update(deltaTime);
 }
 
-std::array<XMVECTOR, 8u> Graphics::GetFrustumCornersWorldSpace(const XMMATRIX& viewProjection)
+std::array<XMVECTOR, 8u> Graphics::GetFrustumCornersWorldSpace(const FXMMATRIX viewProjection)
 {
     XMVECTOR det;
     const auto inv = XMMatrixInverse(&det, viewProjection);
@@ -535,7 +548,8 @@ XMMATRIX Graphics::GetLightSpaceMatrix(const float nearPlane, const float farPla
 
     center /= (float)frustumCorners.size();
     //const XMFLOAT3 lightDir = mDirectionalLight->GetDirection();
-    const XMFLOAT3 lightDir = { 1.0f, 1.0f, -1.0f }; // TODO: remove hard-coded value
+    // TODO: remove hard-coded value
+    const XMFLOAT3 lightDir = { 1.0f, 1.0f, -1.0f };
     const auto lightView = XMMatrixLookAtLH(center, center + XMVectorSet(lightDir.x, lightDir.y, lightDir.z, 1.0f), ScaldMath::UpVector);
 
     // Measuring cascade

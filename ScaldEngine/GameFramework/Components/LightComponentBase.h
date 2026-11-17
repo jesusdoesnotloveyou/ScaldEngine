@@ -2,10 +2,11 @@
 
 #include "SceneComponent.h"
 #include "Graphics/LightHelper.h"
-#include "Graphics/Mesh.h"
 
 namespace Scald
 {
+    class LightSceneProxy;
+
     class LightComponentBase : public SceneComponent
     {
         using Super = SceneComponent;
@@ -15,7 +16,8 @@ namespace Scald
 
         // to update dynamic properties of light objects (position, direction, intensity etc.)
         virtual void Tick(float deltaTime) override;
-        void DrawLightVolume(ID3D11DeviceContext* pDeviceContext);
+        virtual void OnRegister() override;
+        virtual void OnUnregister() override;
         
         // 4th parameter is intensity
         void SetAmbientColor(float x, float y, float z, float w);
@@ -28,17 +30,15 @@ namespace Scald
         // dir and spot lights only
         void SetLookAt(XMFLOAT3 at);
         void SetDirection(float x, float y, float z);
-        XMFLOAT3 GetDirection() const { m_lightParams.direction; }
+        //XMFLOAT3 GetDirection() const { m_lightParams.direction; }
         
         // point and spot lights only
         void SetRange(const float radius = 1.0f);
-        float GetRange() const { return m_lightParams.range; }
+        //float GetRange() const { return m_lightParams.range; }
         void SetAttenuation(float x, float y, float z);
-        XMFLOAT3 GetAttenuation() const { m_lightParams.attenuation; }
+        //XMFLOAT3 GetAttenuation() const { m_lightParams.attenuation; }
     
     public:
-        FORCEINLINE ELightType GetLightType() const { return m_lightType; }
-
         const XMMATRIX& GetViewMatrix() const;
         const XMMATRIX& GetPerspectiveProjectionMatrix() const;
         const XMMATRIX& GetOrthographicProjectionMatrix() const;
@@ -46,21 +46,26 @@ namespace Scald
     private:
         void UpdateLightParams();
 
+        // Mandatory for directional light. Probably for the spot and point lights too when I will implement shadows for these types.
         void UpdateView();
         void UpdatePerspectiveProjection(float nearZ, float farZ);
         void UpdateOrthographicProjection(float viewWidth, float viewHeight, float nearZ, float farZ);
+        //
 
     protected:
-        // Light properties
-        LIGHT_DESC m_lightParams{};
-        ELightType m_lightType = ELightType::None;
+        // LightComponents subclasses (direct?, point, spot) provide proxies
+        virtual std::unique_ptr<LightSceneProxy> CreateSceneProxy() /* = 0 */;
+        std::unique_ptr<LightSceneProxy> m_lightProxy;
 
+        // TODO: probably should be moved to LightSceneProxy
+        // Light properties
+        //LIGHT_DESC m_lightParams{};
+    
+        // TODO: Consider removing matrices from class and creating them in runtime by demand
         XMMATRIX m_view;
         XMMATRIX m_perspectiveProjection;
         XMMATRIX m_orthographicProjection;
         
         XMFLOAT3 m_lookAt;
-
-        //Mesh m_lightVolume;
     };
 } // namespace Scald

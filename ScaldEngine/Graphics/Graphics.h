@@ -63,6 +63,7 @@ namespace Scald
         // From Luna's book
         void UpdateObjectCB(const XMMATRIX& world/*, float deltaTime*/);
         void UpdatePerFrameCB(/*float deltaTime*/);
+        void UpdateShadowCB();
         // deferred additional task specific
         void RenderGBuffer();
 
@@ -92,7 +93,7 @@ namespace Scald
         void UpdateSpotLightParams();
 
         // get all 8 vertices of frustrum
-        std::array<XMVECTOR, 8u> GetFrustumCornersWorldSpace(const XMMATRIX& viewProjection);
+        std::array<XMVECTOR, 8u> GetFrustumCornersWorldSpace(const FXMMATRIX viewProjection);
         XMMATRIX GetLightSpaceMatrix(const float nearPlane, const float farPlane);
         void GetLightSpaceMatrices(std::array<XMMATRIX, kCascadeNumber>& outMatrices);
 
@@ -113,16 +114,9 @@ namespace Scald
         float m_cameraNearZ = 0.1f;
         float m_fovDegrees = 90.0f;
 
-        bool m_bIsPointLightEnabled = true;
-        bool m_bIsDirectionalLightEnabled = true;
-        bool m_bIsSpotLightEnabled = true;
-        bool m_bIsDeferredRenderingApplied = true;
     #pragma region Light
-        // like constant buffer per object, but for lights
-        // could be implemented due to encapsulation inside light class
-        // TODO: structured buffer instead
-        ConstantBuffer<PerObjectConstants> m_lightVolumeCB;
-        ConstantBuffer<LIGHT_DESC> m_lightCB;
+        StructuredBuffer<PointLight> m_pointLightsSB;
+        StructuredBuffer<SpotLight> m_spotLightsSB;
     #pragma endregion Light
 
         ConstantBuffer<PerObjectConstants> m_perObjectCB;

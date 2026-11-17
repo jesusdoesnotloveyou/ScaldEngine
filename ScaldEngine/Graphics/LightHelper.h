@@ -6,18 +6,19 @@ namespace Scald
 {
     using namespace DirectX;
 
-    enum class ELightType : int
-    {
-        None = 0,
-        Directional,
-        Point,
-        Spot,
-        MAX = 4
-    };
+#ifndef MAX_DIRECT_LIGHTS
+    #define MAX_DIRECT_LIGHTS 1   
+#endif
+#ifndef MAX_POINT_LIGHTS
+    #define MAX_POINT_LIGHTS 1024
+#endif
+#ifndef MAX_SPOT_LIGHTS
+    #define MAX_SPOT_LIGHTS 1024
+#endif
 
-    struct DirectionalLightParams
+    struct DirectionalLight
     {
-        DirectionalLightParams() { ZeroMemory(this, sizeof(this)); }
+        DirectionalLight() { ZeroMemory(this, sizeof(this)); }
 
         XMFLOAT4 ambient = {0.0f, 0.0f, 0.0f, 0.0f};           // 16 bytes
         XMFLOAT4 diffuse = {0.0f, 0.0f, 0.0f, 0.0f};           // 16 bytes
@@ -26,9 +27,9 @@ namespace Scald
         float pad = 0.0f;                                      // 4 bytes
     };
 
-    struct PointLightParams
+    struct PointLight
     {
-        PointLightParams() { ZeroMemory(this, sizeof(this)); }
+        PointLight() { ZeroMemory(this, sizeof(this)); }
 
         XMFLOAT4 diffuse = {0.0f, 0.0f, 0.0f, 0.0f};   // 16 bytes
         XMFLOAT4 specular = {0.0f, 0.0f, 0.0f, 0.0f};  // 16 bytes
@@ -41,9 +42,9 @@ namespace Scald
                                                     // 64 bytes
     };
 
-    struct SpotLightParams
+    struct SpotLight
     {
-        SpotLightParams() { ZeroMemory(this, sizeof(this)); }
+        SpotLight() { ZeroMemory(this, sizeof(this)); }
 
         XMFLOAT4 diffuse = {0.0f, 0.0f, 0.0f, 0.0f};   // 16 bytes
         XMFLOAT4 specular = {0.0f, 0.0f, 0.0f, 0.0f};  // 16 bytes
@@ -57,23 +58,5 @@ namespace Scald
         XMFLOAT3 attenuation = {0.0f, 0.0f, 0.0f};  // 12 bytes
         float pad = 0.0f;                           // 4 bytes
                                                     // 80 bytes
-    };
-
-    // Deferred Shading
-    struct LIGHT_DESC
-    {
-        LIGHT_DESC() { ZeroMemory(this, sizeof(this)); }
-
-        XMFLOAT4 ambient = {0.0f, 0.0f, 0.0f, 0.0f};  // only directional
-        // 4th component is intensity
-        XMFLOAT4 diffuse = {1.0f, 1.0f, 1.0f, 1.0f};
-        XMFLOAT4 specular = {0.0f, 0.0f, 0.0f, 0.0f};
-
-        XMFLOAT3 direction = {0.0f, 0.0f, 0.0f};    // directional and spot
-        float spot = 0.0f;                          // only spot
-        XMFLOAT3 attenuation = {0.0f, 0.0f, 0.0f};  // spot and omni
-        float range = 0.0f;                         // spot and omni
-        XMFLOAT3 position = {0.0f, 0.0f, 0.0f};     // spot and omni
-        ELightType lightType = ELightType::None;
     };
 }

@@ -2,6 +2,7 @@
 
 #include "Graphics/DXHelper.h"
 #include "ScaldCoreDefines.h"
+#include "LightHelper.h"
 
 namespace Scald
 {
@@ -35,5 +36,6 @@ namespace Scald
         
         DirectX::XMMATRIX ViewProj[kCascadeNumber];
         float Distance[kCascadeNumber];
+        DirectionalLight Light;
     };
 }

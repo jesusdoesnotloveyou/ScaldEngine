@@ -1,3 +1,5 @@
+#include "LightCommon.hlsli"
+
 struct GS_IN
 {
     float4 inPosition : POSITION;
@@ -11,13 +13,14 @@ struct GS_OUT
 
 struct CascadeData
 {
-    matrix ViewProj[4];
-    float4 Distances; // not used, so not filled on the CPU side
+    float4x4 ViewProj[4];
+    float4 Distances;       // garbage probably: not used at this pass, thus not filled on the CPU side
 };
 
 cbuffer CascBuf : register(b0)
 {
     CascadeData CascData;
+    DirectionalLight Light; // garbage probably: not used at this pass, thus not filled on the CPU side
 }
 
 [instance(4)]
