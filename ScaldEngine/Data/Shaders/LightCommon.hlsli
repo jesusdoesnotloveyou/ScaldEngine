@@ -1,20 +1,37 @@
-
-// Structure for representing every type of light in deferred shading
-// TODO: consider using different (dx12 renderer)
-struct UniLight
+struct DirectionalLight
 {
     float4 ambient;
     float4 diffuse;
     float4 specular;
     float3 direction;
-    float spot;
-    float3 attenuation;
-    float range;
-    float3 position;
-    int lightType;
+    float pad;
 };
 
-float3 CalcDirectionalLight(UniLight light, uniform float3 posW, uniform float3 normal, uniform float4 toEye)
+struct PointLight
+{
+    // float4 ambient;
+    float4 diffuse;
+    float4 specular;
+    float3 position;
+    float range;
+    float3 attenuation;
+    float pad;
+};
+
+struct SpotLight
+{
+    // float4 ambient;
+    float4 diffuse;
+    float4 specular;
+    float3 position;
+    float range;
+    float3 direction;
+    float spot;
+    float3 attenuation;
+    float pad;
+};
+
+float3 CalcDirectionalLight(DirectionalLight light, uniform float3 posW, uniform float3 normal, uniform float4 toEye)
 {
     float3 lightDir = normalize(-light.direction);
     float4 diffuse = light.diffuse;
@@ -33,7 +50,7 @@ float3 CalcDirectionalLight(UniLight light, uniform float3 posW, uniform float3 
     return diffuseLight + specularLight;
 }
 
-float3 CalcPointLight(UniLight light, uniform float3 posW, uniform float3 normal, uniform float4 toEye)
+float3 CalcPointLight(PointLight light, uniform float3 posW, uniform float3 normal, uniform float4 toEye)
 {
     float3 pointLight = float3(0.0f, 0.0f, 0.0f);
     
@@ -65,7 +82,7 @@ float3 CalcPointLight(UniLight light, uniform float3 posW, uniform float3 normal
     return pointLight;
 }
 
-void CalcSpotLight(UniLight L, float3 posW, float3 normal, float3 toEye, out float4 diffuse, out float4 spec)
+void CalcSpotLight(SpotLight L, float3 posW, float3 normal, float3 toEye, out float4 diffuse, out float4 spec)
 {
     diffuse = float4(0.0f, 0.0f, 0.0f, 0.0f);
     spec = float4(0.0f, 0.0f, 0.0f, 0.0f);

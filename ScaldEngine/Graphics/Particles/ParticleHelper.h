@@ -39,6 +39,7 @@ namespace Scald
     {
         XMMATRIX gView = XMMatrixIdentity();
         XMMATRIX gProjection = XMMatrixIdentity();
+        // TODO: probably could be fetched from View matrix
         XMVECTOR gForward = XMVectorZero();
         XMVECTOR gUp = XMVectorZero();
     };

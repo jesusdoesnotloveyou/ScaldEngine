@@ -6,6 +6,7 @@
 
 using namespace Scald;
 using namespace Microsoft::WRL;
+using namespace DirectX;
 
 namespace
 {
@@ -13,7 +14,7 @@ namespace
     const wchar_t* kCSMPixelShaderPath = L"./Data/Shaders/CascadeShadowMapsGS.hlsl";
 }  // namespace
 
-Renderer::Renderer(IDXGISwapChain* spawChain, ID3D11Device* device, ID3D11DeviceContext* deviceContext, int width, int height)
+Renderer::Renderer(IDXGISwapChain1* spawChain, ID3D11Device1* device, ID3D11DeviceContext1* deviceContext, int width, int height)
     : m_device(device)
     , m_deviceContext(deviceContext)
     , mScreenWidth(width)
@@ -27,7 +28,7 @@ Renderer::Renderer(IDXGISwapChain* spawChain, ID3D11Device* device, ID3D11Device
     ThrowIfFailed(m_device->CreateRenderTargetView(pBackTex.Get(), nullptr, &mRTV));
 
     // Describe our Depth/Stencil Buffer
-    ID3D11Texture2D* depthStencilBuffer = nullptr;
+    ComPtr<ID3D11Texture2D> depthStencilBuffer;
     D3D11_TEXTURE2D_DESC depthStencilTextureDesc = {};
     ZeroMemory(&depthStencilTextureDesc, sizeof(D3D11_TEXTURE2D_DESC));
     depthStencilTextureDesc.Width = width;
@@ -48,9 +49,7 @@ Renderer::Renderer(IDXGISwapChain* spawChain, ID3D11Device* device, ID3D11Device
     depthStencilViewDesc.Format = depthStencilTextureDesc.Format;
     depthStencilViewDesc.ViewDimension = D3D11_DSV_DIMENSION_TEXTURE2D;
     depthStencilViewDesc.Flags = 0u;
-    ThrowIfFailed(device->CreateDepthStencilView(depthStencilBuffer, &depthStencilViewDesc, &mDSV));
-
-    depthStencilBuffer->Release();
+    ThrowIfFailed(device->CreateDepthStencilView(depthStencilBuffer.Get(), &depthStencilViewDesc, &mDSV));
 }
 
 void Renderer::SetupShaders()

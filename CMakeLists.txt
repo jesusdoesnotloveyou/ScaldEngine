@@ -17,7 +17,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 set(CMAKE_SUPPRESS_REGENERATION TRUE)
 
 # cpp options
-set(CMAKE_CXX_STANDARD 17)
+set(CMAKE_CXX_STANDARD 23)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
 set(INCLUDES
@@ -55,7 +55,9 @@ set(INCLUDES
     ScaldEngine/Graphics/ScaldCoreDefines.h
     ScaldEngine/Graphics/ScaldCoreTypes.h
     ScaldEngine/Graphics/Shaders.h
+    ScaldEngine/Graphics/Texture.h
     ScaldEngine/Graphics/VertexBuffer.h
+    ScaldEngine/Graphics/VertexTypes.h
     ScaldEngine/Graphics/IndexBuffer.h
     ScaldEngine/Graphics/ConstantBuffer.h
     ScaldEngine/Graphics/StructuredBuffer.h
@@ -82,6 +84,9 @@ set(INCLUDES
     ScaldEngine/Utils/Shapes.h
 
     ScaldEngine/ScaldCore/Engine/Engine.h
+    ScaldEngine/ScaldCore/Engine/IWindowManager.h
+    ScaldEngine/ScaldCore/Engine/WinApiWindowManager.h
+    ScaldEngine/ScaldCore/Engine/IWindow.h
     ScaldEngine/ScaldCore/Engine/RenderWindow.h
     ScaldEngine/ScaldCore/Engine/ScaldTimer.h
     ScaldEngine/ScaldCore/Input/InputDevice.h
@@ -141,6 +146,8 @@ set(SOURCES
     ScaldEngine/Utils/Shapes.cpp
 
     ScaldEngine/ScaldCore/Engine/Engine.cpp
+    ScaldEngine/ScaldCore/Engine/IWindowManager.cpp
+    ScaldEngine/ScaldCore/Engine/WinApiWindowManager.cpp
     ScaldEngine/ScaldCore/Engine/RenderWindow.cpp
     ScaldEngine/ScaldCore/Engine/ScaldTimer.cpp
     ScaldEngine/ScaldCore/Input/InputDevice.cpp

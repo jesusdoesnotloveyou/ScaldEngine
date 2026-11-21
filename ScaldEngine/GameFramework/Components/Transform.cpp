@@ -2,6 +2,7 @@
 #include "Transform.h"
 
 using namespace Scald;
+using namespace DirectX;
 
 const Transform Transform::Identity = Transform(
     XMFLOAT3(1.0f, 1.0f, 1.0f),

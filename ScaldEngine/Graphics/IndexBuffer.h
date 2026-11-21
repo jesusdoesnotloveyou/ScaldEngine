@@ -4,8 +4,7 @@
 
 namespace Scald
 {
-    using namespace Microsoft::WRL;
-    using namespace DirectX;
+    using Microsoft::WRL::ComPtr;
 
     template <typename T = DWORD>
     class IndexBuffer

@@ -5,6 +5,9 @@
 
 namespace Scald
 {
+    using XMFLOAT3 = DirectX::XMFLOAT3;
+    using XMVECTOR = DirectX::XMVECTOR;
+
     struct Transform
     {
     public:

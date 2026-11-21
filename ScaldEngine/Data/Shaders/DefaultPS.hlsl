@@ -1,41 +1,10 @@
+#include "LightCommon.hlsli"
+
 Texture2D objTexture : TEXTURE : register(t0);
 Texture2DArray depthMapTextures : register(t1);
 
 SamplerState objSamplerState : SAMPLER : register(s0);
 SamplerComparisonState shadowSamplerState : SAMPLER : register(s1);
-
-struct DirectionalLight
-{
-    float4 ambient;
-    float4 diffuse;
-    float4 specular;
-    float3 direction;
-    float pad;
-};
-
-struct PointLight
-{
-    float4 ambient;
-    float4 diffuse;
-    float4 specular;
-    float3 position;
-    float range;
-    float3 attenuation;
-    float pad;
-};
-
-struct SpotLight
-{
-    float4 ambient;
-    float4 diffuse;
-    float4 specular;
-    float3 position;
-    float range;
-    float3 direction;
-    float spot;
-    float3 attenuation;
-    float pad;
-};
 
 StructuredBuffer<PointLight> PointLights : register(t2);
 StructuredBuffer<DirectionalLight> DirectionalLights : register(t3);

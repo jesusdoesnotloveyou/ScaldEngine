@@ -56,17 +56,17 @@ void FireParticleSystem::Emit(int numParticles)
 
     ApplyChanges(m_deviceContext, injectionBuffer, injectionBufferSize, injectionParticleData.get());
 
-    mParticleData.maxNumParticles = m_maxParticles;
-    mParticleData.numEmitInThisFrame = numParticles;
-    mParticleData.gEmitPos = m_emitterOrigin;
-    mParticleData.gEyePos = camera->GetPosition();
+    m_particleEmitterData.maxNumParticles = m_maxParticles;
+    m_particleEmitterData.numEmitInThisFrame = numParticles;
+    m_particleEmitterData.gEmitPos = m_emitterOrigin;
+    m_particleEmitterData.gEyePos = camera->GetPosition();
 
-    if (firstEmit) mParticleData.numAliveParticles = 0u;
-    mCBParticle.SetAndApplyData(mParticleData);
+    if (firstEmit) m_particleEmitterData.numAliveParticles = 0u;
+    m_particleEmitterCB.SetAndApplyData(m_particleEmitterData);
 
     if (!firstEmit)
     {
-        m_deviceContext->CopyStructureCount(mCBParticle.Get(), 12, mSortListBufferUAV.Get());
+        m_deviceContext->CopyStructureCount(m_particleEmitterCB.Get(), 12, mSortListBufferUAV.Get());
     }
 
     UINT minOne = (UINT)-1;
@@ -87,7 +87,7 @@ void FireParticleSystem::Emit(int numParticles)
         m_deviceContext->CSSetUnorderedAccessViews(2u, 1u, mDeadListBufferUAV.GetAddressOf(), &minOne);
     }
 
-    m_deviceContext->CSSetConstantBuffers(0u, 1u, mCBParticle.GetAddressOf());
+    m_deviceContext->CSSetConstantBuffers(0u, 1u, m_particleEmitterCB.GetAddressOf());
     m_deviceContext->CSSetShaderResources(0u, 1u, mInjectionBufferSRV.GetAddressOf());
     m_deviceContext->Dispatch(1u, 1u, 1u);
 
@@ -95,7 +95,7 @@ void FireParticleSystem::Emit(int numParticles)
     m_deviceContext->CSSetUnorderedAccessViews(0u, 1u, &nullUAV, nullptr);
     m_deviceContext->CSSetUnorderedAccessViews(1u, 1u, &nullUAV, nullptr);
     m_deviceContext->CSSetUnorderedAccessViews(2u, 1u, &nullUAV, nullptr);
-    mParticleData.numEmitInThisFrame = 0u;
+    m_particleEmitterData.numEmitInThisFrame = 0u;
 }
 
 void FireParticleSystem::InitializeSystem()
@@ -137,13 +137,13 @@ void FireParticleSystem::InitializeParticle(int index)
 
 void FireParticleSystem::Simulate(float elapsedTime)
 {
-    mParticleData.deltaTime = elapsedTime;
-    mParticleData.maxNumParticles = m_maxParticles;
-    mParticleData.gEyePos = camera->GetPosition();
-    mCBParticle.SetAndApplyData(mParticleData);
+    m_particleEmitterData.deltaTime = elapsedTime;
+    m_particleEmitterData.maxNumParticles = m_maxParticles;
+    m_particleEmitterData.gEyePos = camera->GetPosition();
+    m_particleEmitterCB.SetAndApplyData(m_particleEmitterData);
 
     // numAliveParticles starts from 12th byte
-    m_deviceContext->CopyStructureCount(mCBParticle.Get(), 12u, mSortListBufferUAV.Get());
+    m_deviceContext->CopyStructureCount(m_particleEmitterCB.Get(), 12u, mSortListBufferUAV.Get());
 
     UINT minOne = (UINT)-1;
     UINT zero = 0;
@@ -153,7 +153,7 @@ void FireParticleSystem::Simulate(float elapsedTime)
     m_deviceContext->CSSetUnorderedAccessViews(2u, 1u, mDeadListBufferUAV.GetAddressOf(), &minOne);
 
     m_deviceContext->CSSetShader(mFireSimulateShader.Get(), nullptr, 0u);
-    m_deviceContext->CSSetConstantBuffers(0u, 1u, mCBParticle.GetAddressOf());
+    m_deviceContext->CSSetConstantBuffers(0u, 1u, m_particleEmitterCB.GetAddressOf());
     m_deviceContext->Dispatch(32u, 32u, 1u);
 
     ID3D11UnorderedAccessView* nullUAV = nullptr;

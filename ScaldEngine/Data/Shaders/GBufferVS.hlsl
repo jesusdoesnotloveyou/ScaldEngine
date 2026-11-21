@@ -1,16 +1,10 @@
-struct VS_IN
-{
-    float4 inPosition : POSITION0;
-    float2 inTexCoord : TEXCOORD0;
-};
-
 struct VS_OUT
 {
     float4 outPosition : SV_POSITION;
     float2 outTexCoord : TEXCOORD0;
 };
 
-VS_OUT main(VS_IN input, uint id : SV_VertexID)
+VS_OUT main(float4 inPosition : POSITION0, uint id : SV_VertexID)
 {
     VS_OUT output = (VS_OUT) 0;
     

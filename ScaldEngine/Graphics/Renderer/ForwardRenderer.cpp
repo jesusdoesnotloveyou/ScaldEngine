@@ -10,8 +10,8 @@ namespace
     const wchar_t* kDefaultPixelShaderPath  = L"./Data/Shaders/DefaultPS.hlsl";
 }  // namespace
 
-ForwardRenderer::ForwardRenderer(IDXGISwapChain* spawChain, ID3D11Device* device, ID3D11DeviceContext* deviceContext, UINT width, UINT height)
-    : Super(spawChain, device, deviceContext, width, height)
+ForwardRenderer::ForwardRenderer(IDXGISwapChain1* swapChain, ID3D11Device1* device, ID3D11DeviceContext1* deviceContext, UINT width, UINT height)
+    : Super(swapChain, device, deviceContext, width, height)
 {
 }
 

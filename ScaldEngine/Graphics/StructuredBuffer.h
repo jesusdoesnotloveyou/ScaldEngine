@@ -14,23 +14,33 @@ namespace Scald
     class StructuredBuffer
     {
     public:
-        // Created an empty buffer
-        StructuredBuffer(ID3D11Device* device, ID3D11DeviceContext* deviceContext, uint32_t elementsNum)
-            : m_elementsNum(elementsNum)
+        StructuredBuffer()
         {
+            m_elementsNum = 0u; 
+            m_pDeviceContext = nullptr;
+            m_resource = nullptr;
+        }
+
+        ~StructuredBuffer() noexcept {}
+
+        // Created an empty buffer
+        HRESULT Init(ID3D11Device* device, ID3D11DeviceContext* deviceContext, uint32_t elementsNum)
+        {
+            m_elementsNum = elementsNum;
+
             D3D11_BUFFER_DESC structuredBufferDesc = {};
             structuredBufferDesc.ByteWidth = static_cast<UINT>((sizeof(T) * m_elementsNum + D3D11_ALIGNMENT_SIZE) & ~D3D11_ALIGNMENT_SIZE);
             structuredBufferDesc.Usage = D3D11_USAGE_DYNAMIC;
             structuredBufferDesc.BindFlags = D3D11_BIND_SHADER_RESOURCE; // ?
             structuredBufferDesc.CPUAccessFlags = D3D11_CPU_ACCESS_WRITE;
-            structuredBufferDesc.MiscFlags = 0u;
+            structuredBufferDesc.MiscFlags = D3D11_RESOURCE_MISC_BUFFER_STRUCTURED;
             structuredBufferDesc.StructureByteStride = sizeof(T);
             
-            ThrowIfFailed(device->CreateBuffer(&structuredBufferDesc, nullptr, m_resource.GetAddressOf()));
+            return device->CreateBuffer(&structuredBufferDesc, nullptr, m_resource.GetAddressOf());
         }
 
         // Creates a buffer with initial data
-        StructuredBuffer(ID3D11Device* device, ID3D11Buffer** buffer, const std::vector<T>& bufferData)
+        HRESULT Init(ID3D11Device* device, ID3D11Buffer** buffer, const std::vector<T>& bufferData)
         {
             UINT stride = static_cast<UINT>(sizeof(T));
             UINT byteWidth = stride * static_cast<UINT>(bufferData.size());
@@ -48,10 +58,8 @@ namespace Scald
             data.SysMemPitch = 0u;
             data.SysMemSlicePitch = 0u;
 
-            ThrowIfFailed(device->CreateBuffer(&desc, &data, buffer));
+            return device->CreateBuffer(&desc, &data, buffer);
         }
-
-        ~StructuredBuffer() noexcept {} 
 
         StructuredBuffer(const StructuredBuffer& lhs) = delete;
         StructuredBuffer& operator=(const StructuredBuffer& lhs) = delete;
@@ -74,6 +82,7 @@ namespace Scald
 
     private:
         uint32_t m_elementsNum = 0u;
+        // Non-owning
         ID3D11DeviceContext* m_pDeviceContext;
         ComPtr<ID3D11Buffer> m_resource;
         // Should consider on storing the whole source buffer in here

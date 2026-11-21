@@ -2,8 +2,8 @@
 
 #include "ScaldCoreTypes.h"
 #include "LightHelper.h"
-#include "Shaders.h"
 #include "ConstantBuffer.h"
+// For light and particles
 #include "StructuredBuffer.h"
 
 #include <array>
@@ -12,8 +12,7 @@
 
 namespace Scald
 {
-    using namespace Microsoft::WRL;
-    using namespace DirectX;
+    using Microsoft::WRL::ComPtr;
 
     class Camera;
     class CascadeShadowMap;
@@ -23,6 +22,7 @@ namespace Scald
     class PrimitiveComponent; // Renderable scene components
     class Scene;              // Scene contains all renderables (lights, meshes)
     class Model;
+    struct Texture;
 
     class Graphics
     {
@@ -41,14 +41,7 @@ namespace Scald
 
         void Update(float deltaTime);
     private:
-        void CreateDepthStencilState();
-        void CreateRasterizerState();
-        void CreateSamplerState();
-        void CreateBlendState();
-
-        void SetupShaders();
-
-        void BindGeometryPassResources();
+        void BindPerFrameResources();
         void BindLightingPassResources();
 
         void RenderDepthOnlyPass(Scene* scene);
@@ -60,13 +53,22 @@ namespace Scald
         void RenderOmniLight(Scene* scene);
         void RenderSpotLight(Scene* scene);
 
-        // @todo: From Luna's book
+        /*
+         * This sets all input/output resource slots, shaders, input layouts, predications, scissor rectangles,
+         * depth-stencil state, rasterizer state, blend state, sampler state, and viewports to NULL.
+         * The primitive topology is set to UNDEFINED.
+         */
+        void ClearContext();
+
+        // From Luna's book
         void UpdateObjectCB(const XMMATRIX& world/*, float deltaTime*/);
         void UpdatePerFrameCB(/*float deltaTime*/);
+        void UpdateShadowCB();
         // deferred additional task specific
         void RenderGBuffer();
 
         void DrawModel(const Model* modelToDraw);
+        void DrawTexture(const Texture* textureView);
     public:
         void SwitchGBufferLayer(int layer);
 
@@ -79,7 +81,7 @@ namespace Scald
 
         ID3D11Device* GetDevice() const
         { 
-            return m_device ? m_device.Get() : nullptr;
+            return m_device1 ? m_device1.Get() : nullptr;
         }
 
     private:
@@ -91,13 +93,20 @@ namespace Scald
         void UpdateSpotLightParams();
 
         // get all 8 vertices of frustrum
-        std::array<XMVECTOR, 8u> GetFrustumCornersWorldSpace(const XMMATRIX& viewProjection);
+        std::array<XMVECTOR, 8u> GetFrustumCornersWorldSpace(const FXMMATRIX viewProjection);
         XMMATRIX GetLightSpaceMatrix(const float nearPlane, const float farPlane);
         void GetLightSpaceMatrices(std::array<XMMATRIX, kCascadeNumber>& outMatrices);
 
     private:
-        std::unique_ptr<Camera> m_camera = nullptr;
+        ComPtr<IDXGIAdapter1> GetHighPerformanceAdapter(IDXGIFactory1* factory);
+        void LogDeviceAdapter(const DXGI_ADAPTER_DESC1& desc) const;
+
+    private:
+        std::unique_ptr<Camera> m_camera;
         
+        D3D_DRIVER_TYPE m_driverType = D3D_DRIVER_TYPE_UNKNOWN;
+        D3D_FEATURE_LEVEL m_featureLevel = D3D_FEATURE_LEVEL_11_0;
+
         uint32_t m_screenWidth;
         uint32_t m_screenHeight;
         // should encapsulate in camera
@@ -105,37 +114,24 @@ namespace Scald
         float m_cameraNearZ = 0.1f;
         float m_fovDegrees = 90.0f;
 
-        bool m_bIsPointLightEnabled = true;
-        bool m_bIsDirectionalLightEnabled = true;
-        bool m_bIsSpotLightEnabled = true;
-        bool m_bIsDeferredRenderingApplied = true;
-
-        //VertexShader m_shadowVertexShader;
-        //VertexShader m_vertexShader;
-        //PixelShader m_pixelShader;
-        //GeometryShader m_csmGeometryShader;
-
     #pragma region Light
-        // like constant buffer per object, but for lights
-        // could be implemented due to encapsulation inside light class
-        // TODO: structured buffer instead
-        ConstantBuffer<ConstantBufferPerObject> m_lightVolumeCB;
-        ConstantBuffer<LIGHT_DESC> m_lightCB;
+        StructuredBuffer<PointLight> m_pointLightsSB;
+        StructuredBuffer<SpotLight> m_spotLightsSB;
     #pragma endregion Light
 
-        ConstantBuffer<ConstantBufferPerObject> m_perObjectCB;
-        ConstantBuffer<ConstantBufferPerFrame> m_perFrameCB;
+        ConstantBuffer<PerObjectConstants> m_perObjectCB;
+        ConstantBuffer<PerFrameConstants> m_perFrameCB;
 
-        ComPtr<IDXGISwapChain> m_swapChain;
-        ComPtr<ID3D11Device> m_device;
-        ComPtr<ID3D11DeviceContext> m_deviceContext;
+        ComPtr<IDXGISwapChain1> m_swapChain1;
+        ComPtr<ID3D11Device1> m_device1;
+        ComPtr<ID3D11DeviceContext1> m_immediateContext1;
 
         std::unique_ptr<DeferredRenderer> m_renderer;
         std::unique_ptr<FireParticleSystem> m_fireParticleSystem;
 
         // Shadows
         // TODO: should probably placed in light class
-        std::unique_ptr<CascadeShadowMap> m_cascadeShadowMap = nullptr;
-        ConstantBuffer<ConstantBufferCascadeShadows> m_csmCB;
+        std::unique_ptr<CascadeShadowMap> m_cascadeShadowMap;
+        ConstantBuffer<CascadeShadowsConstants> m_csmCB;
     };
 }

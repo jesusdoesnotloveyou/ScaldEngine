@@ -3,6 +3,7 @@
 #include "ScaldCoreTypes.h"
 #include "VertexBuffer.h"
 #include "IndexBuffer.h"
+#include "Texture.h"
 
 namespace Scald
 {    

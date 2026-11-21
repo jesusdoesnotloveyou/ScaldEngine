@@ -3,13 +3,16 @@
 #include "GameFramework/Objects/Actor.h"
 
 using namespace Scald;
+using namespace DirectX;
 
 Camera::Camera(std::shared_ptr<Actor> owner) 
     : Super(owner)
-    , m_viewMatrix(XMMatrixIdentity())
-    , m_perspectiveProjectionMatrix(XMMatrixIdentity())
-    , m_orthographicProjectionMatrix(XMMatrixIdentity())
 {
+    // Couldn't be used in ctor initializer list
+    XMStoreFloat4x4(&m_viewMatrix, (XMMatrixIdentity()))                  ;
+    XMStoreFloat4x4(&m_perspectiveProjectionMatrix, (XMMatrixIdentity())) ;
+    XMStoreFloat4x4(&m_orthographicProjectionMatrix, (XMMatrixIdentity()));
+    
     m_bIsDirty = true; // to update view matrix on the first update call
 }
 
@@ -31,23 +34,24 @@ void Camera::Reset(float fovDegrees, float aspectRatio, float nearZ, float farZ)
     m_nearWindowHeight = 2.0f * tanf(0.5f * m_fovYRadians) * m_nearZ;
     m_farWindowHeight = 2.0f * tanf(0.5f * m_fovYRadians) * m_farZ;
 
+    UpdateView();
     UpdatePerspectiveProjection();
     UpdateOrthographicProjection();
 }
 
-const XMMATRIX& Camera::GetViewMatrix() const
+const XMMATRIX Camera::GetViewMatrix() const
 {
-    return m_viewMatrix;
+    return XMLoadFloat4x4(&m_viewMatrix);
 }
 
-const XMMATRIX& Camera::GetPerspectiveProjectionMatrix() const
+const XMMATRIX Camera::GetPerspectiveProjectionMatrix() const
 {
-    return m_perspectiveProjectionMatrix;
+    return XMLoadFloat4x4(&m_perspectiveProjectionMatrix);
 }
 
-const XMMATRIX& Camera::GetOrthographicProjectionMatrix() const
+const XMMATRIX Camera::GetOrthographicProjectionMatrix() const
 {
-    return m_orthographicProjectionMatrix;
+    return XMLoadFloat4x4(&m_orthographicProjectionMatrix);
 }
 
 void Camera::SetLookAtPosition(XMFLOAT3 lookAtPosition)
@@ -103,7 +107,7 @@ void Camera::UpdateView()
     const XMVECTOR up = XMVector3TransformCoord(ScaldMath::UpVector, cameraRotationMatrix);
 
     // Rebuild view matrix
-    m_viewMatrix = XMMatrixLookAtLH(pos, camTarget, up);
+    XMStoreFloat4x4(&m_viewMatrix, XMMatrixLookAtLH(pos, camTarget, up));
 
     // TODO: something with camera basis
     /*SetForwardVector(forward);
@@ -114,10 +118,10 @@ void Camera::UpdateView()
 
 void Camera::UpdatePerspectiveProjection()
 {
-    m_perspectiveProjectionMatrix = XMMatrixPerspectiveFovLH(m_fovYRadians, m_aspectRatio, m_nearZ, m_farZ);
+    XMStoreFloat4x4(&m_perspectiveProjectionMatrix, XMMatrixPerspectiveFovLH(m_fovYRadians, m_aspectRatio, m_nearZ, m_farZ));
 }
 
 void Camera::UpdateOrthographicProjection()
 {
-    m_orthographicProjectionMatrix = XMMatrixOrthographicLH(GetNearWindowWidth(), GetNearWindowHeight(), m_nearZ, m_farZ);
+    XMStoreFloat4x4(&m_orthographicProjectionMatrix, XMMatrixOrthographicLH(GetNearWindowWidth(), GetNearWindowHeight(), m_nearZ, m_farZ));
 }

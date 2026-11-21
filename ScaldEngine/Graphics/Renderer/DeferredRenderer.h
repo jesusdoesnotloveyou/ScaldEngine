@@ -5,22 +5,24 @@
 
 namespace Scald
 {
+    using Microsoft::WRL::ComPtr;
+
     const UINT kGBufferTexturesCount = 3u;
 
     class Mesh;
 
     struct GBuffer
     {
-        ID3D11Texture2D* texture[kGBufferTexturesCount];
-        ID3D11RenderTargetView* rtv[kGBufferTexturesCount];
-        ID3D11ShaderResourceView* srv[kGBufferTexturesCount];
+        ComPtr<ID3D11Texture2D> texture[kGBufferTexturesCount];
+        ComPtr<ID3D11RenderTargetView> rtv[kGBufferTexturesCount];
+        ComPtr<ID3D11ShaderResourceView> srv[kGBufferTexturesCount];
     };
 
     class DeferredRenderer final : public Renderer
     {
         using Super = Renderer;
     public:
-        DeferredRenderer(IDXGISwapChain* swapChain, ID3D11Device* device, ID3D11DeviceContext* deviceContext, UINT width, UINT height);
+        DeferredRenderer(IDXGISwapChain1* swapChain, ID3D11Device1* device, ID3D11DeviceContext1* deviceContext, UINT width, UINT height);
         virtual ~DeferredRenderer() noexcept override;
 
         // Begin of Renderer interface
@@ -50,18 +52,13 @@ namespace Scald
         VertexShader m_lightingVertexShader;
         PixelShader m_lightingPixelShader;
 
+        PixelShader m_PBRUberPixelShader;
+
         // deferred additional task
         VertexShader mGBufferVS;
         PixelShader mGBufferPS;
 
         GBuffer mGBuffer;
-
-        std::unique_ptr<Mesh> m_screenQuad = nullptr;
-
-        // deferred additional task
-        std::unique_ptr<Mesh> m_GBufferQuad = nullptr;
         int m_GBufferLayer = 0;
-
-        D3D11_VIEWPORT m_GBufferViewport = {};
     };
 }

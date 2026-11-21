@@ -1,22 +1,31 @@
-#include "LightCommon.hlsl"
+#include "LightCommon.hlsli"
 
 Texture2D<float4> diffuseTexture : register(t0);
 Texture2D<float3> normalTexture : register(t1);
 Texture2D<float3> posTexture : register(t2);
+// For direct light
 Texture2DArray shadowMaps : register(t3);
 
-SamplerState objSamplerState : SAMPLER: register(s0);
-SamplerComparisonState shadowSamplerState : SAMPLER: register(s1);
+SamplerComparisonState shadowSamplerState : SAMPLER: register(s0);
 
 struct CascadeData
 {
     float4x4 ViewProj[4];
-    float4 Distances; // not used, so not filled on the CPU side
+    float4 Distances;
 };
 
 cbuffer CascBuf : register(b0)
 {
     CascadeData CascData;
+    DirectionalLight Light;
+}
+
+cbuffer cbPerFrame : register(b1)
+{
+    float4x4 gView;
+    float4x4 gProjection;
+    float4x4 gViewProj;
+    float4 gEyePos;
 }
 
 float SampleShadowMap(int layer, float2 uv, float depth)
@@ -32,19 +41,6 @@ float3 GetCascadeCoords(int layer, float3 worldPos)
     return coords.xyz;
 }
 
-cbuffer cbPerFrame : register(b1)
-{
-    float4x4 gView;
-    float4x4 gProjection;
-    float4x4 gViewProj;
-    float4 gEyePos;
-}
-
-cbuffer LightCB : register(b2)
-{
-    UniLight Light;
-}
-
 struct PS_IN
 {
     float4 inPosition : SV_POSITION;
@@ -53,12 +49,9 @@ struct PS_IN
 
 float4 main(PS_IN input) : SV_Target
 {
-    const int DIRECTIONAL = 1;
-    const int POINT = 2;
-    const int SPOT = 3;
-
     float4 diffuseColor = diffuseTexture.Load(input.inPosition.xyz);
     float3 normal = normalTexture.Load(input.inPosition.xyz);
+    // TODO: could be restored from depth
     float3 pos = posTexture.Load(input.inPosition.xyz);
 
     float3 appliedLight = float3(0.0f, 0.0f, 0.0f);
@@ -89,28 +82,19 @@ float4 main(PS_IN input) : SV_Target
     
     float3 cascadeTexCoords = GetCascadeCoords(layer, pos);
     
-    float3 ambient = float3(0.0f, 0.0f, 0.0f);
-    
-    [branch]
-    if (Light.lightType == DIRECTIONAL)
+    float3 ambient = Light.ambient.xyz * Light.ambient.z;
+    float shadow = 0.0f;
+    if (saturate(cascadeTexCoords.x) == cascadeTexCoords.x && saturate(cascadeTexCoords.y) == cascadeTexCoords.y)
     {
-        ambient = Light.ambient.xyz * Light.ambient.z;
-        float shadow = 0.0f;
-        if (saturate(cascadeTexCoords.x) == cascadeTexCoords.x && saturate(cascadeTexCoords.y) == cascadeTexCoords.y)
+        float currDepth = cascadeTexCoords.z - 0.0005f;
+        [unroll]
+        for (int i = 0; i < 9; ++i)
         {
-            float currDepth = cascadeTexCoords.z - 0.0005f;
-            [unroll]
-            for (int i = 0; i < 9; ++i)
-            {
-                shadow += SampleShadowMap(layer, cascadeTexCoords.xy + offsets[i], currDepth);
-            }
-            shadow = shadow / 9.0f;
+            shadow += SampleShadowMap(layer, cascadeTexCoords.xy + offsets[i], currDepth);
         }
-        appliedLight += CalcDirectionalLight(Light, pos, normal, gEyePos) * shadow;
+        shadow = shadow / 9.0f;
     }
-    else
-    {
-        appliedLight += CalcPointLight(Light, pos, normal, gEyePos);
-    }
+    appliedLight += CalcDirectionalLight(Light, pos, normal, gEyePos) * shadow;
+        
     return diffuseColor * (float4(appliedLight, 1.0f) + float4(ambient, 1.0f));
 }

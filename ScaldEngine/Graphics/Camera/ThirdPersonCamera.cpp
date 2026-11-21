@@ -3,6 +3,7 @@
 #include "GameFramework/Objects/Actor.h"
 
 using namespace Scald;
+using namespace DirectX;
 
 ThirdPersonCamera::ThirdPersonCamera()
 {

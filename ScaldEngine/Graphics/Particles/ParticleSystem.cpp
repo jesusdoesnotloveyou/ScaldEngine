@@ -75,7 +75,7 @@ void ParticleSystem::InitializeSystem()
     mBitonicSortShader.Init(m_device, kSortParticlesComputeShaderPath);
     mBitonicTransposeShader.Init(m_device, kSortParticlesTransposeComputeShaderPath);
     mCBSort.Init(m_device, m_deviceContext);
-    mCBParticle.Init(m_device, m_deviceContext);
+    m_particleEmitterCB.Init(m_device, m_deviceContext);
     mCBCamera.Init(m_device, m_deviceContext);
 
     // Injection buffer
@@ -132,7 +132,7 @@ void ParticleSystem::InitializeSystem()
         sort[i] = {i, std::numeric_limits<float>().max()};
         deadIndeces[i] = i;
     }
-    mParticleData.numAliveParticles = 0u;
+    //m_particleEmitterData.numAliveParticles = 0u;
 
     // Alive (sort) lists
     ThrowIfFailed(CreateRWStructuredBuffer<SortList>(m_device, &sortListBuffer, m_maxParticles, sort.data()));

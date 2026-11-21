@@ -1,25 +1,28 @@
 #include "stdafx.h"
 #include "DeferredRenderer.h"
 #include "Graphics/ScaldCoreTypes.h"
-#include "Graphics/Mesh.h"
 #include "ScaldException.h"
 
 using namespace Scald;
+using namespace DirectX;
+using namespace Microsoft::WRL;
 
 namespace
 {
-    const wchar_t* kOpaqueVertexShaderPath           = L"./Data/Shaders/DeferredOpaqueVS.hlsl";
-    const wchar_t* kOpaquePixelShaderPath            = L"./Data/Shaders/DeferredOpaquePS.hlsl";
-    const wchar_t* kDeferredLightingVertexShaderPath = L"./Data/Shaders/DeferredLightingVS.hlsl";
-    const wchar_t* kDeferredLightingPixelShaderPath  = L"./Data/Shaders/DeferredLightingPS.hlsl";
-    const wchar_t* kDrawGBufferVertexShaderPath      = L"./Data/Shaders/GBufferVS.hlsl";
-    const wchar_t* kDrawGBufferPixelShaderPath       = L"./Data/Shaders/GBufferPS.hlsl";
-}  // namespace
+    const wchar_t* kOpaqueVertexShaderPath                   = L"./Data/Shaders/DeferredOpaqueVS.hlsl";
+    const wchar_t* kOpaquePixelShaderPath                    = L"./Data/Shaders/DeferredOpaquePS.hlsl";
+    const wchar_t* kDeferredLightingVertexShaderPath         = L"./Data/Shaders/DeferredLightingDirectVS.hlsl";
+    const wchar_t* kDeferredLightingPixelShaderPath          = L"./Data/Shaders/DeferredLightingDirectPS.hlsl";
+    const wchar_t* kDeferredLightingAnalyticVertexShaderPath = L"./Data/Shaders/DeferredLightingAnalyticVS.hlsl";
+    const wchar_t* kDeferredLightingAnalyticPixelShaderPath  = L"./Data/Shaders/DeferredLightingAnalyticPS.hlsl";
+    const wchar_t* kDrawGBufferVertexShaderPath              = L"./Data/Shaders/GBufferVS.hlsl";
+    const wchar_t* kDrawGBufferPixelShaderPath               = L"./Data/Shaders/GBufferPS.hlsl";
+    const wchar_t* kPBRUberPixelShaderPath                   = L"./Data/Shaders/PBRUberPS.hlsl";
+    }  // namespace
 
-DeferredRenderer::DeferredRenderer(IDXGISwapChain* swapChain, ID3D11Device* device, ID3D11DeviceContext* deviceContext, UINT width, UINT height)
+DeferredRenderer::DeferredRenderer(IDXGISwapChain1* swapChain, ID3D11Device1* device, ID3D11DeviceContext1* deviceContext, UINT width, UINT height)
     : Super(swapChain, device, deviceContext, width, height)
 {
-    // See Step 03 in Graphics -> same logic, but in this case there is a number of rtvs
     D3D11_TEXTURE2D_DESC textureDesc = {};
     ZeroMemory(&textureDesc, sizeof(D3D11_TEXTURE2D_DESC));
     textureDesc.Width = width;
@@ -47,7 +50,7 @@ DeferredRenderer::DeferredRenderer(IDXGISwapChain* swapChain, ID3D11Device* devi
 
     for (UINT i = 0; i < kGBufferTexturesCount; i++)
     {
-        ThrowIfFailed(device->CreateRenderTargetView(mGBuffer.texture[i], &renderTargetViewDesc, &mGBuffer.rtv[i]));
+        ThrowIfFailed(device->CreateRenderTargetView(mGBuffer.texture[i].Get(), &renderTargetViewDesc, &mGBuffer.rtv[i]));
     }
 
     D3D11_SHADER_RESOURCE_VIEW_DESC shaderResourceViewDesc = {};
@@ -58,64 +61,46 @@ DeferredRenderer::DeferredRenderer(IDXGISwapChain* swapChain, ID3D11Device* devi
 
     for (UINT i = 0; i < kGBufferTexturesCount; i++)
     {
-        ThrowIfFailed(device->CreateShaderResourceView(mGBuffer.texture[i], &shaderResourceViewDesc, &mGBuffer.srv[i]));
-    }
-
-    std::vector<VertexPositionNormalUV> quadVertices = {VertexPositionNormalUV(), VertexPositionNormalUV(), VertexPositionNormalUV(), VertexPositionNormalUV()};
-    std::vector<DWORD> quadIndeces = {0};  // at least one due to throwing exception in Init
-    m_screenQuad = std::make_unique<Mesh>(device, quadVertices, quadIndeces);
-    m_GBufferQuad = std::make_unique<Mesh>(device, quadVertices, quadIndeces);
-}
-
-DeferredRenderer::~DeferredRenderer() noexcept
-{
-    for (UINT i = 0; i < kGBufferTexturesCount; i++)
-    {
-        mGBuffer.texture[i]->Release();
-        mGBuffer.rtv[i]->Release();
-        mGBuffer.srv[i]->Release();
+        ThrowIfFailed(device->CreateShaderResourceView(mGBuffer.texture[i].Get(), &shaderResourceViewDesc, &mGBuffer.srv[i]));
     }
 }
+
+DeferredRenderer::~DeferredRenderer() noexcept {}
 
 void DeferredRenderer::SetupShaders()
 {
     Super::SetupShaders();
 
-    D3D11_INPUT_ELEMENT_DESC inputLayoutOpaqueDesc[] = {
-        D3D11_INPUT_ELEMENT_DESC{"POSITION", 0u, DXGI_FORMAT_R32G32B32A32_FLOAT, 0u, 0u, D3D11_INPUT_PER_VERTEX_DATA, 0u},
+    D3D11_INPUT_ELEMENT_DESC inputLayoutOpaqueDesc[] = {D3D11_INPUT_ELEMENT_DESC{"POSITION", 0u, DXGI_FORMAT_R32G32B32A32_FLOAT, 0u, 0u, D3D11_INPUT_PER_VERTEX_DATA, 0u},
         D3D11_INPUT_ELEMENT_DESC{"NORMAL", 0u, DXGI_FORMAT_R32G32B32_FLOAT, 0u, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0u},
         D3D11_INPUT_ELEMENT_DESC{"TEXCOORD", 0u, DXGI_FORMAT_R32G32_FLOAT, 0u, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0u}};
 
-    D3D11_INPUT_ELEMENT_DESC inputLayoutLightingDesc[] = {
-        D3D11_INPUT_ELEMENT_DESC{"POSITION", 0u, DXGI_FORMAT_R32G32B32A32_FLOAT, 0u, 0u, D3D11_INPUT_PER_VERTEX_DATA, 0u},
-        D3D11_INPUT_ELEMENT_DESC{"TEXCOORD", 0u, DXGI_FORMAT_R32G32_FLOAT, 0u, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0u}};
+    D3D11_INPUT_ELEMENT_DESC inputLayoutQuadDesc[] = {D3D11_INPUT_ELEMENT_DESC{"POSITION", 0u, DXGI_FORMAT_R32G32B32A32_FLOAT, 0u, 0u, D3D11_INPUT_PER_VERTEX_DATA, 0u}};
 
-    D3D11_INPUT_ELEMENT_DESC inputLayoutGBufferDesc[] = {
-        D3D11_INPUT_ELEMENT_DESC{"POSITION", 0u, DXGI_FORMAT_R32G32B32A32_FLOAT, 0u, 0u, D3D11_INPUT_PER_VERTEX_DATA, 0u},
-        D3D11_INPUT_ELEMENT_DESC{"TEXCOORD", 0u, DXGI_FORMAT_R32G32_FLOAT, 0u, D3D11_APPEND_ALIGNED_ELEMENT, D3D11_INPUT_PER_VERTEX_DATA, 0u}};
-
-    mGBufferVS.Init(m_device, kDrawGBufferVertexShaderPath, inputLayoutGBufferDesc, (UINT)std::size(inputLayoutGBufferDesc));
+    mGBufferVS.Init(m_device, kDrawGBufferVertexShaderPath, inputLayoutQuadDesc, (UINT)std::size(inputLayoutQuadDesc));
     mGBufferPS.Init(m_device, kDrawGBufferPixelShaderPath);
 
     m_opaqueVertexShader.Init(m_device, kOpaqueVertexShaderPath, inputLayoutOpaqueDesc, (UINT)std::size(inputLayoutOpaqueDesc));
     m_opaquePixelShader.Init(m_device, kOpaquePixelShaderPath);
 
-    m_lightingVertexShader.Init(m_device, kDeferredLightingVertexShaderPath, inputLayoutLightingDesc, (UINT)std::size(inputLayoutLightingDesc));
+    m_lightingVertexShader.Init(m_device, kDeferredLightingVertexShaderPath, inputLayoutQuadDesc, (UINT)std::size(inputLayoutQuadDesc));
     m_lightingPixelShader.Init(m_device, kDeferredLightingPixelShaderPath);
+
+    const D3D_SHADER_MACRO pPBRDefines[] = {
+        //{ "IBL", "1"},
+        { "USE_NORMAL_MAP", "1"},
+        { "USE_METALLIC_MAP", "1"},
+        { "USE_ROUGHNESS_MAP", "1"},
+        { "USE_AO_MAP", "1"},
+        { nullptr, nullptr } // sentinel
+    };
+
+    m_PBRUberPixelShader.Init(m_device, kPBRUberPixelShaderPath, pPBRDefines);
 }
 
 void DeferredRenderer::CreateRasterizerState()
 {
-    // Step 10: Setup Rasterizer Stage and Viewport
     Super::CreateRasterizerState();
-
-    m_GBufferViewport.TopLeftX = 0.0f;
-    m_GBufferViewport.TopLeftY = 0.0f;
-    m_GBufferViewport.Width = static_cast<float>(mScreenWidth * 0.2f);
-    m_GBufferViewport.Height = static_cast<float>(mScreenHeight * 0.2f);
-    m_GBufferViewport.MinDepth = 0.0f;
-    m_GBufferViewport.MaxDepth = 1.0f;
-
 }
 
 void DeferredRenderer::BindGeometryPass()
@@ -124,25 +109,23 @@ void DeferredRenderer::BindGeometryPass()
     m_deviceContext->IASetInputLayout(m_opaqueVertexShader.GetInputLayout());
 
     ID3D11RenderTargetView* rtvs[] = {
-        mGBuffer.rtv[0],  // diffuse
-        mGBuffer.rtv[1],  // specular
-        mGBuffer.rtv[2],  // normals
+        mGBuffer.rtv[0].Get(),  // diffuse
+        mGBuffer.rtv[1].Get(),  // specular
+        mGBuffer.rtv[2].Get(),  // normals
     };
 
-    // See Step 11
     m_deviceContext->OMSetRenderTargets(kGBufferTexturesCount, rtvs, mDSV.Get());
     // See ClearBuffer
-    m_deviceContext->ClearRenderTargetView(mGBuffer.rtv[0], Colors::LightSteelBlue);
-    m_deviceContext->ClearRenderTargetView(mGBuffer.rtv[1], Colors::Black);
-    m_deviceContext->ClearRenderTargetView(mGBuffer.rtv[2], Colors::Black);
-    // mDeviceContext->ClearDepthStencilView(mDSV.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0u);
+    m_deviceContext->ClearRenderTargetView(mGBuffer.rtv[0].Get(), Colors::LightSteelBlue);
+    m_deviceContext->ClearRenderTargetView(mGBuffer.rtv[1].Get(), Colors::Black);
+    m_deviceContext->ClearRenderTargetView(mGBuffer.rtv[2].Get(), Colors::Black);
+    //m_deviceContext->ClearDepthStencilView(mDSV.Get(), D3D11_CLEAR_DEPTH | D3D11_CLEAR_STENCIL, 1.0f, 0u);
 
     m_deviceContext->VSSetShader(m_opaqueVertexShader.Get(), nullptr, 0u);
 
     m_deviceContext->RSSetViewports(1u, &mViewport);
     m_deviceContext->RSSetState(mRasterizerStateCullBack.Get());
 
-    // Step 09: Set Pixel Shaders
     m_deviceContext->PSSetShader(m_opaquePixelShader.Get(), nullptr, 0u);
     m_deviceContext->PSSetSamplers(0u, 1u, mSamplerState.GetAddressOf());
 }
@@ -164,12 +147,11 @@ void DeferredRenderer::BindLightingPass()
 
     m_deviceContext->PSSetShader(m_lightingPixelShader.Get(), nullptr, 0u);
     // Bind GBuffer resources
-    m_deviceContext->PSSetShaderResources(0u, 1u, &mGBuffer.srv[0]);
-    m_deviceContext->PSSetShaderResources(1u, 1u, &mGBuffer.srv[1]);
-    m_deviceContext->PSSetShaderResources(2u, 1u, &mGBuffer.srv[2]);
+    m_deviceContext->PSSetShaderResources(0u, 1u, mGBuffer.srv[0].GetAddressOf());
+    m_deviceContext->PSSetShaderResources(1u, 1u, mGBuffer.srv[1].GetAddressOf());
+    m_deviceContext->PSSetShaderResources(2u, 1u, mGBuffer.srv[2].GetAddressOf());
 
-    m_deviceContext->PSSetSamplers(0u, 1u, mSamplerState.GetAddressOf());
-    m_deviceContext->PSSetSamplers(1u, 1u, mShadowSamplerState.GetAddressOf());
+    m_deviceContext->PSSetSamplers(0u, 1u, mShadowSamplerState.GetAddressOf());
 }
 
 void DeferredRenderer::BindTransparentPass()
@@ -194,11 +176,8 @@ void DeferredRenderer::BindParticlesPass()
 
 void DeferredRenderer::DrawScreenQuad()
 {
-    auto& quadVB = m_screenQuad->GetVertexBuffer();
     m_deviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);  // Quad -> two triangles
-    m_deviceContext->IASetVertexBuffers(0u, 1u, quadVB.GetAddressOf(), quadVB.GetStridePtr(), quadVB.GetOffsetPtr());
-    m_deviceContext->IASetIndexBuffer(m_screenQuad->GetIndexBuffer().Get(), DXGI_FORMAT_R32_UINT, 0u);
-    m_deviceContext->Draw(quadVB.GetBufferSize(), 0u);
+    m_deviceContext->Draw(4u, 0u);
 }
 
 void DeferredRenderer::DrawGBuffer()
@@ -208,19 +187,25 @@ void DeferredRenderer::DrawGBuffer()
 
     m_deviceContext->VSSetShader(mGBufferVS.Get(), nullptr, 0u);
 
-    m_deviceContext->RSSetViewports(1u, &m_GBufferViewport);
+    D3D11_VIEWPORT GBufferViewport = 
+    {
+        .TopLeftX = 0.0f,
+        .TopLeftY = 0.0f,
+        .Width = static_cast<float>(mScreenWidth * 0.2f),
+        .Height = static_cast<float>(mScreenHeight * 0.2f),
+        .MinDepth = 0.0f,
+        .MaxDepth = 1.0f
+    };
+
+    m_deviceContext->RSSetViewports(1u, &GBufferViewport);
     m_deviceContext->RSSetState(mRasterizerStateCullBack.Get());
 
     m_deviceContext->PSSetShader(mGBufferPS.Get(), nullptr, 0u);
 
-    m_deviceContext->PSSetShaderResources(0u, 1u, &mGBuffer.srv[m_GBufferLayer % kGBufferTexturesCount]);
+    m_deviceContext->PSSetShaderResources(0u, 1u, mGBuffer.srv[m_GBufferLayer % kGBufferTexturesCount].GetAddressOf());
     m_deviceContext->PSSetSamplers(0u, 1u, mSamplerState.GetAddressOf());
 
-    auto& GBufferVB = m_GBufferQuad->GetVertexBuffer();
-    m_deviceContext->IASetPrimitiveTopology(D3D_PRIMITIVE_TOPOLOGY_TRIANGLESTRIP);  // Quad -> two triangles
-    m_deviceContext->IASetVertexBuffers(0u, 1u, GBufferVB.GetAddressOf(), GBufferVB.GetStridePtr(), GBufferVB.GetOffsetPtr());
-    m_deviceContext->IASetIndexBuffer(m_GBufferQuad->GetIndexBuffer().Get(), DXGI_FORMAT_R32_UINT, 0u);
-    m_deviceContext->Draw(GBufferVB.GetBufferSize(), 0u);
+    DrawScreenQuad();
 }
 
 void DeferredRenderer::BindWithinFrustum()
