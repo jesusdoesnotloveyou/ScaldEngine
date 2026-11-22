@@ -287,8 +287,6 @@ void Graphics::RenderLighting(Scene* scene)
 
 void Graphics::RenderDirectionalLight(Scene* scene)
 {
-    UpdateDirectionalLights();
-
     // Shadows and directional light
     m_immediateContext1->PSSetConstantBuffers(SHADER_SLOT(0u), NUM_RESOURCES(1u), m_csmCB.GetAddressOf());
 
@@ -394,6 +392,8 @@ void Graphics::UpdateShadowCB()
         csmCB.Distance[i] = m_cascadeShadowMap->GetCascadeLevel(i);  // not used on GPU in Geometry shader, but still filled
     }
 
+    UpdateDirectionalLight(csmCB.Light);
+
     m_csmCB.SetAndApplyData(csmCB);
 }
 
@@ -445,18 +445,12 @@ void Graphics::SwitchGBufferLayer(int layer)
     m_renderer->ChangeGBufferLayer(layer);
 }
 
-void Graphics::UpdateDirectionalLights()
+void Graphics::UpdateDirectionalLight(DirectionalLight& light)
 {
-    CascadeShadowsConstants csmCB = {};
-    DirectionalLight light = {};
     light.ambient = XMFLOAT4{1.0f, 1.0f, 1.0f, 1.0f};
     /*light.diffuse = dirLight->GetDiffuseColor();
     light.specular = dirLight->GetSpecularColor();*/
     light.direction = XMFLOAT3(3.0f, 1.0f, 4.0f);
-    // TODO: Update shadows!!!
-    csmCB.Light = light;
-
-    m_csmCB.SetAndApplyData(csmCB);
 }
 
 void Graphics::UpdateOmniLightParams()

@@ -1,12 +1,15 @@
 #include "stdafx.h"
 #include "LightComponentBase.h"
-#include "GameFramework/World.h"
+
 #include "GameFramework/Objects/Actor.h"
-#include "Graphics/Scene/Scene.h"
-#include "Graphics/Scene/LightSceneProxy.h"
-#include "Utils/Shapes.h"
 
 using namespace Scald;
+
+// Fpr unique_ptr
+LightComponentBase::LightComponentBase()
+{
+
+}
 
 LightComponentBase::LightComponentBase(std::shared_ptr<Actor> owner)
     : Super(owner)
@@ -33,24 +36,12 @@ void LightComponentBase::Tick(float deltaTime)
     UpdateOrthographicProjection(100.0f, 100.0f, 0.1f, 500.0f);
 }
 
-std::unique_ptr<LightSceneProxy> LightComponentBase::CreateSceneProxy()
-{
-    return std::make_unique<LightSceneProxy>();
-}
-
 void LightComponentBase::OnRegister() 
 {
-    m_lightProxy = CreateSceneProxy();
-    if (m_lightProxy && GetWorld())
-    {
-        // TODO: probably remove scene from here
-        GetWorld()->GetScene()->AddLight(m_lightProxy.get());
-    }
 }
 
 void LightComponentBase::OnUnregister()
 {
-    GetWorld()->GetScene()->RemoveLight(m_lightProxy.get());
 }
 
 //void LightComponentBase::UpdateLightParams()

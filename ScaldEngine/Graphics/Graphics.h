@@ -85,8 +85,7 @@ namespace Scald
         }
 
     private:
-        // Update structured buffer
-        void UpdateDirectionalLights();
+        void UpdateDirectionalLight(DirectionalLight& light);
         // Update structured buffer
         void UpdateOmniLightParams();
         // Update structured buffer

@@ -71,10 +71,15 @@ set(INCLUDES
 
     ScaldEngine/GameFramework/Components/ScaldActorComponent.h
     ScaldEngine/GameFramework/Components/SceneComponent.h
-    ScaldEngine/GameFramework/Components/LightComponentBase.h
     ScaldEngine/GameFramework/Components/PrimitiveComponent.h
     ScaldEngine/GameFramework/Components/MeshComponent.h
     ScaldEngine/GameFramework/Components/StaticMeshComponent.h
+    # Lights
+    ScaldEngine/GameFramework/Components/Light/LightComponentBase.h
+    ScaldEngine/GameFramework/Components/Light/LightComponent.h
+    ScaldEngine/GameFramework/Components/Light/DirectionalLightComponent.h
+    ScaldEngine/GameFramework/Components/Light/LocalLightComponent.h
+    
     
     ScaldEngine/GameFramework/ScaldObject.h
     ScaldEngine/GameFramework/World.h
@@ -133,10 +138,14 @@ set(SOURCES
     
     ScaldEngine/GameFramework/Components/ScaldActorComponent.cpp
     ScaldEngine/GameFramework/Components/SceneComponent.cpp
-    ScaldEngine/GameFramework/Components/LightComponentBase.cpp
     ScaldEngine/GameFramework/Components/PrimitiveComponent.cpp
     ScaldEngine/GameFramework/Components/MeshComponent.cpp
     ScaldEngine/GameFramework/Components/StaticMeshComponent.cpp
+    # Lights
+    ScaldEngine/GameFramework/Components/Light/LightComponentBase.cpp
+    ScaldEngine/GameFramework/Components/Light/LightComponent.cpp
+    ScaldEngine/GameFramework/Components/Light/DirectionalLightComponent.cpp
+    ScaldEngine/GameFramework/Components/Light/LocalLightComponent.cpp
     
     ScaldEngine/GameFramework/World.cpp
     ScaldEngine/GameFramework/Objects/Actor.cpp
