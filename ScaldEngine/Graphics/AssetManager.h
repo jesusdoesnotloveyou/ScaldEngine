@@ -29,14 +29,18 @@ namespace Scald
         ~AssetManager() noexcept = default;
 
         bool LoadModel(const Path& path);
+        bool LoadTexture(const Path& path);
+
     private:
         void ProcessNode(aiNode* node, const aiScene* scene, std::vector<MeshData<>>& meshData);
         MeshData<> ProcessMesh(aiMesh* mesh, const aiScene* scene);
-        std::vector<Texture> LoadMaterialTextures(aiMaterial* mat, aiTextureType type);
+        void LoadTexturesFromMaterial(aiMaterial* mat, aiTextureType type, Textures& meshTextures);
 
     public:
         Mesh UploadMesh(const MeshData<>& cpuMeshData);
         const Model* GetLoadedModel(const Path& path) const;
+        const Texture* GetLoadedTexture(const Path& path) const;
+
     private:
         Models m_models;
         Textures m_textures;

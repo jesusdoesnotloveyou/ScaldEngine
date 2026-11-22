@@ -1,13 +1,14 @@
 #pragma once
 
 #include "GameFramework/Components/MeshComponent.h"
-#include "GameFramework/Objects/Actor.h"
 
 #include <memory>
 
 namespace Scald
 {
     class Actor;
+    class Model;
+    struct Texture;
 
     class StaticMeshComponent : public MeshComponent
     {
@@ -23,10 +24,9 @@ namespace Scald
 
         virtual ~StaticMeshComponent() override = default;
 
-        void SetStaticMesh(const Model* staticMeshModel)
-        {
-            m_sceneProxy->SetModel(staticMeshModel);
-        }
+        void SetStaticMesh(const Model* staticMeshModel);
+        // TODO: for now we assume that every model has only 1 associated texture
+        void SetTexture(const Texture* meshTexture);
         
     protected:
         virtual std::unique_ptr<PrimitiveSceneProxy> CreateSceneProxy() override;

@@ -1,5 +1,7 @@
 #pragma once
 
+#include "PrimitiveSceneProxy.h"
+
 namespace Scald
 {
     class StaticMeshSceneProxy : public PrimitiveSceneProxy

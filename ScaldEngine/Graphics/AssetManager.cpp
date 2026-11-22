@@ -1,6 +1,9 @@
 #include "stdafx.h"
 #include "AssetManager.h"
 #include "Model.h"
+#include "ScaldException.h"
+#include "Texture.h"
+#include "VertexTypes.h"
 
 #include <WICTextureLoader.h>
 #include <assimp/Importer.hpp>
@@ -9,11 +12,17 @@
 
 using namespace Scald;
 
+namespace
+{
+    const wchar_t* kAssetModelsPath = L"Data/Models/";
+    const wchar_t* kAssetTexturesPath = L"Data/Textures/";
+}
+
 AssetManager::AssetManager(ID3D11Device* device)
     : m_device(device)
 {
-    m_models.reserve(128);
-    m_textures.reserve(128);
+    m_models.reserve(128u);
+    m_textures.reserve(128u);
 }
 
 // TODO: async or multithreaded access
@@ -93,37 +102,57 @@ MeshData<> AssetManager::ProcessMesh(aiMesh* mesh, const aiScene* scene)
         }
     }
 
-    if (mesh->mMaterialIndex >= 0)
+    /*if (mesh->mMaterialIndex >= 0)
     {
-        /*aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex];
-        std::vector<Texture> diffuseMaps = LoadMaterialTextures(material, aiTextureType_DIFFUSE, ETextureType::Albedo);
-        textures.insert(textures.end(), diffuseMaps.begin(), diffuseMaps.end());
-
-        std::vector<Texture> specularMaps = LoadMaterialTextures(material, aiTextureType_SPECULAR, ETextureType::Specular);
-        textures.insert(textures.end(), specularMaps.begin(), specularMaps.end());*/
-    }
+        if (aiMaterial* material = scene->mMaterials[mesh->mMaterialIndex])
+        {   
+            for (int i = 0; i < aiTextureType::aiTextureType_UNKNOWN; i++)
+                LoadTexturesFromMaterial(material, static_cast<aiTextureType>(i), textures);
+        }
+    }*/
 
     return MeshData(vertices, indices, textures);
 }
 
-std::vector<Texture> AssetManager::LoadMaterialTextures(aiMaterial* mat, aiTextureType type, ETextureType typeName)
+// TODO: async or multithreaded access
+void AssetManager::LoadTexturesFromMaterial(aiMaterial* mat, aiTextureType type, Textures& meshTextures)
 {
-    std::vector<Texture> textures;
-    /*for (unsigned int i = 0; i < mat->GetTextureCount(type); i++)
+    //for (unsigned int i = 0; i < mat->GetTextureCount(type); i++)
+    //{
+    //    aiString str;
+    //    mat->GetTexture(type, i, &str);
+    //    
+    //    Texture texture;
+
+    //    // just placeholder, didn't mean to
+    //    const wchar_t* szFileName;
+    //    
+    //    ThrowIfFailed(CreateWICTextureFromFile(m_device, szFileName, nullptr, texture.Srv.GetAddressOf()));
+
+    //    //texture.Id = TextureFromFile(str.C_Str(), directory);
+    //    texture.Path = str.C_Str();
+    //    meshTextures.push_back(texture);
+    //}
+}
+
+// TODO: async or multithreaded access
+bool AssetManager::LoadTexture(const Path& path)
+{
+    Texture texture;
+
+    HRESULT hr = CreateWICTextureFromFile(m_device, path.c_str(), nullptr, texture.Srv.GetAddressOf());
+    if (FAILED(hr))
     {
-        aiString str;
-        mat->GetTexture(type, i, &str);
-        Texture texture;
-        if (!textureFilePath.empty())
-        {
-            ThrowIfFailed(CreateWICTextureFromFile(pDevice, textureFilePath.data(), nullptr, mTexture.GetAddressOf()));
-        }
-        texture.Id = TextureFromFile(str.C_Str(), directory);
-        texture.Type = typeName;
-        texture.path = str;
-        textures.push_back(texture);
-    }*/
-    return textures;
+        OutputDebugStringA("Failed to load texture with AssetManager::LoadTexture(const Path& path).");
+        return false;
+    }
+    texture.Path = path;
+    texture.Id = m_textures.size();
+    //texture.Type = ;
+
+    m_textures.emplace_back(std::move(texture));
+
+    return true;
 }
 
 Mesh AssetManager::UploadMesh(const MeshData<>& cpuMeshData)
@@ -134,4 +163,10 @@ Mesh AssetManager::UploadMesh(const MeshData<>& cpuMeshData)
 const Model* AssetManager::GetLoadedModel(const Path& path) const
 {
     return &m_models[0];
+}
+
+const Texture* AssetManager::GetLoadedTexture(const Path& path) const
+{
+    // return an index to a texture in contigious memory based on the path to the texture
+    return &m_textures[0];
 }
