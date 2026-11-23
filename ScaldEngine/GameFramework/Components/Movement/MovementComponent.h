@@ -9,13 +9,13 @@ namespace Scald
 {
     using namespace DirectX;
 
-    class Actor;
+    class AActor;
 
     class MovementComponent : public ScaldActorComponent
     {
         using Super = ScaldActorComponent;
     public:
-        MovementComponent(std::shared_ptr<Actor> owner);
+        MovementComponent(std::shared_ptr<AActor> owner);
         virtual ~MovementComponent() noexcept override;
 
         virtual void Tick(float deltaTime) override;

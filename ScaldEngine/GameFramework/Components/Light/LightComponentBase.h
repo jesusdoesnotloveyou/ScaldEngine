@@ -6,6 +6,7 @@
 namespace Scald
 {
     class LightSceneProxy;
+    class AActor;
 
     // Light component is a scene component since it has transform in the World
     class LightComponentBase : public SceneComponent
@@ -13,7 +14,7 @@ namespace Scald
         using Super = SceneComponent;
     public:
         LightComponentBase();
-        LightComponentBase(std::shared_ptr<Actor> owner);
+        LightComponentBase(std::shared_ptr<AActor> owner);
         virtual ~LightComponentBase();
 
         //~ Begin of ScaldActorComponent interface

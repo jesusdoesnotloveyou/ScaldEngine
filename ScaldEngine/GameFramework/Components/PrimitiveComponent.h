@@ -1,12 +1,12 @@
 #pragma once
 
 #include "GameFramework/Components/SceneComponent.h"
-#include "Graphics/Scene/PrimitiveSceneProxy.h"
 #include <memory>
 
 namespace Scald
 {
     class PrimitiveSceneProxy;
+    class AActor;
 
     // The base class for all components representing any sort of geometry.
     // These components are rendered and tested for collision.
@@ -15,7 +15,7 @@ namespace Scald
         using Super = SceneComponent;
     public:
         PrimitiveComponent();
-        PrimitiveComponent(std::shared_ptr<Actor> owner);
+        PrimitiveComponent(std::shared_ptr<AActor> owner);
         virtual ~PrimitiveComponent() noexcept override;
 
         virtual void OnRegister() override;

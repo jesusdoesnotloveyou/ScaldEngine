@@ -14,7 +14,7 @@ CollisionComponent::CollisionComponent()
 
 }
 
-CollisionComponent::CollisionComponent(std::shared_ptr<Actor> owner)
+CollisionComponent::CollisionComponent(std::shared_ptr<AActor> owner)
     : ScaldActorComponent(owner)
     //, m_collisionTransform(owner->GetTransform())
 {
@@ -71,7 +71,7 @@ void CollisionComponent::OnCollisionOverlap(CollisionComponent* otherComponent)
 
     if (const auto player = GetOwner())
     {
-        if (auto otherActor = static_cast<Actor*>(otherComponent->GetOwner()))
+        if (auto otherActor = static_cast<AActor*>(otherComponent->GetOwner()))
         {
             otherComponent->DisableCollision();
             //otherActor->AttachToParent(player);

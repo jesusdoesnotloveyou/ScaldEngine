@@ -5,7 +5,7 @@
 
 namespace Scald
 {
-    class Actor;
+    class AActor;
 
     // MeshComponent is an abstract base for any component that is an instance of a renderable collection of triangles.
     // SkinnedMeshComponent
@@ -18,7 +18,7 @@ namespace Scald
         using Super = PrimitiveComponent;
     public:
         MeshComponent();
-        MeshComponent(std::shared_ptr<Actor> owner);
+        MeshComponent(std::shared_ptr<AActor> owner);
         virtual ~MeshComponent() noexcept override;
 
         virtual void Tick(float deltaTime) override;

@@ -5,14 +5,14 @@
 
 namespace Scald
 {
-    class Actor;
+    class AActor;
 
     class ThirdPersonCamera final : public Camera
     {
         using Super = Camera;
     public:
         ThirdPersonCamera();
-        ThirdPersonCamera(std::shared_ptr<Actor> owner);
+        ThirdPersonCamera(std::shared_ptr<AActor> owner);
 
     public:
         virtual void Tick(float deltaTime) override;

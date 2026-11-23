@@ -15,7 +15,7 @@ World::World()
 
 }
 
-void World::DestroyActor(Actor* actor)
+void World::DestroyActor(AActor* actor)
 {
     for (auto& activeActor : m_actors)
     {
@@ -55,4 +55,10 @@ void World::Tick(float deltaTime)
 Scene* World::GetScene() const
 {
     return m_scene.get();
+}
+
+void World::SendInputToControllableSceneComponent(const Keyboard::Event event, unsigned int keyCode)
+{
+    // InputComponent
+    //m_controllableComponent->();
 }

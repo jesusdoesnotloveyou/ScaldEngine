@@ -12,7 +12,7 @@ PrimitiveComponent::PrimitiveComponent()
 
 }
 
-PrimitiveComponent::PrimitiveComponent(std::shared_ptr<Actor> owner) 
+PrimitiveComponent::PrimitiveComponent(std::shared_ptr<AActor> owner) 
     : Super(owner)
 {
 }
@@ -44,5 +44,5 @@ void PrimitiveComponent::OnRegister()
 
 void PrimitiveComponent::OnUnregister()
 {
-
+    GetWorld()->GetScene()->RemovePrimitive(m_sceneProxy.get());
 }

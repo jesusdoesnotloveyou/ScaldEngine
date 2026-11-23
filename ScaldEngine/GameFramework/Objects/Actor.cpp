@@ -7,32 +7,32 @@
 
 using namespace Scald;
 
-Actor::Actor()
+AActor::AActor()
 {
     //m_bCastsShadow = true;
 }
 
-Actor::~Actor() noexcept
+AActor::~AActor() noexcept
 {
 
 }
 
-void Actor::Tick(float deltaTime)
+void AActor::Tick(float deltaTime)
 {
     Super::Tick(deltaTime);
 }
 
-void Actor::OnSpawn(World* owner)
+void AActor::OnSpawn(World* owner)
 {
     ownerWorld = owner;
 }
 
-void Actor::DestroyActor()
+void AActor::DestroyActor()
 {
     // TODO: unregister all components
 }
 
-World* Actor::GetWorld() const
+World* AActor::GetWorld() const
 {
     return ownerWorld ? ownerWorld : nullptr;
 }

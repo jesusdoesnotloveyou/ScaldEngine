@@ -5,7 +5,7 @@
 
 using namespace Scald;
 
-MovementComponent::MovementComponent(std::shared_ptr<Actor> owner)
+MovementComponent::MovementComponent(std::shared_ptr<AActor> owner)
     : ScaldActorComponent(owner)
     , mSpeed(0.0f)
     , mJumpZVelocity(0.0f)

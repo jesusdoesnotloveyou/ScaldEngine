@@ -93,8 +93,8 @@ namespace Scald
 
         // get all 8 vertices of frustrum
         std::array<XMVECTOR, 8u> GetFrustumCornersWorldSpace(const FXMMATRIX viewProjection);
-        XMMATRIX GetLightSpaceMatrix(const float nearPlane, const float farPlane);
-        void GetLightSpaceMatrices(std::array<XMMATRIX, kCascadeNumber>& outMatrices);
+        XMMATRIX GetLightSpaceMatrix(const float nearPlane, const float farPlane, const XMFLOAT3& lightDir);
+        void GetLightSpaceMatrices(std::array<XMMATRIX, kCascadeNumber>& outMatrices, const XMFLOAT3& lightDir);
 
     private:
         ComPtr<IDXGIAdapter1> GetHighPerformanceAdapter(IDXGIFactory1* factory);

@@ -3,7 +3,7 @@
 
 using namespace Scald;
 
-SceneComponent::SceneComponent(std::shared_ptr<Actor> owner)
+SceneComponent::SceneComponent(std::shared_ptr<AActor> owner)
     : Super(owner)
 {
 
@@ -16,7 +16,6 @@ SceneComponent::~SceneComponent()
 void SceneComponent::Tick(float deltaTime)
 {
     Super::Tick(deltaTime);
-    //m_componentToWorld.Tick(deltaTime);
 }
 
 void SceneComponent::OnRegister() {}

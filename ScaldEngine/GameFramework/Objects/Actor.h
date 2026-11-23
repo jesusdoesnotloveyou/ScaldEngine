@@ -14,12 +14,12 @@ namespace Scald
     // A base class for every object placed in the world.
     // This class contains a basic functionality to operate on the "object placed in the world".
     // Actor itself doesn't have a transform, it depends on transform of the root component
-    class Actor : public ScaldObject, public std::enable_shared_from_this<Actor>
+    class AActor : public ScaldObject, public std::enable_shared_from_this<AActor>
     {
         using Super = ScaldObject;
     public:
-        Actor();
-        virtual ~Actor() noexcept override;
+        AActor();
+        virtual ~AActor() noexcept override;
 
         virtual void Tick(float deltaTime) override;
         virtual void OnSpawn(World* owner);
@@ -34,13 +34,13 @@ namespace Scald
         {
             auto component = std::make_shared<T>(shared_from_this(), std::forward<Args>(args)...);
             
-            if (!m_rootComponent && std::is_base_of_v<SceneComponent, T>)
+            // to evaluate this branch at compile time and reject if necessary!
+            if constexpr (std::is_base_of_v<SceneComponent, T>)
             {
-                m_rootComponent = component;
-            }
-            else if (m_rootComponent)
-            {
-                component->SetupAttachment(m_rootComponent.get());
+                if (!m_rootComponent)
+                    m_rootComponent = component;
+                else
+                    component->SetupAttachment(m_rootComponent.get());
             }
 
             component->OnRegister();            // first initializer created component

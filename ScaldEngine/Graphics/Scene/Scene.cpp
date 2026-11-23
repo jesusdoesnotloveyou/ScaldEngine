@@ -7,6 +7,11 @@
 
 using namespace Scald;
 
+Scene::~Scene()
+{
+    if (m_directionalLight) delete m_directionalLight;
+}
+
 void Scene::AddPrimitive(PrimitiveSceneProxy* proxy)
 {
     // mutex lock

@@ -11,14 +11,14 @@ namespace Scald
 {
     using namespace DirectX;
 
-    class Actor;
+    class AActor;
 
     class CollisionComponent : public ScaldActorComponent
     {
         using Super = ScaldActorComponent;
     public:
         CollisionComponent();
-        CollisionComponent(std::shared_ptr<Actor> owner);
+        CollisionComponent(std::shared_ptr<AActor> owner);
         virtual ~CollisionComponent() noexcept override;
 
         virtual void Tick(float deltaTime) override;

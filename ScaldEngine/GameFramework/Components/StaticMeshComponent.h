@@ -6,7 +6,7 @@
 
 namespace Scald
 {
-    class Actor;
+    class AActor;
     class Model;
     struct Texture;
 
@@ -16,7 +16,7 @@ namespace Scald
     public:
         StaticMeshComponent() = default;
 
-        StaticMeshComponent(std::shared_ptr<Actor> owner)
+        StaticMeshComponent(std::shared_ptr<AActor> owner)
             : Super(owner)
         {
 

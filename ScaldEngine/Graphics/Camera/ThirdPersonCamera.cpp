@@ -11,7 +11,7 @@ ThirdPersonCamera::ThirdPersonCamera()
     mYaw = XM_PIDIV4;
 }
 
-ThirdPersonCamera::ThirdPersonCamera(std::shared_ptr<Actor> owner)
+ThirdPersonCamera::ThirdPersonCamera(std::shared_ptr<AActor> owner)
     : Camera(owner)
     , mPitch(0.0f)
     , mYaw(0.0f)

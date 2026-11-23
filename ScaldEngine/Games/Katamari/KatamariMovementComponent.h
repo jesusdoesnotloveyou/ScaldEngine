@@ -8,13 +8,13 @@
 
 namespace Scald
 {
-    class Actor;
+    class AActor;
 
     class KatamariMovementComponent : public MovementComponent
     {
         using Super = MovementComponent;
     public:
-        KatamariMovementComponent(std::shared_ptr<Actor> owner);
+        KatamariMovementComponent(std::shared_ptr<AActor> owner);
         virtual ~KatamariMovementComponent() noexcept override = default;
 
         virtual void Tick(float deltaTime) override;

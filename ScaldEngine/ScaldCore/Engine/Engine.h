@@ -7,6 +7,7 @@
 
 namespace Scald
 {
+    class IWindowManager;
     class AssetManager;
     class World;
     // class Renderer;
@@ -21,6 +22,7 @@ namespace Scald
     private:
         void Initialize();
         void SetupRenderer();
+        void SetupInputSubsystem();
         void SetupAssetManager();
         void SetupWorld();
 
@@ -34,8 +36,12 @@ namespace Scald
         // std::unique_ptr<Renderer> m_renderer;
         // std::unique_ptr<AssetManager> m_manager;
 
+        // to remove
         RenderWindow m_renderWindow;
-        ScaldTimer m_timer;
         std::unique_ptr<AssetManager> m_assetManager;
+        std::unique_ptr<IWindowManager> m_windowManager;
+        ScaldTimer m_timer;
+
+        bool m_bIsInitialized = false;
     };
 }

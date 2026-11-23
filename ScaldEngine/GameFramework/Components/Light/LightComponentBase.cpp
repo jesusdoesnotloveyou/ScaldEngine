@@ -11,7 +11,7 @@ LightComponentBase::LightComponentBase()
 
 }
 
-LightComponentBase::LightComponentBase(std::shared_ptr<Actor> owner)
+LightComponentBase::LightComponentBase(std::shared_ptr<AActor> owner)
     : Super(owner)
     /*, m_lookAt(0.0f, 0.0f, 0.0f)
     , m_view(XMMatrixIdentity())

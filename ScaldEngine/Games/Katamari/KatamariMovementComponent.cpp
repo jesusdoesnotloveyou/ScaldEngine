@@ -5,7 +5,7 @@
 using namespace Scald;
 using namespace DirectX;
 
-KatamariMovementComponent::KatamariMovementComponent(std::shared_ptr<Actor> m_owner)
+KatamariMovementComponent::KatamariMovementComponent(std::shared_ptr<AActor> m_owner)
     : Super(m_owner)
 {
     mSpeed = 10.0f;

@@ -9,14 +9,14 @@ namespace Scald
     using XMFLOAT4X4 = DirectX::XMFLOAT4X4;
     using XMMATRIX = DirectX::XMMATRIX;
 
-    class Actor;
+    class AActor;
 
     class Camera : public SceneComponent
     {
         using Super = SceneComponent;
     public:
         Camera() = default;
-        Camera(std::shared_ptr<Actor> owner);
+        Camera(std::shared_ptr<AActor> owner);
         virtual ~Camera() noexcept override = default;
         virtual void Tick(float deltaTime) override;
 

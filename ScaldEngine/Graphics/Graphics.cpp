@@ -381,18 +381,17 @@ void Graphics::UpdateShadowCB()
 {
     //m_cascadeShadowMap->UpdateShadowCascadeSplits(m_cameraNearZ, m_cameraFarZ);
 
-    std::array<XMMATRIX, kCascadeNumber> lightSpaceMatrices;
-    GetLightSpaceMatrices(lightSpaceMatrices);
-
     CascadeShadowsConstants csmCB = {};
+    UpdateDirectionalLight(csmCB.Light);
+
+    std::array<XMMATRIX, kCascadeNumber> lightSpaceMatrices;
+    GetLightSpaceMatrices(lightSpaceMatrices, csmCB.Light.direction);
 
     for (UINT i = 0; i < kCascadeNumber; i++)
     {
         csmCB.ViewProj[i] = XMMatrixTranspose(lightSpaceMatrices[i]);
         csmCB.Distance[i] = m_cascadeShadowMap->GetCascadeLevel(i);  // not used on GPU in Geometry shader, but still filled
     }
-
-    UpdateDirectionalLight(csmCB.Light);
 
     m_csmCB.SetAndApplyData(csmCB);
 }
@@ -447,9 +446,11 @@ void Graphics::SwitchGBufferLayer(int layer)
 
 void Graphics::UpdateDirectionalLight(DirectionalLight& light)
 {
+    // TODO: fetch from scene dir light
     light.ambient = XMFLOAT4{1.0f, 1.0f, 1.0f, 1.0f};
-    /*light.diffuse = dirLight->GetDiffuseColor();
-    light.specular = dirLight->GetSpecularColor();*/
+    light.diffuse;
+    light.specular;
+    light.direction = {0.57735f, -0.57735f, 0.57735f}; // TODO: ther is a problem
     light.direction = XMFLOAT3(3.0f, 1.0f, 4.0f);
 }
 
@@ -514,22 +515,22 @@ std::array<XMVECTOR, 8u> Graphics::GetFrustumCornersWorldSpace(const FXMMATRIX v
     return frustumCorners;
 }
 
-void Graphics::GetLightSpaceMatrices(std::array<XMMATRIX, kCascadeNumber>& outMatrices)
+void Graphics::GetLightSpaceMatrices(std::array<XMMATRIX, kCascadeNumber>& outMatrices, const XMFLOAT3& lightDir)
 {
     for (UINT i = 0; i < kCascadeNumber; ++i)
     {
         if (i == 0)
         {
-            outMatrices[i] = GetLightSpaceMatrix(m_cameraNearZ, m_cascadeShadowMap->GetCascadeLevel(i));
+            outMatrices[i] = GetLightSpaceMatrix(m_cameraNearZ, m_cascadeShadowMap->GetCascadeLevel(i), lightDir);
         }
         else
         {
-            outMatrices[i] = GetLightSpaceMatrix(m_cascadeShadowMap->GetCascadeLevel(i - 1), m_cascadeShadowMap->GetCascadeLevel(i));
+            outMatrices[i] = GetLightSpaceMatrix(m_cascadeShadowMap->GetCascadeLevel(i - 1), m_cascadeShadowMap->GetCascadeLevel(i), lightDir);
         }
     }
 }
 
-XMMATRIX Graphics::GetLightSpaceMatrix(const float nearPlane, const float farPlane)
+XMMATRIX Graphics::GetLightSpaceMatrix(const float nearPlane, const float farPlane, const XMFLOAT3& lightDir)
 {
     const auto cameraProjectionMatrix = XMMatrixPerspectiveFovLH(m_camera->GetFovRad(), static_cast<float>(m_screenWidth) / static_cast<float>(m_screenHeight), nearPlane, farPlane);
     const auto frustumCorners = GetFrustumCornersWorldSpace(m_camera->GetViewMatrix() * cameraProjectionMatrix);
@@ -541,9 +542,6 @@ XMMATRIX Graphics::GetLightSpaceMatrix(const float nearPlane, const float farPla
     }
 
     center /= (float)frustumCorners.size();
-    //const XMFLOAT3 lightDir = mDirectionalLight->GetDirection();
-    // TODO: remove hard-coded value
-    const XMFLOAT3 lightDir = { 1.0f, 1.0f, -1.0f };
     const auto lightView = XMMatrixLookAtLH(center, center + XMVectorSet(lightDir.x, lightDir.y, lightDir.z, 1.0f), ScaldMath::UpVector);
 
     // Measuring cascade

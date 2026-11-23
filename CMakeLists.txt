@@ -80,10 +80,11 @@ set(INCLUDES
     ScaldEngine/GameFramework/Components/Light/DirectionalLightComponent.h
     ScaldEngine/GameFramework/Components/Light/LocalLightComponent.h
     
-    
     ScaldEngine/GameFramework/ScaldObject.h
     ScaldEngine/GameFramework/World.h
     ScaldEngine/GameFramework/Objects/Actor.h
+    ScaldEngine/GameFramework/Objects/DirectionalLight.h
+    ScaldEngine/GameFramework/Objects/PointLight.h
     ScaldEngine/GameFramework/Objects/Pawn.h
     
     ScaldEngine/Utils/Shapes.h
@@ -149,9 +150,10 @@ set(SOURCES
     
     ScaldEngine/GameFramework/World.cpp
     ScaldEngine/GameFramework/Objects/Actor.cpp
+    ScaldEngine/GameFramework/Objects/DirectionalLight.cpp
+    ScaldEngine/GameFramework/Objects/PointLight.cpp
     ScaldEngine/GameFramework/Objects/Pawn.cpp
 
-    
     ScaldEngine/Utils/Shapes.cpp
 
     ScaldEngine/ScaldCore/Engine/Engine.cpp
@@ -167,6 +169,23 @@ set(SOURCES
 
 # 3rd party
 include(FetchContent)
+
+# FetchContent_Declare(
+#     glfw
+#         GIT_REPOSITORY https://github.com/glfw/glfw.git
+#         GIT_TAG 3.5.1
+#         GIT_SHALLOW TRUE
+# )
+
+# set(GLFW_BUILD_DOCS     OFF CACHE BOOL "" FORCE)
+# set(GLFW_BUILD_TESTS    OFF CACHE BOOL "" FORCE)
+# set(GLFW_BUILD_EXAMPLES OFF CACHE BOOL "" FORCE)
+# set(GLFW_INSTALL        OFF CACHE BOOL "" FORCE)
+
+# find_package(OpenGL REQUIRED)
+# find_package(glfw3 REQUIRED)
+
+# FetchContent_MakeAvailable(glfw)
 
 FetchContent_Declare(
 	Assimp
@@ -194,7 +213,7 @@ if(${WIN32})
     FetchContent_MakeAvailable(DirectXTK)
 
 else()
-    message(WARNING "DirectXTex and DirectXTK are WIN32 only library, it would not be loaded")
+    message(WARNING "DirectXTex and DirectXTK are WIN32 only libraies, they would not be loaded")
 endif()
 
 if(${WIN32})
@@ -218,8 +237,9 @@ set_target_properties(${PROJECT_NAME} PROPERTIES
 )
 
 target_link_libraries(${PROJECT_NAME}
-    PRIVATE assimp::assimp DirectXTex DirectXTK
+    PRIVATE DirectXTex DirectXTK
     PRIVATE dxgi.lib d3d11.lib d3dcompiler.lib
+    PRIVATE assimp::assimp #glfw
 )
 
 # compile options for target

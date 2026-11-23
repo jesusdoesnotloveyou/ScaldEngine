@@ -10,7 +10,7 @@ ScaldActorComponent::ScaldActorComponent()
 
 }
 
-ScaldActorComponent::ScaldActorComponent(std::shared_ptr<Actor> owner)
+ScaldActorComponent::ScaldActorComponent(std::shared_ptr<AActor> owner)
     : m_owner(owner)
 {
 }
@@ -35,7 +35,7 @@ void ScaldActorComponent::OnUnregister()
 
 }
 
-Actor* ScaldActorComponent::GetOwner() const
+AActor* ScaldActorComponent::GetOwner() const
 {
     return m_owner.expired() ? nullptr : m_owner.lock().get();
 }

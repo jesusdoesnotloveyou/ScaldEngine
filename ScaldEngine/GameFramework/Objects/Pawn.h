@@ -6,7 +6,7 @@ namespace Scald
 {
     class MovementComponent;
     
-    class Pawn : public Actor
+    class Pawn : public AActor
     {
     public:
         Pawn();       

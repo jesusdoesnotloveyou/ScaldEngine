@@ -5,7 +5,7 @@ using namespace Scald;
 
 MeshComponent::MeshComponent() {}
 
-MeshComponent::MeshComponent(std::shared_ptr<Actor> owner)
+MeshComponent::MeshComponent(std::shared_ptr<AActor> owner)
     : Super(owner) {}
 
 MeshComponent::~MeshComponent()

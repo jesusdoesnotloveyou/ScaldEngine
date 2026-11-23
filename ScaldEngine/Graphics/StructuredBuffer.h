@@ -8,7 +8,7 @@
 
 namespace Scald
 {
-    using namespace Microsoft::WRL;
+    using Microsoft::WRL::ComPtr;
 
     template <typename T>
     class StructuredBuffer

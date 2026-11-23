@@ -5,7 +5,7 @@
 using namespace Scald;
 using namespace DirectX;
 
-Camera::Camera(std::shared_ptr<Actor> owner) 
+Camera::Camera(std::shared_ptr<AActor> owner) 
     : Super(owner)
 {
     // Couldn't be used in ctor initializer list

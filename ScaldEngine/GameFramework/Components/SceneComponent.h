@@ -11,7 +11,7 @@
 
 namespace Scald
 {
-    class Actor;
+    class AActor;
     
     // SceneComponent has a transform evaluated every frame and supports attachment, but has no rendering or collision capabilities.
     // Typical components that inherit from SceneComponent are: Camera, Audio, etc.
@@ -25,11 +25,14 @@ namespace Scald
             m_componentToWorld = Transform::Identity;
         }
 
-        SceneComponent(std::shared_ptr<Actor> owner);
+        SceneComponent(std::shared_ptr<AActor> owner);
         virtual ~SceneComponent() override;
-        virtual void Tick(float deltaTime) override;
+
+        //~ Begin of ScaldActorComponent interface
         virtual void OnRegister() override;
         virtual void OnUnregister() override;
+        //~ End of ScaldActorComponent interface
+        virtual void Tick(float deltaTime) override;
     public:
         /** Get the current component-to-world transform for this component */
         const Transform& GetComponentTransform() const;
@@ -167,14 +170,14 @@ namespace Scald
          */
         XMFLOAT3 RelativeScale3D;
 
-    protected:
-        /** True if we have ever updated ComponentToWorld based on RelativeLocation/Rotation/Scale. Used at startup to make sure it is initialized. */
-        uint8_t bComponentToWorldUpdated : 1;
-
-        bool m_bIsDirty = false;
-
     public:
         /** Delegate called when this component is moved */
         MulticastDelegate<SceneComponent*> TransformUpdated;
+
+    protected:
+        bool m_bIsDirty = false;
+
+        /** True if we have ever updated ComponentToWorld based on RelativeLocation/Rotation/Scale. Used at startup to make sure it is initialized. */
+        uint8_t bComponentToWorldUpdated : 1;
     };
 }  // namespace Scald
